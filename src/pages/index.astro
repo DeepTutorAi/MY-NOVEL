@@ -1,17 +1,32 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { getCollection } from "astro:content";
+
+const chapters = (await getCollection("chapters")).sort(
+  (a, b) => a.data.number - b.data.number,
+);
 ---
 
 <BaseLayout
   title="Hvitveldt Lodge"
-  description="บันทึกสยองขวัญแบบ long-form สำหรับตรวจสอบฟอนต์และโครงหน้าแรก"
+  description="สารบัญชั่วคราวสำหรับตรวจสอบการ ingest บทของ Hvitveldt Lodge"
   bodyClass="phase-one"
 >
   <main class="font-check">
     <h1>Hvitveldt Lodge</h1>
     <p>
-      คืนหนึ่งในฤดูหนาว ถนนสีขาวทอดผ่านป่าสนไปยังบ้านพักที่ไม่มีใครควรจำชื่อได้
-      ข้อความนี้มีไว้เพื่อตรวจสอบการโหลดฟอนต์ภาษาไทยและจังหวะการอ่านเท่านั้น
+      สารบัญชั่วคราวสำหรับตรวจสอบว่า Phase 2 แยกทั้ง 18 บทเข้าระบบ content collection แล้ว
     </p>
+    <ul>
+      {
+        chapters.map((chapter) => (
+          <li>
+            <a href={`/chapters/${chapter.id}/`}>
+              {String(chapter.data.number).padStart(2, "0")} — {chapter.data.title}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
   </main>
 </BaseLayout>
