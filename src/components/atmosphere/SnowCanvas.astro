@@ -21,18 +21,26 @@
     };
     let particles: SnowParticle[] = [];
 
-    const particleCap = () => (mobile.matches ? 20 : 40);
+    const isHome = () => document.body.classList.contains("home-page");
+    const particleCap = () => {
+      if (mobile.matches) {
+        return isHome() ? 52 : 24;
+      }
+
+      return isHome() ? 120 : 44;
+    };
 
     const createParticle = (initial = false) => {
       const angle = ((Math.random() * 10 - 5) * Math.PI) / 180;
+      const home = isHome();
 
       return {
         x: Math.random() * width,
         y: initial ? Math.random() * height : -10,
-        radius: 0.5 + Math.random(),
-        driftSpeed: 0.3 + Math.random() * 0.5,
-        driftX: Math.sin(angle) * 0.35,
-        opacity: 0.2 + Math.random() * 0.3,
+        radius: home ? 0.65 + Math.random() * 1.45 : 0.5 + Math.random(),
+        driftSpeed: home ? 0.45 + Math.random() * 1.05 : 0.3 + Math.random() * 0.5,
+        driftX: Math.sin(angle) * (home ? 0.55 : 0.35),
+        opacity: home ? 0.28 + Math.random() * 0.38 : 0.2 + Math.random() * 0.3,
       };
     };
 

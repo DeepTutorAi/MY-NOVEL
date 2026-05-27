@@ -7,9 +7,22 @@
     rgb(14 13 12 / 0.78);
 }
 
+.chapter-shell::after {
+  content: "";
+  position: fixed;
+  inset-inline-end: -8rem;
+  inset-block-end: -10rem;
+  z-index: 0;
+  inline-size: min(34rem, 48vw);
+  block-size: min(34rem, 48vw);
+  background: radial-gradient(circle, rgb(209 108 60 / 0.13), rgb(128 55 43 / 0.06) 38%, transparent 72%);
+  pointer-events: none;
+}
+
 article.chapter {
   position: relative;
   z-index: 1;
+  inline-size: min(var(--measure), calc(100vw - 2rem));
   max-inline-size: var(--measure);
   margin-inline: auto;
   padding: 4rem 1.25rem 6rem;
@@ -104,6 +117,8 @@ article.chapter > p:first-of-type::first-letter {
 
 article.chapter p {
   max-inline-size: min(var(--measure), 100%);
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 
 article.chapter blockquote {
@@ -302,8 +317,48 @@ article.chapter hr {
 }
 
 @media (max-width: 640px) {
+  html,
+  body {
+    max-inline-size: 100%;
+    overflow-x: hidden;
+  }
+
   article.chapter {
+    inline-size: 100vw !important;
+    max-inline-size: 100vw !important;
+    margin-inline: 0;
+    font-size: 16px;
+    line-height: 1.85;
     padding: 3rem 1rem 5rem;
+  }
+
+  article.chapter p,
+  article.chapter blockquote,
+  .journal {
+    inline-size: calc(100vw - 2rem) !important;
+    max-inline-size: calc(100vw - 2rem) !important;
+  }
+
+  article.chapter > p:first-of-type::first-letter {
+    float: none;
+    margin: 0;
+    font: inherit;
+    color: inherit;
+  }
+
+  .dropcap {
+    margin: 0.02em 0.12em -0.08em 0;
+    font-size: 4em;
+  }
+
+  article.chapter p,
+  .journal {
+    line-break: anywhere;
+    word-break: break-all;
+  }
+
+  .chapter-shell::after {
+    display: none;
   }
 
   .chapter-header {

@@ -1,0 +1,130 @@
+<div class="reader-ambience" aria-hidden="true">
+  <div class="reader-candle">
+    <span class="candle-glow"></span>
+    <span class="candle-flame"></span>
+    <span class="candle-wick"></span>
+    <span class="candle-body"></span>
+  </div>
+</div>
+
+<style>
+  .reader-ambience {
+    position: fixed;
+    inset-inline-end: clamp(1rem, 3vw, 2.5rem);
+    inset-block-end: clamp(0.9rem, 3vh, 2rem);
+    z-index: 8;
+    inline-size: 5.5rem;
+    block-size: 7rem;
+    pointer-events: none;
+  }
+
+  .reader-candle {
+    position: absolute;
+    inset-inline-end: 0;
+    inset-block-end: 0;
+    inline-size: 3.4rem;
+    block-size: 5.9rem;
+  }
+
+  .candle-glow {
+    position: absolute;
+    inset-inline: 50% auto;
+    inset-block-end: 1.1rem;
+    inline-size: 7rem;
+    block-size: 7rem;
+    border-radius: 50%;
+    background:
+      radial-gradient(circle, rgb(232 150 80 / 0.18), rgb(232 110 55 / 0.08) 35%, transparent 70%);
+    filter: blur(0.4rem);
+    transform: translateX(-50%);
+    animation: candle-glow 2.4s ease-in-out infinite;
+  }
+
+  .candle-flame {
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-start: 0.65rem;
+    inline-size: 0.9rem;
+    block-size: 1.65rem;
+    border-radius: 60% 40% 55% 45% / 70% 70% 35% 35%;
+    background:
+      radial-gradient(circle at 50% 72%, rgb(255 240 188 / 0.95), transparent 31%),
+      linear-gradient(180deg, rgb(249 206 116 / 0.96), rgb(199 83 45 / 0.72));
+    box-shadow:
+      0 0 0.8rem rgb(232 139 70 / 0.38),
+      0 0 2rem rgb(150 58 40 / 0.2);
+    transform: translateX(-50%) rotate(-2deg);
+    transform-origin: 50% 100%;
+    animation: candle-flicker 1.8s ease-in-out infinite;
+  }
+
+  .candle-wick {
+    position: absolute;
+    inset-inline-start: calc(50% - 1px);
+    inset-block-start: 2.1rem;
+    inline-size: 2px;
+    block-size: 0.62rem;
+    border-radius: 999px;
+    background: rgb(42 30 26 / 0.92);
+  }
+
+  .candle-body {
+    position: absolute;
+    inset-inline-start: 50%;
+    inset-block-end: 0;
+    inline-size: 1.45rem;
+    block-size: 3.4rem;
+    border-radius: 0.35rem 0.35rem 0.18rem 0.18rem;
+    background:
+      linear-gradient(90deg, rgb(93 79 69 / 0.45), rgb(202 188 166 / 0.82) 42%, rgb(118 99 84 / 0.5)),
+      linear-gradient(180deg, rgb(218 205 185), rgb(104 86 72));
+    box-shadow:
+      inset -0.25rem 0 0.5rem rgb(0 0 0 / 0.18),
+      0 0.6rem 1.4rem rgb(0 0 0 / 0.35);
+    transform: translateX(-50%);
+  }
+
+  @keyframes candle-flicker {
+    0%,
+    100% {
+      transform: translateX(-50%) scaleY(1) rotate(-2deg);
+      opacity: 0.9;
+    }
+
+    42% {
+      transform: translateX(-49%) scaleY(1.08) rotate(3deg);
+      opacity: 1;
+    }
+
+    68% {
+      transform: translateX(-52%) scaleY(0.92) rotate(-5deg);
+      opacity: 0.84;
+    }
+  }
+
+  @keyframes candle-glow {
+    0%,
+    100% {
+      opacity: 0.68;
+      transform: translateX(-50%) scale(1);
+    }
+
+    45% {
+      opacity: 0.9;
+      transform: translateX(-50%) scale(1.07);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .reader-ambience {
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .candle-glow,
+    .candle-flame {
+      animation: none;
+    }
+  }
+</style>

@@ -15,7 +15,7 @@ const notFoundChapter = {
 
 <ChapterLayout chapter={notFoundChapter} bodyClass="chapter-page not-found-page act-4">
   <header class="chapter-header">
-    <div class="chapter-kicker">Recovered fragment</div>
+    <div class="chapter-kicker">ชิ้นส่วนที่กู้คืน</div>
     <div class="chapter-number">404</div>
     <h1>หน้านี้ —</h1>
     <Rune seed={404} />
@@ -27,20 +27,20 @@ const notFoundChapter = {
     </p>
   </div>
 
-  <p class="not-found-audio" data-audio-status>audio: off</p>
+  <p class="not-found-audio" data-audio-status>เสียง: ปิด</p>
   <p><a href={withBase("/")}>กลับหน้าหลัก</a></p>
 
   <script>
     const status = document.querySelector("[data-audio-status]");
     const updateStatus = () => {
       if (status instanceof HTMLElement) {
-        status.textContent = `audio: ${localStorage.getItem("hvitveldt:audio:enabled") === "true" ? "on" : "off"}`;
+        status.textContent = `เสียง: ${localStorage.getItem("hvitveldt:audio:enabled") === "true" ? "เปิด" : "ปิด"}`;
       }
     };
 
     updateStatus();
     document.addEventListener("click", (event) => {
-      if (event.target instanceof Element && event.target.closest(".ambient-toggle")) {
+      if (event.target instanceof Element && event.target.closest("[data-ambient-play]")) {
         window.setTimeout(updateStatus, 0);
       }
     });

@@ -1,14 +1,7 @@
-<div class="ambient-player" data-enabled="false">
-  <button
-    class="ambient-toggle"
-    type="button"
-    aria-label="Enable ambient sound"
-    aria-pressed="false"
-    title="Enable ambient sound"
-  >
+<div class="ambient-player" data-enabled="false" data-soundscape="false">
+  <button class="ambient-main" type="button" aria-label="เปิดแผงเสียง" aria-expanded="false">
     <svg class="ambient-icon ambient-icon-off" viewBox="0 0 24 24" aria-hidden="true">
       <path d="M16 9a5 5 0 0 1 0 6" />
-      <path d="M19.1 4.9a10 10 0 0 1 0 14.2" />
       <path d="M3 9v6h4l5 4V5L7 9H3Z" />
       <path d="M22 2 2 22" />
     </svg>
@@ -18,18 +11,68 @@
       <path d="M19 5a10 10 0 0 1 0 14" />
     </svg>
   </button>
-  <label class="ambient-volume">
-    <span class="sr-only">Ambient volume</span>
-    <input aria-label="Ambient volume" type="range" min="0" max="1" step="0.05" />
-  </label>
-  <span class="ambient-hint" role="tooltip">Optional ambience. Off by default.</span>
+
+  <div class="ambient-panel" role="dialog" aria-label="แผงเสียงอ่านนิยาย">
+    <div class="ambient-panel-head">
+      <strong>เสียงประกอบ</strong>
+      <span data-ambient-cue>เพลงช่วงที่ 1: ต้อนรับ</span>
+    </div>
+
+    <div class="ambient-control-row" aria-label="ควบคุมเพลง">
+      <button class="ambient-icon-button" type="button" data-ambient-prev aria-label="เพลงก่อนหน้า">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m11 17-5-5 5-5" />
+          <path d="m18 17-5-5 5-5" />
+        </svg>
+      </button>
+      <button class="ambient-icon-button ambient-play" type="button" data-ambient-play aria-label="เปิดเพลง">
+        <svg class="ambient-play-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5v14l11-7Z" />
+        </svg>
+        <svg class="ambient-pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+          <path d="M8 5v14" />
+          <path d="M16 5v14" />
+        </svg>
+      </button>
+      <button class="ambient-icon-button" type="button" data-ambient-next aria-label="เพลงถัดไป">
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          <path d="m6 17 5-5-5-5" />
+          <path d="m13 17 5-5-5-5" />
+        </svg>
+      </button>
+    </div>
+
+    <label class="ambient-field">
+      <span>ระดับเพลง</span>
+      <input data-ambient-volume aria-label="ระดับเพลง" type="range" min="0" max="1" step="0.05" />
+    </label>
+
+    <label class="ambient-switch">
+      <input data-soundscape-toggle type="checkbox" />
+      <span>เสียงไฟไม้และลม</span>
+    </label>
+
+    <label class="ambient-field">
+      <span>ระดับเสียงไฟ</span>
+      <input data-soundscape-volume aria-label="ระดับเสียงไฟ" type="range" min="0" max="0.7" step="0.05" />
+    </label>
+  </div>
 </div>
 
 <script>
   import { ambientAudio } from "../../scripts/audio-state";
+  import { soundscapeAudio } from "../../scripts/soundscape-state";
+
+  const ACT_LABELS = {
+    1: "ต้อนรับ",
+    2: "รอยร้าว",
+    3: "ดิ่งลง",
+    4: "ละลาย",
+  };
 
   type AmbientWindow = Window & {
     __hvitveldtAmbientPlayerGlobalBound?: boolean;
+    __hvitveldtAmbientDismissBound?: boolean;
   };
 
   const ambientWindow = window as AmbientWindow;
@@ -39,9 +82,14 @@
 
     return {
       root,
-      button: root?.querySelector(".ambient-toggle"),
-      slider: root?.querySelector('input[type="range"]'),
-      hint: root?.querySelector(".ambient-hint"),
+      main: root?.querySelector(".ambient-main"),
+      play: root?.querySelector("[data-ambient-play]"),
+      previous: root?.querySelector("[data-ambient-prev]"),
+      next: root?.querySelector("[data-ambient-next]"),
+      musicSlider: root?.querySelector("[data-ambient-volume]"),
+      soundscapeToggle: root?.querySelector("[data-soundscape-toggle]"),
+      soundscapeSlider: root?.querySelector("[data-soundscape-volume]"),
+      cue: root?.querySelector("[data-ambient-cue]"),
     };
   };
 
@@ -51,74 +99,143 @@
     ambientAudio.setAct(act);
   };
 
-  const setEnabled = (enabled: boolean) => {
-    const { root, button } = getElements();
+  const cueText = () => {
+    const act = ambientAudio.getCurrentAct();
+    return `เพลงช่วงที่ ${act}: ${ACT_LABELS[act]}`;
+  };
+
+  const setPanelOpen = (open: boolean) => {
+    const { root, main } = getElements();
+
+    root?.setAttribute("data-open", String(open));
+
+    if (main instanceof HTMLButtonElement) {
+      main.setAttribute("aria-expanded", String(open));
+      main.setAttribute("aria-label", open ? "ปิดแผงเสียง" : "เปิดแผงเสียง");
+    }
+  };
+
+  const syncState = () => {
+    const { root, play, cue, soundscapeToggle, musicSlider, soundscapeSlider } = getElements();
+    const enabled = ambientAudio.isEnabled();
+    const soundscapeEnabled = soundscapeAudio.isEnabled();
 
     root?.setAttribute("data-enabled", String(enabled));
+    root?.setAttribute("data-soundscape", String(soundscapeEnabled));
 
-    if (button instanceof HTMLButtonElement) {
-      button.setAttribute("aria-pressed", String(enabled));
-      button.setAttribute("aria-label", enabled ? "Disable ambient sound" : "Enable ambient sound");
-      button.title = enabled ? "Disable ambient sound" : "Enable ambient sound";
+    if (play instanceof HTMLButtonElement) {
+      play.setAttribute("aria-label", enabled ? "หยุดเพลง" : "เปิดเพลง");
+      play.setAttribute("aria-pressed", String(enabled));
+    }
+
+    if (cue instanceof HTMLElement) {
+      cue.textContent = cueText();
+    }
+
+    if (soundscapeToggle instanceof HTMLInputElement) {
+      soundscapeToggle.checked = soundscapeEnabled;
+    }
+
+    if (musicSlider instanceof HTMLInputElement) {
+      musicSlider.value = String(ambientAudio.getVolume());
+    }
+
+    if (soundscapeSlider instanceof HTMLInputElement) {
+      soundscapeSlider.value = String(soundscapeAudio.getVolume());
     }
   };
 
   const bindPlayer = () => {
-    const { root, button, slider, hint } = getElements();
+    const { root, main, play, previous, next, musicSlider, soundscapeToggle, soundscapeSlider } = getElements();
 
     if (
       !(root instanceof HTMLElement) ||
-      !(button instanceof HTMLButtonElement) ||
-      !(slider instanceof HTMLInputElement)
+      !(main instanceof HTMLButtonElement) ||
+      !(play instanceof HTMLButtonElement) ||
+      !(previous instanceof HTMLButtonElement) ||
+      !(next instanceof HTMLButtonElement) ||
+      !(musicSlider instanceof HTMLInputElement) ||
+      !(soundscapeToggle instanceof HTMLInputElement) ||
+      !(soundscapeSlider instanceof HTMLInputElement)
     ) {
       return;
     }
 
     ambientAudio.init();
-    slider.value = String(ambientAudio.getVolume());
-    setEnabled(ambientAudio.isEnabled());
+    soundscapeAudio.init();
     applyActFromPage();
+    syncState();
 
-    if (button.dataset.ambientBound === "true") {
+    if (root.dataset.ambientBound === "true") {
       return;
     }
 
-    button.dataset.ambientBound = "true";
+    root.dataset.ambientBound = "true";
 
-    button.addEventListener("click", async () => {
+    main.addEventListener("click", () => {
+      setPanelOpen(root.getAttribute("data-open") !== "true");
+    });
+
+    play.addEventListener("click", async () => {
       if (ambientAudio.isEnabled()) {
         ambientAudio.disable();
-        setEnabled(false);
+        syncState();
         return;
       }
 
       applyActFromPage();
       const enabled = await ambientAudio.enable();
-      setEnabled(enabled);
+      root.setAttribute("data-enabled", String(enabled));
+      syncState();
     });
 
-    slider.addEventListener("input", () => {
-      ambientAudio.setVolume(Number(slider.value));
+    previous.addEventListener("click", () => {
+      ambientAudio.previousAct();
+      syncState();
     });
 
-    root.addEventListener("pointerenter", () => {
-      if (localStorage.getItem("hvitveldt:audio:hint-seen") === "true") {
-        return;
+    next.addEventListener("click", () => {
+      ambientAudio.nextAct();
+      syncState();
+    });
+
+    musicSlider.addEventListener("input", () => {
+      ambientAudio.setVolume(Number(musicSlider.value));
+      syncState();
+    });
+
+    soundscapeToggle.addEventListener("change", async () => {
+      if (soundscapeToggle.checked) {
+        await soundscapeAudio.enable();
+      } else {
+        soundscapeAudio.disable();
       }
 
-      root.setAttribute("data-show-hint", "true");
+      syncState();
     });
 
-    root.addEventListener("pointerleave", () => {
-      if (root.getAttribute("data-show-hint") === "true") {
-        localStorage.setItem("hvitveldt:audio:hint-seen", "true");
-      }
-
-      root.removeAttribute("data-show-hint");
+    soundscapeSlider.addEventListener("input", () => {
+      soundscapeAudio.setVolume(Number(soundscapeSlider.value));
+      syncState();
     });
 
-    if (hint instanceof HTMLElement) {
-      hint.hidden = localStorage.getItem("hvitveldt:audio:hint-seen") === "true";
+    if (!ambientWindow.__hvitveldtAmbientDismissBound) {
+      ambientWindow.__hvitveldtAmbientDismissBound = true;
+
+      document.addEventListener("click", (event) => {
+        const { root: currentRoot } = getElements();
+        const target = event.target;
+
+        if (currentRoot instanceof HTMLElement && target instanceof Node && !currentRoot.contains(target)) {
+          setPanelOpen(false);
+        }
+      });
+
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape") {
+          setPanelOpen(false);
+        }
+      });
     }
   };
 
@@ -127,7 +244,7 @@
 
     document.addEventListener("astro:page-load", bindPlayer);
     window.addEventListener("hvitveldt:audio-error", () => {
-      setEnabled(false);
+      syncState();
     });
   }
 
@@ -137,31 +254,49 @@
 <style>
   .ambient-player {
     position: relative;
-    z-index: 1;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
+    z-index: 3;
     color: var(--ink-dim);
   }
 
-  .ambient-toggle {
+  .ambient-main,
+  .ambient-icon-button {
     display: grid;
     place-items: center;
-    width: 2.25rem;
-    height: 2.25rem;
     padding: 0;
     color: inherit;
+    border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+    border-radius: 999px;
+    background: color-mix(in oklab, var(--paper) 72%, transparent);
   }
 
-  .ambient-toggle:focus-visible,
-  .ambient-volume input:focus-visible {
+  .ambient-main {
+    inline-size: 2.4rem;
+    block-size: 2.4rem;
+  }
+
+  .ambient-icon-button {
+    inline-size: 2.45rem;
+    block-size: 2.45rem;
+  }
+
+  .ambient-main:hover,
+  .ambient-icon-button:hover {
+    color: var(--ink);
+    border-color: color-mix(in oklab, var(--ink) 22%, transparent);
+  }
+
+  .ambient-main:focus-visible,
+  .ambient-icon-button:focus-visible,
+  .ambient-field input:focus-visible,
+  .ambient-switch input:focus-visible {
     outline: 2px solid var(--accent);
     outline-offset: 3px;
   }
 
-  .ambient-icon {
-    width: 1.25rem;
-    height: 1.25rem;
+  .ambient-icon,
+  .ambient-icon-button svg {
+    inline-size: 1.18rem;
+    block-size: 1.18rem;
     fill: none;
     stroke: currentColor;
     stroke-linecap: round;
@@ -169,7 +304,8 @@
     stroke-width: 1.75;
   }
 
-  .ambient-icon-on {
+  .ambient-icon-on,
+  .ambient-pause-icon {
     display: none;
   }
 
@@ -177,61 +313,99 @@
     color: var(--ink);
   }
 
-  .ambient-player[data-enabled="true"] .ambient-icon-on {
+  .ambient-player[data-enabled="true"] .ambient-icon-on,
+  .ambient-player[data-enabled="true"] .ambient-pause-icon {
     display: block;
   }
 
-  .ambient-player[data-enabled="true"] .ambient-icon-off {
+  .ambient-player[data-enabled="true"] .ambient-icon-off,
+  .ambient-player[data-enabled="true"] .ambient-play-icon {
     display: none;
   }
 
-  .ambient-volume {
-    width: 0;
-    overflow: hidden;
+  .ambient-panel {
+    position: absolute;
+    inset-block-start: calc(100% + 0.55rem);
+    inset-inline-end: 0;
+    width: min(18.5rem, calc(100vw - 1rem));
+    padding: 1rem;
+    border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+    background: color-mix(in oklab, var(--paper) 93%, black);
+    box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.42);
     opacity: 0;
-    transition: width 150ms ease-out, opacity 150ms ease-out;
+    pointer-events: none;
+    transform: translateY(-0.35rem);
+    transition: opacity 150ms ease-out, transform 150ms ease-out;
   }
 
-  .ambient-player[data-enabled="true"]:hover .ambient-volume,
-  .ambient-player[data-enabled="true"]:focus-within .ambient-volume {
-    width: 5.25rem;
+  .ambient-player[data-open="true"] .ambient-panel {
     opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
   }
 
-  .ambient-volume input {
-    width: 5rem;
+  .ambient-panel-head {
+    display: grid;
+    gap: 0.15rem;
+    padding-block-end: 0.8rem;
+    border-block-end: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+  }
+
+  .ambient-panel-head strong {
+    color: var(--ink);
+    font-family: var(--font-display);
+    font-size: 1.25rem;
+    font-weight: 400;
+  }
+
+  .ambient-panel-head span,
+  .ambient-field span,
+  .ambient-switch span {
+    color: var(--ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .ambient-control-row {
+    display: flex;
+    justify-content: center;
+    gap: 0.6rem;
+    padding-block: 1rem;
+  }
+
+  .ambient-field {
+    display: grid;
+    gap: 0.4rem;
+    margin-block-start: 0.65rem;
+  }
+
+  .ambient-field input {
+    inline-size: 100%;
     accent-color: var(--rune);
     cursor: pointer;
   }
 
-  .ambient-hint {
-    position: absolute;
-    inset-block-start: calc(100% + 0.35rem);
-    inset-inline-end: 0;
-    width: max-content;
-    max-width: 12rem;
-    padding: 0.35rem 0.5rem;
-    background: var(--paper-2);
-    color: var(--ink-dim);
-    font-family: var(--font-mono);
-    font-size: 0.68rem;
-    opacity: 0;
-    pointer-events: none;
+  .ambient-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin-block-start: 1rem;
+    padding-block-start: 0.85rem;
+    border-block-start: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
   }
 
-  .ambient-player[data-show-hint="true"] .ambient-hint:not([hidden]) {
-    opacity: 1;
+  .ambient-switch input {
+    inline-size: 1rem;
+    block-size: 1rem;
+    accent-color: var(--accent);
   }
 
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
-    padding: 0;
-    margin: -1px;
-    overflow: hidden;
-    clip: rect(0, 0, 0, 0);
-    white-space: nowrap;
-    border: 0;
+  @media (max-width: 700px) {
+    .ambient-panel {
+      position: fixed;
+      inset-block-start: calc(var(--topbar-height) + 0.45rem);
+      inset-inline: 0.5rem;
+      width: auto;
+    }
   }
 </style>

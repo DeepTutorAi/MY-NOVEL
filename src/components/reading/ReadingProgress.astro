@@ -6,15 +6,59 @@
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
   const progress = document.querySelector(".reading-progress span");
   const article = document.querySelector("article.chapter");
+  const storageKey = "hvitveldt:reading:last";
+  const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
 
-  if (!media.matches && progress instanceof HTMLElement && article instanceof HTMLElement) {
+  if (article instanceof HTMLElement) {
     let ticking = false;
+    let lastSavedAt = 0;
+    const chapterId = article.dataset.chapterId ?? "";
+    const chapterKey = chapterId ? `hvitveldt:reading:chapter:${chapterId}` : "";
 
-    const update = () => {
+    const getRatio = () => {
       const rect = article.getBoundingClientRect();
       const scrollable = Math.max(1, rect.height - window.innerHeight);
       const read = Math.min(Math.max(-rect.top, 0), scrollable);
-      progress.style.transform = `scaleX(${read / scrollable})`;
+      return read / scrollable;
+    };
+
+    const saveProgress = (ratio: number) => {
+      if (!chapterId || ratio < 0.005) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastSavedAt < 750 && ratio < 0.99) {
+        return;
+      }
+
+      lastSavedAt = now;
+
+      const saved = {
+        chapterId,
+        chapterNumber: article.dataset.chapter ?? "",
+        chapterTitle: article.dataset.chapterTitle ?? "",
+        path: window.location.pathname,
+        progress: Number(ratio.toFixed(4)),
+        updatedAt: now,
+      };
+
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(saved));
+        localStorage.setItem(chapterKey, JSON.stringify(saved));
+      } catch {
+        // localStorage can fail in private or restricted browser modes.
+      }
+    };
+
+    const update = () => {
+      const ratio = getRatio();
+
+      if (!media.matches && progress instanceof HTMLElement) {
+        progress.style.transform = `scaleX(${ratio})`;
+      }
+
+      saveProgress(ratio);
       ticking = false;
     };
 
@@ -27,6 +71,32 @@
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
+
+    if (resumeRequested && chapterKey) {
+      window.setTimeout(() => {
+        try {
+          const raw = localStorage.getItem(chapterKey);
+          const saved = raw ? JSON.parse(raw) : null;
+          const savedProgress = Number(saved?.progress);
+
+          if (!Number.isFinite(savedProgress) || savedProgress <= 0.01 || savedProgress >= 0.99) {
+            return;
+          }
+
+          const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
+          const target = article.offsetTop + scrollable * savedProgress;
+          window.scrollTo({
+            top: target,
+            behavior: media.matches ? "auto" : "smooth",
+          });
+          history.replaceState(null, "", window.location.pathname + window.location.hash);
+        } catch {
+          return;
+        }
+      }, 120);
+    }
+
+    window.addEventListener("pagehide", () => saveProgress(getRatio()));
     update();
   }
 </script>

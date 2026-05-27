@@ -1,4 +1,4 @@
-Hvitveldt Lodge
+﻿ฮวิตเวลต์ ลอดจ์
 
 Built as a static Thai horror reading site.
 Typography: self-hosted @fontsource packages.

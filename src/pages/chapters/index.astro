@@ -12,12 +12,12 @@ const chapters = (await getCollection("chapters")).sort(
 ---
 
 <BaseLayout
-  title="Chapters — Hvitveldt Lodge"
-  description="สารบัญ Hvitveldt Lodge แบ่งตาม act"
+  title="สารบัญ — ฮวิตเวลต์ ลอดจ์"
+  description="สารบัญฮวิตเวลต์ ลอดจ์ แบ่งตามช่วง"
   bodyClass="toc-page"
 >
   <main class="toc">
-    <h1>Hvitveldt Lodge</h1>
+    <h1>ฮวิตเวลต์ ลอดจ์</h1>
     <p class="toc-intro">เลือกอ่านตามบท บทอ่านจะเปิดในหน้าที่จัดสำหรับการอ่านยาวโดยเฉพาะ</p>
 
     {
@@ -27,13 +27,13 @@ const chapters = (await getCollection("chapters")).sort(
         return (
           <section class="toc-act" aria-labelledby={`act-${act.number}`}>
             <h2 id={`act-${act.number}`}>
-              Act {roman[index]} · {act.title}
+              ช่วง {roman[index]} · {act.title}
             </h2>
             <ul class="toc-list">
               {actChapters.map((chapter) => (
                 <li>
                   <a class="toc-row" href={withBase(`/chapters/${chapter.id}/`)}>
-                    <span class="toc-row-number">Ch {chapter.data.number}</span>
+                    <span class="toc-row-number">บทที่ {chapter.data.number}</span>
                     <span>
                       <span class="toc-row-title">{chapter.data.title}</span>
                       {chapter.data.thaiTitle && (

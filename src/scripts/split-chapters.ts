@@ -204,7 +204,7 @@ async function main() {
 
   for (let expected = 1; expected <= 18; expected += 1) {
     if (!seenNumbers.has(expected)) {
-      throw new Error(`Missing chapter ${expected}.`);
+      throw new Error(`Missing บทที่ ${expected}.`);
     }
   }
 
@@ -222,7 +222,7 @@ async function main() {
 
   const puzzleMarkdown = [
     "---",
-    'title: "Puzzle Map"',
+    'title: "แผนที่ปริศนา"',
     'slug: "puzzle-map"',
     "---",
     "",

@@ -11,11 +11,11 @@ interface Props {
 const { previous, next, isFinalChapter = false } = Astro.props;
 ---
 
-<nav class="chapter-nav" aria-label="Chapter navigation">
+<nav class="chapter-nav" aria-label="นำทางบท">
   <div>
     {
       previous ? (
-        <a href={withBase(`/chapters/${previous.id}/`)}>← Ch {previous.data.number}: {previous.data.title}</a>
+        <a href={withBase(`/chapters/${previous.id}/`)}>← บทที่ {previous.data.number}: {previous.data.title}</a>
       ) : (
         <span aria-hidden="true"></span>
       )
@@ -29,10 +29,10 @@ const { previous, next, isFinalChapter = false } = Astro.props;
             <path d="M12 4 21 20H3L12 4Z" />
             <path d="M12 9v5M12 17h.01" />
           </svg>
-          Puzzle Map →
+          แผนที่ปริศนา →
         </a>
       ) : next ? (
-        <a href={withBase(`/chapters/${next.id}/`)}>Ch {next.data.number}: {next.data.title} →</a>
+        <a href={withBase(`/chapters/${next.id}/`)}>บทที่ {next.data.number}: {next.data.title} →</a>
       ) : null
     }
   </div>

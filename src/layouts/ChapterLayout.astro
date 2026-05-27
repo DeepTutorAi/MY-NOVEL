@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
+import ReaderAmbience from "../components/reading/ReaderAmbience.astro";
 import "../styles/chapter.css";
 
 type ChapterLayoutData = CollectionEntry<"chapters"> | {
@@ -19,12 +20,15 @@ interface Props {
 
 const { chapter, bodyClass } = Astro.props;
 const chapterNumber = chapter.data.number;
-const chapterPrefix = typeof chapterNumber === "number" ? `Ch ${chapterNumber} · ` : "";
-const titleSeparator = chapter.data.title.trim().endsWith("—") ? " " : " — ";
-const pageTitle = `${chapterPrefix}${chapter.data.title}${titleSeparator}Hvitveldt Lodge`;
+const chapterId = "id" in chapter ? chapter.id : "";
+const siteTitle = "ฮวิตเวลต์ ลอดจ์";
+const pageTitle =
+  typeof chapterNumber === "number"
+    ? `บทที่ ${chapterNumber} · ${chapter.data.title} — ${siteTitle}`
+    : `${chapter.data.title} — ${siteTitle}`;
 const description =
   chapter.data.summary ||
-  (typeof chapterNumber === "number" ? `บทที่ ${chapterNumber} ของ Hvitveldt Lodge` : "Hvitveldt Lodge");
+  (typeof chapterNumber === "number" ? `บทที่ ${chapterNumber} ของ ${siteTitle}` : siteTitle);
 ---
 
 <BaseLayout
@@ -32,8 +36,15 @@ const description =
   description={description}
   bodyClass={bodyClass ?? `chapter-page act-${chapter.data.act}`}
 >
+  <ReaderAmbience />
   <main class="chapter-shell">
-    <article class="chapter" data-chapter={String(chapterNumber)} data-act={chapter.data.act}>
+    <article
+      class="chapter"
+      data-chapter={String(chapterNumber)}
+      data-chapter-id={chapterId}
+      data-chapter-title={chapter.data.title}
+      data-act={chapter.data.act}
+    >
       <slot />
     </article>
   </main>

@@ -47,6 +47,24 @@ export class AmbientAudio {
     return this.volume;
   }
 
+  getCurrentAct() {
+    return this.currentAct;
+  }
+
+  nextAct() {
+    const currentIndex = TRACKS.indexOf(this.currentAct);
+    const next = TRACKS[(currentIndex + 1) % TRACKS.length];
+    this.setAct(next);
+    return next;
+  }
+
+  previousAct() {
+    const currentIndex = TRACKS.indexOf(this.currentAct);
+    const previous = TRACKS[(currentIndex - 1 + TRACKS.length) % TRACKS.length];
+    this.setAct(previous);
+    return previous;
+  }
+
   async enable() {
     this.init();
 
