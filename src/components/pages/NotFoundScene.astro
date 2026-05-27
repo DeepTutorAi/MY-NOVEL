@@ -1,6 +1,7 @@
 ---
 import ChapterLayout from "../../layouts/ChapterLayout.astro";
 import Rune from "../marks/Rune.astro";
+import { withBase } from "../../utils/base-path";
 
 const notFoundChapter = {
   data: {
@@ -27,7 +28,7 @@ const notFoundChapter = {
   </div>
 
   <p class="not-found-audio" data-audio-status>audio: off</p>
-  <p><a href="/">กลับหน้าหลัก</a></p>
+  <p><a href={withBase("/")}>กลับหน้าหลัก</a></p>
 
   <script>
     const status = document.querySelector("[data-audio-status]");

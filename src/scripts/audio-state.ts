@@ -4,6 +4,7 @@ const ENABLED_KEY = "hvitveldt:audio:enabled";
 const VOLUME_KEY = "hvitveldt:audio:volume";
 const DEFAULT_VOLUME = 0.4;
 const TRACKS = [1, 2, 3, 4] as const;
+const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
 type ActNumber = (typeof TRACKS)[number];
 
@@ -133,7 +134,7 @@ export class AmbientAudio {
       }
 
       const howl = new Howl({
-        src: [`/assets/audio/ambient-act${act}.ogg`, `/assets/audio/ambient-act${act}.mp3`],
+        src: [assetPath(`/assets/audio/ambient-act${act}.ogg`), assetPath(`/assets/audio/ambient-act${act}.mp3`)],
         loop: true,
         html5: false,
         preload: true,

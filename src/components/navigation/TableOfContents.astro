@@ -1,4 +1,8 @@
-<a class="toc-trigger" href="/chapters/" aria-label="Table of contents" title="Table of contents">
+---
+import { withBase } from "../../utils/base-path";
+---
+
+<a class="toc-trigger" href={withBase("/chapters/")} aria-label="Table of contents" title="Table of contents">
   <svg viewBox="0 0 24 24" aria-hidden="true">
     <path d="M12 7v14" />
     <path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H12v18H5.5A2.5 2.5 0 0 0 3 18.5Z" />

@@ -1,5 +1,6 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
+import { withBase } from "../utils/base-path";
 ---
 
 <BaseLayout
@@ -23,12 +24,12 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <p>
         ไฟล์นี้ถูกส่งต่อมาเหมือนของที่ไม่ควรอยู่ในกล่องจดหมายใคร ไม่มีคำอธิบายยาว ไม่มีคำเตือนมากกว่าที่ควรมี มีเพียงชื่อสถานที่ วันที่ และเสียงของคนหนึ่งที่ยังยืนยันว่าเธอเป็นคนเขียนเองทั้งหมด
       </p>
-      <a class="home-start" href="/chapters/01-arrival/">เริ่ม → บทที่ ๑</a>
+      <a class="home-start" href={withBase("/chapters/01-arrival/")}>เริ่ม → บทที่ ๑</a>
       <p class="home-secondary-links">
-        หากสนใจ — <a href="/chapters/">Table of Contents</a> / <a href="/origin/">Origin</a> / <a href="/puzzle/">Puzzle Map</a>
+        หากสนใจ — <a href={withBase("/chapters/")}>Table of Contents</a> / <a href={withBase("/origin/")}>Origin</a> / <a href={withBase("/puzzle/")}>Puzzle Map</a>
       </p>
       <footer class="site-footer">
-        © 2025 Hvitveldt Lodge · <a href="/origin/">attribution</a>
+        © 2025 Hvitveldt Lodge · <a href={withBase("/origin/")}>attribution</a>
       </footer>
     </section>
   </main>

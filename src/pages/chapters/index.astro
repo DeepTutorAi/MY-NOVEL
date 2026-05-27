@@ -2,6 +2,7 @@
 import { getCollection } from "astro:content";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { ACTS } from "../../utils/act-for-chapter";
+import { withBase } from "../../utils/base-path";
 import "../../styles/chapter.css";
 
 const roman = ["I", "II", "III", "IV"];
@@ -31,7 +32,7 @@ const chapters = (await getCollection("chapters")).sort(
             <ul class="toc-list">
               {actChapters.map((chapter) => (
                 <li>
-                  <a class="toc-row" href={`/chapters/${chapter.id}/`}>
+                  <a class="toc-row" href={withBase(`/chapters/${chapter.id}/`)}>
                     <span class="toc-row-number">Ch {chapter.data.number}</span>
                     <span>
                       <span class="toc-row-title">{chapter.data.title}</span>

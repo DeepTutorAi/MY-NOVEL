@@ -64,7 +64,8 @@ function rehypeRuneDividers() {
 }
 
 export default defineConfig({
-  site: "https://hvitveldt-lodge.pages.dev",
+  site: "https://deeptutorai.github.io",
+  base: "/MY-NOVEL",
   markdown: {
     remarkPlugins: [remarkDirective, remarkJournalDirective],
     rehypePlugins: [rehypeRuneDividers],

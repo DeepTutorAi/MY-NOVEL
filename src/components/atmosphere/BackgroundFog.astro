@@ -1,7 +1,15 @@
+---
+import { withBase } from "../../utils/base-path";
+
+const heroAvif = withBase("/assets/images/hero-forest.avif");
+const heroWebp = withBase("/assets/images/hero-forest.webp");
+const heroJpg = withBase("/assets/images/hero-forest.jpg");
+---
+
 <picture class="background-fog" aria-hidden="true">
-  <source srcset="/assets/images/hero-forest.avif" type="image/avif" />
-  <source srcset="/assets/images/hero-forest.webp" type="image/webp" />
-  <img src="/assets/images/hero-forest.jpg" alt="" loading="eager" decoding="async" />
+  <source srcset={heroAvif} type="image/avif" />
+  <source srcset={heroWebp} type="image/webp" />
+  <img src={heroJpg} alt="" loading="eager" decoding="async" />
 </picture>
 
 <style>

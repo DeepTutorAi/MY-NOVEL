@@ -25,22 +25,24 @@ pnpm build
 
 ## Deploy
 
-Recommended target: Cloudflare Pages.
+Recommended target: GitHub Pages.
+
+Live URL after the first successful Pages deployment:
+
+```text
+https://deeptutorai.github.io/MY-NOVEL/
+```
 
 One-time setup:
 
-1. Push this repository to GitHub or GitLab.
-2. Create a Cloudflare Pages project.
-3. Use framework preset `Astro`, build command `pnpm build`, output directory `dist`, and `NODE_VERSION=20`.
+1. Push this repository to `DeepTutorAi/MY-NOVEL`.
+2. In GitHub, open `Settings` -> `Pages`.
+3. Set `Source` to `GitHub Actions`.
 
-Manual deploy after login:
+Deploy:
 
 ```bash
-npx wrangler login
-pnpm build
-npx wrangler pages deploy dist --project-name hvitveldt-lodge
+git push origin main
 ```
 
-For non-interactive deploys, set `CLOUDFLARE_API_TOKEN` with Pages deploy permissions before running the deploy command.
-
-Wrangler Pages configuration lives in `wrangler.jsonc`, and static cache headers are defined in `public/_headers`. Pull requests and pushes run `pnpm check` and `pnpm build` through GitHub Actions.
+The GitHub Actions workflow runs `pnpm check`, builds the Astro site, uploads `dist`, and deploys it through GitHub Pages. The project is configured with `base: "/MY-NOVEL"` so links and assets work under the repository path.

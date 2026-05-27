@@ -1,10 +1,11 @@
 ---
 import AmbientPlayer from "../audio/AmbientPlayer.astro";
 import TableOfContents from "./TableOfContents.astro";
+import { withBase } from "../../utils/base-path";
 ---
 
 <header class="topbar" data-visible="true">
-  <a class="topbar-mark" href="/" aria-label="Hvitveldt home">Hvitveldt</a>
+  <a class="topbar-mark" href={withBase("/")} aria-label="Hvitveldt home">Hvitveldt</a>
   <nav class="topbar-actions" aria-label="Site">
     <TableOfContents />
     <AmbientPlayer />
