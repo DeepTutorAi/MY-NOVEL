@@ -4,6 +4,7 @@ import { ClientRouter } from "astro:transitions";
 import BackgroundFog from "../components/atmosphere/BackgroundFog.astro";
 import GrainOverlay from "../components/atmosphere/GrainOverlay.astro";
 import SnowCanvas from "../components/atmosphere/SnowCanvas.astro";
+import AmbientPlayer from "../components/audio/AmbientPlayer.astro";
 
 interface Props {
   title: string;
@@ -35,6 +36,7 @@ const canonical = Astro.url.href;
     <BackgroundFog />
     <GrainOverlay />
     <SnowCanvas />
+    <AmbientPlayer />
     <slot />
     <script is:inline>
       (() => {

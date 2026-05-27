@@ -1,3 +1,208 @@
----
-/* Future Howler-powered ambient audio control. */
----
+<div class="ambient-player" data-enabled="false">
+  <button
+    class="ambient-toggle"
+    type="button"
+    aria-label="Enable ambient sound"
+    aria-pressed="false"
+    title="Enable ambient sound"
+  >
+    <svg class="ambient-icon ambient-icon-off" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M16 9a5 5 0 0 1 0 6" />
+      <path d="M19.1 4.9a10 10 0 0 1 0 14.2" />
+      <path d="M3 9v6h4l5 4V5L7 9H3Z" />
+      <path d="M22 2 2 22" />
+    </svg>
+    <svg class="ambient-icon ambient-icon-on" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
+      <path d="M15.5 8.5a5 5 0 0 1 0 7" />
+      <path d="M19 5a10 10 0 0 1 0 14" />
+    </svg>
+  </button>
+  <label class="ambient-volume">
+    <span class="sr-only">Ambient volume</span>
+    <input aria-label="Ambient volume" type="range" min="0" max="1" step="0.05" />
+  </label>
+  <span class="ambient-hint" role="tooltip">Optional ambience. Off by default.</span>
+</div>
+
+<script>
+  import { ambientAudio } from "../../scripts/audio-state";
+
+  const root = document.querySelector(".ambient-player");
+  const button = root?.querySelector(".ambient-toggle");
+  const slider = root?.querySelector('input[type="range"]');
+  const hint = root?.querySelector(".ambient-hint");
+
+  const applyActFromPage = () => {
+    const article = document.querySelector("article.chapter");
+    const act = Number(article?.getAttribute("data-act") ?? "1");
+    ambientAudio.setAct(act);
+  };
+
+  const setEnabled = (enabled: boolean) => {
+    root?.setAttribute("data-enabled", String(enabled));
+
+    if (button instanceof HTMLButtonElement) {
+      button.setAttribute("aria-pressed", String(enabled));
+      button.setAttribute("aria-label", enabled ? "Disable ambient sound" : "Enable ambient sound");
+      button.title = enabled ? "Disable ambient sound" : "Enable ambient sound";
+    }
+  };
+
+  if (
+    root instanceof HTMLElement &&
+    button instanceof HTMLButtonElement &&
+    slider instanceof HTMLInputElement
+  ) {
+    ambientAudio.init();
+    slider.value = String(ambientAudio.getVolume());
+    setEnabled(false);
+    applyActFromPage();
+
+    document.addEventListener("astro:page-load", applyActFromPage);
+
+    button.addEventListener("click", async () => {
+      if (ambientAudio.isEnabled()) {
+        ambientAudio.disable();
+        setEnabled(false);
+        return;
+      }
+
+      applyActFromPage();
+      const enabled = await ambientAudio.enable();
+      setEnabled(enabled);
+    });
+
+    slider.addEventListener("input", () => {
+      ambientAudio.setVolume(Number(slider.value));
+    });
+
+    root.addEventListener("pointerenter", () => {
+      if (localStorage.getItem("hvitveldt:audio:hint-seen") === "true") {
+        return;
+      }
+
+      root.setAttribute("data-show-hint", "true");
+    });
+
+    root.addEventListener("pointerleave", () => {
+      if (root.getAttribute("data-show-hint") === "true") {
+        localStorage.setItem("hvitveldt:audio:hint-seen", "true");
+      }
+
+      root.removeAttribute("data-show-hint");
+    });
+
+    window.addEventListener("hvitveldt:audio-error", () => {
+      setEnabled(false);
+    });
+
+    if (hint instanceof HTMLElement) {
+      hint.hidden = localStorage.getItem("hvitveldt:audio:hint-seen") === "true";
+    }
+  }
+</script>
+
+<style>
+  .ambient-player {
+    position: fixed;
+    inset-block-start: 1rem;
+    inset-inline-end: 1rem;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--ink-dim);
+  }
+
+  .ambient-toggle {
+    display: grid;
+    place-items: center;
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0;
+    color: inherit;
+  }
+
+  .ambient-toggle:focus-visible,
+  .ambient-volume input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .ambient-icon {
+    width: 1.25rem;
+    height: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+  }
+
+  .ambient-icon-on {
+    display: none;
+  }
+
+  .ambient-player[data-enabled="true"] {
+    color: var(--ink);
+  }
+
+  .ambient-player[data-enabled="true"] .ambient-icon-on {
+    display: block;
+  }
+
+  .ambient-player[data-enabled="true"] .ambient-icon-off {
+    display: none;
+  }
+
+  .ambient-volume {
+    width: 0;
+    overflow: hidden;
+    opacity: 0;
+    transition: width 150ms ease-out, opacity 150ms ease-out;
+  }
+
+  .ambient-player[data-enabled="true"]:hover .ambient-volume,
+  .ambient-player[data-enabled="true"]:focus-within .ambient-volume {
+    width: 5.25rem;
+    opacity: 1;
+  }
+
+  .ambient-volume input {
+    width: 5rem;
+    accent-color: var(--rune);
+    cursor: pointer;
+  }
+
+  .ambient-hint {
+    position: absolute;
+    inset-block-start: calc(100% + 0.35rem);
+    inset-inline-end: 0;
+    width: max-content;
+    max-width: 12rem;
+    padding: 0.35rem 0.5rem;
+    background: var(--paper-2);
+    color: var(--ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .ambient-player[data-show-hint="true"] .ambient-hint:not([hidden]) {
+    opacity: 1;
+  }
+
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+</style>
