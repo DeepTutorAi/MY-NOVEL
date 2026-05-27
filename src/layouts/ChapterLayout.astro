@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import ReaderAmbience from "../components/reading/ReaderAmbience.astro";
+import { musicCueForChapter } from "../data/audio-cues";
 import "../styles/chapter.css";
 
 type ChapterLayoutData = CollectionEntry<"chapters"> | {
@@ -21,6 +22,7 @@ interface Props {
 const { chapter, bodyClass } = Astro.props;
 const chapterNumber = chapter.data.number;
 const chapterId = "id" in chapter ? chapter.id : "";
+const initialCueId = typeof chapterNumber === "number" ? musicCueForChapter(chapterNumber).id : "snow-forest";
 const siteTitle = "ฮวิตเวลต์ ลอดจ์";
 const pageTitle =
   typeof chapterNumber === "number"
@@ -44,6 +46,7 @@ const description =
       data-chapter-id={chapterId}
       data-chapter-title={chapter.data.title}
       data-act={chapter.data.act}
+      data-audio-cue={initialCueId}
     >
       <slot />
     </article>

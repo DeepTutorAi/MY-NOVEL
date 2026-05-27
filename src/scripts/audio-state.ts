@@ -1,12 +1,11 @@
 import { Howl, Howler } from "howler";
+import { DEFAULT_MUSIC_CUE_ID, MUSIC_CUES, type MusicCueId } from "../data/audio-cues";
 
 const ENABLED_KEY = "hvitveldt:audio:enabled";
 const VOLUME_KEY = "hvitveldt:audio:volume";
 const DEFAULT_VOLUME = 0.4;
-const TRACKS = [1, 2, 3, 4] as const;
+const TRACKS = MUSIC_CUES.map((cue) => cue.id);
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
-
-type ActNumber = (typeof TRACKS)[number];
 
 type TrackState = {
   howl: Howl;
@@ -14,8 +13,8 @@ type TrackState = {
 };
 
 export class AmbientAudio {
-  private tracks = new Map<ActNumber, TrackState>();
-  private currentAct: ActNumber = 1;
+  private tracks = new Map<MusicCueId, TrackState>();
+  private currentCue: MusicCueId = DEFAULT_MUSIC_CUE_ID;
   private enabled = false;
   private volume = DEFAULT_VOLUME;
   private wasPlayingBeforeHidden = false;
@@ -34,7 +33,7 @@ export class AmbientAudio {
         this.wasPlayingBeforeHidden = this.enabled;
         this.pauseCurrent();
       } else if (this.wasPlayingBeforeHidden && this.enabled) {
-        this.playAct(this.currentAct, 0);
+        this.playCue(this.currentCue, 0);
       }
     });
   }
@@ -47,21 +46,21 @@ export class AmbientAudio {
     return this.volume;
   }
 
-  getCurrentAct() {
-    return this.currentAct;
+  getCurrentCue() {
+    return this.currentCue;
   }
 
-  nextAct() {
-    const currentIndex = TRACKS.indexOf(this.currentAct);
+  nextCue() {
+    const currentIndex = TRACKS.indexOf(this.currentCue);
     const next = TRACKS[(currentIndex + 1) % TRACKS.length];
-    this.setAct(next);
+    this.setCue(next);
     return next;
   }
 
-  previousAct() {
-    const currentIndex = TRACKS.indexOf(this.currentAct);
+  previousCue() {
+    const currentIndex = TRACKS.indexOf(this.currentCue);
     const previous = TRACKS[(currentIndex - 1 + TRACKS.length) % TRACKS.length];
-    this.setAct(previous);
+    this.setCue(previous);
     return previous;
   }
 
@@ -73,7 +72,7 @@ export class AmbientAudio {
       this.ensureTracks();
       this.enabled = true;
       localStorage.setItem(ENABLED_KEY, "true");
-      this.playAct(this.currentAct, 4000);
+      this.playCue(this.currentCue, 4000);
       return true;
     } catch (error) {
       console.warn("Ambient audio failed to enable.", error);
@@ -107,19 +106,19 @@ export class AmbientAudio {
     }
   }
 
-  setAct(act: number) {
-    if (!this.isActNumber(act)) {
+  setCue(cueId: string) {
+    if (!this.isCueId(cueId)) {
       return;
     }
 
-    const previousAct = this.currentAct;
-    this.currentAct = act;
+    const previousCue = this.currentCue;
+    this.currentCue = cueId;
 
-    if (!this.enabled || previousAct === act) {
+    if (!this.enabled || previousCue === cueId) {
       return;
     }
 
-    const previous = this.tracks.get(previousAct);
+    const previous = this.tracks.get(previousCue);
 
     if (previous?.soundId !== undefined) {
       const previousSoundId = previous.soundId;
@@ -127,14 +126,14 @@ export class AmbientAudio {
       window.setTimeout(() => previous.howl.stop(previousSoundId), 2100);
     }
 
-    this.playAct(act, 4000);
+    this.playCue(cueId, 4000);
   }
 
   setVolume(value: number) {
     this.volume = Math.min(1, Math.max(0, value));
     localStorage.setItem(VOLUME_KEY, String(this.volume));
 
-    const current = this.tracks.get(this.currentAct);
+    const current = this.tracks.get(this.currentCue);
     if (current?.soundId !== undefined) {
       current.howl.volume(this.volume, current.soundId);
     }
@@ -146,13 +145,13 @@ export class AmbientAudio {
   }
 
   private ensureTracks() {
-    for (const act of TRACKS) {
-      if (this.tracks.has(act)) {
+    for (const cue of MUSIC_CUES) {
+      if (this.tracks.has(cue.id)) {
         continue;
       }
 
       const howl = new Howl({
-        src: [assetPath(`/assets/audio/ambient-act${act}.ogg`), assetPath(`/assets/audio/ambient-act${act}.mp3`)],
+        src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
         loop: true,
         html5: false,
         preload: true,
@@ -161,12 +160,12 @@ export class AmbientAudio {
         onplayerror: (_, error) => this.handleLoadError(error),
       });
 
-      this.tracks.set(act, { howl });
+      this.tracks.set(cue.id, { howl });
     }
   }
 
-  private playAct(act: ActNumber, fadeDuration: number) {
-    const track = this.tracks.get(act);
+  private playCue(cueId: MusicCueId, fadeDuration: number) {
+    const track = this.tracks.get(cueId);
 
     if (!track || document.visibilityState === "hidden") {
       return;
@@ -181,7 +180,7 @@ export class AmbientAudio {
   }
 
   private pauseCurrent() {
-    const current = this.tracks.get(this.currentAct);
+    const current = this.tracks.get(this.currentCue);
 
     if (current?.soundId !== undefined && current.howl.playing(current.soundId)) {
       current.howl.pause(current.soundId);
@@ -208,8 +207,8 @@ export class AmbientAudio {
     window.dispatchEvent(new CustomEvent("hvitveldt:audio-error"));
   }
 
-  private isActNumber(value: number): value is ActNumber {
-    return TRACKS.includes(value as ActNumber);
+  private isCueId(value: string): value is MusicCueId {
+    return TRACKS.includes(value as MusicCueId);
   }
 }
 

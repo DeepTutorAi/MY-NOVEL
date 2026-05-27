@@ -3,6 +3,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { withBase } from "../utils/base-path";
 
 const resumeChapterBase = withBase("/chapters/");
+const homeHeroAvif = withBase("/assets/images/backgrounds/home-lodge-approach.avif");
+const homeHeroWebp = withBase("/assets/images/backgrounds/home-lodge-approach.webp");
+const homeHeroJpg = withBase("/assets/images/backgrounds/home-lodge-approach.jpg");
 ---
 
 <BaseLayout
@@ -13,6 +16,11 @@ const resumeChapterBase = withBase("/chapters/");
 >
   <main class="home">
     <section class="home-hero" aria-labelledby="home-title">
+      <picture class="home-hero-art" aria-hidden="true">
+        <source srcset={homeHeroAvif} type="image/avif" />
+        <source srcset={homeHeroWebp} type="image/webp" />
+        <img src={homeHeroJpg} alt="" loading="eager" decoding="async" />
+      </picture>
       <span class="home-scroll-probe" aria-hidden="true"></span>
       <div>
         <h1 id="home-title" class="home-title">ฮวิตเวลต์ ลอดจ์</h1>

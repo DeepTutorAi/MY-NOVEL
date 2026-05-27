@@ -62,17 +62,12 @@
 <script>
   import { ambientAudio } from "../../scripts/audio-state";
   import { soundscapeAudio } from "../../scripts/soundscape-state";
-
-  const ACT_LABELS = {
-    1: "ต้อนรับ",
-    2: "รอยร้าว",
-    3: "ดิ่งลง",
-    4: "ละลาย",
-  };
+  import { getMusicCue, musicCueForChapter } from "../../data/audio-cues";
 
   type AmbientWindow = Window & {
     __hvitveldtAmbientPlayerGlobalBound?: boolean;
     __hvitveldtAmbientDismissBound?: boolean;
+    __hvitveldtAmbientCueBound?: boolean;
   };
 
   const ambientWindow = window as AmbientWindow;
@@ -93,15 +88,29 @@
     };
   };
 
-  const applyActFromPage = () => {
+  const getChapterProgress = (article: HTMLElement) => {
+    const rect = article.getBoundingClientRect();
+    const scrollable = Math.max(1, rect.height - window.innerHeight);
+    const read = Math.min(Math.max(-rect.top, 0), scrollable);
+    return read / scrollable;
+  };
+
+  const applyCueFromPage = () => {
     const article = document.querySelector("article.chapter");
-    const act = Number(article?.getAttribute("data-act") ?? "1");
-    ambientAudio.setAct(act);
+
+    if (!(article instanceof HTMLElement)) {
+      ambientAudio.setCue("snow-forest");
+      return;
+    }
+
+    const chapter = Number(article.dataset.chapter ?? "1");
+    const cue = musicCueForChapter(chapter, getChapterProgress(article));
+    ambientAudio.setCue(cue.id);
   };
 
   const cueText = () => {
-    const act = ambientAudio.getCurrentAct();
-    return `เพลงช่วงที่ ${act}: ${ACT_LABELS[act]}`;
+    const cue = getMusicCue(ambientAudio.getCurrentCue());
+    return `เพลง ${cue.number}: ${cue.label}`;
   };
 
   const setPanelOpen = (open: boolean) => {
@@ -163,7 +172,7 @@
 
     ambientAudio.init();
     soundscapeAudio.init();
-    applyActFromPage();
+    applyCueFromPage();
     syncState();
 
     if (root.dataset.ambientBound === "true") {
@@ -183,19 +192,19 @@
         return;
       }
 
-      applyActFromPage();
+      applyCueFromPage();
       const enabled = await ambientAudio.enable();
       root.setAttribute("data-enabled", String(enabled));
       syncState();
     });
 
     previous.addEventListener("click", () => {
-      ambientAudio.previousAct();
+      ambientAudio.previousCue();
       syncState();
     });
 
     next.addEventListener("click", () => {
-      ambientAudio.nextAct();
+      ambientAudio.nextCue();
       syncState();
     });
 
@@ -236,6 +245,28 @@
           setPanelOpen(false);
         }
       });
+    }
+
+    if (!ambientWindow.__hvitveldtAmbientCueBound) {
+      ambientWindow.__hvitveldtAmbientCueBound = true;
+      let queued = false;
+
+      const requestCueSync = () => {
+        if (queued) {
+          return;
+        }
+
+        queued = true;
+        window.requestAnimationFrame(() => {
+          queued = false;
+          applyCueFromPage();
+          syncState();
+        });
+      };
+
+      window.addEventListener("scroll", requestCueSync, { passive: true });
+      window.addEventListener("resize", requestCueSync);
+      document.addEventListener("astro:page-load", requestCueSync);
     }
   };
 
