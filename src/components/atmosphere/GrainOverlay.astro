@@ -1,3 +1,14 @@
----
-/* Future subtle grain overlay layer. */
----
+<div class="grain-overlay" aria-hidden="true"></div>
+
+<style>
+  .grain-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: -5;
+    background-image: url("/assets/images/grain.png");
+    background-repeat: repeat;
+    opacity: 0.035;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+  }
+</style>

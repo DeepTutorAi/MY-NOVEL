@@ -19,7 +19,7 @@ const description =
   bodyClass={`chapter-page act-${chapter.data.act}`}
 >
   <main class="chapter-shell">
-    <article class="chapter" data-chapter={chapter.data.number}>
+    <article class="chapter" data-chapter={chapter.data.number} data-act={chapter.data.act}>
       <slot />
     </article>
   </main>

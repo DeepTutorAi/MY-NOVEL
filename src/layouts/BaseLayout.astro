@@ -1,5 +1,9 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
+import BackgroundFog from "../components/atmosphere/BackgroundFog.astro";
+import GrainOverlay from "../components/atmosphere/GrainOverlay.astro";
+import SnowCanvas from "../components/atmosphere/SnowCanvas.astro";
 
 interface Props {
   title: string;
@@ -25,8 +29,37 @@ const canonical = Astro.url.href;
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
     <meta property="og:url" content={canonical} />
+    <ClientRouter />
   </head>
   <body class={bodyClass}>
+    <BackgroundFog />
+    <GrainOverlay />
+    <SnowCanvas />
     <slot />
+    <script is:inline>
+      (() => {
+        const media = window.matchMedia("(prefers-reduced-motion: no-preference)");
+        const icon = document.querySelector('link[rel="icon"]');
+
+        if (!media.matches || !(icon instanceof HTMLLinkElement)) {
+          return;
+        }
+
+        const lit = "/favicon.svg";
+        const out = "/favicon-out.svg";
+        const schedule = () => {
+          const delay = 20000 + Math.random() * 40000;
+          window.setTimeout(() => {
+            icon.href = out;
+            window.requestAnimationFrame(() => {
+              icon.href = lit;
+              schedule();
+            });
+          }, delay);
+        };
+
+        schedule();
+      })();
+    </script>
   </body>
 </html>
