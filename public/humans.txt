@@ -1,0 +1,6 @@
+Hvitveldt Lodge
+
+Built as a static Thai horror reading site.
+Typography: self-hosted @fontsource packages.
+Atmosphere assets: generated locally for this project.
+No analytics or third-party tracking scripts.

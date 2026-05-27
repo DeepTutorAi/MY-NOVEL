@@ -1,3 +1,38 @@
----
-/* Future chapter table of contents navigation. */
----
+<a class="toc-trigger" href="/chapters/" aria-label="Table of contents" title="Table of contents">
+  <svg viewBox="0 0 24 24" aria-hidden="true">
+    <path d="M12 7v14" />
+    <path d="M3 5.5A2.5 2.5 0 0 1 5.5 3H12v18H5.5A2.5 2.5 0 0 0 3 18.5Z" />
+    <path d="M21 5.5A2.5 2.5 0 0 0 18.5 3H12v18h6.5A2.5 2.5 0 0 1 21 18.5Z" />
+  </svg>
+</a>
+
+<style>
+  .toc-trigger {
+    display: grid;
+    place-items: center;
+    inline-size: 2.25rem;
+    block-size: 2.25rem;
+    color: var(--ink-dim);
+    text-decoration: none;
+    transition: color 150ms ease-out;
+  }
+
+  .toc-trigger:hover {
+    color: var(--ink);
+  }
+
+  .toc-trigger:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .toc-trigger svg {
+    inline-size: 1.25rem;
+    block-size: 1.25rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+  }
+</style>

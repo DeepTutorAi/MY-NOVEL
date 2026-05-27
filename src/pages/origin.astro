@@ -1,3 +1,54 @@
 ---
-/* Future origin and attribution page. */
+import BaseLayout from "../layouts/BaseLayout.astro";
 ---
+
+<BaseLayout
+  title="Origin — Hvitveldt Lodge"
+  description="ที่มาของต้นฉบับและเครดิตงานสร้าง Hvitveldt Lodge"
+  bodyClass="origin-page"
+>
+  <main class="origin-shell">
+    <article class="origin-article">
+      <h1>Origin</h1>
+
+      <p>
+        ต้นฉบับชุดนี้ถูกพบในไฟล์บันทึกที่ส่งต่อมาโดยไม่มีชื่อผู้ส่ง มีเพียงชื่อสถานที่ วันที่ และข้อความซ้ำ ๆ ว่า “คนเจ็ดตายทุกรอบ” อยู่ท้ายเอกสาร
+      </p>
+      <p>
+        การจัดวางบนเว็บนี้จึงตั้งใจให้เหมือนเอกสารถูกเปิดอ่านในที่มืดมากกว่านิยายที่ถูกห่อเป็นสินค้า ทุกหน้าเก็บระยะหายใจของต้นฉบับไว้ให้มากที่สุด รวมถึงจังหวะยาว เงียบ และเส้นแบ่งที่เหมือนรอยขีดในสมุด
+      </p>
+
+      <section class="origin-section" aria-labelledby="author-note">
+        <h2 id="author-note">Author's note</h2>
+        <p>
+          งานนี้ศึกษาเทคนิคจาก Penpal, Ted the Caver, Borrasca, Psychosis, The Thing และ Backrooms ในแง่ found-document horror, ความไม่น่าไว้ใจของผู้เล่า และพื้นที่ที่ค่อย ๆ ทำให้มนุษย์กลายเป็นหลักฐาน
+        </p>
+        <p>
+          เว็บไซต์สร้างด้วย Astro, Tailwind CSS, self-hosted fonts ผ่าน @fontsource, Howler.js สำหรับ ambient audio ที่ผู้ใช้ต้องเปิดเอง และภาพ/เสียง placeholder แบบ project-owned generated assets เพื่อหลีกเลี่ยงปัญหาลิขสิทธิ์ระหว่างรอ asset final จากผู้เขียน
+        </p>
+      </section>
+
+      <section class="origin-section" aria-labelledby="asset-credit">
+        <h2 id="asset-credit">Attribution</h2>
+        <ul class="asset-list">
+          <li>
+            <strong>Visual atmosphere</strong>
+            <span>Procedural dark winter forest, grain texture, candle favicons, humans.txt, robots.txt, and Open Graph image generated or hand-authored locally for this project. License: project-owned. Attribution: none required.</span>
+          </li>
+          <li>
+            <strong>Ambient audio</strong>
+            <span>Silent 30-second test loops generated locally with FFmpeg anullsrc for all four acts. License: project-owned placeholder. Replace with final licensed ambience before a public literary release.</span>
+          </li>
+          <li>
+            <strong>Typography</strong>
+            <span>IBM Plex Sans Thai Looped, Crimson Pro, Cormorant Garamond, and JetBrains Mono are self-hosted through @fontsource packages.</span>
+          </li>
+          <li>
+            <strong>Icons</strong>
+            <span>Inline SVG icons are lucide-style paths for table of contents and ambient controls.</span>
+          </li>
+        </ul>
+      </section>
+    </article>
+  </main>
+</BaseLayout>

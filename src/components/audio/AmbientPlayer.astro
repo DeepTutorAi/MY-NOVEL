@@ -28,10 +28,22 @@
 <script>
   import { ambientAudio } from "../../scripts/audio-state";
 
-  const root = document.querySelector(".ambient-player");
-  const button = root?.querySelector(".ambient-toggle");
-  const slider = root?.querySelector('input[type="range"]');
-  const hint = root?.querySelector(".ambient-hint");
+  type AmbientWindow = Window & {
+    __hvitveldtAmbientPlayerGlobalBound?: boolean;
+  };
+
+  const ambientWindow = window as AmbientWindow;
+
+  const getElements = () => {
+    const root = document.querySelector(".ambient-player");
+
+    return {
+      root,
+      button: root?.querySelector(".ambient-toggle"),
+      slider: root?.querySelector('input[type="range"]'),
+      hint: root?.querySelector(".ambient-hint"),
+    };
+  };
 
   const applyActFromPage = () => {
     const article = document.querySelector("article.chapter");
@@ -40,6 +52,8 @@
   };
 
   const setEnabled = (enabled: boolean) => {
+    const { root, button } = getElements();
+
     root?.setAttribute("data-enabled", String(enabled));
 
     if (button instanceof HTMLButtonElement) {
@@ -49,17 +63,27 @@
     }
   };
 
-  if (
-    root instanceof HTMLElement &&
-    button instanceof HTMLButtonElement &&
-    slider instanceof HTMLInputElement
-  ) {
+  const bindPlayer = () => {
+    const { root, button, slider, hint } = getElements();
+
+    if (
+      !(root instanceof HTMLElement) ||
+      !(button instanceof HTMLButtonElement) ||
+      !(slider instanceof HTMLInputElement)
+    ) {
+      return;
+    }
+
     ambientAudio.init();
     slider.value = String(ambientAudio.getVolume());
-    setEnabled(false);
+    setEnabled(ambientAudio.isEnabled());
     applyActFromPage();
 
-    document.addEventListener("astro:page-load", applyActFromPage);
+    if (button.dataset.ambientBound === "true") {
+      return;
+    }
+
+    button.dataset.ambientBound = "true";
 
     button.addEventListener("click", async () => {
       if (ambientAudio.isEnabled()) {
@@ -93,22 +117,27 @@
       root.removeAttribute("data-show-hint");
     });
 
-    window.addEventListener("hvitveldt:audio-error", () => {
-      setEnabled(false);
-    });
-
     if (hint instanceof HTMLElement) {
       hint.hidden = localStorage.getItem("hvitveldt:audio:hint-seen") === "true";
     }
+  };
+
+  if (!ambientWindow.__hvitveldtAmbientPlayerGlobalBound) {
+    ambientWindow.__hvitveldtAmbientPlayerGlobalBound = true;
+
+    document.addEventListener("astro:page-load", bindPlayer);
+    window.addEventListener("hvitveldt:audio-error", () => {
+      setEnabled(false);
+    });
   }
+
+  bindPlayer();
 </script>
 
 <style>
   .ambient-player {
-    position: fixed;
-    inset-block-start: 1rem;
-    inset-inline-end: 1rem;
-    z-index: 30;
+    position: relative;
+    z-index: 1;
     display: flex;
     align-items: center;
     gap: 0.5rem;

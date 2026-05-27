@@ -1,21 +1,48 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import "../styles/chapter.css";
 ---
 
 <BaseLayout
   title="Hvitveldt Lodge"
-  description="ทางเข้าชั่วคราวสำหรับอ่าน Hvitveldt Lodge"
-  bodyClass="phase-one"
+  description="บันทึกเจ็ดวันของผู้รอดชีวิตคนเดียวจาก Hvitveldt Lodge"
+  bodyClass="home-page"
+  showTopBar={false}
 >
-  <main class="font-check">
-    <h1>Hvitveldt Lodge</h1>
-    <p>
-      ทางเข้าอ่านชั่วคราวระหว่างสร้างเว็บฉบับเต็ม หน้าแรกจริงจะกลับมาใน Phase 6
-    </p>
-    <nav class="temporary-home-links" aria-label="Temporary reading links">
-      <a href="/chapters/">Table of Contents</a>
-      <a href="/chapters/01-arrival/">เริ่มบทที่ 1</a>
-    </nav>
+  <main class="home">
+    <section class="home-hero" aria-labelledby="home-title">
+      <span class="home-scroll-probe" aria-hidden="true"></span>
+      <div>
+        <h1 id="home-title" class="home-title">Hvitveldt Lodge</h1>
+        <p class="home-subtitle">บันทึกเจ็ดวัน — ของผู้รอดชีวิตคนเดียว</p>
+        <p class="home-meta">18 บท · ประมาณ 8 ชั่วโมงในการอ่าน · เปิดอ่าน, ปิดได้ทุกเมื่อ</p>
+      </div>
+      <a class="home-enter" href="#found-note" data-visible="false">Enter</a>
+    </section>
+
+    <section id="found-note" class="home-note" aria-label="Found note">
+      <p>
+        ไฟล์นี้ถูกส่งต่อมาเหมือนของที่ไม่ควรอยู่ในกล่องจดหมายใคร ไม่มีคำอธิบายยาว ไม่มีคำเตือนมากกว่าที่ควรมี มีเพียงชื่อสถานที่ วันที่ และเสียงของคนหนึ่งที่ยังยืนยันว่าเธอเป็นคนเขียนเองทั้งหมด
+      </p>
+      <a class="home-start" href="/chapters/01-arrival/">เริ่ม → บทที่ ๑</a>
+      <p class="home-secondary-links">
+        หากสนใจ — <a href="/chapters/">Table of Contents</a> / <a href="/origin/">Origin</a> / <a href="/puzzle/">Puzzle Map</a>
+      </p>
+      <footer class="site-footer">
+        © 2025 Hvitveldt Lodge · <a href="/origin/">attribution</a>
+      </footer>
+    </section>
   </main>
+
+  <script>
+    const enter = document.querySelector(".home-enter");
+    const probe = document.querySelector(".home-scroll-probe");
+
+    if (enter instanceof HTMLElement && probe instanceof HTMLElement) {
+      new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) {
+          enter.dataset.visible = "true";
+        }
+      }).observe(probe);
+    }
+  </script>
 </BaseLayout>

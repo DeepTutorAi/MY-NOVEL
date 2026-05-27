@@ -3,23 +3,37 @@ import type { CollectionEntry } from "astro:content";
 import BaseLayout from "./BaseLayout.astro";
 import "../styles/chapter.css";
 
+type ChapterLayoutData = CollectionEntry<"chapters"> | {
+  data: {
+    number: number | string;
+    title: string;
+    act: number;
+    summary?: string;
+  };
+};
+
 interface Props {
-  chapter: CollectionEntry<"chapters">;
+  chapter: ChapterLayoutData;
+  bodyClass?: string;
 }
 
-const { chapter } = Astro.props;
-const pageTitle = `Ch ${chapter.data.number} · ${chapter.data.title} — Hvitveldt Lodge`;
+const { chapter, bodyClass } = Astro.props;
+const chapterNumber = chapter.data.number;
+const chapterPrefix = typeof chapterNumber === "number" ? `Ch ${chapterNumber} · ` : "";
+const titleSeparator = chapter.data.title.trim().endsWith("—") ? " " : " — ";
+const pageTitle = `${chapterPrefix}${chapter.data.title}${titleSeparator}Hvitveldt Lodge`;
 const description =
-  chapter.data.summary || `บทที่ ${chapter.data.number} ของ Hvitveldt Lodge`;
+  chapter.data.summary ||
+  (typeof chapterNumber === "number" ? `บทที่ ${chapterNumber} ของ Hvitveldt Lodge` : "Hvitveldt Lodge");
 ---
 
 <BaseLayout
   title={pageTitle}
   description={description}
-  bodyClass={`chapter-page act-${chapter.data.act}`}
+  bodyClass={bodyClass ?? `chapter-page act-${chapter.data.act}`}
 >
   <main class="chapter-shell">
-    <article class="chapter" data-chapter={chapter.data.number} data-act={chapter.data.act}>
+    <article class="chapter" data-chapter={String(chapterNumber)} data-act={chapter.data.act}>
       <slot />
     </article>
   </main>

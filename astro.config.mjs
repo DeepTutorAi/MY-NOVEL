@@ -64,6 +64,7 @@ function rehypeRuneDividers() {
 }
 
 export default defineConfig({
+  site: "https://hvitveldt-lodge.pages.dev",
   markdown: {
     remarkPlugins: [remarkDirective, remarkJournalDirective],
     rehypePlugins: [rehypeRuneDividers],
