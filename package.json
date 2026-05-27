@@ -21,7 +21,9 @@
     "astro": "^5.18.2",
     "gsap": "^3.15.0",
     "howler": "^2.2.4",
-    "tailwindcss": "^4.3.0"
+    "remark-directive": "^4.0.0",
+    "tailwindcss": "^4.3.0",
+    "unist-util-visit": "^5.1.0"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.9",

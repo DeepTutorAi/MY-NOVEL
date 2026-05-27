@@ -1,3 +1,32 @@
----
-/* Future reading progress indicator. */
----
+<div class="reading-progress" aria-hidden="true">
+  <span></span>
+</div>
+
+<script>
+  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const progress = document.querySelector(".reading-progress span");
+  const article = document.querySelector("article.chapter");
+
+  if (!media.matches && progress instanceof HTMLElement && article instanceof HTMLElement) {
+    let ticking = false;
+
+    const update = () => {
+      const rect = article.getBoundingClientRect();
+      const scrollable = Math.max(1, rect.height - window.innerHeight);
+      const read = Math.min(Math.max(-rect.top, 0), scrollable);
+      progress.style.transform = `scaleX(${read / scrollable})`;
+      ticking = false;
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(update);
+      }
+    };
+
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    update();
+  }
+</script>

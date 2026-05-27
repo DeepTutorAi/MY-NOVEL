@@ -1,3 +1,23 @@
 ---
-/* Future long-form chapter header. */
+import type { CollectionEntry } from "astro:content";
+import Rune from "../marks/Rune.astro";
+
+interface Props {
+  chapter: CollectionEntry<"chapters">;
+}
+
+const { chapter } = Astro.props;
 ---
+
+<header class="chapter-header">
+  <div class="chapter-kicker">Act {chapter.data.act} · {chapter.data.actTitle}</div>
+  <div class="chapter-number">Chapter {chapter.data.number}</div>
+  <h1>{chapter.data.title}</h1>
+  {chapter.data.thaiTitle && <div class="chapter-thai-title">{chapter.data.thaiTitle}</div>}
+  {
+    chapter.data.readingMinutes && (
+      <div class="chapter-reading-time">{chapter.data.readingMinutes} นาที</div>
+    )
+  }
+  <Rune seed={chapter.data.number} />
+</header>

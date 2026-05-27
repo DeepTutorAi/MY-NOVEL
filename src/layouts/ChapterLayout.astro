@@ -1,3 +1,26 @@
 ---
-/* Future long-form chapter layout. */
+import type { CollectionEntry } from "astro:content";
+import BaseLayout from "./BaseLayout.astro";
+import "../styles/chapter.css";
+
+interface Props {
+  chapter: CollectionEntry<"chapters">;
+}
+
+const { chapter } = Astro.props;
+const pageTitle = `Ch ${chapter.data.number} · ${chapter.data.title} — Hvitveldt Lodge`;
+const description =
+  chapter.data.summary || `บทที่ ${chapter.data.number} ของ Hvitveldt Lodge`;
 ---
+
+<BaseLayout
+  title={pageTitle}
+  description={description}
+  bodyClass={`chapter-page act-${chapter.data.act}`}
+>
+  <main class="chapter-shell">
+    <article class="chapter" data-chapter={chapter.data.number}>
+      <slot />
+    </article>
+  </main>
+</BaseLayout>

@@ -1,7 +1,38 @@
 ---
-/* Future generated chapter route. */
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import ChapterHeader from "../../components/reading/ChapterHeader.astro";
+import ChapterNav from "../../components/reading/ChapterNav.astro";
+import ReadingProgress from "../../components/reading/ReadingProgress.astro";
+import EndOfChapter from "../../components/marks/EndOfChapter.astro";
+import ChapterLayout from "../../layouts/ChapterLayout.astro";
 
-export function getStaticPaths() {
-  return [];
+export async function getStaticPaths() {
+  const chapters = (await getCollection("chapters")).sort(
+    (a, b) => a.data.number - b.data.number,
+  );
+
+  return chapters.map((chapter) => ({
+      params: { slug: chapter.id },
+      props: { chapter, chapters },
+    }));
 }
+
+interface Props {
+  chapter: CollectionEntry<"chapters">;
+  chapters: CollectionEntry<"chapters">[];
+}
+
+const { chapter, chapters } = Astro.props;
+const { Content } = await render(chapter);
+const currentIndex = chapters.findIndex((item) => item.id === chapter.id);
+const previous = currentIndex > 0 ? chapters[currentIndex - 1] : undefined;
+const next = currentIndex >= 0 ? chapters[currentIndex + 1] : undefined;
 ---
+
+<ChapterLayout chapter={chapter}>
+  <ReadingProgress />
+  <ChapterHeader chapter={chapter} />
+  <Content />
+  <EndOfChapter seed={chapter.data.number + 13} />
+  <ChapterNav previous={previous} next={next} isFinalChapter={chapter.data.number === 18} />
+</ChapterLayout>

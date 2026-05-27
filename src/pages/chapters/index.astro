@@ -1,3 +1,52 @@
 ---
-/* Future table of contents page. */
+import { getCollection } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { ACTS } from "../../utils/act-for-chapter";
+import "../../styles/chapter.css";
+
+const roman = ["I", "II", "III", "IV"];
+const chapters = (await getCollection("chapters")).sort(
+  (a, b) => a.data.number - b.data.number,
+);
 ---
+
+<BaseLayout
+  title="Chapters — Hvitveldt Lodge"
+  description="สารบัญ Hvitveldt Lodge แบ่งตาม act"
+  bodyClass="toc-page"
+>
+  <main class="toc">
+    <h1>Hvitveldt Lodge</h1>
+    <p class="toc-intro">เลือกอ่านตามบท บทอ่านจะเปิดในหน้าที่จัดสำหรับการอ่านยาวโดยเฉพาะ</p>
+
+    {
+      ACTS.map((act, index) => {
+        const actChapters = chapters.filter((chapter) => chapter.data.act === act.number);
+
+        return (
+          <section class="toc-act" aria-labelledby={`act-${act.number}`}>
+            <h2 id={`act-${act.number}`}>
+              Act {roman[index]} · {act.title}
+            </h2>
+            <ul class="toc-list">
+              {actChapters.map((chapter) => (
+                <li>
+                  <a class="toc-row" href={`/chapters/${chapter.id}/`}>
+                    <span class="toc-row-number">Ch {chapter.data.number}</span>
+                    <span>
+                      <span class="toc-row-title">{chapter.data.title}</span>
+                      {chapter.data.thaiTitle && (
+                        <span class="toc-row-thai"> — {chapter.data.thaiTitle}</span>
+                      )}
+                    </span>
+                    <span class="toc-row-time">{chapter.data.readingMinutes} นาที</span>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        );
+      })
+    }
+  </main>
+</BaseLayout>

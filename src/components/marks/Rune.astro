@@ -1,3 +1,32 @@
 ---
-/* Future static rune ornament component. */
+interface Props {
+  seed?: number;
+}
+
+const { seed = Math.floor(Math.random() * 5) } = Astro.props;
+const runes = [
+  "M16 4v24M8 11l8 5 5-8M16 19l7 4",
+  "M15 3v26M9 8l6 7M22 10l-7 6M10 24l5-5",
+  "M17 4v24M8 9l9 8M22 7l-5 7M11 21l6-3",
+  "M14 5v23M7 14l7-5 8 7M14 18l-5 5",
+  "M16 4v24M9 7l7 6M23 12l-7 4M10 23l6-6 7 5",
+];
+const d = runes[Math.abs(seed) % runes.length];
 ---
+
+<svg
+  class="rune"
+  viewBox="0 0 32 32"
+  width="32"
+  height="32"
+  aria-hidden="true"
+>
+  <path
+    d={d}
+    fill="none"
+    stroke="currentColor"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  />
+</svg>

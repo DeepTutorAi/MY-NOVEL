@@ -1,3 +1,9 @@
 ---
-/* Future chapter-opening dropcap treatment. */
+interface Props {
+  char: string;
+}
+
+const { char } = Astro.props;
 ---
+
+<span class="dropcap" aria-hidden="true">{char}</span>

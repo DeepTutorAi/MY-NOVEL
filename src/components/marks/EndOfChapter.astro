@@ -1,3 +1,14 @@
 ---
-/* Future muted end-of-chapter marker. */
+import Rune from "./Rune.astro";
+
+interface Props {
+  seed?: number;
+}
+
+const { seed } = Astro.props;
 ---
+
+<div class="end-of-chapter" aria-hidden="true">
+  <Rune seed={seed} />
+  <div>── M ──</div>
+</div>

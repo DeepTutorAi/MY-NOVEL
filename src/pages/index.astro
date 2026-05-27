@@ -1,32 +1,21 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import { getCollection } from "astro:content";
-
-const chapters = (await getCollection("chapters")).sort(
-  (a, b) => a.data.number - b.data.number,
-);
+import "../styles/chapter.css";
 ---
 
 <BaseLayout
   title="Hvitveldt Lodge"
-  description="สารบัญชั่วคราวสำหรับตรวจสอบการ ingest บทของ Hvitveldt Lodge"
+  description="ทางเข้าชั่วคราวสำหรับอ่าน Hvitveldt Lodge"
   bodyClass="phase-one"
 >
   <main class="font-check">
     <h1>Hvitveldt Lodge</h1>
     <p>
-      สารบัญชั่วคราวสำหรับตรวจสอบว่า Phase 2 แยกทั้ง 18 บทเข้าระบบ content collection แล้ว
+      ทางเข้าอ่านชั่วคราวระหว่างสร้างเว็บฉบับเต็ม หน้าแรกจริงจะกลับมาใน Phase 6
     </p>
-    <ul>
-      {
-        chapters.map((chapter) => (
-          <li>
-            <a href={`/chapters/${chapter.id}/`}>
-              {String(chapter.data.number).padStart(2, "0")} — {chapter.data.title}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
+    <nav class="temporary-home-links" aria-label="Temporary reading links">
+      <a href="/chapters/">Table of Contents</a>
+      <a href="/chapters/01-arrival/">เริ่มบทที่ 1</a>
+    </nav>
   </main>
 </BaseLayout>
