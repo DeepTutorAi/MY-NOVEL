@@ -943,7 +943,7 @@
   - พระชั้นต้นใหม่จาก Nagano รับช่วงต่อจาก Watanabe
   - Haruto เยี่ยม Watanabe ที่เตียง
   - Watanabe: "นายเลือกสำหรับชีวิตของนาย — ไม่ใช่สำหรับสาย / Hina ต้องเลือกของเธอเอง"
-  - Watanabe: "ผมรอ — ทุกอย่าง — ลงจบ"
+  - Watanabe: "ผมรอให้ทุกอย่างจบลง"
   - **Future-narrator**: Watanabe เสียคืน 14 ม.ค. 2037 — Haruto กลับมาสำหรับงานศพ — เก็บลูกประคำ Watanabe ไปด้วย
 - **Hina's new sketchbook** (3 ม.ค.):
   - Hina ให้สมุดใหม่ "Hina จะวาด Hina จะส่ง พี่จะรู้ผ่าน Hina"
