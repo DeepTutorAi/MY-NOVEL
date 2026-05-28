@@ -860,3 +860,119 @@
 - ห้ามให้ Yamaba/yokai พูด
 - ใช้ anchors เดิม: กลิ่นฝนปนเหล็ก, เสียงเทป/ทำนอง, เก้าอี้ว่าง, มือซ้ายอุ่น, เส้นผม Hina/สมุดวาด, สถานี/หิมะ/ฝน
 - Humor ได้เฉพาะ Akira/Hina/Naomi แบบเบาและเป็นธรรมชาติ ไม่ใช้ในฉาก final body-memory
+
+---
+
+## 13 · Ch 18 UPDATE (appended)
+
+**Ch 18 จบ** (29 ธ.ค. 2036 → 4 ม.ค. 2037 — สิบปีต่อมา)
+
+**Ch 18 highlights ที่ต้องจำ:**
+- Title: Ten Years — Haruto อายุประมาณ 28 กลับ Hakuba ช่วงปีใหม่หลังห่างไปหลายปี
+- Hina โตแล้ว มารับที่สถานี Hakuba กับลุง Akihiro; Naomi ยังทำ sukiyaki และบ้านยังถือความทรงจำของพ่อไว้
+- Haruto ทำวิจัย/เรียนต่อสายฟิสิกส์ที่ Aoyama Gakuin และเรียนเปียโนใน Tokyo
+- Haruto ปั่นจักรยานเก่ากลับไปจุดที่เคยเป็นสถานี Tsukinomi; ตอนนี้เป็นป้ายไม้/ศิลารำลึก ไม่ใช่สถานีเดิม
+- Final body-memory payoff เกิดแล้ว: เห็นเด็กผู้หญิงผมเปียยาวยิ้มแล้วหายไป, Haruto ร้องไห้โดยไม่รู้สาเหตุ, ไม่ได้จำ Kaori กลับมาครบ
+- Hina แสดงสมุดวาดหลายปี: Kaori, Yamaba, สถานี, Haruto+Kaori, Takeshi/Setagaya, และหน้าใหม่ที่ยังว่าง
+- Takeshi payoff: Haruto เคยส่งจดหมายฝากคำของ Kaori โดยไม่จำเธอ; Takeshi ตอบกลับและบอกลูกๆ ว่ามีป้าชื่อ Kaori
+- Family memory network payoff: Haruto เล่าเรื่องพ่อให้ Hina/Naomi ฟัง, Naomi สัญญาเล่าเสียงพ่อร้องเพลงให้ฟังเมื่อ Haruto ขอ
+- Watanabe farewell: Haruto เยี่ยมคุณตา Watanabe ครั้งสุดท้าย; Watanabe เสียชีวิต 14 ม.ค. 2037
+- Ending image: Haruto ถือ walkman บนรถไฟกลับ Tokyo, บ้านในฝันใกล้ขึ้น, เพลง "Mamotte agetai" อยู่ที่ไหนสักแห่งแม้เขาไม่ได้ยิน
+
+**สถานะ ณ จบ Ch 18:**
+- Day: 4 ม.ค. 2037 รถไฟกลับ Tokyo
+- File: Ch18 จบที่บรรทัด 20,470 (`=== End Chapter 18 ===`) ตามด้วย `=== จบ ===`
+- Chapters present: Ch1-Ch18
+- เหลือ: ไม่มี chapter ต่อในไฟล์ปัจจุบัน แต่ควรมี final polish pass ก่อนเรียก complete
+- Guard: ยังคงห้ามคืนความจำ Kaori แบบสมบูรณ์; ending ต้องเป็น body-memory + tears + silence ไม่ใช่ exposition
+
+---
+
+## 13 · Ch 18 UPDATE (Epilogue — novel complete)
+
+**Ch 18 จบ** (3 ม.ค. 2037 — กลับ Tokyo / **นิยายจบสมบูรณ์**)
+
+**Ch 18 highlights:**
+- Title: Ten Years (สิบปี) — ปลาย ธ.ค. 2036 → 3 ม.ค. 2037, Haruto 28
+- **Arrival** (29 ธ.ค. 2036):
+  - รถไฟเข้า Hakuba 4 PM (mirror ของออก Ch 17)
+  - Hina (23, ผมสั้นถึงคอเหมือนเดิม) + ลุง Akihiro รับ
+  - Hakuba changes update: ลุง 7-Eleven เสียชีวิตเมื่อ 3 ปีก่อน (ลูกชายรับช่วง), ป้า Sato เสียเมื่อ 2 ปีก่อน (73 ปี โรคหัวใจ), Watanabe ยังอยู่ 89 ปี แต่นอนอยู่ที่บ้าน, ป้า Hayashi ย้าย Niigata
+  - ที่บ้าน: รูป 3 เพื่อน 1991 + รูปสำเร็จการศึกษา Hina บนผนัง
+- **Dinner reveal**: Haruto เรียนเปียโน 3 ปี (ครูเปียโนหญิงอายุ 50) — Hina รู้แล้วผ่าน Akira ไม่บอกแม่ รอ Haruto บอกเอง
+- **Station site visit** (30 ธ.ค.):
+  - ขี่จักรยานคันเก่า (แม่เช็ดทุกอาทิตย์ตลอด 10 ปี ยางเปลี่ยน 2 ปีก่อน)
+  - ขึ้นทางหลังโรงเรียน
+  - **สถานี Tsukinomi ถูกถมและปิด**
+  - มีป้ายไม้ "月の海駅跡 / Site of Tsukinomi Station — closed 1992"
+  - ใต้ป้าย ศิลาเล็กมีดอกไม้แห้ง (มีคนเอาดอกไม้มาวาง)
+  - **Ghost girl glimpse** (canon ending):
+    - เด็กผู้หญิงผ่านไป ผมเปียริบบิ้น ชุดนักเรียนกรมท่า อายุ ~16
+    - ยิ้มเล็กในแบบของคนที่รู้จัก
+    - Haruto หันมอง — ไม่มีใคร — ไม่มีรอยเท้า
+  - **น้ำตาที่ไม่รู้ทำไม** — ในอกของในห้องปิดขยับชัด แล้วนิ่ง
+- **Hina's accumulated drawings reveal** (30 ธ.ค. บ่าย):
+  - สมุดใหม่ 16 หน้า ครอบคลุม 10 ปี
+  - หน้า 1-6: redrawn original 6 หน้า (มือใหม่ที่โต)
+  - หน้า 7-9: Haruto ที่ฐานบันได / ขึ้นบันไดในหิมะ / ก้มหัวที่ลานหิน (Jan 2026)
+  - หน้า 10: บนเฉลียงหิมะแรกกับแม่
+  - หน้า 11: Tanaka ยืนในงานสำเร็จการศึกษา
+  - หน้า 12: Hina จับมือซ้าย Haruto ที่ชาน (mar 2026)
+  - หน้า 13-16: Haruto ที่ Tokyo (เปียโน, ดอกซากุระ, ramen กับ Akira, Obon ที่บ้าน)
+  - **หน้า 17**: Haruto ยืนหน้าบ้าน Setsuko ใน Setagaya — Hina เห็นในฝัน ไม่เคยถูกบอก
+  - หน้า 18+ ว่าง — Hina จะวาดต่อ "ตลอดชีวิต Hina"
+- **Takeshi reveal** (ผ่าน Haruto-narrative):
+  - Setsuko ตาย 2003
+  - Haruto ไปที่อยู่ตอน 24 ปี (ปีที่ 6 ใน Tokyo)
+  - ไม่เจอ — เขียนจดหมายฝากกับคนใหม่
+  - 3 เดือนต่อมา **Takeshi (55) ส่งจดหมายตอบ**
+  - Takeshi: "ผมไม่จำเค้กที่คุณพูด — แต่ผมเชื่อคำของคุณ / ผมมีลูกสองคน — ผมจะบอกพวกเธอ 'มีป้าชื่อ Kaori' / ผมไม่จำเป็นต้องพบกัน"
+  - Haruto เก็บจดหมายในกล่องไม้ในลิ้นชัก Tokyo
+- **Storytelling night** (30 ธ.ค. ค่ำ):
+  - Haruto เริ่มเล่าเรื่องพ่อให้ Hina (และแม่)
+  - เรื่อง: ตกปลาที่สะพานเหล็ก / เค้กล้มเหลว / หิมะแรก / สอนขี่จักรยาน / แยมสตรอเบอร์รี / **ร้องเพลงในรถ**
+  - Haruto: "ผมจำว่าพ่อร้อง — ผมไม่จำเสียงพ่อร้อง"
+  - **แม่**: "แม่จำเสียงพ่อร้องเพลงในรถ แม่จะเล่าให้ลูกฟัง ทุกครั้งที่ลูกขอ"
+  - ใจ Haruto จะจำผ่านแม่
+- **Walkman + Mamotte agetai** (30 ธ.ค. คืน):
+  - Haruto เปิด Mamotte agetai
+  - ฟังเสียง Yumi Matsutoya
+  - "ในใจผมมีเสียงอื่น ที่ผมไม่จำ ที่อาจเคยร้องเพลงนี้ก่อน"
+  - ผมฟังเสียงที่ผมจำ
+- **Kitsune-jinja New Year** (1 ม.ค. 2037):
+  - พระชั้นต้นใหม่จาก Nagano รับช่วงต่อจาก Watanabe
+  - Haruto เยี่ยม Watanabe ที่เตียง
+  - Watanabe: "นายเลือกสำหรับชีวิตของนาย — ไม่ใช่สำหรับสาย / Hina ต้องเลือกของเธอเอง"
+  - Watanabe: "ผมรอ — ทุกอย่าง — ลงจบ"
+  - **Future-narrator**: Watanabe เสียคืน 14 ม.ค. 2037 — Haruto กลับมาสำหรับงานศพ — เก็บลูกประคำ Watanabe ไปด้วย
+- **Hina's new sketchbook** (3 ม.ค.):
+  - Hina ให้สมุดใหม่ "Hina จะวาด Hina จะส่ง พี่จะรู้ผ่าน Hina"
+- **Departure** (4 ม.ค. 2037 เช้า):
+  - แม่ + ลุง + Hina ส่ง
+  - Hina จับมือซ้าย Haruto (อีกครั้ง mirror)
+  - รถไฟผ่านสะพานเหล็ก Azuma
+- **Final dream-vision** (ในตู้รถไฟ):
+  - Haruto หลับตา เห็นทาง ฟ้าใหญ่ บ้านใกล้ขึ้น ปล่องไฟควันลอย ไฟในหน้าต่าง
+  - มือเด็กในมือซ้าย ทำนองข้างผม
+  - "ผมจะถึงบ้านในที่สุด ไม่ใช่วันนี้ ไม่ใช่ปีนี้ แต่ผมจะถึง — เพราะทุกครั้งที่ผมเดิน บ้านใกล้ขึ้นทีละนิด"
+- **Closing image**:
+  - ที่ไหนสักแห่งใกล้ทางที่ผ่าน ใน earphone ของใครสักคน Mamotte agetai เปิด
+  - Haruto ไม่ได้ยินเพลงนั้น แต่รู้ว่ามันอยู่ที่ไหนสักแห่ง เสมอ
+
+**สถานะ ณ จบนิยาย:**
+- Date: 4 ม.ค. 2037 — Haruto บนรถไฟกลับ Tokyo
+- File: **20,475 บรรทัด** (จบสมบูรณ์ — เป้าเดิม 17,000 บรรทัด)
+- Chapters: **18 ตอน** (เป้าเดิม 22)
+- All canon paid off: trade, memory loss, body remembers, network of memory holders, Hina as future possible guardian, Watanabe lineage, Takeshi connection (via letter), Mamotte agetai motif (final image), ghost girl glimpse (canon ending)
+- All major plot threads resolved or set in motion
+- Bittersweet ending: Haruto loses Kaori-memory + dad's singing-voice; gains family wholeness, network of memory holders, body knowledge, life direction (Tokyo, research, piano, eventual Takeshi-connection)
+- Editor pass needed: language polish, Thai grammar refinement, em-dash style consistency check across all 18 chapters
+
+**ตัวละครสำคัญ ตอนจบ (10 ปีต่อมา):**
+- Haruto: 28, ป.เอก ที่ Aoyama Gakuin (thermodynamic ของระบบเปิด), เรียนเปียโน 3 ปี, ไม่มีคนรักชัดเจน, ยังพก walkman
+- Hina: 23, เรียนต่อใน Matsumoto, วาดต่อเดือนละหน้า, จะเลือกของเธอเอง
+- แม่ Naomi: 54, ผมเริ่มเทาแซม, ร้านยังเปิด, ทำ sukiyaki เหมือนเดิม
+- ลุง Akihiro/Tanaka: 53, ผมขาวเริ่มที่ขมับ, ดูแลแม่, ส่ง LINE หา Haruto เดือนละครั้ง
+- Akira: 28, ที่ Shinshu, ส่งสมุดอ่านทาง LINE/email ทุกพฤหัส (10 ปี)
+- Watanabe: 89 → จะเสียคืน 14 ม.ค. 2037
+- Takeshi: 56, แต่งงาน ลูกสาวสองคน, ส่งจดหมายตอบ Haruto, ไม่ขอพบกัน
