@@ -936,7 +936,7 @@
 
 **สถานะ ณ จบนิยาย:**
 - Date: 4 ม.ค. 2037 — Haruto บนรถไฟกลับ Tokyo
-- File: **20,478 บรรทัด** (จบสมบูรณ์ — current target ~20,000 บรรทัด)
+- File: **20,419 บรรทัด** หลัง Ch1-Ch12 readability pass (จบสมบูรณ์ — current target ~20,000 บรรทัด)
 - Chapters: **18 ตอน** (เป้าเดิม 22)
 - All canon paid off: trade, memory loss, body remembers, network of memory holders, Hina as future possible guardian, Watanabe lineage, Takeshi connection (via letter), Mamotte agetai motif (final image), ghost girl glimpse (canon ending)
 - All major plot threads resolved or set in motion
@@ -948,6 +948,7 @@
 **Verified from current files:**
 - Ch1-Ch18 exist in `tsukinomi_station.txt`; Ch18 ends with `=== End Chapter 18 ===`, then `=== จบ ===`.
 - Original Ch1-Ch12 rework objective has anchor coverage: rain/iron smell, music/tape, shadow/still cloth, three-foot distance, and body-memory seeds appear across the first twelve chapters.
+- Ch1-Ch12 final readability pass: cleaned broken dialogue/article line wraps and updated the novel front matter from 22 chapters to 18 chapters.
 - Final body-memory payoff exists in Ch18: station site is gone, wet iron smell returns without rain, Kaori-like girl appears and vanishes, Haruto cries without knowing why.
 - Yokai still does not speak in dialogue; Yamaba communicates by presence, gesture, writing, and the tape-light sequence.
 - Kaori uses "ผม" consistently in current draft. Only known "ฉัน" in the novel is a side-character line from Sato.
