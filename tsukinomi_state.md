@@ -948,7 +948,7 @@
 **Verified from current files:**
 - Ch1-Ch18 exist in `tsukinomi_station.txt`; Ch18 ends with `=== End Chapter 18 ===`, then `=== จบ ===`.
 - Original Ch1-Ch12 rework objective has anchor coverage: rain/iron smell, music/tape, shadow/still cloth, three-foot distance, and body-memory seeds appear across the first twelve chapters.
-- Ch1-Ch12 final readability pass: cleaned broken dialogue/article line wraps and updated the novel front matter from 22 chapters to 18 chapters.
+- Ch1-Ch12 final readability pass: cleaned broken dialogue/article line wraps and updated the novel front matter to 18 chapters.
 - Final body-memory payoff exists in Ch18: station site is gone, wet iron smell returns without rain, Kaori-like girl appears and vanishes, Haruto cries without knowing why.
 - Yokai still does not speak in dialogue; Yamaba communicates by presence, gesture, writing, and the tape-light sequence.
 - Kaori uses "ผม" consistently in current draft. Only known "ฉัน" in the novel is a side-character line from Sato.
