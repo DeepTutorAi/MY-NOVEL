@@ -953,10 +953,47 @@
 - Yokai still does not speak in dialogue; Yamaba communicates by presence, gesture, writing, and the tape-light sequence.
 - Kaori uses "ผม" consistently in current draft. Only known "ฉัน" in the novel is a side-character line from Sato.
 
-**Still not closed:**
-- Final user decision needed: keep Kaori's "ผม" as an intentional ghost/voice choice, or run a deliberate global pass to change Kaori dialogue to "ฉัน/ค่ะ" where natural.
-- Final polish pass still recommended across all 18 chapters for Thai grammar, overused motif lines, and em-dash style consistency.
+**Closeout assumptions:**
+- Kaori's "ผม" is locked as current-draft voice for this goal. A later change to "ฉัน/ค่ะ" is a separate global voice rewrite, not part of this closeout.
 - Untracked local files (`.claude/`, `.static-4326.out.log`, `tsukinomi_station.txt.backup`) remain outside the tracked novel files; do not delete unless user asks.
+
+## 15 · CHAPTER CLOSEOUT STATUS (2026-05-29)
+
+**Ch1 — The Walkman: OK.** Family silence, father's walkman, rain/iron smell, and empty-chair grief are established without melodrama.
+
+**Ch2 — Rain: OK.** First station meeting carries quiet horror through rain, rust, wrong silence, weak shadow, and Kaori's waiting voice.
+
+**Ch3 — The Train That Doesn't Come: OK.** Kaori's life details, three-foot distance, music exchange, and train-time contradiction deepen the bond without rushing reveal.
+
+**Ch4 — Akira Notices: OK.** Akira grounds the mystery, Hina senses the "other" smell, and Kaori's still hair/cloth anchor is visible.
+
+**Ch5 — What She Remembers: OK.** Kaori recognizes death through memory gaps and sensory impossibility; the sadness stays quiet.
+
+**Ch6 — The Old Newspaper: OK.** Newspaper proof, Yamaba lore, Hina opening the father's room, and family grief interlock without giving the yokai an explanatory voice.
+
+**Ch7 — The Decision: OK.** Haruto chooses silence and care; rain/iron, three-foot spacing, and music anchors continue into the moral weight.
+
+**Ch8 — Two Cassettes: OK.** Cassette trade setup, father's voice, and household grief are strong; humor/relief stays domestic and does not break dread.
+
+**Ch9 — Hina Knows: OK.** Hina becomes a memory-holder anchor; the family meal and ritual plan carry warmth without overexplaining.
+
+**Ch10 — Telling Mom: OK.** Naomi's practical love and the family confession hold the plot together while preserving slice-of-life restraint.
+
+**Ch11 — Mizushima House: OK.** Kaori's room, Patalliro, Aoyama, gardenia, and Yamaba's silent presence give Kaori a life beyond the station.
+
+**Ch12 — Last Visit: OK.** Final visit with Kaori sets up the trade, Takeshi message, gardenia, still cloth, and body-memory loss cleanly.
+
+**Ch13 — The Mountain: OK.** Ritual and release work without yokai speech; Yamaba communicates through gesture, light, and exchange.
+
+**Ch14 — Coming Home: OK.** Immediate memory-loss aftermath lands; Haruto does not recover Kaori, only the shape of absence.
+
+**Ch15 — Ordinary Light: OK.** Ordinary school/home scenes create the memory network through Akira, Hina, Naomi, teachers, and Sato.
+
+**Ch16 — First Frost: OK.** New warmth, Hina's drawings, Watanabe continuity, and winter imagery make aftermath feel lived-in.
+
+**Ch17 — Through Winter: OK.** Long exhale functions as emotional bridge: Akira reads memory back, Hina draws what Haruto lacks, empty station visit and left-hand warmth prepare Ch18.
+
+**Ch18 — Ten Years: OK.** Final body-memory payoff is intact: station gone, wet iron smell without rain, Kaori-like girl vanishes, left palm warms, Haruto cries without knowing why.
 
 **ตัวละครสำคัญ ตอนจบ (10 ปีต่อมา):**
 - Haruto: 28, ป.เอก ที่ Aoyama Gakuin (thermodynamic ของระบบเปิด), เรียนเปียโน 3 ปี, ไม่มีคนรักชัดเจน, ยังพก walkman
