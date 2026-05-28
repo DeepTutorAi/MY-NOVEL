@@ -33,11 +33,14 @@ const chapters = (await getCollection("chapters")).sort(
               {actChapters.map((chapter) => (
                 <li>
                   <a class="toc-row" href={withBase(`/chapters/${chapter.id}/`)}>
-                    <span class="toc-row-number">บทที่ {chapter.data.number}</span>
-                    <span>
+                    <span class="toc-row-number">บทที่ {chapter.data.number} —</span>
+                    <span class="toc-row-copy">
                       <span class="toc-row-title">{chapter.data.title}</span>
                       {chapter.data.thaiTitle && (
                         <span class="toc-row-thai"> — {chapter.data.thaiTitle}</span>
+                      )}
+                      {chapter.data.summary && (
+                        <span class="toc-row-summary">{chapter.data.summary}</span>
                       )}
                     </span>
                     <span class="toc-row-time">{chapter.data.readingMinutes} นาที</span>

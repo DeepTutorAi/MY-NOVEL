@@ -8,3 +8,4 @@ dist/
 .astro-dev.*.log
 .astro-preview.*.log
 .qa/
+.claude/

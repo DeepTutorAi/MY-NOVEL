@@ -1,19 +1,118 @@
-<div class="reading-progress" aria-hidden="true">
-  <span></span>
-</div>
-
 <script>
-  const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const progress = document.querySelector(".reading-progress span");
   const article = document.querySelector("article.chapter");
   const storageKey = "hvitveldt:reading:last";
+  const visitKey = "hvitveldt:reading:visits";
+  const jumpKey = "hvitveldt:reading:jumps";
   const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+
+  // When resuming we drive the scroll ourselves; stop the browser from racing us
+  // back to the top with its own scroll restoration.
+  if (resumeRequested && "scrollRestoration" in history) {
+    try {
+      history.scrollRestoration = "manual";
+    } catch {
+      // ignore: some browsers disallow setting this.
+    }
+  }
 
   if (article instanceof HTMLElement) {
     let ticking = false;
     let lastSavedAt = 0;
     const chapterId = article.dataset.chapterId ?? "";
     const chapterKey = chapterId ? `hvitveldt:reading:chapter:${chapterId}` : "";
+    const chapterNumber = Number(article.dataset.chapter ?? 0);
+    const enteredAt = Date.now();
+
+    // ----- Block-level anchor capture (D1) -----
+    // Collect "anchorable" direct children of the article: paragraphs, journal divs,
+    // blockquotes, figures, headings, lists. Skip rune dividers and end-of-chapter
+    // marks (they have no readable content).
+    const ANCHOR_SELECTOR = "p, div.journal, blockquote, figure, h1, h2, h3, ul, ol";
+    const blocks = Array.from(article.querySelectorAll<HTMLElement>(`:scope > ${ANCHOR_SELECTOR}`));
+
+    const buildExcerpt = (el: HTMLElement): string => {
+      const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+      if (!text) return "";
+      // Thai characters are wider than ASCII; 80 chars stays under ~one line on mobile.
+      const limit = 80;
+      return text.length > limit ? `${text.slice(0, limit)}…` : text;
+    };
+
+    const findCurrentBlockIndex = (): number => {
+      // The "current" block is the last one whose top has crossed 35% of the viewport.
+      // Falls back to 0 if nothing has crossed yet.
+      const threshold = window.innerHeight * 0.35;
+      let currentIndex = -1;
+      for (let i = 0; i < blocks.length; i += 1) {
+        const rect = blocks[i].getBoundingClientRect();
+        if (rect.top <= threshold) {
+          currentIndex = i;
+        } else {
+          break;
+        }
+      }
+      return currentIndex < 0 ? 0 : currentIndex;
+    };
+
+    const readStored = (key: string) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const writeStored = (key: string, value: unknown) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // localStorage can fail in private or restricted browser modes.
+      }
+    };
+
+    const boundedList = (key: string, item: Record<string, unknown>, limit: number) => {
+      const current = readStored(key);
+      const list = Array.isArray(current) ? current : [];
+      list.push(item);
+      writeStored(key, list.slice(-limit));
+    };
+
+    const previous = readStored(storageKey);
+    const previousChapterNumber = Number(previous?.chapterNumber ?? 0);
+    const previousMaxChapterNumber = Number(previous?.maxChapterNumber ?? 0);
+    const maxChapterNumber = Math.max(
+      Number.isFinite(previousMaxChapterNumber) ? previousMaxChapterNumber : 0,
+      Number.isFinite(chapterNumber) ? chapterNumber : 0,
+    );
+
+    let jumpType = "start";
+
+    if (
+      chapterId &&
+      typeof previous?.chapterId === "string" &&
+      previous.chapterId !== chapterId &&
+      Number.isFinite(chapterNumber) &&
+      Number.isFinite(previousChapterNumber)
+    ) {
+      const diff = chapterNumber - previousChapterNumber;
+      jumpType = Math.abs(diff) <= 1 ? "adjacent" : diff > 1 ? "forward-skip" : "backtrack";
+
+      const movement = {
+        chapterId,
+        chapterNumber,
+        fromChapterId: previous.chapterId,
+        fromChapterNumber: previousChapterNumber,
+        jumpType,
+        enteredAt,
+      };
+
+      boundedList(visitKey, movement, 80);
+
+      if (Math.abs(diff) > 1) {
+        boundedList(jumpKey, movement, 50);
+      }
+    }
 
     const getRatio = () => {
       const rect = article.getBoundingClientRect();
@@ -34,29 +133,32 @@
 
       lastSavedAt = now;
 
+      const blockIndex = blocks.length > 0 ? findCurrentBlockIndex() : -1;
+      const excerpt = blockIndex >= 0 ? buildExcerpt(blocks[blockIndex]) : "";
+
       const saved = {
         chapterId,
         chapterNumber: article.dataset.chapter ?? "",
         chapterTitle: article.dataset.chapterTitle ?? "",
         path: window.location.pathname,
         progress: Number(ratio.toFixed(4)),
+        blockIndex,
+        blockExcerpt: excerpt,
+        blockCount: blocks.length,
         updatedAt: now,
+        enteredAt,
+        maxChapterNumber,
+        fromChapterId: typeof previous?.chapterId === "string" ? previous.chapterId : "",
+        fromChapterNumber: Number.isFinite(previousChapterNumber) ? previousChapterNumber : "",
+        jumpType,
       };
 
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(saved));
-        localStorage.setItem(chapterKey, JSON.stringify(saved));
-      } catch {
-        // localStorage can fail in private or restricted browser modes.
-      }
+      writeStored(storageKey, saved);
+      writeStored(chapterKey, saved);
     };
 
     const update = () => {
       const ratio = getRatio();
-
-      if (!media.matches && progress instanceof HTMLElement) {
-        progress.style.transform = `scaleX(${ratio})`;
-      }
 
       saveProgress(ratio);
       ticking = false;
@@ -72,28 +174,110 @@
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
 
-    if (resumeRequested && chapterKey) {
-      window.setTimeout(() => {
-        try {
-          const raw = localStorage.getItem(chapterKey);
-          const saved = raw ? JSON.parse(raw) : null;
-          const savedProgress = Number(saved?.progress);
+    // ----- Resume highlight (D2) -----
+    // Choose a target block that the reader can safely look at.
+    // Figures are skipped so the glow never sits behind chapter art (01A/01B etc.).
+    const pickHighlightTarget = (preferredIndex: number): HTMLElement | null => {
+      if (blocks.length === 0) return null;
+      const safe = (idx: number) => Math.max(0, Math.min(blocks.length - 1, idx));
+      const start = safe(preferredIndex);
+      const candidate = blocks[start];
+      if (candidate && candidate.tagName !== "FIGURE") {
+        return candidate;
+      }
+      // If we landed on a figure, prefer the paragraph just before it.
+      for (let i = start - 1; i >= 0; i -= 1) {
+        if (blocks[i].tagName !== "FIGURE") return blocks[i];
+      }
+      // Otherwise look forward.
+      for (let i = start + 1; i < blocks.length; i += 1) {
+        if (blocks[i].tagName !== "FIGURE") return blocks[i];
+      }
+      return null;
+    };
 
-          if (!Number.isFinite(savedProgress) || savedProgress <= 0.01 || savedProgress >= 0.99) {
+    const flashHighlight = (el: HTMLElement) => {
+      el.classList.add("resume-highlight");
+      // Animation runs 1800ms; we clear the class slightly after so the next
+      // resume can re-trigger cleanly.
+      window.setTimeout(() => {
+        el.classList.remove("resume-highlight");
+      }, 2100);
+    };
+
+    if (resumeRequested && chapterKey) {
+      const saved = readStored(chapterKey);
+      const savedProgress = Number(saved?.progress);
+      const savedBlockIndex = Number(saved?.blockIndex);
+      const hasBlockAnchor =
+        Number.isFinite(savedBlockIndex) &&
+        savedBlockIndex >= 0 &&
+        savedBlockIndex < blocks.length;
+
+      // Resolve the block to land on. Prefer the saved block anchor; for legacy
+      // ratio-only saves, derive an approximate block from the ratio.
+      let highlightBlock: HTMLElement | null = null;
+      let ratioFallback: number | null = null;
+
+      if (hasBlockAnchor) {
+        highlightBlock = pickHighlightTarget(savedBlockIndex);
+      } else if (Number.isFinite(savedProgress) && savedProgress > 0.01 && savedProgress < 0.99) {
+        ratioFallback = savedProgress;
+        highlightBlock = pickHighlightTarget(Math.floor(savedProgress * blocks.length));
+      }
+
+      if (highlightBlock || ratioFallback !== null) {
+        // Compute the scroll target from the LIVE element rect each time so that
+        // lazy-loaded figures (01A/01B etc.) shifting layout above the target do
+        // not leave us at the wrong position.
+        const computeTarget = (): number => {
+          if (highlightBlock) {
+            const absoluteTop = highlightBlock.getBoundingClientRect().top + window.scrollY;
+            return Math.max(0, absoluteTop - window.innerHeight * 0.3);
+          }
+          const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
+          return article.offsetTop + scrollable * (ratioFallback ?? 0);
+        };
+
+        // A deep resume can be thousands of px away; an instant jump is the
+        // expected "resume" behaviour. The gentle cue is the highlight glow,
+        // not a multi-second smooth scroll through the whole chapter.
+        let corrections = 0;
+        const settleAndCorrect = () => {
+          // Re-assert position until it stops drifting (max a few passes) so the
+          // landing survives late image/font layout shifts.
+          const desired = computeTarget();
+          if (Math.abs(window.scrollY - desired) > 8 && corrections < 5) {
+            corrections += 1;
+            window.scrollTo({ top: desired, behavior: "auto" });
+            window.setTimeout(settleAndCorrect, 160);
             return;
           }
+          if (highlightBlock) {
+            flashHighlight(highlightBlock);
+          }
+        };
 
-          const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
-          const target = article.offsetTop + scrollable * savedProgress;
-          window.scrollTo({
-            top: target,
-            behavior: media.matches ? "auto" : "smooth",
-          });
+        let started = false;
+        const start = () => {
+          if (started) return;
+          started = true;
+          window.scrollTo({ top: computeTarget(), behavior: "auto" });
           history.replaceState(null, "", window.location.pathname + window.location.hash);
-        } catch {
-          return;
+          // Correct against the final layout before flashing the highlight.
+          window.setTimeout(settleAndCorrect, 200);
+        };
+
+        // Wait until the document has finished loading (images/fonts) when possible,
+        // otherwise start after a short delay.
+        if (document.readyState === "complete") {
+          window.setTimeout(start, 80);
+        } else {
+          window.addEventListener("load", () => window.setTimeout(start, 80), { once: true });
+          // Safety net in case `load` never fires promptly.
+          window.setTimeout(start, 1400);
         }
-      }, 120);
+      }
     }
 
     window.addEventListener("pagehide", () => saveProgress(getRatio()));

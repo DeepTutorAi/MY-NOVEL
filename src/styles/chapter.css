@@ -1,10 +1,8 @@
 .chapter-shell {
   position: relative;
-  z-index: 1;
+  z-index: 6;
   min-height: 100vh;
-  background:
-    radial-gradient(circle at 50% 0%, rgb(194 75 58 / 0.055), transparent 28rem),
-    rgb(14 13 12 / 0.78);
+  background: transparent;
 }
 
 .chapter-shell::after {
@@ -25,7 +23,12 @@ article.chapter {
   inline-size: min(var(--measure), calc(100vw - 2rem));
   max-inline-size: var(--measure);
   margin-inline: auto;
-  padding: 4rem 1.25rem 6rem;
+  padding: 4rem clamp(1.1rem, 3vw, 2.35rem) 6rem;
+  border-inline: 1px solid color-mix(in oklab, var(--ink) 7%, transparent);
+  background:
+    radial-gradient(circle at 50% 0%, rgb(194 75 58 / 0.055), transparent 28rem),
+    rgb(14 13 12 / 0.94);
+  box-shadow: 0 2rem 6rem rgb(0 0 0 / 0.32);
   overflow-wrap: anywhere;
   word-break: normal;
 }
@@ -210,31 +213,14 @@ article.chapter hr {
   stroke-width: 1.8;
 }
 
-.reading-progress {
-  position: fixed;
-  inset-block-start: 0;
-  inset-inline: 0;
-  z-index: 20;
-  block-size: 2px;
-  pointer-events: none;
-}
-
-.reading-progress span {
-  display: block;
-  inline-size: 100%;
-  block-size: 100%;
-  background: var(--accent);
-  opacity: 0.5;
-  transform: scaleX(0);
-  transform-origin: left center;
-}
-
 .toc-page {
   min-height: 100vh;
   background: rgb(14 13 12 / 0.78);
 }
 
 .toc {
+  position: relative;
+  z-index: 1;
   width: min(var(--measure), calc(100% - 2rem));
   margin-inline: auto;
   padding-block: 4rem 6rem;
@@ -300,10 +286,42 @@ article.chapter hr {
   line-height: 1.2;
 }
 
+.toc-row-copy {
+  display: grid;
+  gap: 0.25rem;
+  min-inline-size: 0;
+}
+
 .toc-row-thai {
   color: var(--ink-dim);
   font-family: var(--font-thai);
   font-size: 0.9rem;
+}
+
+.toc-row-summary {
+  max-inline-size: 50rem;
+  color: var(--ink-dim);
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.chapter-figure {
+  margin: 3rem calc(50% - min(48vw, 44rem));
+}
+
+.chapter-figure img {
+  width: 100%;
+  border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+  border-radius: 8px;
+  box-shadow: 0 1.2rem 4rem rgb(0 0 0 / 0.28);
+}
+
+.chapter-figure figcaption {
+  margin-block-start: 0.65rem;
+  color: var(--ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  line-height: 1.5;
 }
 
 .temporary-home-links {
@@ -314,6 +332,100 @@ article.chapter hr {
   color: var(--ink-dim);
   font-family: var(--font-mono);
   font-size: 0.82rem;
+}
+
+/* ----- Sentence-level emphasis (Quality Guard D3) ----- */
+/* Semantic tone classes for in-prose emphasis. Apply sparingly. */
+
+article.chapter .clue {
+  border-block-end: 1px dotted color-mix(in oklab, var(--accent) 64%, transparent);
+  color: color-mix(in oklab, var(--ink) 92%, var(--accent));
+  font-style: italic;
+  padding-block-end: 1px;
+}
+
+article.chapter .memory {
+  color: color-mix(in oklab, var(--ink-dim) 80%, var(--ink));
+  font-family: var(--font-display);
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+article.chapter .whisper {
+  color: color-mix(in oklab, var(--ink-dim) 70%, transparent);
+  font-size: 0.96em;
+  letter-spacing: 0.02em;
+}
+
+article.chapter .danger {
+  background:
+    linear-gradient(to bottom, transparent 82%, color-mix(in oklab, var(--accent) 38%, transparent) 82%, color-mix(in oklab, var(--accent) 38%, transparent) 92%, transparent 92%);
+  color: color-mix(in oklab, var(--ink) 88%, var(--accent));
+}
+
+article.chapter .cold-detail {
+  color: color-mix(in oklab, var(--ink) 96%, var(--paper));
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+/* ----- Resume-position highlight (Quality Guard D2 prep) ----- */
+/* Applied briefly to the paragraph the reader resumes on, then removed. */
+
+article.chapter .resume-highlight {
+  position: relative;
+  animation: resume-glow 1800ms ease-out 1;
+}
+
+article.chapter .resume-highlight::before {
+  content: "";
+  position: absolute;
+  inset: -0.4em -0.6em;
+  z-index: -1;
+  border-radius: 4px;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in oklab, var(--accent) 18%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  animation: resume-glow-bg 1800ms ease-out 1;
+  pointer-events: none;
+}
+
+/* Never let the glow sit behind a chapter figure (snow/figure safety) */
+article.chapter figure.chapter-figure.resume-highlight,
+article.chapter figure.chapter-figure .resume-highlight {
+  animation: none;
+}
+
+article.chapter figure.chapter-figure.resume-highlight::before,
+article.chapter figure.chapter-figure .resume-highlight::before {
+  display: none;
+}
+
+@keyframes resume-glow {
+  0% { background-color: transparent; }
+  18% { background-color: color-mix(in oklab, var(--accent) 9%, transparent); }
+  100% { background-color: transparent; }
+}
+
+@keyframes resume-glow-bg {
+  0% { opacity: 0; }
+  22% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  article.chapter .resume-highlight,
+  article.chapter .resume-highlight::before {
+    animation: none;
+  }
+
+  article.chapter .resume-highlight {
+    outline: 1px solid color-mix(in oklab, var(--accent) 38%, transparent);
+    outline-offset: 0.25rem;
+  }
 }
 
 @media (max-width: 640px) {
@@ -327,6 +439,7 @@ article.chapter hr {
     inline-size: 100vw !important;
     max-inline-size: 100vw !important;
     margin-inline: 0;
+    border-inline: 0;
     font-size: 16px;
     line-height: 1.85;
     padding: 3rem 1rem 5rem;
@@ -385,10 +498,8 @@ article.chapter hr {
     grid-template-columns: 1fr;
     gap: 0.35rem;
   }
-}
 
-@media (prefers-reduced-motion: reduce) {
-  .reading-progress {
-    display: none;
+  .chapter-figure {
+    margin-inline: 0;
   }
 }

@@ -37,7 +37,7 @@ const chapters = (await getCollection("chapters")).sort(
                 {actChapters.map((chapter) => (
                   <li>
                     <a href={withBase(`/chapters/${chapter.id}/`)}>
-                      <span>บทที่ {chapter.data.number}</span>
+                      <span>บทที่ {chapter.data.number} —</span>
                       <strong>{chapter.data.title}</strong>
                     </a>
                   </li>

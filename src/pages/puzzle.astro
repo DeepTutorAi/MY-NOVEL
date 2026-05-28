@@ -3,7 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Rune from "../components/marks/Rune.astro";
 import puzzleRaw from "../content/extras/puzzle-map.md?raw";
 
-const body = puzzleRaw.replace(/^---[\s\S]*?---\s*/, "").trim();
+const body = puzzleRaw.replace(/^\uFEFF/, "").replace(/^---[\s\S]*?---\s*/, "").trim();
 const [itemsPart, summaryPart = ""] = body.split(/\n\nสรุป:/);
 const [introLine, ...itemBlocks] = itemsPart.split(/\n(?=★ )/);
 const items = itemBlocks.map((block) => {
@@ -35,13 +35,31 @@ const items = itemBlocks.map((block) => {
 >
   <main class="puzzle-shell">
     <section class="puzzle-gate" data-puzzle-gate>
-      <div class="puzzle-gate-panel">
+      <div class="puzzle-gate-panel" data-puzzle-panel>
         <p>หน้านี้เปิดเผยปริศนาทั้งหมดของเรื่อง อ่านหลังจบเรื่องเท่านั้น</p>
         <label class="puzzle-confirm">
           <input type="checkbox" data-puzzle-confirm />
-          <span>ฉันอ่านจบแล้ว</span>
+          <span>ฉันอ่านจบแล้ว และยอมเห็นสปอยล์</span>
         </label>
-        <button class="puzzle-open" type="button" disabled data-puzzle-open>เปิด</button>
+        <button class="puzzle-open puzzle-tease" type="button" hidden data-puzzle-tease>
+          เปิดแผนที่ปริศนา
+        </button>
+        <div class="puzzle-challenge" data-puzzle-challenge hidden>
+          <p class="puzzle-gotcha">อะฮ่า... ก่อนจะเปิดได้ ตอบนี่ให้ได้ก่อน</p>
+          <label class="puzzle-passphrase">
+            <span>เมืองสุดท้ายที่ Elena ไปถึงก่อนโลกปกติเริ่มกลับมา</span>
+            <input
+              type="text"
+              inputmode="text"
+              autocomplete="off"
+              spellcheck="false"
+              placeholder="answer in English"
+              data-puzzle-passphrase
+            />
+          </label>
+          <p class="puzzle-error" data-puzzle-error hidden>รหัสยังไม่ถูก กลับไปอ่านช่วงทางรอดอีกครั้ง</p>
+          <button class="puzzle-open" type="button" disabled data-puzzle-open>ยืนยันคำตอบ</button>
+        </div>
       </div>
     </section>
 
@@ -79,29 +97,88 @@ const items = itemBlocks.map((block) => {
   <script>
     const gate = document.querySelector("[data-puzzle-gate]");
     const content = document.querySelector("[data-puzzle-content]");
+    const panel = document.querySelector("[data-puzzle-panel]");
     const confirm = document.querySelector("[data-puzzle-confirm]");
+    const tease = document.querySelector("[data-puzzle-tease]");
+    const challenge = document.querySelector("[data-puzzle-challenge]");
+    const passphrase = document.querySelector("[data-puzzle-passphrase]");
+    const error = document.querySelector("[data-puzzle-error]");
     const open = document.querySelector("[data-puzzle-open]");
     const key = "hvitveldt:puzzle-unlocked";
+    const accepted = new Set(["karasjok"]);
 
     const reveal = () => {
       gate?.setAttribute("hidden", "");
       content?.removeAttribute("hidden");
-      localStorage.setItem(key, "true");
+      localStorage.setItem(key, "karasjok");
     };
 
-    if (localStorage.getItem(key) === "true") {
+    const normalize = (value: string) => value.trim().toLowerCase().replace(/[^a-z]/g, "");
+    const isUnlocked = () => {
+      const value = localStorage.getItem(key);
+      return value === "true" || value === "karasjok";
+    };
+
+    if (isUnlocked()) {
       reveal();
     }
 
-    if (confirm instanceof HTMLInputElement && open instanceof HTMLButtonElement) {
+    if (
+      confirm instanceof HTMLInputElement &&
+      tease instanceof HTMLButtonElement &&
+      challenge instanceof HTMLElement &&
+      passphrase instanceof HTMLInputElement &&
+      open instanceof HTMLButtonElement
+    ) {
+      const hideChallenge = () => {
+        challenge.hidden = true;
+        passphrase.value = "";
+        open.disabled = true;
+        error?.setAttribute("hidden", "");
+        panel?.removeAttribute("data-stage");
+      };
+
+      const updateButton = () => {
+        tease.hidden = !confirm.checked || !challenge.hidden;
+        open.disabled = !confirm.checked || passphrase.value.trim().length === 0;
+        error?.setAttribute("hidden", "");
+      };
+
       confirm.addEventListener("change", () => {
-        open.disabled = !confirm.checked;
+        if (!confirm.checked) {
+          hideChallenge();
+        }
+
+        updateButton();
+      });
+
+      tease.addEventListener("click", () => {
+        if (!confirm.checked) {
+          return;
+        }
+
+        challenge.hidden = false;
+        tease.hidden = true;
+        panel?.setAttribute("data-stage", "challenge");
+        updateButton();
+        passphrase.focus();
+      });
+
+      passphrase.addEventListener("input", updateButton);
+      passphrase.addEventListener("keydown", (event) => {
+        if (event.key === "Enter" && !open.disabled) {
+          open.click();
+        }
       });
 
       open.addEventListener("click", () => {
-        if (confirm.checked) {
+        if (confirm.checked && accepted.has(normalize(passphrase.value))) {
           reveal();
+          return;
         }
+
+        error?.removeAttribute("hidden");
+        passphrase.focus();
       });
     }
   </script>

@@ -26,10 +26,18 @@ Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-
 - Diana Webb: `public/assets/images/characters/Diana Webb.png`
 - Vincent Leroux: `public/assets/images/characters/Vincent Leroux.png`
 - Marcus Hale: `public/assets/images/characters/Marcus Hale.png`
+- Sarah Kovac: `public/assets/images/characters/Sarah Kovac.png`
+- Jake Whitmore: `public/assets/images/characters/Jake Whitmore.png`
+- Ben Ross: `public/assets/images/characters/Ben Ross.png`
+- Tom Janssen: `public/assets/images/characters/Tom Janssen.png`
+- Lillian Hale: `public/assets/images/characters/Lillian Hale.png`
+- Sophie Hale: `public/assets/images/characters/Sophie Hale.png`
+- Detective Karlsen: `public/assets/images/characters/Detective Karlsen.png`
+- Subject 8: `public/assets/images/characters/Subject 8 v1.png`, `public/assets/images/characters/Subject 8 v2.png`
 
-## ตัวละครที่ควรทำ ref เพิ่ม
+## Prompt ต้นทางของ ref ตัวละคร
 
-ส่วนนี้ใช้สร้าง character refs เพิ่มก่อน ถ้าต้องการให้ภาพประกอบที่มีตัวละครเหล่านี้คงที่ขึ้น
+ส่วนนี้เก็บ prompt ต้นทางของ character refs ที่สร้างไว้แล้ว เพื่อใช้ตรวจความคงที่หรือสร้างเวอร์ชันใหม่เมื่อจำเป็น
 
 ### Sarah Kovac
 
@@ -129,7 +137,7 @@ Composition: 3:4 character sheet, front view, three-quarter view, side profile, 
 
 ### Detective Karlsen
 
-ไฟล์แนะนำ: `public/assets/images/characters/Karlsen.png`
+ไฟล์แนะนำ: `public/assets/images/characters/Detective Karlsen.png`
 
 อัตราส่วน: `3:4`
 
@@ -145,7 +153,7 @@ Composition: 3:4 character sheet, front view, three-quarter view, side profile, 
 
 ### Subject 8 / Imposter Cue
 
-ไฟล์แนะนำ: `public/assets/images/characters/Subject 8 Cue.png`
+ไฟล์ที่ใช้จริงตอนนี้: `public/assets/images/characters/Subject 8 v1.png`, `public/assets/images/characters/Subject 8 v2.png`
 
 อัตราส่วน: `3:4`
 
@@ -165,11 +173,11 @@ Composition: 3:4 mood reference, mostly silhouette and reflection, no fixed face
 
 #### 01A - ถนนหิมะก่อนถึงบ้านพัก
 
-ไฟล์แนะนำ: `public/assets/images/chapters/01a-elena-snow-road.png`
+ไฟล์ที่ใช้จริงตอนนี้: `public/assets/images/chapters/01A.png`
 
 อัตราส่วน: `21:9` หรือ `16:9`
 
-ตำแหน่งใช้: เปิดตอนหรือภาพคั่นกว้าง
+ตำแหน่งใช้: หลังย่อหน้า GPS หยุดทำงานและแผนที่กระดาษ ก่อน Elena แนะนำตัวเอง
 
 ใช้ ref: Elena Vasquez
 
@@ -183,11 +191,11 @@ Composition: 21:9 cinematic interior and road view, Elena in the lower left thir
 
 #### 01B - ประตูบ้านพักและ Marcus
 
-ไฟล์แนะนำ: `public/assets/images/chapters/01b-lodge-door-marcus.png`
+ไฟล์ที่ใช้จริงตอนนี้: `public/assets/images/chapters/01B.png`
 
 อัตราส่วน: `16:9`
 
-ตำแหน่งใช้: ภาพคั่นกลางตอน
+ตำแหน่งใช้: หลัง Marcus เปิดประตูต้อนรับ Elena ก่อนเข้าภายใน lodge ภาพนี้เป็นจังหวะ doorway ไม่ใช่ภาพยืนยันขนาดทั้งอาคาร
 
 ใช้ ref: Elena Vasquez, Marcus Hale
 
@@ -209,14 +217,14 @@ Composition: 16:9, lodge doorway right of center, Elena seen from behind or thre
 
 ตำแหน่งใช้: ภาพคั่นกว้างหลังเปิดตอน
 
-ใช้ ref: Elena Vasquez, Diana Webb, Vincent Leroux, Marcus Hale
+ใช้ ref: Elena Vasquez, Diana Webb, Vincent Leroux, Marcus Hale, Sarah Kovac, Jake Whitmore, Ben Ross, Tom Janssen
 
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-Long dining room table inside an old winter lodge on the first night, Marcus Hale at the head with his precise smile and formal posture, Elena Vasquez observant and quiet, Diana Webb athletic with tied-back hair and hard practical eyes, Vincent Leroux slim with slightly long unkempt hair and sharp cheekbones, other guests present as softer silhouettes, blank name cards and glasses on the table, polite conversation hiding tension.
+A dinner scene with eight people gathered around a long twelve-meter dark oak dining table inside an old Scandinavian winter lodge on the first night. Marcus Hale (39, lean pale host) sits at the head of the table in a Chesterfield leather chair with a precise, controlled smile, holding a glass of water, with NO soup bowl in front of him. Seated around the table are seven guests: Elena Vasquez (32, Spanish-American journalist, observant eyes, dark wavy shoulder-length hair) sitting on Marcus's right, sandwiched between Sarah Kovač (41, therapist with a calm tired face, wearing a dark cardigan) and Diana Webb (37, ex-army medic with tied-back hair and hard practical eyes). Vincent Leroux (29, slim French writer, unkempt dark hair, sharp cheekbones) sits directly opposite Elena. Tom Janssen (53, Minnesota widower with thinning short hair and a weary sad face) sits at the far end next to Vincent. Jake Whitmore (27, messy hair, holding a glass of whisky) and Ben Ross (24, travel influencer wearing a casual winter hoodie) are also seated. Six bowls of orange-colored beetroot soup are placed in front of the guests, along with wine glasses and blank name cards.
 
-Composition: 16:9, table leading lines toward Marcus, candle and fireplace shadows, faces small but distinct for ref characters, no readable names on cards.
+Composition: 16:9, table leading lines vanishing towards Marcus at the head, dim candle light from a brass chandelier above and firelight casting long, soft graphite shadows, faces distinct but integrated into the moody graphite sketch, no readable names on cards, high tension under polite conversation.
 ```
 
 #### 02B - เสียงหลังประตูของ Marcus

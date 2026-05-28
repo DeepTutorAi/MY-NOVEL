@@ -4,6 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 
+const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
+
 function remarkJournalDirective() {
   /** @param {any} tree */
   const transform = (tree) => {
@@ -15,6 +17,28 @@ function remarkJournalDirective() {
       const data = node.data || (node.data = {});
       data.hName = "div";
       data.hProperties = { className: ["journal"] };
+    });
+  };
+
+  return transform;
+}
+
+// Inline sentence-level emphasis directives (Quality Guard D4).
+// Usage in chapter markdown: :clue[ข้อความ], :memory[...], :whisper[...],
+// :danger[...], :cold-detail[...] → <span class="clue">…</span>
+const EMPHASIS_TONES = new Set(["clue", "memory", "whisper", "danger", "cold-detail"]);
+
+function remarkEmphasisDirective() {
+  /** @param {any} tree */
+  const transform = (tree) => {
+    visit(tree, (node) => {
+      if (node.type !== "textDirective" || !EMPHASIS_TONES.has(node.name)) {
+        return;
+      }
+
+      const data = node.data || (node.data = {});
+      data.hName = "span";
+      data.hProperties = { className: [node.name] };
     });
   };
 
@@ -65,9 +89,9 @@ function rehypeRuneDividers() {
 
 export default defineConfig({
   site: "https://deeptutorai.github.io",
-  base: "/MY-NOVEL",
+  base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
   markdown: {
-    remarkPlugins: [remarkDirective, remarkJournalDirective],
+    remarkPlugins: [remarkDirective, remarkJournalDirective, remarkEmphasisDirective],
     rehypePlugins: [rehypeRuneDividers],
   },
   vite: {

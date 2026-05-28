@@ -4,7 +4,7 @@
   const canvas = document.querySelector(".snow-canvas");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
 
-  if (canvas instanceof HTMLCanvasElement && !reduceMotion.matches) {
+  if (canvas instanceof HTMLCanvasElement) {
     const context = canvas.getContext("2d");
     const mobile = window.matchMedia("(max-width: 640px)");
     let width = 0;
@@ -19,15 +19,20 @@
       driftX: number;
       opacity: number;
     };
+    type ProtectedRect = {
+      rect: DOMRect;
+      pad: number;
+    };
     let particles: SnowParticle[] = [];
 
     const isHome = () => document.body.classList.contains("home-page");
+    const isReader = () => document.body.classList.contains("chapter-page");
     const particleCap = () => {
       if (mobile.matches) {
-        return isHome() ? 52 : 24;
+        return isHome() ? 72 : 36;
       }
 
-      return isHome() ? 120 : 44;
+      return isHome() ? 160 : 78;
     };
 
     const createParticle = (initial = false) => {
@@ -37,11 +42,60 @@
       return {
         x: Math.random() * width,
         y: initial ? Math.random() * height : -10,
-        radius: home ? 0.65 + Math.random() * 1.45 : 0.5 + Math.random(),
-        driftSpeed: home ? 0.45 + Math.random() * 1.05 : 0.3 + Math.random() * 0.5,
-        driftX: Math.sin(angle) * (home ? 0.55 : 0.35),
-        opacity: home ? 0.28 + Math.random() * 0.38 : 0.2 + Math.random() * 0.3,
+        radius: home ? 0.8 + Math.random() * 1.8 : 0.65 + Math.random() * 1.2,
+        driftSpeed: home ? 0.55 + Math.random() * 1.2 : 0.35 + Math.random() * 0.7,
+        driftX: Math.sin(angle) * (home ? 0.72 : 0.44),
+        opacity: home ? 0.36 + Math.random() * 0.42 : 0.28 + Math.random() * 0.34,
       };
+    };
+
+    const particleInPaddedRect = (particle: SnowParticle, rect: DOMRect, pad: number) => {
+      if (rect.width <= 0 || rect.height <= 0) {
+        return false;
+      }
+
+      const left = rect.left - pad;
+      const right = rect.right + pad;
+      const top = Math.max(0, rect.top - pad);
+      const bottom = Math.min(height, rect.bottom + pad);
+
+      return (
+        particle.x + particle.radius >= left &&
+        particle.x - particle.radius <= right &&
+        particle.y + particle.radius >= top &&
+        particle.y - particle.radius <= bottom
+      );
+    };
+
+    const getReaderProtectedRects = () => {
+      if (!isReader()) {
+        return [];
+      }
+
+      const protectedRects: ProtectedRect[] = [];
+      const article = document.querySelector("article.chapter");
+      const textPad = mobile.matches ? 10 : 22;
+
+      if (article instanceof HTMLElement) {
+        protectedRects.push({ rect: article.getBoundingClientRect(), pad: textPad });
+      }
+
+      const figurePad = mobile.matches ? 8 : 16;
+
+      for (const image of document.querySelectorAll(".chapter-figure img")) {
+        if (image instanceof HTMLImageElement) {
+          protectedRects.push({ rect: image.getBoundingClientRect(), pad: figurePad });
+        }
+      }
+
+      return protectedRects;
+    };
+
+    const particleOverReaderProtectedArea = (
+      particle: SnowParticle,
+      protectedRects: ProtectedRect[],
+    ) => {
+      return protectedRects.some(({ rect, pad }) => particleInPaddedRect(particle, rect, pad));
     };
 
     const resize = () => {
@@ -62,10 +116,13 @@
       }
 
       context.clearRect(0, 0, width, height);
+      const protectedRects = getReaderProtectedRects();
 
       for (const particle of particles) {
-        particle.y += particle.driftSpeed;
-        particle.x += particle.driftX;
+        if (!reduceMotion.matches) {
+          particle.y += particle.driftSpeed;
+          particle.x += particle.driftX;
+        }
 
         if (particle.y > height + 10) {
           Object.assign(particle, createParticle(false));
@@ -75,6 +132,10 @@
           particle.x = width + 10;
         } else if (particle.x > width + 10) {
           particle.x = -10;
+        }
+
+        if (particleOverReaderProtectedArea(particle, protectedRects)) {
+          continue;
         }
 
         context.beginPath();
@@ -94,6 +155,11 @@
     };
 
     const resume = () => {
+      if (reduceMotion.matches) {
+        draw();
+        return;
+      }
+
       if (!frame && document.visibilityState === "visible") {
         frame = window.requestAnimationFrame(draw);
       }
@@ -105,6 +171,18 @@
     window.addEventListener("resize", () => {
       window.clearTimeout(resizeTimer);
       resizeTimer = window.setTimeout(resize, 150);
+    });
+
+    reduceMotion.addEventListener("change", () => {
+      pause();
+      resize();
+      resume();
+    });
+
+    document.addEventListener("astro:after-swap", () => {
+      pause();
+      resize();
+      resume();
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -121,15 +199,9 @@
   .snow-canvas {
     position: fixed;
     inset: 0;
-    z-index: 5;
+    z-index: 7;
     width: 100vw;
     height: 100vh;
     pointer-events: none;
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .snow-canvas {
-      display: none;
-    }
   }
 </style>
