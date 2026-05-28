@@ -1,7 +1,7 @@
 # แผน: 「月の海駅」 Tsukinomi no Eki (สถานีทะเลพระจันทร์)
 
 > *Quiet horror × Slice of life × Mono no aware*
-> Long-form Japanese creepypasta ~10,000-12,000 บรรทัด, 22 ch
+> Long-form Japanese creepypasta ~20,000 บรรทัด, 18 ch (final draft)
 
 ---
 
@@ -14,7 +14,7 @@
 ## Setting
 
 - **เมือง Hakuba-machi** (จินตนาการ) — เมืองภูเขาเล็กในจังหวัด Nagano
-- ปลายฤดูใบไม้ร่วง → เข้าฤดูหนาว (October → December 2025)
+- ปลายฤดูใบไม้ร่วง 2025 → ฤดูหนาว/ฤดูใบไม้ผลิ 2026 → epilogue ปีใหม่ 2037
 - โทนสี: เทาเย็น น้ำตาลใบไม้ร่วง ส้มเย็น น้ำเงินทไวไลท์
 
 ---
@@ -24,7 +24,7 @@
 | ชื่อ | บทบาท | จุดเด่น |
 |------|------|---------|
 | **Takahashi Haruto** 高橋 陽翔 (17) | ตัวเอก / POV | เงียบ ฟัง walkman พ่อ ปั่นจักรยานสำรวจ |
-| **Mizushima Kaori** 水島 香織 (16) | ผีเด็กผู้หญิง | ไม่รู้ว่าตาย รักดนตรี เปิดเผย |
+| **Mizushima Kaori** 水島 香織 (16) | ผีเด็กผู้หญิง | ไม่รู้ว่าตาย รักดนตรี เปิดเผย / current draft voice ใช้ "ผม" ต่อเนื่อง |
 | **แม่ Naomi** 直美 | แม่ — ทำงานร้านขายของแห้ง | เข้มแข็ง ไม่พูดเรื่องพ่อ |
 | **Hina** 陽菜 (12) | น้องสาว | สดใส รู้สึก "อะไร" ก่อนพี่ |
 | **Akira** 晃 (17) | เพื่อนคนเดียว | otaku สุดเหวี่ยง อ่านเก่ง |
@@ -46,7 +46,7 @@
 
 ---
 
-## Chapter Outline
+## Chapter Outline (Actual 18-Chapter Draft)
 
 ### Act 1 — Discovery (Ch 1-6, ~3000 บรรทัด)
 
@@ -59,36 +59,27 @@
 | 5 | What She Remembers | Kaori เล่าสิ่งที่จำได้ — ขาดหายเป็นช่วงๆ |
 | 6 | The Old Newspaper | Haruto พบข่าวเก่าในห้องสมุดโรงเรียน — รู้ว่า Kaori ตาย 1991 |
 
-### Act 2 — Connection (Ch 7-12, ~3000 บรรทัด)
+### Act 2 — Connection (Ch 7-12)
 
 | Ch | Title | Beat |
 |----|-------|------|
 | 7 | The Decision | Haruto เลือก — ไม่บอก Kaori ว่าเธอตาย |
 | 8 | Two Cassettes | Sharing music — เพลงของเธอ + เพลงของเขา |
 | 9 | Hina Knows | น้องสาวรู้สึก — บอก "พี่ดูเหมือนคนเหงา…กับใคร" |
-| 10 | The Woman Without a Mouth | เห็น Kuchinashi-baba ครั้งแรก — dusk |
-| 11 | The Shrine Keeper | คุณตา Watanabe เล่าประวัติเมือง + อุบัติเหตุ 1991 |
-| 12 | Mizushima | Haruto ไปหาบ้าน Mizushima — ไม่มีคน 20 ปี |
+| 10 | Telling Mom | Haruto บอกแม่/ครอบครัวเริ่มรับรู้ความจริง |
+| 11 | Mizushima House | Haruto ไปบ้าน Mizushima เห็นร่องรอยชีวิต Kaori |
+| 12 | Last Visit | คืนสุดท้ายกับ Kaori ก่อนพิธี / ย้ำของแลกและคำฝาก |
 
-### Act 3 — Truth (Ch 13-18, ~3000 บรรทัด)
-
-| Ch | Title | Beat |
-|----|-------|------|
-| 13 | I Have to Tell You | Haruto บอก Kaori ว่าเธอตายแล้ว |
-| 14 | The First Death | Kaori รับมือ — devastating |
-| 15 | The Diary | เจอสมุดของ Kaori ที่บ้านร้าง |
-| 16 | Not an Accident | ความจริง — Kaori ไม่ตายจากรถไฟ — มี yokai เกี่ยวข้อง |
-| 17 | The Trade | Haruto ค้นพบราคา — ต้อง trade อะไร |
-| 18 | The Mountain | ขึ้นภูเขาคืนหนึ่ง — Kuchinashi-baba เผชิญ |
-
-### Act 4 — Letting Go (Ch 19-22, ~2000 บรรทัด)
+### Act 3 — Release and Aftermath (Ch 13-18)
 
 | Ch | Title | Beat |
 |----|-------|------|
-| 19 | Last Train | คืนสุดท้ายที่สถานี |
-| 20 | The Crossing | ปล่อย Kaori — ผ่านไป |
-| 21 | The Walk Home | Haruto กลับ — เริ่มลืม |
-| 22 | Ten Years Later | Epilogue — 27 ปี กลับมาเยี่ยมบ้าน |
+| 13 | The Mountain | พิธีปล่อย Kaori / Yamaba ไม่พูด / Haruto จ่ายราคา |
+| 14 | Coming Home | Haruto กลับบ้านและเริ่มอยู่กับช่องว่างหลังลืม Kaori |
+| 15 | Ordinary Light | ครอบครัวและเพื่อนช่วยถือความทรงจำแทนเขา |
+| 16 | First Frost | ความอบอุ่นหลังสูญเสีย / Hina และแม่เป็น anchor |
+| 17 | Through Winter | long exhale: สมัคร Tokyo, สถานีว่าง, สำเร็จการศึกษา, ออกจาก Hakuba |
+| 18 | Ten Years | epilogue 2036-2037: body-memory payoff, Tears without knowing why |
 
 ---
 
@@ -122,11 +113,13 @@
 
 ยังจำสถานีได้ จำพ่อได้ จำเรื่องอื่นได้ — แต่ตรงนั้นว่างเปล่า เหมือนหน้ากระดาษโดนฉีก
 
-**Epilogue ปี 2035** (10 ปีต่อมา) — Haruto อายุ 27 ทำงาน Tokyo กลับ Hakuba ปีใหม่ ปั่นจักรยานผ่านที่เคยเป็นสถานี — ตอนนี้เป็นที่จอดรถ — หยุด ไม่รู้ทำไม น้ำตาออกมา ไม่รู้ทำไม
+**Epilogue ปี 2036-2037** (10 ปีต่อมา) — Haruto อายุ 28 กลับ Hakuba ปีใหม่ ปั่นจักรยานผ่านที่เคยเป็นสถานี — ตอนนี้เหลือป้ายไม้/ศิลาเล็ก — หยุด ไม่รู้ทำไม น้ำตาออกมา ไม่รู้ทำไม
 
-มีคนเดินผ่านมา เด็กผู้หญิงคน  — เห็น Haruto — ยิ้มเล็กๆ เหมือนรู้จัก — เดินผ่านไป — Haruto หันมอง — ไม่มีใคร
+มีคนเดินผ่านมา เด็กผู้หญิงผมเปียชุดนักเรียนกรมท่า — เห็น Haruto — ยิ้มเล็กๆ เหมือนรู้จัก — เดินผ่านไป — Haruto หันมอง — ไม่มีใคร
 
 จบ
+
+**Final guard**: ห้ามคืนความจำ Kaori แบบครบถ้วน; payoff ต้องเป็น body-memory, sensation, tears, silence. กลิ่นเหล็กเปียก, เสียงเพลง/เทป, มือซ้ายอุ่น, เก้าอี้ว่าง, และภาพ Hina คือ anchors หลัก.
 
 ---
 
@@ -141,8 +134,8 @@
 
 | Session | เนื้อหา | Target lines |
 |---------|--------|-------------|
-| 1 | Plan + Act 1 (Ch 1-6) | ~3,000 |
-| 2 | Act 2 (Ch 7-12) | ~3,000 |
-| 3 | Act 3 (Ch 13-18) | ~3,000 |
-| 4 | Act 4 (Ch 19-22) | ~2,000 |
-| **รวม** | | **~11,000** |
+| 1 | Act 1 (Ch 1-6) | discovery + dead-reveal setup |
+| 2 | Act 2 (Ch 7-12) | connection + music/family anchors |
+| 3 | Act 3 (Ch 13-16) | release + immediate aftermath |
+| 4 | Act 4 (Ch 17-18) | winter exhale + ten-year epilogue |
+| **รวม** | | **~20,000 lines / 18 chapters** |

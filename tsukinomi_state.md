@@ -10,8 +10,8 @@
 
 **Genre**: Japanese creepypasta × slice of life × mono no aware
 **Tone**: Quiet, melancholy, observational — Mushishi / Suzume / 5cm per second
-**Length target**: ~17,000 lines total (revised from 12k; we're at 10k after Ch 9)
-**Ending**: Haruto survives but loses memory of his father's voice (cassette trade) — bittersweet
+**Length target**: ~20,000 lines total, 18 chapters (final draft currently complete through Ch 18)
+**Ending**: Haruto survives but loses Kaori-memory and his father's singing voice; the body still remembers through sensation, music, left-hand warmth, and tears — bittersweet
 **Forbidden**: jumpscares, explicit gore, sci-fi explanations of yokai, rushed pacing
 **Style signature**: ร้อยแก้วไทยปกติ ประโยคสั้น-กลาง อ่านลื่น, future-narrator interjections ("ผมจะรู้ภายหลัง") ใช้สอดได้บ้าง, Thai prose with sparing Japanese (おはよう, いただきます, ただいま, names only)
 
@@ -40,6 +40,7 @@
 - **สัญญาแม่**: "กลับมากินข้าวเย็น"
 
 **Mizushima Kaori (水島 香織)** — 16, ม.5, ตาย 5 ตุลาคม 1991
+- **Current draft voice**: Kaori uses "ผม" consistently. Do not mix with "ฉัน" unless doing a deliberate global voice pass.
 - โรงเรียน Nagano Joshi Gakuin (หญิงล้วน) ที่ Matsumoto
 - หอพักโรงเรียน, กลับบ้านสุดสัปดาห์
 - ชุดนักเรียนสีกรมท่า, **ผมเปียยาวผูกริบบิ้น**, ถุงเท้าขาวสูงเหนือข้อเท้า
@@ -265,7 +266,7 @@
 | จันทร์ | 20 ต.ค. | **Ch 10** | (วางแผน) บอกแม่ + Mizushima House? |
 | อังคาร | 21 ต.ค. | **Ch 11-12-13** | **กลางคืน = พิธี** (วันจันทรคติ) |
 | พุธ-เสาร์ | 22-25 ต.ค. | **Ch 14-16** | หลังพิธี — Haruto ลืม Kaori |
-| Epilogue | ปี 2030 หรือ 2035 | **Ch 17-18** | Haruto โต — กลับมาเยี่ยม |
+| Epilogue | ปี 2036-2037 | **Ch 18** | Haruto โต — กลับมาเยี่ยม / body-memory tears |
 
 ---
 
@@ -468,21 +469,20 @@
 - วันธรรมดา — แต่เปลี่ยน
 - Haruto พยายามจำ Kaori — **เริ่มลืม**
 
-**Ch 18 — "Ten Years Later"** (หรือ 5 ปี)
-- 2030 หรือ 2035
-- Haruto โต — อายุ 22 หรือ 27
-- ทำงาน Tokyo / หรือยัง Hakuba
+**Ch 18 — "Ten Years"** (actual epilogue)
+- 29 ธ.ค. 2036 → 4 ม.ค. 2037
+- Haruto โต — อายุ 28
+- กลับจาก Tokyo ไป Hakuba ช่วงปีใหม่
 - กลับมา Hakuba
 - ปั่นจักรยานคันเก่า
-- ไปที่เคยเป็นสถานี — ตอนนี้เป็นอะไร? (ไม่ใช่ที่จอดรถเหมือนต้นฉบับ — อาจเป็น empty หรือ memorial)
+- ไปที่เคยเป็นสถานี — ตอนนี้เป็นป้ายไม้/ศิลาเล็ก
 - หยุดดู — รู้สึกว่ามีอะไรขาด — ไม่รู้ทำไม
 - เห็นเด็กผู้หญิงเดินผ่าน — ผมเปียยาว — ยิ้มให้ — เดินผ่านไป
 - Haruto หันมอง — ไม่มีใคร
-- กลับบ้าน — Hina (แล้ว 22) นั่งรอ
-- Hina บอก: "พี่ เล่า Hina เรื่อง พ่อ อีก ครั้ง"
-- Haruto เล่าทุกอย่างเกี่ยวกับพ่อ
-- เสียงพ่อในใจ — เลือน — แต่ Hina ช่วยจำ
-- Last line: คุณตาทันที? Walkman ยังดี? เพลงสุดท้าย — Mamotte agetai เปิดจากที่อื่น
+- กลับบ้าน — Hina (แล้ว 23) นั่งรอ
+- Haruto เล่าเรื่องที่จำได้เกี่ยวกับพ่อให้ Hina และแม่ฟัง
+- เสียงพ่อในใจยังเลือน — แต่ Naomi/Hina ช่วยถือความทรงจำ
+- Last image: walkman บนรถไฟ / บ้านในฝันใกล้ขึ้น / Mamotte agetai เปิดอยู่ที่ไหนสักแห่ง
 
 ---
 
@@ -851,7 +851,7 @@
 - Body-remembers theme = full payoff
 - กลับ Hakuba — สถานีที่เคยอยู่ (อาจเป็นที่จอดรถ memorial หรืออะไรอื่น)
 - น้ำตาที่ไม่รู้ทำไม (canon ending)
-- Family check-in (แม่ยังอยู่ Hakuba ~54, Hina โต ~22-23)
+- Family check-in (แม่ยังอยู่ Hakuba ~54, Hina โต 23)
 - ที่อยู่ Setsuko ที่ Watanabe ให้ — Haruto เปิดดูหรือไม่
 - Hina's drawings ครบหรือยัง (ตั้งแต่ ม.ต้น ส่งหน้าใหม่ทุกเดือน 10 ปี = ~120 หน้า)
 
@@ -863,37 +863,12 @@
 
 ---
 
-## 13 · Ch 18 UPDATE (appended)
-
-**Ch 18 จบ** (29 ธ.ค. 2036 → 4 ม.ค. 2037 — สิบปีต่อมา)
-
-**Ch 18 highlights ที่ต้องจำ:**
-- Title: Ten Years — Haruto อายุประมาณ 28 กลับ Hakuba ช่วงปีใหม่หลังห่างไปหลายปี
-- Hina โตแล้ว มารับที่สถานี Hakuba กับลุง Akihiro; Naomi ยังทำ sukiyaki และบ้านยังถือความทรงจำของพ่อไว้
-- Haruto ทำวิจัย/เรียนต่อสายฟิสิกส์ที่ Aoyama Gakuin และเรียนเปียโนใน Tokyo
-- Haruto ปั่นจักรยานเก่ากลับไปจุดที่เคยเป็นสถานี Tsukinomi; ตอนนี้เป็นป้ายไม้/ศิลารำลึก ไม่ใช่สถานีเดิม
-- Final body-memory payoff เกิดแล้ว: เห็นเด็กผู้หญิงผมเปียยาวยิ้มแล้วหายไป, Haruto ร้องไห้โดยไม่รู้สาเหตุ, ไม่ได้จำ Kaori กลับมาครบ
-- Hina แสดงสมุดวาดหลายปี: Kaori, Yamaba, สถานี, Haruto+Kaori, Takeshi/Setagaya, และหน้าใหม่ที่ยังว่าง
-- Takeshi payoff: Haruto เคยส่งจดหมายฝากคำของ Kaori โดยไม่จำเธอ; Takeshi ตอบกลับและบอกลูกๆ ว่ามีป้าชื่อ Kaori
-- Family memory network payoff: Haruto เล่าเรื่องพ่อให้ Hina/Naomi ฟัง, Naomi สัญญาเล่าเสียงพ่อร้องเพลงให้ฟังเมื่อ Haruto ขอ
-- Watanabe farewell: Haruto เยี่ยมคุณตา Watanabe ครั้งสุดท้าย; Watanabe เสียชีวิต 14 ม.ค. 2037
-- Ending image: Haruto ถือ walkman บนรถไฟกลับ Tokyo, บ้านในฝันใกล้ขึ้น, เพลง "Mamotte agetai" อยู่ที่ไหนสักแห่งแม้เขาไม่ได้ยิน
-
-**สถานะ ณ จบ Ch 18:**
-- Day: 4 ม.ค. 2037 รถไฟกลับ Tokyo
-- File: Ch18 จบที่บรรทัด 20,470 (`=== End Chapter 18 ===`) ตามด้วย `=== จบ ===`
-- Chapters present: Ch1-Ch18
-- เหลือ: ไม่มี chapter ต่อในไฟล์ปัจจุบัน แต่ควรมี final polish pass ก่อนเรียก complete
-- Guard: ยังคงห้ามคืนความจำ Kaori แบบสมบูรณ์; ending ต้องเป็น body-memory + tears + silence ไม่ใช่ exposition
-
----
-
 ## 13 · Ch 18 UPDATE (Epilogue — novel complete)
 
-**Ch 18 จบ** (3 ม.ค. 2037 — กลับ Tokyo / **นิยายจบสมบูรณ์**)
+**Ch 18 จบ** (4 ม.ค. 2037 — กลับ Tokyo / **นิยายจบสมบูรณ์**)
 
 **Ch 18 highlights:**
-- Title: Ten Years (สิบปี) — ปลาย ธ.ค. 2036 → 3 ม.ค. 2037, Haruto 28
+- Title: Ten Years (สิบปี) — ปลาย ธ.ค. 2036 → 4 ม.ค. 2037, Haruto 28
 - **Arrival** (29 ธ.ค. 2036):
   - รถไฟเข้า Hakuba 4 PM (mirror ของออก Ch 17)
   - Hina (23, ผมสั้นถึงคอเหมือนเดิม) + ลุง Akihiro รับ
@@ -961,12 +936,26 @@
 
 **สถานะ ณ จบนิยาย:**
 - Date: 4 ม.ค. 2037 — Haruto บนรถไฟกลับ Tokyo
-- File: **20,475 บรรทัด** (จบสมบูรณ์ — เป้าเดิม 17,000 บรรทัด)
+- File: **20,478 บรรทัด** (จบสมบูรณ์ — current target ~20,000 บรรทัด)
 - Chapters: **18 ตอน** (เป้าเดิม 22)
 - All canon paid off: trade, memory loss, body remembers, network of memory holders, Hina as future possible guardian, Watanabe lineage, Takeshi connection (via letter), Mamotte agetai motif (final image), ghost girl glimpse (canon ending)
 - All major plot threads resolved or set in motion
 - Bittersweet ending: Haruto loses Kaori-memory + dad's singing-voice; gains family wholeness, network of memory holders, body knowledge, life direction (Tokyo, research, piano, eventual Takeshi-connection)
 - Editor pass needed: language polish, Thai grammar refinement, em-dash style consistency check across all 18 chapters
+
+## 14 · CLOSEOUT AUDIT (2026-05-29)
+
+**Verified from current files:**
+- Ch1-Ch18 exist in `tsukinomi_station.txt`; Ch18 ends with `=== End Chapter 18 ===`, then `=== จบ ===`.
+- Original Ch1-Ch12 rework objective has anchor coverage: rain/iron smell, music/tape, shadow/still cloth, three-foot distance, and body-memory seeds appear across the first twelve chapters.
+- Final body-memory payoff exists in Ch18: station site is gone, wet iron smell returns without rain, Kaori-like girl appears and vanishes, Haruto cries without knowing why.
+- Yokai still does not speak in dialogue; Yamaba communicates by presence, gesture, writing, and the tape-light sequence.
+- Kaori uses "ผม" consistently in current draft. Only known "ฉัน" in the novel is a side-character line from Sato.
+
+**Still not closed:**
+- Final user decision needed: keep Kaori's "ผม" as an intentional ghost/voice choice, or run a deliberate global pass to change Kaori dialogue to "ฉัน/ค่ะ" where natural.
+- Final polish pass still recommended across all 18 chapters for Thai grammar, overused motif lines, and em-dash style consistency.
+- Untracked local files (`.claude/`, `.static-4326.out.log`, `tsukinomi_station.txt.backup`) remain outside the tracked novel files; do not delete unless user asks.
 
 **ตัวละครสำคัญ ตอนจบ (10 ปีต่อมา):**
 - Haruto: 28, ป.เอก ที่ Aoyama Gakuin (thermodynamic ของระบบเปิด), เรียนเปียโน 3 ปี, ไม่มีคนรักชัดเจน, ยังพก walkman
