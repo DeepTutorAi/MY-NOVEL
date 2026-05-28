@@ -4,6 +4,8 @@ import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 
+const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
+
 function remarkJournalDirective() {
   /** @param {any} tree */
   const transform = (tree) => {
@@ -65,7 +67,7 @@ function rehypeRuneDividers() {
 
 export default defineConfig({
   site: "https://deeptutorai.github.io",
-  base: "/MY-NOVEL",
+  base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
   markdown: {
     remarkPlugins: [remarkDirective, remarkJournalDirective],
     rehypePlugins: [rehypeRuneDividers],

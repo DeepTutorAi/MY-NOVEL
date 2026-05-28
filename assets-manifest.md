@@ -22,6 +22,7 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/README.md` | Hand-authored project asset guide | Project-owned text | None | Asset folder map |
 | `public/assets/prompts/hvitveldt-image-prompts.md` | Hand-authored prompt bank | Project-owned text | None | Copy-ready image prompts |
 | `public/assets/prompts/hvitveldt-music-cue-plan.md` | Hand-authored cue plan | Project-owned text | None | Copy-ready music prompts |
+| `public/assets/prompts/claude-hvitveldt-quality-guard.md` | Hand-authored Claude guardrail prompt | Project-owned text | None | Content QA and workflow prompt |
 
 Fonts are self-hosted through the `@fontsource` packages listed in `package.json`.
 

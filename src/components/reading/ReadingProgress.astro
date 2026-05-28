@@ -1,12 +1,9 @@
-<div class="reading-progress" aria-hidden="true">
-  <span></span>
-</div>
-
 <script>
   const media = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const progress = document.querySelector(".reading-progress span");
   const article = document.querySelector("article.chapter");
   const storageKey = "hvitveldt:reading:last";
+  const visitKey = "hvitveldt:reading:visits";
+  const jumpKey = "hvitveldt:reading:jumps";
   const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
 
   if (article instanceof HTMLElement) {
@@ -14,6 +11,68 @@
     let lastSavedAt = 0;
     const chapterId = article.dataset.chapterId ?? "";
     const chapterKey = chapterId ? `hvitveldt:reading:chapter:${chapterId}` : "";
+    const chapterNumber = Number(article.dataset.chapter ?? 0);
+    const enteredAt = Date.now();
+
+    const readStored = (key: string) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const writeStored = (key: string, value: unknown) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // localStorage can fail in private or restricted browser modes.
+      }
+    };
+
+    const boundedList = (key: string, item: Record<string, unknown>, limit: number) => {
+      const current = readStored(key);
+      const list = Array.isArray(current) ? current : [];
+      list.push(item);
+      writeStored(key, list.slice(-limit));
+    };
+
+    const previous = readStored(storageKey);
+    const previousChapterNumber = Number(previous?.chapterNumber ?? 0);
+    const previousMaxChapterNumber = Number(previous?.maxChapterNumber ?? 0);
+    const maxChapterNumber = Math.max(
+      Number.isFinite(previousMaxChapterNumber) ? previousMaxChapterNumber : 0,
+      Number.isFinite(chapterNumber) ? chapterNumber : 0,
+    );
+
+    let jumpType = "start";
+
+    if (
+      chapterId &&
+      typeof previous?.chapterId === "string" &&
+      previous.chapterId !== chapterId &&
+      Number.isFinite(chapterNumber) &&
+      Number.isFinite(previousChapterNumber)
+    ) {
+      const diff = chapterNumber - previousChapterNumber;
+      jumpType = Math.abs(diff) <= 1 ? "adjacent" : diff > 1 ? "forward-skip" : "backtrack";
+
+      const movement = {
+        chapterId,
+        chapterNumber,
+        fromChapterId: previous.chapterId,
+        fromChapterNumber: previousChapterNumber,
+        jumpType,
+        enteredAt,
+      };
+
+      boundedList(visitKey, movement, 80);
+
+      if (Math.abs(diff) > 1) {
+        boundedList(jumpKey, movement, 50);
+      }
+    }
 
     const getRatio = () => {
       const rect = article.getBoundingClientRect();
@@ -41,22 +100,19 @@
         path: window.location.pathname,
         progress: Number(ratio.toFixed(4)),
         updatedAt: now,
+        enteredAt,
+        maxChapterNumber,
+        fromChapterId: typeof previous?.chapterId === "string" ? previous.chapterId : "",
+        fromChapterNumber: Number.isFinite(previousChapterNumber) ? previousChapterNumber : "",
+        jumpType,
       };
 
-      try {
-        localStorage.setItem(storageKey, JSON.stringify(saved));
-        localStorage.setItem(chapterKey, JSON.stringify(saved));
-      } catch {
-        // localStorage can fail in private or restricted browser modes.
-      }
+      writeStored(storageKey, saved);
+      writeStored(chapterKey, saved);
     };
 
     const update = () => {
       const ratio = getRatio();
-
-      if (!media.matches && progress instanceof HTMLElement) {
-        progress.style.transform = `scaleX(${ratio})`;
-      }
 
       saveProgress(ratio);
       ticking = false;
@@ -75,8 +131,7 @@
     if (resumeRequested && chapterKey) {
       window.setTimeout(() => {
         try {
-          const raw = localStorage.getItem(chapterKey);
-          const saved = raw ? JSON.parse(raw) : null;
+          const saved = readStored(chapterKey);
           const savedProgress = Number(saved?.progress);
 
           if (!Number.isFinite(savedProgress) || savedProgress <= 0.01 || savedProgress >= 0.99) {

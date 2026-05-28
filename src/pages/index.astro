@@ -3,9 +3,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { withBase } from "../utils/base-path";
 
 const resumeChapterBase = withBase("/chapters/");
-const homeHeroAvif = withBase("/assets/images/backgrounds/home-lodge-approach.avif");
-const homeHeroWebp = withBase("/assets/images/backgrounds/home-lodge-approach.webp");
-const homeHeroJpg = withBase("/assets/images/backgrounds/home-lodge-approach.jpg");
+const homeHeroImage = withBase("/assets/images/backgrounds/Homebackground.png");
 ---
 
 <BaseLayout
@@ -17,9 +15,7 @@ const homeHeroJpg = withBase("/assets/images/backgrounds/home-lodge-approach.jpg
   <main class="home">
     <section class="home-hero" aria-labelledby="home-title">
       <picture class="home-hero-art" aria-hidden="true">
-        <source srcset={homeHeroAvif} type="image/avif" />
-        <source srcset={homeHeroWebp} type="image/webp" />
-        <img src={homeHeroJpg} alt="" loading="eager" decoding="async" />
+        <img src={homeHeroImage} alt="" loading="eager" decoding="async" />
       </picture>
       <span class="home-scroll-probe" aria-hidden="true"></span>
       <div>
@@ -45,10 +41,10 @@ const homeHeroJpg = withBase("/assets/images/backgrounds/home-lodge-approach.jpg
       </p>
       <a class="home-start" href={withBase("/chapters/01-arrival/")}>เริ่ม → บทที่ ๑</a>
       <p class="home-secondary-links">
-        หากสนใจ — <a href={withBase("/chapters/")}>สารบัญ</a> / <a href={withBase("/origin/")}>ที่มา</a> / <a href={withBase("/puzzle/")}>แผนที่ปริศนา</a>
+        หากสนใจ — <a href={withBase("/chapters/")}>สารบัญ</a> / <a href={withBase("/characters/")}>Character</a> / <a href={withBase("/puzzle/")}>แผนที่ปริศนา</a>
       </p>
       <footer class="site-footer">
-        © 2025 ฮวิตเวลต์ ลอดจ์ · <a href={withBase("/origin/")}>เครดิต</a>
+        2026 · Codex ช่วยดีไซน์ UI/UX · Claude ช่วยวางโครง Storyboard · Pii-chan Dechalert คิดเนื้อเรื่องและกำกับเขียนบท
       </footer>
     </section>
   </main>
@@ -91,8 +87,14 @@ const homeHeroJpg = withBase("/assets/images/backgrounds/home-lodge-approach.jpg
           progress < 0.99
         ) {
           const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
+          const jumpText =
+            saved.jumpType === "forward-skip" && saved.fromChapterNumber
+              ? ` · กระโดดมาจากบทที่ ${saved.fromChapterNumber}`
+              : saved.jumpType === "backtrack" && saved.fromChapterNumber
+                ? ` · ย้อนกลับมาจากบทที่ ${saved.fromChapterNumber}`
+                : "";
           resumeTitle.textContent = `บทที่ ${saved.chapterNumber}: ${saved.chapterTitle}`;
-          resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%`;
+          resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%${jumpText}`;
           resumeLink.href = `${resumeChapterBase}${saved.chapterId}/?resume=1`;
           resumeCard.hidden = false;
         }

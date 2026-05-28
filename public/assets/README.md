@@ -11,11 +11,11 @@
 | `images/backgrounds/` | ภาพพื้นหลังขนาดใหญ่ เช่น หน้า Home |
 | `images/chapters/` | ภาพประกอบฉากรายบทหรือรายช่วงเรื่อง |
 | `images/characters/` | ภาพ reference ตัวละคร เพื่อคุมหน้าตาให้คงที่ |
-| `prompts/` | prompt สำหรับ gen ภาพและวางแผนเพลง |
+| `prompts/` | prompt สำหรับ gen ภาพ วางแผนเพลง และ guardrail งานเนื้อหา |
 
 ## ไฟล์ที่ระบบเรียกใช้ตอนนี้
 
-- Home background: `images/backgrounds/home-lodge-approach.avif`, `.webp`, `.jpg`
+- Home background: `images/backgrounds/Homebackground.png`
 - Music cues:
   - `audio/music/snow-forest.mp3`, `.ogg`
   - `audio/music/gloomy-night.mp3`, `.ogg`

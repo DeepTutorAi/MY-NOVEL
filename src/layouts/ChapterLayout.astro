@@ -26,7 +26,7 @@ const initialCueId = typeof chapterNumber === "number" ? musicCueForChapter(chap
 const siteTitle = "ฮวิตเวลต์ ลอดจ์";
 const pageTitle =
   typeof chapterNumber === "number"
-    ? `บทที่ ${chapterNumber} · ${chapter.data.title} — ${siteTitle}`
+    ? `บทที่ ${chapterNumber} — ${chapter.data.title} — ${siteTitle}`
     : `${chapter.data.title} — ${siteTitle}`;
 const description =
   chapter.data.summary ||
