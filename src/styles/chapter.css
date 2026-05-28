@@ -334,6 +334,100 @@ article.chapter hr {
   font-size: 0.82rem;
 }
 
+/* ----- Sentence-level emphasis (Quality Guard D3) ----- */
+/* Semantic tone classes for in-prose emphasis. Apply sparingly. */
+
+article.chapter .clue {
+  border-block-end: 1px dotted color-mix(in oklab, var(--accent) 64%, transparent);
+  color: color-mix(in oklab, var(--ink) 92%, var(--accent));
+  font-style: italic;
+  padding-block-end: 1px;
+}
+
+article.chapter .memory {
+  color: color-mix(in oklab, var(--ink-dim) 80%, var(--ink));
+  font-family: var(--font-display);
+  font-style: italic;
+  letter-spacing: 0.01em;
+}
+
+article.chapter .whisper {
+  color: color-mix(in oklab, var(--ink-dim) 70%, transparent);
+  font-size: 0.96em;
+  letter-spacing: 0.02em;
+}
+
+article.chapter .danger {
+  background:
+    linear-gradient(to bottom, transparent 82%, color-mix(in oklab, var(--accent) 38%, transparent) 82%, color-mix(in oklab, var(--accent) 38%, transparent) 92%, transparent 92%);
+  color: color-mix(in oklab, var(--ink) 88%, var(--accent));
+}
+
+article.chapter .cold-detail {
+  color: color-mix(in oklab, var(--ink) 96%, var(--paper));
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
+
+/* ----- Resume-position highlight (Quality Guard D2 prep) ----- */
+/* Applied briefly to the paragraph the reader resumes on, then removed. */
+
+article.chapter .resume-highlight {
+  position: relative;
+  animation: resume-glow 1800ms ease-out 1;
+}
+
+article.chapter .resume-highlight::before {
+  content: "";
+  position: absolute;
+  inset: -0.4em -0.6em;
+  z-index: -1;
+  border-radius: 4px;
+  background: radial-gradient(
+    ellipse at center,
+    color-mix(in oklab, var(--accent) 18%, transparent),
+    transparent 70%
+  );
+  opacity: 0;
+  animation: resume-glow-bg 1800ms ease-out 1;
+  pointer-events: none;
+}
+
+/* Never let the glow sit behind a chapter figure (snow/figure safety) */
+article.chapter figure.chapter-figure.resume-highlight,
+article.chapter figure.chapter-figure .resume-highlight {
+  animation: none;
+}
+
+article.chapter figure.chapter-figure.resume-highlight::before,
+article.chapter figure.chapter-figure .resume-highlight::before {
+  display: none;
+}
+
+@keyframes resume-glow {
+  0% { background-color: transparent; }
+  18% { background-color: color-mix(in oklab, var(--accent) 9%, transparent); }
+  100% { background-color: transparent; }
+}
+
+@keyframes resume-glow-bg {
+  0% { opacity: 0; }
+  22% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  article.chapter .resume-highlight,
+  article.chapter .resume-highlight::before {
+    animation: none;
+  }
+
+  article.chapter .resume-highlight {
+    outline: 1px solid color-mix(in oklab, var(--accent) 38%, transparent);
+    outline-offset: 0.25rem;
+  }
+}
+
 @media (max-width: 640px) {
   html,
   body {

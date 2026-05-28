@@ -26,6 +26,7 @@ const homeHeroImage = withBase("/assets/images/backgrounds/Homebackground.png");
           <span data-resume-label>อ่านค้างไว้</span>
           <strong data-resume-title></strong>
           <small data-resume-detail></small>
+          <p class="home-resume-excerpt" data-resume-excerpt hidden></p>
           <div class="home-resume-actions">
             <a data-resume-link href={withBase("/chapters/01-arrival/")}>อ่านต่อ</a>
             <button type="button" data-resume-clear>ล้างตำแหน่ง</button>
@@ -55,6 +56,7 @@ const homeHeroImage = withBase("/assets/images/backgrounds/Homebackground.png");
     const resumeCard = document.querySelector("[data-resume-card]");
     const resumeTitle = document.querySelector("[data-resume-title]");
     const resumeDetail = document.querySelector("[data-resume-detail]");
+    const resumeExcerpt = document.querySelector("[data-resume-excerpt]");
     const resumeLink = document.querySelector("[data-resume-link]");
     const resumeClear = document.querySelector("[data-resume-clear]");
     const resumeStorageKey = "hvitveldt:reading:last";
@@ -95,6 +97,15 @@ const homeHeroImage = withBase("/assets/images/backgrounds/Homebackground.png");
                 : "";
           resumeTitle.textContent = `บทที่ ${saved.chapterNumber}: ${saved.chapterTitle}`;
           resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%${jumpText}`;
+          if (resumeExcerpt instanceof HTMLElement) {
+            const excerpt = typeof saved?.blockExcerpt === "string" ? saved.blockExcerpt.trim() : "";
+            if (excerpt) {
+              resumeExcerpt.textContent = `“${excerpt}”`;
+              resumeExcerpt.hidden = false;
+            } else {
+              resumeExcerpt.hidden = true;
+            }
+          }
           resumeLink.href = `${resumeChapterBase}${saved.chapterId}/?resume=1`;
           resumeCard.hidden = false;
         }

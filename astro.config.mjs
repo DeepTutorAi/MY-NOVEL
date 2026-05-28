@@ -23,6 +23,28 @@ function remarkJournalDirective() {
   return transform;
 }
 
+// Inline sentence-level emphasis directives (Quality Guard D4).
+// Usage in chapter markdown: :clue[ข้อความ], :memory[...], :whisper[...],
+// :danger[...], :cold-detail[...] → <span class="clue">…</span>
+const EMPHASIS_TONES = new Set(["clue", "memory", "whisper", "danger", "cold-detail"]);
+
+function remarkEmphasisDirective() {
+  /** @param {any} tree */
+  const transform = (tree) => {
+    visit(tree, (node) => {
+      if (node.type !== "textDirective" || !EMPHASIS_TONES.has(node.name)) {
+        return;
+      }
+
+      const data = node.data || (node.data = {});
+      data.hName = "span";
+      data.hProperties = { className: [node.name] };
+    });
+  };
+
+  return transform;
+}
+
 function rehypeRuneDividers() {
   /** @param {any} tree */
   const transform = (tree) => {
@@ -69,7 +91,7 @@ export default defineConfig({
   site: "https://deeptutorai.github.io",
   base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
   markdown: {
-    remarkPlugins: [remarkDirective, remarkJournalDirective],
+    remarkPlugins: [remarkDirective, remarkJournalDirective, remarkEmphasisDirective],
     rehypePlugins: [rehypeRuneDividers],
   },
   vite: {

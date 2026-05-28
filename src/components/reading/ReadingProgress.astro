@@ -14,6 +14,37 @@
     const chapterNumber = Number(article.dataset.chapter ?? 0);
     const enteredAt = Date.now();
 
+    // ----- Block-level anchor capture (D1) -----
+    // Collect "anchorable" direct children of the article: paragraphs, journal divs,
+    // blockquotes, figures, headings, lists. Skip rune dividers and end-of-chapter
+    // marks (they have no readable content).
+    const ANCHOR_SELECTOR = "p, div.journal, blockquote, figure, h1, h2, h3, ul, ol";
+    const blocks = Array.from(article.querySelectorAll<HTMLElement>(`:scope > ${ANCHOR_SELECTOR}`));
+
+    const buildExcerpt = (el: HTMLElement): string => {
+      const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
+      if (!text) return "";
+      // Thai characters are wider than ASCII; 80 chars stays under ~one line on mobile.
+      const limit = 80;
+      return text.length > limit ? `${text.slice(0, limit)}…` : text;
+    };
+
+    const findCurrentBlockIndex = (): number => {
+      // The "current" block is the last one whose top has crossed 35% of the viewport.
+      // Falls back to 0 if nothing has crossed yet.
+      const threshold = window.innerHeight * 0.35;
+      let currentIndex = -1;
+      for (let i = 0; i < blocks.length; i += 1) {
+        const rect = blocks[i].getBoundingClientRect();
+        if (rect.top <= threshold) {
+          currentIndex = i;
+        } else {
+          break;
+        }
+      }
+      return currentIndex < 0 ? 0 : currentIndex;
+    };
+
     const readStored = (key: string) => {
       try {
         const raw = localStorage.getItem(key);
@@ -93,12 +124,18 @@
 
       lastSavedAt = now;
 
+      const blockIndex = blocks.length > 0 ? findCurrentBlockIndex() : -1;
+      const excerpt = blockIndex >= 0 ? buildExcerpt(blocks[blockIndex]) : "";
+
       const saved = {
         chapterId,
         chapterNumber: article.dataset.chapter ?? "",
         chapterTitle: article.dataset.chapterTitle ?? "",
         path: window.location.pathname,
         progress: Number(ratio.toFixed(4)),
+        blockIndex,
+        blockExcerpt: excerpt,
+        blockCount: blocks.length,
         updatedAt: now,
         enteredAt,
         maxChapterNumber,
@@ -128,23 +165,83 @@
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
 
+    // ----- Resume highlight (D2) -----
+    // Choose a target block that the reader can safely look at.
+    // Figures are skipped so the glow never sits behind chapter art (01A/01B etc.).
+    const pickHighlightTarget = (preferredIndex: number): HTMLElement | null => {
+      if (blocks.length === 0) return null;
+      const safe = (idx: number) => Math.max(0, Math.min(blocks.length - 1, idx));
+      const start = safe(preferredIndex);
+      const candidate = blocks[start];
+      if (candidate && candidate.tagName !== "FIGURE") {
+        return candidate;
+      }
+      // If we landed on a figure, prefer the paragraph just before it.
+      for (let i = start - 1; i >= 0; i -= 1) {
+        if (blocks[i].tagName !== "FIGURE") return blocks[i];
+      }
+      // Otherwise look forward.
+      for (let i = start + 1; i < blocks.length; i += 1) {
+        if (blocks[i].tagName !== "FIGURE") return blocks[i];
+      }
+      return null;
+    };
+
+    const flashHighlight = (el: HTMLElement) => {
+      el.classList.add("resume-highlight");
+      // Animation runs 1800ms; we clear the class slightly after so the next
+      // resume can re-trigger cleanly.
+      window.setTimeout(() => {
+        el.classList.remove("resume-highlight");
+      }, 2100);
+    };
+
     if (resumeRequested && chapterKey) {
       window.setTimeout(() => {
         try {
           const saved = readStored(chapterKey);
           const savedProgress = Number(saved?.progress);
+          const savedBlockIndex = Number(saved?.blockIndex);
+          const hasBlockAnchor =
+            Number.isFinite(savedBlockIndex) &&
+            savedBlockIndex >= 0 &&
+            savedBlockIndex < blocks.length;
 
-          if (!Number.isFinite(savedProgress) || savedProgress <= 0.01 || savedProgress >= 0.99) {
-            return;
+          // Prefer block anchor if available; fall back to ratio for legacy saves.
+          let targetTop: number | null = null;
+          let highlightBlock: HTMLElement | null = null;
+
+          if (hasBlockAnchor) {
+            highlightBlock = pickHighlightTarget(savedBlockIndex);
+            if (highlightBlock) {
+              // Position the highlight block ~30% from the top of the viewport
+              // so the reader's eye lands naturally on it.
+              const blockRect = highlightBlock.getBoundingClientRect();
+              const absoluteTop = blockRect.top + window.scrollY;
+              targetTop = Math.max(0, absoluteTop - window.innerHeight * 0.3);
+            }
           }
 
-          const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
-          const target = article.offsetTop + scrollable * savedProgress;
+          if (targetTop === null) {
+            if (!Number.isFinite(savedProgress) || savedProgress <= 0.01 || savedProgress >= 0.99) {
+              return;
+            }
+            const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
+            targetTop = article.offsetTop + scrollable * savedProgress;
+            highlightBlock = pickHighlightTarget(Math.floor(savedProgress * blocks.length));
+          }
+
           window.scrollTo({
-            top: target,
+            top: targetTop,
             behavior: media.matches ? "auto" : "smooth",
           });
           history.replaceState(null, "", window.location.pathname + window.location.hash);
+
+          if (highlightBlock) {
+            // Wait for smooth scroll to settle before flashing.
+            const delay = media.matches ? 60 : 520;
+            window.setTimeout(() => flashHighlight(highlightBlock!), delay);
+          }
         } catch {
           return;
         }
