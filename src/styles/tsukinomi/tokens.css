@@ -1,6 +1,13 @@
 :root {
   /* PENDING_USER_IMAGE: replace with url("/assets/tsukinomi/images/<user-l0-file>") after the user supplies L0. */
   --bg-image: none;
+  --bg-fallback-image:
+    linear-gradient(180deg, rgba(14, 11, 30, 0.18) 0%, rgba(14, 11, 30, 0.04) 48%, rgba(14, 11, 30, 0.5) 100%),
+    radial-gradient(ellipse at 50% 72%, rgba(205, 211, 224, 0.13) 0%, rgba(205, 211, 224, 0.05) 27%, transparent 57%),
+    linear-gradient(104deg, transparent 0 38%, rgba(205, 211, 224, 0.09) 38.5% 39.1%, transparent 39.5% 100%),
+    linear-gradient(180deg, #0E0B1E 0%, #171430 58%, #241936 76%, #0E0B1E 100%);
+  --bg-fallback-position: center;
+  --bg-fallback-size: cover;
   --bg-night: #0E0B1E;
   --bg-twilight: #171430;
   --surface: #221D3C;
@@ -30,4 +37,52 @@
   --font-jp: "Noto Serif JP", serif;
   --font-display-tsukinomi: "Noto Serif JP", "Noto Serif Thai", "Shippori Mincho B1", serif;
   --font-mono: "JetBrains Mono", monospace;
+}
+
+body[data-background-slot="hero-station"] {
+  --bg-fallback-image:
+    radial-gradient(ellipse at 64% 22%, rgba(232, 237, 245, 0.12), transparent 18rem),
+    linear-gradient(180deg, transparent 0 54%, rgba(205, 211, 224, 0.08) 54.2% 55.2%, transparent 55.4%),
+    linear-gradient(102deg, transparent 0 45%, rgba(205, 211, 224, 0.1) 45.4% 46%, transparent 46.4% 100%),
+    radial-gradient(ellipse at 42% 78%, rgba(230, 166, 189, 0.1), transparent 28rem),
+    linear-gradient(180deg, #0E0B1E 0%, #171430 56%, #32203B 78%, #0E0B1E 100%);
+  --bg-fallback-position: center;
+  --bg-fallback-size: cover;
+}
+
+body[data-background-slot="section-01"] {
+  --bg-fallback-image:
+    radial-gradient(ellipse at 24% 76%, rgba(224, 138, 76, 0.13), transparent 26rem),
+    linear-gradient(116deg, transparent 0 43%, rgba(205, 211, 224, 0.08) 43.2% 44%, transparent 44.3% 100%),
+    linear-gradient(180deg, #0E0B1E 0%, #171430 52%, #3A2634 78%, #120C1E 100%);
+}
+
+body[data-background-slot="section-02"] {
+  --bg-fallback-image:
+    radial-gradient(ellipse at 72% 30%, rgba(232, 237, 245, 0.09), transparent 24rem),
+    radial-gradient(ellipse at 28% 72%, rgba(205, 211, 224, 0.12), transparent 31rem),
+    linear-gradient(180deg, #0E0B1E 0%, #171430 60%, #25244A 84%, #0E0B1E 100%);
+}
+
+body[data-background-slot="section-03"] {
+  --bg-fallback-image:
+    radial-gradient(ellipse at 52% 64%, rgba(224, 138, 76, 0.18), transparent 22rem),
+    linear-gradient(90deg, transparent 0 47%, rgba(230, 166, 189, 0.08) 47.4% 48%, transparent 48.4% 100%),
+    linear-gradient(180deg, #0E0B1E 0%, #171430 46%, #38233A 72%, #0E0B1E 100%);
+}
+
+body[data-background-slot="section-04"] {
+  --bg-fallback-image:
+    radial-gradient(ellipse at 76% 16%, rgba(232, 237, 245, 0.15), transparent 19rem),
+    linear-gradient(129deg, transparent 0 49%, rgba(205, 211, 224, 0.09) 49.4% 50%, transparent 50.3% 100%),
+    radial-gradient(ellipse at 34% 82%, rgba(179, 36, 43, 0.08), transparent 25rem),
+    linear-gradient(180deg, #0B0920 0%, #171430 56%, #202C4E 82%, #0E0B1E 100%);
+}
+
+body[data-background-slot="section-05"] {
+  --bg-fallback-image:
+    radial-gradient(ellipse at 62% 20%, rgba(232, 237, 245, 0.13), transparent 22rem),
+    linear-gradient(180deg, transparent 0 58%, rgba(205, 211, 224, 0.11) 58.2% 59%, transparent 59.4%),
+    radial-gradient(ellipse at 44% 78%, rgba(205, 211, 224, 0.14), transparent 30rem),
+    linear-gradient(180deg, #0E0B1E 0%, #171430 52%, #243047 76%, #101328 100%);
 }

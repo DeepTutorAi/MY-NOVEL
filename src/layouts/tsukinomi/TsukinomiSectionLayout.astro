@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import SectionDropcap from "../../components/tsukinomi/reading/SectionDropcap.astro";
+import { backgroundSlotIdForSection } from "../../data/tsukinomi/background-slots";
 import "../../styles/tsukinomi/section.css";
 import TsukinomiBaseLayout from "./TsukinomiBaseLayout.astro";
 
@@ -19,6 +20,7 @@ const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — $
   bodyClass={`tsukinomi-section-page section-${section.data.number} palette-${section.data.palette}`}
   sectionPalette={section.data.palette}
   musicCueId={section.data.musicCueId}
+  backgroundSlotId={backgroundSlotIdForSection(section.data.number)}
 >
   <main class="tsukinomi-section-shell">
     <article

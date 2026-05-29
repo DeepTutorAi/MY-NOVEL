@@ -5,6 +5,11 @@ import SakuraTwilightBackdrop from "../../components/tsukinomi/atmosphere/Sakura
 import WalkmanPlayer from "../../components/tsukinomi/audio/WalkmanPlayer.astro";
 import TopBar from "../../components/tsukinomi/navigation/TopBar.astro";
 import WalkmanCorner from "../../components/tsukinomi/reading/WalkmanCorner.astro";
+import {
+  HOME_BACKGROUND_SLOT,
+  getTsukinomiBackgroundSlot,
+  type TsukinomiBackgroundSlotId,
+} from "../../data/tsukinomi/background-slots";
 import "../../styles/tsukinomi/global.css";
 import { withBase } from "../../utils/base-path";
 
@@ -14,6 +19,7 @@ interface Props {
   bodyClass?: string;
   sectionPalette?: string;
   musicCueId?: string;
+  backgroundSlotId?: TsukinomiBackgroundSlotId;
   showTopBar?: boolean;
   ogImage?: string;
 }
@@ -24,6 +30,7 @@ const {
   bodyClass,
   sectionPalette = "",
   musicCueId = "",
+  backgroundSlotId = HOME_BACKGROUND_SLOT.id,
   showTopBar = true,
   ogImage = "/og.jpg",
 } = Astro.props;
@@ -34,6 +41,9 @@ const faviconPng = withBase("/favicon.png");
 const bodyClasses = ["tsukinomi-page", "tsukinomi-shell", showTopBar ? "has-tsukinomi-topbar" : "", bodyClass]
   .filter(Boolean)
   .join(" ");
+const backgroundSlot = getTsukinomiBackgroundSlot(backgroundSlotId);
+const backgroundStatus = backgroundSlot.status;
+const backgroundStyle = backgroundSlot.cssImage === "none" ? undefined : `--bg-image: ${backgroundSlot.cssImage};`;
 ---
 
 <!doctype html>
@@ -59,7 +69,17 @@ const bodyClasses = ["tsukinomi-page", "tsukinomi-shell", showTopBar ? "has-tsuk
     <meta name="twitter:image" content={resolvedOgImage} />
     <ClientRouter />
   </head>
-  <body class={bodyClasses} data-theme="sakura-twilight" data-section={sectionPalette} data-palette={sectionPalette} data-music-cue={musicCueId}>
+  <body
+    class={bodyClasses}
+    style={backgroundStyle}
+    data-theme="sakura-twilight"
+    data-section={sectionPalette}
+    data-palette={sectionPalette}
+    data-music-cue={musicCueId}
+    data-background-slot={backgroundSlotId}
+    data-background-status={backgroundStatus}
+    data-background-expected={backgroundSlot.expectedImageBase}
+  >
     <SakuraTwilightBackdrop />
     <GrainOverlay texture="/assets/tsukinomi/textures/film-grain.png" />
     <WalkmanCorner />

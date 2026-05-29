@@ -269,9 +269,12 @@
   }
 
   .sakura-backdrop__base {
-    background-image: var(--bg-image);
+    background-image: var(--bg-image), var(--bg-fallback-image);
     background-position: center;
+    background-position: var(--bg-image-position, center), var(--bg-fallback-position);
     background-size: cover;
+    background-size: var(--bg-image-size, cover), var(--bg-fallback-size);
+    background-repeat: no-repeat;
     opacity: 0.72;
     transform: scale(1.01);
   }

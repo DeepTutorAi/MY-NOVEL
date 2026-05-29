@@ -28,6 +28,19 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/lodge/prompts/hvitveldt-music-cue-plan.md` | Hand-authored cue plan | Project-owned text | None | Copy-ready music prompts |
 | `public/assets/lodge/prompts/claude-hvitveldt-quality-guard.md` | Hand-authored Claude guardrail prompt | Project-owned text | None | Content QA and workflow prompt |
 
+## Tsukinomi P6 Image Slots
+
+These slots are wired in code, but the visual files are intentionally not present yet. The user will provide or approve the actual L0/background images before these paths become runtime URLs.
+
+| Planned File Base | Source | License | Attribution | Status |
+|---|---|---|---|---|
+| `/assets/tsukinomi/images/hero-station` | Pending user-supplied image | Pending | Pending | pending-user-image |
+| `/assets/tsukinomi/images/backgrounds/section-01` | Pending user-supplied image | Pending | Pending | pending-user-image |
+| `/assets/tsukinomi/images/backgrounds/section-02` | Pending user-supplied image | Pending | Pending | pending-user-image |
+| `/assets/tsukinomi/images/backgrounds/section-03` | Pending user-supplied image | Pending | Pending | pending-user-image |
+| `/assets/tsukinomi/images/backgrounds/section-04` | Pending user-supplied image | Pending | Pending | pending-user-image |
+| `/assets/tsukinomi/images/backgrounds/section-05` | Pending user-supplied image | Pending | Pending | pending-user-image |
+
 ## Licensed Audio Assets
 
 These assets were downloaded from Pixabay pages that showed "Free for use under the Pixabay Content License" on 2026-05-29. Source details are also recorded beside each novel's audio folder.
