@@ -1,19 +1,32 @@
 ---
-import { withBase } from "../utils/base-path";
-
-const lodgeHref = withBase("/lodge/");
+import NovelCard from "../components/_shared/NovelCard.astro";
+import ResumeCard from "../components/_shared/ResumeCard.astro";
+import { NOVELS } from "../data/_novels";
+import HubLayout from "../layouts/HubLayout.astro";
 ---
 
-<!doctype html>
-<html lang="th">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta http-equiv="refresh" content={`0; url=${lodgeHref}`} />
-    <title>กำลังพาไปฮวิตเวลต์ ลอดจ์</title>
-    <link rel="canonical" href={lodgeHref} />
-  </head>
-  <body>
-    <p>กำลังพาไป <a href={lodgeHref}>ฮวิตเวลต์ ลอดจ์</a></p>
-  </body>
-</html>
+<HubLayout
+  title="Pii-chan Dechalert — Fiction Hub"
+  description="พื้นที่รวมผลงานนิยายของ Pii-chan Dechalert"
+>
+  <main class="hub-shell" aria-labelledby="hub-title">
+    <section class="hub-hero">
+      <div class="hub-title-group">
+        <h1 id="hub-title">Pii-chan Dechalert</h1>
+        <p>สองเรื่อง สองอากาศ และพื้นที่อ่านเดียวกันสำหรับกลับไปยังโลกที่ยังค้างอยู่</p>
+      </div>
+      <p class="hub-side-note">ฮับกลางสำหรับนิยายที่เปิดให้อ่านแล้ว และเรื่องถัดไปที่กำลังรอเวลาเดินทางมาถึง</p>
+    </section>
+
+    <ResumeCard />
+
+    <section class="hub-library" aria-label="รายการนิยาย">
+      {NOVELS.map((novel) => <NovelCard novel={novel} />)}
+    </section>
+
+    <footer class="hub-footer">
+      <span>เพิ่มเรื่องใหม่: เร็วๆ นี้</span>
+      <span>Pii-chan Dechalert · 2026</span>
+    </footer>
+  </main>
+</HubLayout>

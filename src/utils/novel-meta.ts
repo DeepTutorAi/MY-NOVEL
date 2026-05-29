@@ -1,1 +1,1 @@
-export const NOVELS = [] as const;
+export { NOVELS, type NovelMeta, type NovelStatus } from "../data/_novels";

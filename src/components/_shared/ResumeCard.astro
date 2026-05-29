@@ -1,0 +1,137 @@
+---
+import { withBase } from "../../utils/base-path";
+
+const lodgeChapterBase = withBase("/lodge/chapters/");
+const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
+---
+
+<section class="resume-card" data-hub-resume hidden aria-live="polite">
+  <div class="resume-card-copy">
+    <span class="resume-card-kicker" data-resume-novel></span>
+    <h2>อ่านต่อจากครั้งล่าสุด</h2>
+    <p data-resume-title></p>
+    <small data-resume-detail></small>
+  </div>
+  <div class="resume-card-actions">
+    <a data-resume-link href={withBase("/")}>อ่านต่อ</a>
+    <button type="button" data-resume-clear>ล้าง</button>
+  </div>
+</section>
+
+<script is:inline define:vars={{ lodgeChapterBase, tsukinomiSectionBase }}>
+  (() => {
+    const card = document.querySelector("[data-hub-resume]");
+    const novelLabel = document.querySelector("[data-resume-novel]");
+    const title = document.querySelector("[data-resume-title]");
+    const detail = document.querySelector("[data-resume-detail]");
+    const link = document.querySelector("[data-resume-link]");
+    const clear = document.querySelector("[data-resume-clear]");
+
+    if (
+      !(card instanceof HTMLElement) ||
+      !(novelLabel instanceof HTMLElement) ||
+      !(title instanceof HTMLElement) ||
+      !(detail instanceof HTMLElement) ||
+      !(link instanceof HTMLAnchorElement) ||
+      !(clear instanceof HTMLButtonElement)
+    ) {
+      return;
+    }
+
+    const percentText = (progress) => `${Math.max(1, Math.min(99, Math.round(progress * 100)))}%`;
+
+    const readJson = (key) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const normalize = (config) => {
+      const saved = readJson(config.storageKey);
+      const progress = Number(saved?.progress);
+      const id = config.getId(saved);
+      const number = config.getNumber(saved);
+      const chapterTitle = config.getTitle(saved);
+      const updatedAt = Number(saved?.updatedAt);
+
+      if (
+        !id ||
+        !number ||
+        !chapterTitle ||
+        !Number.isFinite(progress) ||
+        progress <= 0.01 ||
+        progress >= 0.99
+      ) {
+        return null;
+      }
+
+      return {
+        storageKey: config.storageKey,
+        detailKey: `${config.detailPrefix}${id}`,
+        href: `${config.baseHref}${id}/?resume=1`,
+        novelTitle: config.novelTitle,
+        title: `${config.unitLabel} ${number}: ${chapterTitle}`,
+        progress,
+        updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
+      };
+    };
+
+    const candidates = [
+      normalize({
+        storageKey: "hvitveldt:reading:last",
+        detailPrefix: "hvitveldt:reading:chapter:",
+        baseHref: lodgeChapterBase,
+        novelTitle: "ฮวิตเวลต์ ลอดจ์",
+        unitLabel: "บทที่",
+        getId: (saved) => (typeof saved?.chapterId === "string" ? saved.chapterId : ""),
+        getNumber: (saved) => `${saved?.chapterNumber ?? ""}`.trim(),
+        getTitle: (saved) => (typeof saved?.chapterTitle === "string" ? saved.chapterTitle.trim() : ""),
+      }),
+      normalize({
+        storageKey: "tsukinomi:reading:last",
+        detailPrefix: "tsukinomi:reading:section:",
+        baseHref: tsukinomiSectionBase,
+        novelTitle: "สถานีทะเลพระจันทร์",
+        unitLabel: "ภาคที่",
+        getId: (saved) =>
+          typeof saved?.sectionId === "string"
+            ? saved.sectionId
+            : typeof saved?.chapterId === "string"
+              ? saved.chapterId
+              : "",
+        getNumber: (saved) => `${saved?.sectionNumber ?? saved?.chapterNumber ?? ""}`.trim(),
+        getTitle: (saved) =>
+          typeof saved?.sectionTitle === "string"
+            ? saved.sectionTitle.trim()
+            : typeof saved?.chapterTitle === "string"
+              ? saved.chapterTitle.trim()
+              : "",
+      }),
+    ].filter(Boolean);
+
+    const saved = candidates.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+
+    if (!saved) {
+      card.hidden = true;
+      return;
+    }
+
+    novelLabel.textContent = saved.novelTitle;
+    title.textContent = saved.title;
+    detail.textContent = `ค้างไว้ประมาณ ${percentText(saved.progress)}`;
+    link.href = saved.href;
+    card.hidden = false;
+
+    clear.addEventListener("click", () => {
+      try {
+        localStorage.removeItem(saved.detailKey);
+        localStorage.removeItem(saved.storageKey);
+      } finally {
+        card.hidden = true;
+      }
+    });
+  })();
+</script>

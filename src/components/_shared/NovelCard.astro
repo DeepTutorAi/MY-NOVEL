@@ -1,0 +1,53 @@
+---
+import type { NovelMeta } from "../../data/_novels";
+import { withBase } from "../../utils/base-path";
+
+interface Props {
+  novel: NovelMeta;
+}
+
+const { novel } = Astro.props;
+const isAvailable = novel.status === "เผยแพร่";
+const heroImage = withBase(novel.heroImage);
+const accentStyle = `--novel-accent: ${novel.accent}`;
+---
+
+{
+  isAvailable ? (
+    <a class="novel-card" style={accentStyle} href={withBase(novel.href)} aria-label={`เปิดอ่าน ${novel.titleTh}`}>
+      <span class="novel-card-media" aria-hidden="true">
+        <img src={heroImage} alt="" loading="eager" decoding="async" />
+      </span>
+      <span class="novel-card-body">
+        <span class="novel-card-kicker">{novel.titleEn}</span>
+        <strong class="novel-card-title">{novel.titleTh}</strong>
+        <span class="novel-card-subtitle">{novel.subtitle}</span>
+        <span class="novel-card-meta">{novel.mood} · {novel.length}</span>
+        <span class="novel-card-footer">
+          <span>{novel.status}</span>
+          <span class="novel-card-action">เริ่มอ่าน</span>
+        </span>
+      </span>
+    </a>
+  ) : (
+    <article class="novel-card is-disabled" style={accentStyle} aria-disabled="true">
+      <span class="novel-card-media" aria-hidden="true">
+        <span class="novel-card-placeholder">
+          <span class="station-line"></span>
+          <span class="station-moon"></span>
+          <span class="station-platform"></span>
+        </span>
+      </span>
+      <span class="novel-card-body">
+        <span class="novel-card-kicker">{novel.titleEn}</span>
+        <strong class="novel-card-title">{novel.titleTh}</strong>
+        <span class="novel-card-subtitle">{novel.subtitle}</span>
+        <span class="novel-card-meta">{novel.mood} · {novel.length}</span>
+        <span class="novel-card-footer">
+          <span>{novel.status}</span>
+          <span class="novel-card-action">รอเปิดสถานี</span>
+        </span>
+      </span>
+    </article>
+  )
+}
