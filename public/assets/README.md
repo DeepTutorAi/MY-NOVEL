@@ -17,6 +17,8 @@
 ## ไฟล์ที่ระบบเรียกใช้ตอนนี้
 
 - Shared grain: `_shared/grain.png`
+- Tsukinomi film grain: `tsukinomi/textures/film-grain.png`
+- Tsukinomi icons: `tsukinomi/icons/walkman.svg`, `tape-divider.svg`, `cassette-mark.svg`
 - Home background: `lodge/images/backgrounds/Homebackground.png`
 - Music cues:
   - `lodge/audio/music/snow-forest.mp3`, `.ogg`

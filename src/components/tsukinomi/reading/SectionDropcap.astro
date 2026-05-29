@@ -1,0 +1,16 @@
+<style is:global>
+  article.tsukinomi-section:not([data-section-palette="snow-pact"]) > p:first-of-type::first-letter {
+    float: left;
+    margin: 0.08em 0.16em -0.12em 0;
+    color: var(--accent-warm);
+    font-family: var(--font-display-tsukinomi);
+    font-size: 4.4em;
+    font-style: italic;
+    line-height: 0.82;
+  }
+
+  .palette-twilight article.tsukinomi-section > p:first-of-type::first-letter,
+  .palette-winter-light article.tsukinomi-section > p:first-of-type::first-letter {
+    color: var(--accent-cold);
+  }
+</style>

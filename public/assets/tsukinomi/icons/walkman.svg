@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 72" fill="none">
+  <title>Walkman cassette player</title>
+  <rect x="8" y="10" width="80" height="52" rx="3" fill="#1F1A12" stroke="#C98648" stroke-width="2"/>
+  <rect x="16" y="18" width="64" height="22" rx="2" fill="#14110C" stroke="#5C5042" stroke-width="1.5"/>
+  <g class="reel-left">
+    <circle cx="34" cy="29" r="8" fill="#0A0908" stroke="#E0A36A" stroke-width="1.5"/>
+    <circle cx="34" cy="29" r="2" fill="#E0A36A"/>
+    <path d="M34 21v16M26 29h16M28.5 23.5l11 11M39.5 23.5l-11 11" stroke="#5C5042" stroke-width="1"/>
+  </g>
+  <g class="reel-right">
+    <circle cx="62" cy="29" r="8" fill="#0A0908" stroke="#E0A36A" stroke-width="1.5"/>
+    <circle cx="62" cy="29" r="2" fill="#E0A36A"/>
+    <path d="M62 21v16M54 29h16M56.5 23.5l11 11M67.5 23.5l-11 11" stroke="#5C5042" stroke-width="1"/>
+  </g>
+  <path d="M26 48h30M62 48h9M20 54h52" stroke="#8A7C66" stroke-width="2" stroke-linecap="round"/>
+  <circle cx="77" cy="50" r="3" fill="#E0A36A"/>
+  <path d="M16 8h14M66 8h14" stroke="#5C5042" stroke-width="2" stroke-linecap="round"/>
+</svg>

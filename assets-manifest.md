@@ -13,6 +13,10 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/lodge/images/backgrounds/home-lodge-approach.webp` | Temporary copy of `hero-forest`; replace from prompt bank | Project-owned generated placeholder | None | Home background slot |
 | `public/assets/lodge/images/backgrounds/home-lodge-approach.jpg` | Temporary copy of `hero-forest`; replace from prompt bank | Project-owned generated placeholder | None | Home background slot |
 | `public/assets/_shared/grain.png` | Generated locally with FFmpeg noise filter; source URL: n/a | Project-owned generated texture | None | Final generated texture |
+| `public/assets/tsukinomi/textures/film-grain.png` | Generated locally with `src/scripts/tsukinomi/generate-grain.ts` using FFmpeg color/noise filters; source URL: n/a | Project-owned generated texture | None | Final Tsukinomi film grain texture |
+| `public/assets/tsukinomi/icons/walkman.svg` | Hand-authored inline SVG; source URL: n/a | Project-owned generated asset | None | Phase 4 Walkman corner mark |
+| `public/assets/tsukinomi/icons/tape-divider.svg` | Hand-authored inline SVG; source URL: n/a | Project-owned generated asset | None | Phase 4 tape divider mark |
+| `public/assets/tsukinomi/icons/cassette-mark.svg` | Hand-authored inline SVG; source URL: n/a | Project-owned generated asset | None | Phase 4 cassette UI mark |
 | `public/og.jpg` | Generated locally from the procedural forest frame with title overlay; source URL: n/a | Project-owned generated asset | None | Open Graph image |
 | `public/favicon.png` | Generated locally from the candle mark; source URL: n/a | Project-owned generated asset | None | PNG favicon fallback |
 | `public/favicon.svg` | Hand-authored inline SVG candle mark; source URL: n/a | Project-owned generated asset | None | Primary favicon |

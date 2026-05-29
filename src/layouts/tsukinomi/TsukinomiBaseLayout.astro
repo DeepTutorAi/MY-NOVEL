@@ -1,4 +1,10 @@
 ---
+import { ClientRouter } from "astro:transitions";
+import GrainOverlay from "../../components/_shared/GrainOverlay.astro";
+import MapleDriftCanvas from "../../components/tsukinomi/atmosphere/MapleDriftCanvas.astro";
+import MistVeil from "../../components/tsukinomi/atmosphere/MistVeil.astro";
+import StationBackdrop from "../../components/tsukinomi/atmosphere/StationBackdrop.astro";
+import WalkmanCorner from "../../components/tsukinomi/audio/WalkmanCorner.astro";
 import TopBar from "../../components/tsukinomi/navigation/TopBar.astro";
 import "../../styles/tsukinomi/global.css";
 import { withBase } from "../../utils/base-path";
@@ -24,7 +30,7 @@ const canonical = Astro.url.href;
 const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href;
 const faviconLit = withBase("/favicon.svg");
 const faviconPng = withBase("/favicon.png");
-const bodyClasses = ["tsukinomi-page", showTopBar ? "has-tsukinomi-topbar" : "", bodyClass]
+const bodyClasses = ["tsukinomi-page", "tsukinomi-shell", showTopBar ? "has-tsukinomi-topbar" : "", bodyClass]
   .filter(Boolean)
   .join(" ");
 ---
@@ -50,10 +56,14 @@ const bodyClasses = ["tsukinomi-page", showTopBar ? "has-tsukinomi-topbar" : "",
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
+    <ClientRouter />
   </head>
-  <body class={bodyClasses} data-section={sectionPalette}>
-    <div class="tsukinomi-atmosphere"></div>
-    <div class="tsukinomi-corner"></div>
+  <body class={bodyClasses} data-section={sectionPalette} data-palette={sectionPalette}>
+    <MistVeil />
+    <StationBackdrop />
+    <GrainOverlay texture="/assets/tsukinomi/textures/film-grain.png" />
+    <MapleDriftCanvas />
+    <WalkmanCorner />
     {showTopBar && <TopBar />}
     <slot />
   </body>

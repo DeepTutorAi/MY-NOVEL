@@ -1,7 +1,12 @@
 ---
 import { withBase } from "../../utils/base-path";
 
-const grainImage = withBase("/assets/_shared/grain.png");
+interface Props {
+  texture?: string;
+}
+
+const { texture = "/assets/_shared/grain.png" } = Astro.props;
+const grainImage = withBase(texture);
 ---
 
 <div class="grain-overlay" aria-hidden="true" style={`--grain-image: url("${grainImage}")`}></div>

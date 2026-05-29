@@ -72,6 +72,10 @@ article.tsukinomi-section {
   box-shadow: 0 2rem 5rem rgba(0, 0, 0, 0.24);
 }
 
+.palette-snow-pact article.tsukinomi-section {
+  background: rgba(15, 14, 12, 0.93);
+}
+
 .section-header {
   margin-bottom: 4rem;
   text-align: center;
@@ -111,6 +115,8 @@ article.tsukinomi-section {
   font-weight: 400;
   line-height: 1.12;
   letter-spacing: 0;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
 }
 
 .section-range {
@@ -132,21 +138,6 @@ article.tsukinomi-section p {
   margin: 1.35em 0;
 }
 
-article.tsukinomi-section:not([data-section-palette="snow-pact"]) > p:first-of-type::first-letter {
-  float: left;
-  margin: 0.08em 0.16em -0.12em 0;
-  color: var(--accent-warm);
-  font-family: var(--font-display-tsukinomi);
-  font-size: 4.4em;
-  font-style: italic;
-  line-height: 0.82;
-}
-
-.palette-twilight article.tsukinomi-section > p:first-of-type::first-letter,
-.palette-winter-light article.tsukinomi-section > p:first-of-type::first-letter {
-  color: var(--accent-cold);
-}
-
 article.tsukinomi-section blockquote {
   margin: 2.2rem 0;
   padding: 1rem 1.25rem;
@@ -157,13 +148,39 @@ article.tsukinomi-section blockquote {
 }
 
 article.tsukinomi-section h2 {
-  margin: 4rem 0 1.2rem;
+  margin: 5.2rem 0 1.25rem;
   color: var(--tsuki-ink);
   font-family: var(--font-display-tsukinomi);
   font-size: 1.65rem;
   font-style: italic;
   font-weight: 400;
   line-height: 1.22;
+}
+
+article.tsukinomi-section h2[id^="ch-"] {
+  animation: tsukinomi-chapter-arrival 600ms ease-out both;
+  animation-timeline: view();
+  animation-range: entry 0% cover 24%;
+}
+
+@keyframes tsukinomi-chapter-arrival {
+  from {
+    opacity: 0.18;
+    text-shadow: 0 0 24px color-mix(in srgb, var(--accent-warm) 22%, transparent);
+    transform: translateY(0.9rem);
+  }
+
+  to {
+    opacity: 1;
+    text-shadow: 0 0 0 transparent;
+    transform: translateY(0);
+  }
+}
+
+@supports not (animation-timeline: view()) {
+  article.tsukinomi-section h2[id^="ch-"] {
+    animation: none;
+  }
 }
 
 article.tsukinomi-section hr {
@@ -247,7 +264,7 @@ article.tsukinomi-section hr {
   }
 
   .section-header h1 {
-    font-size: 2.35rem;
+    font-size: clamp(1.85rem, 8vw, 2.35rem);
   }
 
   .section-nav {
@@ -256,5 +273,11 @@ article.tsukinomi-section hr {
 
   .section-nav > div:last-child {
     text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  article.tsukinomi-section h2[id^="ch-"] {
+    animation: none;
   }
 }
