@@ -6,11 +6,18 @@ import { visit } from "unist-util-visit";
 
 const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
 
+// Every container directive (`:::`) in this project is an in-world "journal"
+// box (monospace, bordered). Chapters author the fence in Thai
+// (`:::สมุดบันทึก`); micromark does not treat the non-ASCII name as a directive
+// name, so we match the container directive by node type rather than by name —
+// this avoids Unicode-normalisation or empty-name parsing silently dropping the
+// styling. If a non-journal container directive is ever introduced, special-case
+// it by name here.
 function remarkJournalDirective() {
   /** @param {any} tree */
   const transform = (tree) => {
     visit(tree, (node) => {
-      if (node.type !== "containerDirective" || node.name !== "journal") {
+      if (node.type !== "containerDirective") {
         return;
       }
 
@@ -39,6 +46,56 @@ function remarkEmphasisDirective() {
       const data = node.data || (node.data = {});
       data.hName = "span";
       data.hProperties = { className: [node.name] };
+    });
+  };
+
+  return transform;
+}
+
+// remark-directive greedily reads ":NN" and "::NN" sequences as directives, so
+// in-prose timestamps like "01:14am" or "3:14" get parsed as stray text/leaf
+// directives and their text is dropped from the output. This plugin runs after
+// the directive parser and turns any directive that is NOT one of our intended
+// ones (the journal container, or the inline emphasis tones) back into the
+// literal text the author wrote — restoring timestamps without touching any
+// chapter file.
+
+/** @param {any} node */
+function directiveChildrenToText(node) {
+  if (typeof node.value === "string") {
+    return node.value;
+  }
+  if (Array.isArray(node.children)) {
+    return node.children.map(directiveChildrenToText).join("");
+  }
+  return "";
+}
+
+function remarkNeutralizeStrayDirectives() {
+  /** @param {any} tree */
+  const transform = (tree) => {
+    visit(tree, (node) => {
+      if (node.type !== "textDirective" && node.type !== "leafDirective") {
+        return;
+      }
+      // Keep the intentional inline emphasis directives (`:clue[...]` etc.).
+      if (node.type === "textDirective" && EMPHASIS_TONES.has(node.name)) {
+        return;
+      }
+
+      // Reconstruct the literal source: marker + name + optional [label].
+      const marker = node.type === "leafDirective" ? "::" : ":";
+      const label =
+        Array.isArray(node.children) && node.children.length > 0
+          ? `[${node.children.map(directiveChildrenToText).join("")}]`
+          : "";
+
+      node.type = "text";
+      node.value = `${marker}${node.name ?? ""}${label}`;
+      delete node.children;
+      delete node.name;
+      delete node.attributes;
+      delete node.data;
     });
   };
 
@@ -91,7 +148,12 @@ export default defineConfig({
   site: "https://deeptutorai.github.io",
   base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
   markdown: {
-    remarkPlugins: [remarkDirective, remarkJournalDirective, remarkEmphasisDirective],
+    remarkPlugins: [
+      remarkDirective,
+      remarkJournalDirective,
+      remarkEmphasisDirective,
+      remarkNeutralizeStrayDirectives,
+    ],
     rehypePlugins: [rehypeRuneDividers],
   },
   vite: {
