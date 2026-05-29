@@ -8,6 +8,7 @@ export interface NovelMeta {
   mood: string;
   length: string;
   heroImage: string;
+  heroState?: "image" | "placeholder";
   accent: string;
   href: string;
   status: NovelStatus;
@@ -22,6 +23,7 @@ export const NOVELS = [
     mood: "สยอง · หนาว",
     length: "18 บท · ประมาณ 8 ชั่วโมง",
     heroImage: "/assets/lodge/images/hero-forest.webp",
+    heroState: "image",
     accent: "#C24B3A",
     href: "/lodge/",
     status: "เผยแพร่",
@@ -34,8 +36,9 @@ export const NOVELS = [
     mood: "สงบ · เหงา",
     length: "5 ภาค · ประมาณ 3 ชั่วโมง",
     heroImage: "/assets/tsukinomi/images/hero-station.webp",
+    heroState: "placeholder",
     accent: "#C98648",
     href: "/tsukinomi/",
-    status: "เร็วๆ นี้",
+    status: "เผยแพร่",
   },
 ] as const satisfies readonly NovelMeta[];

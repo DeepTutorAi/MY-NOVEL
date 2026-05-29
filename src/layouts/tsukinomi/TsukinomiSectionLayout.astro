@@ -1,0 +1,32 @@
+---
+import type { CollectionEntry } from "astro:content";
+import "../../styles/tsukinomi/section.css";
+import TsukinomiBaseLayout from "./TsukinomiBaseLayout.astro";
+
+interface Props {
+  section: CollectionEntry<"tsukinomiSections">;
+}
+
+const { section } = Astro.props;
+const siteTitle = "สถานีทะเลพระจันทร์";
+const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — ${siteTitle}`;
+---
+
+<TsukinomiBaseLayout
+  title={pageTitle}
+  description={section.data.summary}
+  bodyClass={`tsukinomi-section-page palette-${section.data.palette}`}
+  sectionPalette={section.data.palette}
+>
+  <main class="tsukinomi-section-shell">
+    <article
+      class="tsukinomi-section"
+      data-section-id={section.id}
+      data-section-number={section.data.number}
+      data-section-title={section.data.title}
+      data-section-palette={section.data.palette}
+    >
+      <slot />
+    </article>
+  </main>
+</TsukinomiBaseLayout>

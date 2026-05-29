@@ -1,0 +1,36 @@
+---
+import type { CollectionEntry } from "astro:content";
+import { withBase } from "../../../utils/base-path";
+
+interface Props {
+  previous?: CollectionEntry<"tsukinomiSections">;
+  next?: CollectionEntry<"tsukinomiSections">;
+}
+
+const { previous, next } = Astro.props;
+---
+
+<nav class="section-nav" aria-label="นำทางภาค">
+  <div>
+    {
+      previous ? (
+        <a href={withBase(`/tsukinomi/sections/${previous.id}/`)}>
+          ← ภาค {previous.data.number}: {previous.data.title}
+        </a>
+      ) : (
+        <a href={withBase("/tsukinomi/sections/")}>← สารบัญ</a>
+      )
+    }
+  </div>
+  <div>
+    {
+      next ? (
+        <a href={withBase(`/tsukinomi/sections/${next.id}/`)}>
+          ภาค {next.data.number}: {next.data.title} →
+        </a>
+      ) : (
+        <a href={withBase("/tsukinomi/")}>กลับหน้าสถานี →</a>
+      )
+    }
+  </div>
+</nav>

@@ -10,13 +10,24 @@ const { novel } = Astro.props;
 const isAvailable = novel.status === "เผยแพร่";
 const heroImage = withBase(novel.heroImage);
 const accentStyle = `--novel-accent: ${novel.accent}`;
+const useImage = novel.heroState !== "placeholder";
 ---
 
 {
   isAvailable ? (
     <a class="novel-card" style={accentStyle} href={withBase(novel.href)} aria-label={`เปิดอ่าน ${novel.titleTh}`}>
       <span class="novel-card-media" aria-hidden="true">
-        <img src={heroImage} alt="" loading="eager" decoding="async" />
+        {
+          useImage ? (
+            <img src={heroImage} alt="" loading="eager" decoding="async" />
+          ) : (
+            <span class="novel-card-placeholder">
+              <span class="station-line"></span>
+              <span class="station-moon"></span>
+              <span class="station-platform"></span>
+            </span>
+          )
+        }
       </span>
       <span class="novel-card-body">
         <span class="novel-card-kicker">{novel.titleEn}</span>

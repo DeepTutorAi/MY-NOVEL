@@ -1,0 +1,38 @@
+---
+import { getCollection } from "astro:content";
+import TsukinomiBaseLayout from "../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+const sections = (await getCollection("tsukinomiSections")).sort(
+  (a, b) => a.data.number - b.data.number,
+);
+const firstSection = sections[0];
+---
+
+<TsukinomiBaseLayout
+  title="สถานีทะเลพระจันทร์ — Tsukinomi no Eki"
+  description="นิยายเงียบเรื่องเด็กชายกับสถานีร้าง"
+  bodyClass="tsukinomi-home-page"
+>
+  <main class="tsukinomi-home">
+    <section class="tsukinomi-home-hero" aria-labelledby="tsukinomi-title">
+      <div class="tsukinomi-home-copy">
+        <p class="tsukinomi-kicker">Tsukinomi no Eki</p>
+        <h1 id="tsukinomi-title">สถานีทะเลพระจันทร์</h1>
+        <p>ฝนบนทางขึ้นเขาทำให้ Haruto เลี้ยวเข้าไปในสถานีร้างที่ไม่มีรถไฟวิ่งมานาน และพบเด็กผู้หญิงคนหนึ่งที่ยังนั่งรออยู่ตรงชานชาลาเดิม</p>
+        <p>เรื่องนี้เดินช้ากว่าเสียงฝนเล็กน้อย อุ่นกว่าความทรงจำเล็กน้อย และปล่อยให้ช่องว่างบางอย่างพูดแทนคำตอบ</p>
+        <div class="tsukinomi-home-actions">
+          <a class="tsukinomi-primary-link" href={withBase(`/tsukinomi/sections/${firstSection.id}/`)}>
+            เริ่ม → ภาค 1
+          </a>
+          <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/sections/")}>สารบัญ</a>
+        </div>
+      </div>
+      <div class="tsukinomi-hero-placeholder" role="img" aria-label="ภาพร่างสถานีร้างริมเขา">
+        <span></span>
+        <span></span>
+        <i></i>
+      </div>
+    </section>
+  </main>
+</TsukinomiBaseLayout>

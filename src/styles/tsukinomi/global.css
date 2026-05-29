@@ -1,0 +1,346 @@
+@import "tailwindcss";
+@config "../../../tailwind.config.ts";
+@import "@fontsource/ibm-plex-sans-thai-looped/400.css";
+@import "@fontsource/ibm-plex-sans-thai-looped/700.css";
+@import "@fontsource/noto-serif-jp/400.css";
+@import "@fontsource/noto-serif-jp/500.css";
+@import "@fontsource/shippori-mincho-b1/400.css";
+@import "@fontsource/shippori-mincho-b1/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+
+:root {
+  --tsuki-ink: #e8dcc4;
+  --tsuki-ink-dim: #8a7c66;
+  --tsuki-paper: #14110c;
+  --tsuki-paper-2: #1f1a12;
+  --accent-warm: #c98648;
+  --accent-cold: #4a6b7e;
+  --accent-deep: #6e2730;
+  --rail: #5c5042;
+  --lamp: #e0a36a;
+  --tsuki-line: rgba(232, 220, 196, 0.14);
+  --tsuki-measure: 64ch;
+  --tsuki-topbar-height: 46px;
+
+  --font-thai: "IBM Plex Sans Thai Looped", sans-serif;
+  --font-jp: "Noto Serif JP", serif;
+  --font-display-tsukinomi: "Shippori Mincho B1", "Noto Serif JP", serif;
+  --font-mono: "JetBrains Mono", monospace;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--tsuki-paper);
+  color-scheme: dark;
+}
+
+.tsukinomi-page {
+  min-height: 100vh;
+  margin: 0;
+  overflow-x: hidden;
+  background: var(--tsuki-paper);
+  color: var(--tsuki-ink);
+  font-family: var(--font-thai);
+  font-size: 17px;
+  line-height: 1.85;
+  letter-spacing: 0;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.tsukinomi-page :focus-visible {
+  outline: 2px solid var(--lamp);
+  outline-offset: 4px;
+}
+
+.tsukinomi-page a {
+  color: inherit;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  text-decoration-thickness: 1px;
+  transition: color 160ms ease, border-color 160ms ease, background 160ms ease;
+}
+
+.tsukinomi-page a:hover {
+  color: var(--accent-warm);
+}
+
+.tsukinomi-page img,
+.tsukinomi-page svg,
+.tsukinomi-page canvas,
+.tsukinomi-page video {
+  display: block;
+  max-width: 100%;
+}
+
+.tsukinomi-page button,
+.tsukinomi-page input,
+.tsukinomi-page textarea,
+.tsukinomi-page select {
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+}
+
+.tsukinomi-atmosphere,
+.tsukinomi-corner {
+  position: fixed;
+  pointer-events: none;
+}
+
+.tsukinomi-topbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--tsuki-topbar-height);
+  padding: 0 18px;
+  border-bottom: 1px solid rgba(232, 220, 196, 0.1);
+  background: rgba(20, 17, 12, 0.82);
+  color: var(--tsuki-ink-dim);
+  backdrop-filter: blur(14px);
+}
+
+.tsukinomi-topbar a {
+  text-decoration: none;
+}
+
+.tsukinomi-topbar-mark {
+  color: var(--tsuki-ink);
+  font-family: var(--font-display-tsukinomi);
+  font-size: 1rem;
+}
+
+.tsukinomi-topbar-link {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.tsukinomi-home,
+.tsukinomi-toc {
+  position: relative;
+  z-index: 1;
+  width: min(1120px, calc(100% - 32px));
+  margin: 0 auto;
+}
+
+.tsukinomi-home {
+  min-height: 100vh;
+  padding: calc(var(--tsuki-topbar-height) + 56px) 0 56px;
+}
+
+.tsukinomi-home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(280px, 0.58fr);
+  gap: 34px;
+  align-items: center;
+}
+
+.tsukinomi-kicker {
+  margin: 0 0 16px;
+  color: var(--tsuki-ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.tsukinomi-home h1,
+.tsukinomi-toc h1 {
+  margin: 0;
+  color: var(--tsuki-ink);
+  font-family: var(--font-display-tsukinomi);
+  font-size: 4.15rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.tsukinomi-home-copy p:not(.tsukinomi-kicker) {
+  max-width: 60ch;
+  margin: 20px 0 0;
+  color: color-mix(in srgb, var(--tsuki-ink) 82%, var(--tsuki-ink-dim) 18%);
+  font-size: 1.04rem;
+}
+
+.tsukinomi-home-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  margin-top: 34px;
+}
+
+.tsukinomi-primary-link,
+.tsukinomi-secondary-link {
+  min-height: 42px;
+  padding: 9px 15px;
+  border: 1px solid var(--rail);
+  text-decoration: none;
+}
+
+.tsukinomi-primary-link {
+  border-color: color-mix(in srgb, var(--accent-warm) 72%, #ffffff 28%);
+  background: rgba(201, 134, 72, 0.12);
+  color: var(--tsuki-ink);
+}
+
+.tsukinomi-secondary-link {
+  color: var(--tsuki-ink-dim);
+}
+
+.tsukinomi-hero-placeholder {
+  position: relative;
+  min-height: 440px;
+  border: 1px solid var(--tsuki-line);
+  background:
+    linear-gradient(180deg, rgba(201, 134, 72, 0.12), transparent 44%),
+    linear-gradient(90deg, transparent, rgba(232, 220, 196, 0.05), transparent),
+    var(--tsuki-paper-2);
+  overflow: hidden;
+}
+
+.tsukinomi-hero-placeholder span {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  height: 1px;
+  background: color-mix(in srgb, var(--accent-warm) 58%, var(--tsuki-ink) 42%);
+  opacity: 0.62;
+}
+
+.tsukinomi-hero-placeholder span:first-child {
+  top: 45%;
+}
+
+.tsukinomi-hero-placeholder span:nth-child(2) {
+  top: 62%;
+}
+
+.tsukinomi-hero-placeholder i {
+  position: absolute;
+  top: 39%;
+  left: 50%;
+  width: 78px;
+  height: 78px;
+  border: 1px solid rgba(224, 163, 106, 0.62);
+  border-radius: 50%;
+  transform: translateX(-50%);
+}
+
+.tsukinomi-toc {
+  padding: calc(var(--tsuki-topbar-height) + 48px) 0 72px;
+}
+
+.tsukinomi-section-list {
+  display: grid;
+  gap: 12px;
+  margin: 34px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tsukinomi-section-list a {
+  display: grid;
+  grid-template-columns: 110px minmax(0, 1fr);
+  gap: 20px;
+  padding: 20px 0;
+  border-top: 1px solid var(--tsuki-line);
+  color: var(--tsuki-ink);
+  text-decoration: none;
+}
+
+.toc-number {
+  color: var(--accent-warm);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.toc-copy {
+  display: grid;
+  gap: 5px;
+}
+
+.toc-copy strong {
+  font-family: var(--font-display-tsukinomi);
+  font-size: 1.55rem;
+  font-style: italic;
+  font-weight: 400;
+  line-height: 1.22;
+}
+
+.toc-copy span,
+.toc-copy small,
+.toc-copy em {
+  color: var(--tsuki-ink-dim);
+}
+
+.toc-copy span {
+  font-family: var(--font-jp);
+  font-size: 0.95rem;
+}
+
+.toc-copy small {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.toc-copy em {
+  max-width: 72ch;
+  font-style: normal;
+  line-height: 1.65;
+}
+
+@media (max-width: 760px) {
+  .tsukinomi-page {
+    font-size: 16px;
+  }
+
+  .tsukinomi-topbar {
+    padding: 0 12px;
+  }
+
+  .tsukinomi-home,
+  .tsukinomi-toc {
+    width: min(100% - 24px, 620px);
+  }
+
+  .tsukinomi-home {
+    padding-top: calc(var(--tsuki-topbar-height) + 34px);
+  }
+
+  .tsukinomi-home-hero {
+    grid-template-columns: 1fr;
+  }
+
+  .tsukinomi-home h1,
+  .tsukinomi-toc h1 {
+    font-size: 3rem;
+  }
+
+  .tsukinomi-hero-placeholder {
+    min-height: 300px;
+  }
+
+  .tsukinomi-section-list a {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsukinomi-page *,
+  .tsukinomi-page *::before,
+  .tsukinomi-page *::after {
+    animation-duration: 1ms;
+    animation-iteration-count: 1;
+    scroll-behavior: auto;
+    transition-duration: 1ms;
+  }
+}

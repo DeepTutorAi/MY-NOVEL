@@ -1,0 +1,79 @@
+<div class="tsukinomi-reading-progress" aria-hidden="true">
+  <span data-tsukinomi-reading-progress></span>
+</div>
+
+<script>
+  const article = document.querySelector("article.tsukinomi-section");
+  const progressBar = document.querySelector("[data-tsukinomi-reading-progress]");
+  const storageKey = "tsukinomi:reading:last";
+
+  if (article instanceof HTMLElement && progressBar instanceof HTMLElement) {
+    let ticking = false;
+    let lastSavedAt = 0;
+    const sectionId = article.dataset.sectionId ?? "";
+    const sectionKey = sectionId ? `tsukinomi:reading:section:${sectionId}` : "";
+    const enteredAt = Date.now();
+
+    const writeStored = (key: string, value: unknown) => {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch {
+        // localStorage can be unavailable in private or restricted browser modes.
+      }
+    };
+
+    const getRatio = () => {
+      const rect = article.getBoundingClientRect();
+      const scrollable = Math.max(1, rect.height - window.innerHeight);
+      const read = Math.min(Math.max(-rect.top, 0), scrollable);
+      return read / scrollable;
+    };
+
+    const saveProgress = (ratio: number) => {
+      if (!sectionId || ratio < 0.005) {
+        return;
+      }
+
+      const now = Date.now();
+      if (now - lastSavedAt < 750 && ratio < 0.99) {
+        return;
+      }
+
+      lastSavedAt = now;
+
+      const saved = {
+        sectionId,
+        sectionNumber: article.dataset.sectionNumber ?? "",
+        sectionTitle: article.dataset.sectionTitle ?? "",
+        path: window.location.pathname,
+        progress: Number(ratio.toFixed(4)),
+        updatedAt: now,
+        enteredAt,
+      };
+
+      writeStored(storageKey, saved);
+      if (sectionKey) {
+        writeStored(sectionKey, saved);
+      }
+    };
+
+    const update = () => {
+      const ratio = getRatio();
+      progressBar.style.transform = `scaleX(${Math.max(0, Math.min(1, ratio))})`;
+      saveProgress(ratio);
+      ticking = false;
+    };
+
+    const requestUpdate = () => {
+      if (!ticking) {
+        ticking = true;
+        window.requestAnimationFrame(update);
+      }
+    };
+
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("pagehide", () => saveProgress(getRatio()));
+    update();
+  }
+</script>

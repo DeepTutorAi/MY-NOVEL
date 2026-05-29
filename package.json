@@ -18,6 +18,8 @@
     "@fontsource/crimson-pro": "^5.2.8",
     "@fontsource/ibm-plex-sans-thai-looped": "^5.2.8",
     "@fontsource/jetbrains-mono": "^5.2.8",
+    "@fontsource/noto-serif-jp": "5.2.8",
+    "@fontsource/shippori-mincho-b1": "5.2.8",
     "@tailwindcss/vite": "^4.3.0",
     "astro": "^5.18.2",
     "gsap": "^3.15.0",

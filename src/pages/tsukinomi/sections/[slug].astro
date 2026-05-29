@@ -1,0 +1,38 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import EndOfSection from "../../../components/tsukinomi/marks/EndOfSection.astro";
+import ReadingProgress from "../../../components/tsukinomi/reading/ReadingProgress.astro";
+import SectionHeader from "../../../components/tsukinomi/reading/SectionHeader.astro";
+import SectionNav from "../../../components/tsukinomi/reading/SectionNav.astro";
+import TsukinomiSectionLayout from "../../../layouts/tsukinomi/TsukinomiSectionLayout.astro";
+
+export async function getStaticPaths() {
+  const sections = (await getCollection("tsukinomiSections")).sort(
+    (a, b) => a.data.number - b.data.number,
+  );
+
+  return sections.map((section) => ({
+    params: { slug: section.id },
+    props: { section, sections },
+  }));
+}
+
+interface Props {
+  section: CollectionEntry<"tsukinomiSections">;
+  sections: CollectionEntry<"tsukinomiSections">[];
+}
+
+const { section, sections } = Astro.props;
+const { Content } = await render(section);
+const currentIndex = sections.findIndex((item) => item.id === section.id);
+const previous = currentIndex > 0 ? sections[currentIndex - 1] : undefined;
+const next = currentIndex >= 0 ? sections[currentIndex + 1] : undefined;
+---
+
+<TsukinomiSectionLayout section={section}>
+  <ReadingProgress />
+  <SectionHeader section={section} />
+  <Content />
+  <EndOfSection sectionNumber={section.data.number} />
+  <SectionNav previous={previous} next={next} />
+</TsukinomiSectionLayout>

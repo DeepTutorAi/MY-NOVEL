@@ -1,0 +1,18 @@
+---
+interface Props {
+  sectionNumber: number;
+}
+
+const { sectionNumber } = Astro.props;
+---
+
+<div class="end-of-section" aria-label={`จบภาค ${sectionNumber}`}>
+  <svg viewBox="0 0 120 28" aria-hidden="true">
+    <path d="M14 14h28" />
+    <circle cx="52" cy="14" r="8" />
+    <circle cx="68" cy="14" r="8" />
+    <path d="M78 14h28" />
+    <path d="M56 10v8M64 10v8" />
+  </svg>
+  <span>END OF SECTION {sectionNumber}</span>
+</div>

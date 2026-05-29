@@ -24,4 +24,19 @@ const extras = defineCollection({
   }),
 });
 
-export const collections = { chapters, extras };
+const tsukinomiSections = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/tsukinomi/sections" }),
+  schema: z.object({
+    number: z.number().int().min(1).max(5),
+    title: z.string(),
+    englishTitle: z.string(),
+    chapterRange: z.string(),
+    summary: z.string(),
+    readingMinutes: z.number().int().positive(),
+    musicCueId: z.enum(["discovery", "reveal", "decision", "mountain", "ten-years"]),
+    backgroundImage: z.string(),
+    palette: z.enum(["autumn", "twilight", "warm-room", "snow-pact", "winter-light"]),
+  }),
+});
+
+export const collections = { chapters, extras, tsukinomiSections };

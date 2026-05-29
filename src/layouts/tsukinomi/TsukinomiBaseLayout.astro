@@ -1,0 +1,60 @@
+---
+import TopBar from "../../components/tsukinomi/navigation/TopBar.astro";
+import "../../styles/tsukinomi/global.css";
+import { withBase } from "../../utils/base-path";
+
+interface Props {
+  title: string;
+  description: string;
+  bodyClass?: string;
+  sectionPalette?: string;
+  showTopBar?: boolean;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description,
+  bodyClass,
+  sectionPalette = "",
+  showTopBar = true,
+  ogImage = "/og.jpg",
+} = Astro.props;
+const canonical = Astro.url.href;
+const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href;
+const faviconLit = withBase("/favicon.svg");
+const faviconPng = withBase("/favicon.png");
+const bodyClasses = ["tsukinomi-page", showTopBar ? "has-tsukinomi-topbar" : "", bodyClass]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#14110C" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={faviconLit} type="image/svg+xml" />
+    <link rel="icon" href={faviconPng} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={faviconPng} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={resolvedOgImage} />
+  </head>
+  <body class={bodyClasses} data-section={sectionPalette}>
+    <div class="tsukinomi-atmosphere"></div>
+    <div class="tsukinomi-corner"></div>
+    {showTopBar && <TopBar />}
+    <slot />
+  </body>
+</html>

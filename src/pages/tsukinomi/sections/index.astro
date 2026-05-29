@@ -1,0 +1,37 @@
+---
+import { getCollection } from "astro:content";
+import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
+import { withBase } from "../../../utils/base-path";
+
+const sections = (await getCollection("tsukinomiSections")).sort(
+  (a, b) => a.data.number - b.data.number,
+);
+---
+
+<TsukinomiBaseLayout
+  title="สารบัญ — สถานีทะเลพระจันทร์"
+  description="สารบัญ 5 ภาคของสถานีทะเลพระจันทร์"
+  bodyClass="tsukinomi-toc-page"
+>
+  <main class="tsukinomi-toc" aria-labelledby="tsukinomi-toc-title">
+    <p class="tsukinomi-kicker">Tsukinomi no Eki</p>
+    <h1 id="tsukinomi-toc-title">สารบัญ</h1>
+    <ol class="tsukinomi-section-list">
+      {
+        sections.map((section) => (
+          <li>
+            <a href={withBase(`/tsukinomi/sections/${section.id}/`)}>
+              <span class="toc-number">ภาค {section.data.number}</span>
+              <span class="toc-copy">
+                <strong>{section.data.title}</strong>
+                <span>{section.data.englishTitle}</span>
+                <small>{section.data.chapterRange} · {section.data.readingMinutes} นาที</small>
+                <em>{section.data.summary}</em>
+              </span>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </main>
+</TsukinomiBaseLayout>
