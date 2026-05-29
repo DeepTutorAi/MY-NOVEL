@@ -25,4 +25,4 @@
   - `audio/music/after-climax-quiet.mp3`, `.ogg`
   - `audio/music/mirror-haunting.mp3`, `.ogg`
 
-ตอนนี้ไฟล์เพลงใน `audio/music/` เป็น placeholder เงียบ เพื่อให้ระบบไม่พังระหว่างรอเพลงจริง ให้แทนที่ด้วยไฟล์ชื่อเดิมเมื่อเลือกเพลงที่มีสิทธิ์ใช้งานแล้ว
+ไฟล์เพลงใน `audio/music/` ถูกแทนด้วยเพลงจริงจาก Pixabay แล้วทั้ง `.mp3` และ `.ogg` เพื่อให้ player เล่นไฟล์ที่มีเสียงจริงใน browser ที่รองรับ format ต่างกัน ดู source/license ของแต่ละ cue ได้ที่ `audio/music/SOURCES.md`
