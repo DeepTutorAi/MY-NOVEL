@@ -42,7 +42,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  background: var(--sakura);
+  background: var(--accent-warm);
   transform: scaleX(0);
   transform-origin: 0 50%;
 }
@@ -127,6 +127,22 @@ article.tsukinomi-section {
   font-size: 0.76rem;
 }
 
+.section-chapter-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem 0.65rem;
+  justify-content: center;
+  margin-top: 1.35rem;
+  color: var(--tsuki-ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.section-chapter-links a {
+  color: var(--tsuki-ink);
+  text-decoration: none;
+}
+
 article.tsukinomi-section p,
 article.tsukinomi-section blockquote,
 article.tsukinomi-section li {
@@ -163,6 +179,24 @@ article.tsukinomi-section h2[id^="ch-"] {
   animation-range: entry 0% cover 24%;
 }
 
+article.tsukinomi-section .resume-highlight {
+  position: relative;
+  border-radius: 8px;
+  animation: tsukinomi-resume-highlight 1800ms ease-out both;
+}
+
+article.tsukinomi-section .resume-highlight::before {
+  position: absolute;
+  inset: -0.45rem -0.7rem;
+  z-index: -1;
+  border: 1px solid color-mix(in srgb, var(--accent-warm) 34%, transparent);
+  border-radius: inherit;
+  background: color-mix(in srgb, var(--accent-warm) 9%, transparent);
+  box-shadow: 0 0 24px color-mix(in srgb, var(--accent-warm) 18%, transparent);
+  content: "";
+  pointer-events: none;
+}
+
 @keyframes tsukinomi-chapter-arrival {
   from {
     opacity: 0.18;
@@ -174,6 +208,16 @@ article.tsukinomi-section h2[id^="ch-"] {
     opacity: 1;
     text-shadow: 0 0 0 transparent;
     transform: translateY(0);
+  }
+}
+
+@keyframes tsukinomi-resume-highlight {
+  0% {
+    text-shadow: 0 0 18px color-mix(in srgb, var(--accent-warm) 34%, transparent);
+  }
+
+  100% {
+    text-shadow: 0 0 0 transparent;
   }
 }
 
@@ -277,7 +321,12 @@ article.tsukinomi-section hr {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  article.tsukinomi-section h2[id^="ch-"] {
+  article.tsukinomi-section h2[id^="ch-"],
+  article.tsukinomi-section .resume-highlight {
     animation: none;
+  }
+
+  article.tsukinomi-section .resume-highlight::before {
+    box-shadow: none;
   }
 }

@@ -39,6 +39,24 @@ html {
   outline-offset: 4px;
 }
 
+.skip-to-content {
+  position: fixed;
+  top: 0.65rem;
+  left: 0.65rem;
+  z-index: 100;
+  padding: 0.55rem 0.75rem;
+  background: var(--surface);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-decoration: none;
+  transform: translateY(calc(-100% - 1rem));
+}
+
+.skip-to-content:focus-visible {
+  transform: translateY(0);
+}
+
 .tsukinomi-page a {
   color: inherit;
   text-decoration: underline;
