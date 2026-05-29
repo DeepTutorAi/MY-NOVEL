@@ -1,9 +1,7 @@
 ---
 import { ClientRouter } from "astro:transitions";
 import GrainOverlay from "../../components/_shared/GrainOverlay.astro";
-import MapleDriftCanvas from "../../components/tsukinomi/atmosphere/MapleDriftCanvas.astro";
-import MistVeil from "../../components/tsukinomi/atmosphere/MistVeil.astro";
-import StationBackdrop from "../../components/tsukinomi/atmosphere/StationBackdrop.astro";
+import SakuraTwilightBackdrop from "../../components/tsukinomi/atmosphere/SakuraTwilightBackdrop.astro";
 import WalkmanPlayer from "../../components/tsukinomi/audio/WalkmanPlayer.astro";
 import TopBar from "../../components/tsukinomi/navigation/TopBar.astro";
 import WalkmanCorner from "../../components/tsukinomi/reading/WalkmanCorner.astro";
@@ -45,7 +43,7 @@ const bodyClasses = ["tsukinomi-page", "tsukinomi-shell", showTopBar ? "has-tsuk
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#14110C" />
+    <meta name="theme-color" content="#0E0B1E" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={faviconLit} type="image/svg+xml" />
     <link rel="icon" href={faviconPng} type="image/png" sizes="32x32" />
@@ -61,11 +59,9 @@ const bodyClasses = ["tsukinomi-page", "tsukinomi-shell", showTopBar ? "has-tsuk
     <meta name="twitter:image" content={resolvedOgImage} />
     <ClientRouter />
   </head>
-  <body class={bodyClasses} data-section={sectionPalette} data-palette={sectionPalette} data-music-cue={musicCueId}>
-    <MistVeil />
-    <StationBackdrop />
+  <body class={bodyClasses} data-theme="sakura-twilight" data-section={sectionPalette} data-palette={sectionPalette} data-music-cue={musicCueId}>
+    <SakuraTwilightBackdrop />
     <GrainOverlay texture="/assets/tsukinomi/textures/film-grain.png" />
-    <MapleDriftCanvas />
     <WalkmanCorner />
     <WalkmanPlayer />
     {showTopBar && <TopBar />}

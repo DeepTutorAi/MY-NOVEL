@@ -7,26 +7,7 @@
 @import "@fontsource/shippori-mincho-b1/400.css";
 @import "@fontsource/shippori-mincho-b1/600.css";
 @import "@fontsource/jetbrains-mono/400.css";
-
-:root {
-  --tsuki-ink: #e8dcc4;
-  --tsuki-ink-dim: #8a7c66;
-  --tsuki-paper: #14110c;
-  --tsuki-paper-2: #1f1a12;
-  --accent-warm: #c98648;
-  --accent-cold: #4a6b7e;
-  --accent-deep: #6e2730;
-  --rail: #5c5042;
-  --lamp: #e0a36a;
-  --tsuki-line: rgba(232, 220, 196, 0.14);
-  --tsuki-measure: 64ch;
-  --tsuki-topbar-height: 46px;
-
-  --font-thai: "IBM Plex Sans Thai Looped", sans-serif;
-  --font-jp: "Noto Serif JP", serif;
-  --font-display-tsukinomi: "Shippori Mincho B1", "Noto Serif JP", serif;
-  --font-mono: "JetBrains Mono", monospace;
-}
+@import "./tokens.css";
 
 *,
 *::before,
@@ -54,7 +35,7 @@ html {
 }
 
 .tsukinomi-page :focus-visible {
-  outline: 2px solid var(--lamp);
+  outline: 2px solid var(--sunset);
   outline-offset: 4px;
 }
 
@@ -67,7 +48,7 @@ html {
 }
 
 .tsukinomi-page a:hover {
-  color: var(--accent-warm);
+  color: var(--higan);
 }
 
 .tsukinomi-page img,
@@ -97,8 +78,8 @@ html {
   justify-content: space-between;
   min-height: var(--tsuki-topbar-height);
   padding: 0 18px;
-  border-bottom: 1px solid rgba(232, 220, 196, 0.1);
-  background: rgba(20, 17, 12, 0.82);
+  border-bottom: 1px solid color-mix(in srgb, var(--mist) 14%, transparent);
+  background: color-mix(in srgb, var(--bg-night) 78%, transparent);
   color: var(--tsuki-ink-dim);
   backdrop-filter: blur(14px);
 }
@@ -128,14 +109,16 @@ html {
 
 .tsukinomi-home {
   min-height: 100vh;
-  padding: calc(var(--tsuki-topbar-height) + 56px) 0 56px;
+  display: grid;
+  align-items: end;
+  padding: calc(var(--tsuki-topbar-height) + 56px) 0 64px;
 }
 
 .tsukinomi-home-hero {
   display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(280px, 0.58fr);
-  gap: 34px;
-  align-items: center;
+  width: min(760px, 100%);
+  min-height: min(72vh, 680px);
+  align-content: center;
 }
 
 .tsukinomi-kicker {
@@ -176,56 +159,18 @@ html {
   min-height: 42px;
   padding: 9px 15px;
   border: 1px solid var(--rail);
+  background: color-mix(in srgb, var(--surface) 42%, transparent);
   text-decoration: none;
 }
 
 .tsukinomi-primary-link {
-  border-color: color-mix(in srgb, var(--accent-warm) 72%, #ffffff 28%);
-  background: rgba(201, 134, 72, 0.12);
+  border-color: color-mix(in srgb, var(--sakura) 64%, var(--sunset) 36%);
+  background: color-mix(in srgb, var(--surface) 52%, var(--sakura) 10%);
   color: var(--tsuki-ink);
 }
 
 .tsukinomi-secondary-link {
   color: var(--tsuki-ink-dim);
-}
-
-.tsukinomi-hero-placeholder {
-  position: relative;
-  min-height: 440px;
-  border: 1px solid var(--tsuki-line);
-  background:
-    linear-gradient(180deg, rgba(201, 134, 72, 0.12), transparent 44%),
-    linear-gradient(90deg, transparent, rgba(232, 220, 196, 0.05), transparent),
-    var(--tsuki-paper-2);
-  overflow: hidden;
-}
-
-.tsukinomi-hero-placeholder span {
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  height: 1px;
-  background: color-mix(in srgb, var(--accent-warm) 58%, var(--tsuki-ink) 42%);
-  opacity: 0.62;
-}
-
-.tsukinomi-hero-placeholder span:first-child {
-  top: 45%;
-}
-
-.tsukinomi-hero-placeholder span:nth-child(2) {
-  top: 62%;
-}
-
-.tsukinomi-hero-placeholder i {
-  position: absolute;
-  top: 39%;
-  left: 50%;
-  width: 78px;
-  height: 78px;
-  border: 1px solid rgba(224, 163, 106, 0.62);
-  border-radius: 50%;
-  transform: translateX(-50%);
 }
 
 .tsukinomi-toc {
@@ -251,7 +196,7 @@ html {
 }
 
 .toc-number {
-  color: var(--accent-warm);
+  color: var(--sakura);
   font-family: var(--font-mono);
   font-size: 0.78rem;
 }
@@ -309,17 +254,9 @@ html {
     padding-top: calc(var(--tsuki-topbar-height) + 34px);
   }
 
-  .tsukinomi-home-hero {
-    grid-template-columns: 1fr;
-  }
-
   .tsukinomi-home h1,
   .tsukinomi-toc h1 {
     font-size: 3rem;
-  }
-
-  .tsukinomi-hero-placeholder {
-    min-height: 300px;
   }
 
   .tsukinomi-section-list a {

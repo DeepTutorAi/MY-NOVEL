@@ -1,0 +1,33 @@
+:root {
+  /* PENDING_USER_IMAGE: replace with url("/assets/tsukinomi/images/<user-l0-file>") after the user supplies L0. */
+  --bg-image: none;
+  --bg-night: #0E0B1E;
+  --bg-twilight: #171430;
+  --surface: #221D3C;
+  --mist: #CDD3E0;
+  --sakura: #E6A6BD;
+  --sunset: #E08A4C;
+  --sunset-deep: #B5562F;
+  --higan: #B3242B;
+  --moon: #E8EDF5;
+  --ink: #ECE6DA;
+  --ink-muted: #9A93AB;
+
+  --tsuki-ink: var(--ink);
+  --tsuki-ink-dim: var(--ink-muted);
+  --tsuki-paper: var(--bg-night);
+  --tsuki-paper-2: var(--surface);
+  --accent-warm: var(--sunset);
+  --accent-cold: var(--mist);
+  --accent-deep: var(--sunset-deep);
+  --rail: color-mix(in srgb, var(--mist) 26%, var(--surface) 74%);
+  --lamp: var(--sunset);
+  --tsuki-line: color-mix(in srgb, var(--mist) 17%, transparent);
+  --tsuki-measure: 64ch;
+  --tsuki-topbar-height: 46px;
+
+  --font-thai: "IBM Plex Sans Thai Looped", "Noto Serif Thai", sans-serif;
+  --font-jp: "Noto Serif JP", serif;
+  --font-display-tsukinomi: "Noto Serif JP", "Noto Serif Thai", "Shippori Mincho B1", serif;
+  --font-mono: "JetBrains Mono", monospace;
+}

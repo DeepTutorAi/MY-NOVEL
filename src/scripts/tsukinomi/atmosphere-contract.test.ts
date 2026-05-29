@@ -14,46 +14,73 @@ function readProjectFile(path: string): string {
 }
 
 describe("Tsukinomi P4 atmosphere contract", () => {
-  it("ships dedicated Tsukinomi atmosphere components instead of reusing Lodge snow", () => {
-    const requiredFiles = [
-      "src/components/tsukinomi/atmosphere/MistVeil.astro",
-      "src/components/tsukinomi/atmosphere/MapleDriftCanvas.astro",
-      "src/components/tsukinomi/atmosphere/StationBackdrop.astro",
-      "src/components/tsukinomi/reading/WalkmanCorner.astro",
-      "src/components/tsukinomi/reading/SectionDropcap.astro",
-    ];
+  it("defines the Sakura Twilight design tokens without assuming a user image", () => {
+    assert.equal(existsSync(projectPath("src/styles/tsukinomi/tokens.css")), true);
 
-    for (const file of requiredFiles) {
-      assert.equal(existsSync(projectPath(file)), true, `${file} should exist`);
-    }
+    const tokens = readProjectFile("src/styles/tsukinomi/tokens.css");
 
-    const maple = readProjectFile("src/components/tsukinomi/atmosphere/MapleDriftCanvas.astro");
-    assert.match(maple, /document\.body\.dataset\.section/);
-    assert.match(maple, /warm-room/);
-    assert.match(maple, /snow-pact/);
-    assert.match(maple, /article\.tsukinomi-section/);
-    assert.match(maple, /prefers-reduced-motion: reduce/);
-    assert.match(maple, /astro:after-swap/);
-    assert.doesNotMatch(maple, /SnowCanvas|snow-canvas|#C24B3A/i);
-
-    const mist = readProjectFile("src/components/tsukinomi/atmosphere/MistVeil.astro");
-    assert.match(mist, /mist-veil/);
-    assert.match(mist, /@keyframes/);
-    assert.match(mist, /prefers-reduced-motion: reduce/);
-    assert.doesNotMatch(mist, /#C24B3A/i);
+    assert.match(tokens, /--bg-image:\s*none;/);
+    assert.match(tokens, /PENDING_USER_IMAGE/);
+    assert.match(tokens, /--bg-night:\s*#0E0B1E;/);
+    assert.match(tokens, /--bg-twilight:\s*#171430;/);
+    assert.match(tokens, /--surface:\s*#221D3C;/);
+    assert.match(tokens, /--mist:\s*#CDD3E0;/);
+    assert.match(tokens, /--sakura:\s*#E6A6BD;/);
+    assert.match(tokens, /--sunset:\s*#E08A4C;/);
+    assert.match(tokens, /--sunset-deep:\s*#B5562F;/);
+    assert.match(tokens, /--higan:\s*#B3242B;/);
+    assert.match(tokens, /--moon:\s*#E8EDF5;/);
+    assert.match(tokens, /--ink:\s*#ECE6DA;/);
+    assert.match(tokens, /--ink-muted:\s*#9A93AB;/);
+    assert.doesNotMatch(tokens, /#C24B3A/i);
   });
 
-  it("wires TsukinomiBaseLayout to its own atmosphere stack", () => {
-    const layout = readProjectFile("src/layouts/tsukinomi/TsukinomiBaseLayout.astro");
+  it("ships a Sakura Twilight backdrop skeleton with L0-L5, petal freeze, and motion safety", () => {
+    const backdropPath = "src/components/tsukinomi/atmosphere/SakuraTwilightBackdrop.astro";
+    assert.equal(existsSync(projectPath(backdropPath)), true, `${backdropPath} should exist`);
 
-    assert.match(layout, /MistVeil/);
-    assert.match(layout, /MapleDriftCanvas/);
-    assert.match(layout, /StationBackdrop/);
+    const backdrop = readProjectFile(backdropPath);
+
+    assert.match(backdrop, /sakura-backdrop__base/);
+    assert.match(backdrop, /background-image:\s*var\(--bg-image\)/);
+    assert.match(backdrop, /background-size:\s*cover/);
+    assert.match(backdrop, /background-position:\s*center/);
+    assert.match(backdrop, /sakura-backdrop__tint/);
+    assert.match(backdrop, /sakura-backdrop__moon/);
+    assert.match(backdrop, /sakura-backdrop__mist--near/);
+    assert.match(backdrop, /sakura-backdrop__mist--middle/);
+    assert.match(backdrop, /sakura-backdrop__mist--far/);
+    assert.match(backdrop, /sakura-backdrop__petals/);
+    assert.match(backdrop, /sakura-backdrop__frame/);
+    assert.match(backdrop, /sakura-backdrop__clock/);
+    assert.match(backdrop, />7:14</);
+    assert.match(backdrop, /opacity:\s*0\.05/);
+    assert.match(backdrop, /requestAnimationFrame/);
+    assert.match(backdrop, /document\.hidden/);
+    assert.match(backdrop, /prefers-reduced-motion:\s*reduce/);
+    assert.match(backdrop, /freezeUntil/);
+    assert.match(backdrop, /scheduleFreeze/);
+    assert.match(backdrop, /8_000/);
+    assert.match(backdrop, /15_000/);
+    assert.match(backdrop, /1_500/);
+    assert.match(backdrop, /desktopPetalCount\s*=\s*36/);
+    assert.match(backdrop, /mobilePetalCount\s*=\s*22/);
+    assert.doesNotMatch(backdrop, /SnowCanvas|snow-canvas|Maple|maple|Fuji|mountain|ridge|#C24B3A/i);
+  });
+
+  it("wires TsukinomiBaseLayout to the Sakura Twilight stack only", () => {
+    const layout = readProjectFile("src/layouts/tsukinomi/TsukinomiBaseLayout.astro");
+    const globalCss = readProjectFile("src/styles/tsukinomi/global.css");
+
+    assert.match(globalCss, /@import "\.\/tokens\.css";/);
+    assert.match(layout, /SakuraTwilightBackdrop/);
     assert.match(layout, /WalkmanCorner/);
     assert.match(layout, /GrainOverlay/);
     assert.match(layout, /texture="\/assets\/tsukinomi\/textures\/film-grain\.png"/);
     assert.match(layout, /data-section=\{sectionPalette\}/);
-    assert.doesNotMatch(layout, /SnowCanvas|BackgroundFog|ReaderAmbience/);
+    assert.match(layout, /data-theme="sakura-twilight"/);
+    assert.doesNotMatch(layout, /MistVeil|MapleDriftCanvas|StationBackdrop|SnowCanvas|BackgroundFog|ReaderAmbience/);
+    assert.doesNotMatch(layout, /section\.data\.backgroundImage|backgroundImage=/);
   });
 
   it("ships the generated grain texture and hand-authored cassette icons", () => {

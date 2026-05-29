@@ -1,0 +1,403 @@
+<div class="sakura-backdrop" aria-hidden="true">
+  <div class="sakura-backdrop__base"></div>
+  <div class="sakura-backdrop__tint"></div>
+  <div class="sakura-backdrop__moon"></div>
+  <div class="sakura-backdrop__mist sakura-backdrop__mist--far"></div>
+  <div class="sakura-backdrop__mist sakura-backdrop__mist--middle"></div>
+  <div class="sakura-backdrop__mist sakura-backdrop__mist--near"></div>
+  <canvas class="sakura-backdrop__petals" data-sakura-petals></canvas>
+  <div class="sakura-backdrop__clock">7:14</div>
+  <div class="sakura-backdrop__frame"></div>
+</div>
+
+<script>
+  type Petal = {
+    x: number;
+    y: number;
+    size: number;
+    speed: number;
+    drift: number;
+    sway: number;
+    phase: number;
+    rotation: number;
+    rotationSpeed: number;
+    opacity: number;
+  };
+
+  type BackdropController = {
+    destroy: () => void;
+  };
+
+  const controllerWindow = window as Window & {
+    __tsukinomiSakuraBackdrop?: BackdropController;
+  };
+
+  controllerWindow.__tsukinomiSakuraBackdrop?.destroy();
+
+  let canvas: HTMLCanvasElement | null = null;
+  let context: CanvasRenderingContext2D | null = null;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mobile = window.matchMedia("(max-width: 640px)");
+  const desktopPetalCount = 36;
+  const mobilePetalCount = 22;
+  let petals: Petal[] = [];
+  let width = 0;
+  let height = 0;
+  let frame = 0;
+  let resizeTimer = 0;
+  let freezeUntil = 0;
+  let nextFreezeAt = 0;
+
+  const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
+  const petalCount = () => (mobile.matches ? mobilePetalCount : desktopPetalCount);
+
+  const scheduleFreeze = (now = performance.now()) => {
+    nextFreezeAt = now + randomBetween(8_000, 15_000);
+  };
+
+  const bindCanvas = () => {
+    canvas = document.querySelector("[data-sakura-petals]");
+    context = canvas instanceof HTMLCanvasElement ? canvas.getContext("2d") : null;
+  };
+
+  const createPetal = (initial = false): Petal => ({
+    x: randomBetween(-40, width + 40),
+    y: initial ? randomBetween(-20, height) : randomBetween(-80, -16),
+    size: randomBetween(5, 12),
+    speed: randomBetween(0.16, 0.48),
+    drift: randomBetween(-0.18, 0.24),
+    sway: randomBetween(0.18, 0.62),
+    phase: randomBetween(0, Math.PI * 2),
+    rotation: randomBetween(0, Math.PI * 2),
+    rotationSpeed: randomBetween(-0.012, 0.012),
+    opacity: randomBetween(0.24, 0.58),
+  });
+
+  const resetPetals = () => {
+    petals = Array.from({ length: petalCount() }, () => createPetal(true));
+  };
+
+  const resize = () => {
+    bindCanvas();
+
+    if (!canvas || !context) {
+      return;
+    }
+
+    const ratio = Math.min(window.devicePixelRatio || 1, 2);
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * ratio);
+    canvas.height = Math.floor(height * ratio);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    canvas.hidden = reduceMotion.matches;
+    resetPetals();
+  };
+
+  const updateFreezeState = (now: number) => {
+    if (!nextFreezeAt) {
+      scheduleFreeze(now);
+    }
+
+    if (now >= nextFreezeAt) {
+      freezeUntil = now + 1_500;
+      scheduleFreeze(freezeUntil);
+    }
+
+    return now < freezeUntil;
+  };
+
+  const petalOverReader = (petal: Petal) => {
+    const article = document.querySelector("article.tsukinomi-section");
+
+    if (!(article instanceof HTMLElement)) {
+      return false;
+    }
+
+    const rect = article.getBoundingClientRect();
+    const pad = mobile.matches ? 10 : 20;
+
+    return (
+      petal.x + petal.size >= rect.left - pad &&
+      petal.x - petal.size <= rect.right + pad &&
+      petal.y + petal.size >= rect.top - pad &&
+      petal.y - petal.size <= rect.bottom + pad
+    );
+  };
+
+  const drawPetal = (petal: Petal, now: number) => {
+    if (!context || petalOverReader(petal)) {
+      return;
+    }
+
+    const sakura = getComputedStyle(document.documentElement).getPropertyValue("--sakura").trim() || "#E6A6BD";
+    const x = petal.x + Math.sin(now / 1250 + petal.phase) * petal.sway * 8;
+
+    context.save();
+    context.translate(x, petal.y);
+    context.rotate(petal.rotation);
+    context.globalAlpha = petal.opacity;
+    context.fillStyle = sakura;
+    context.beginPath();
+    context.moveTo(0, -petal.size);
+    context.bezierCurveTo(petal.size * 0.78, -petal.size * 0.42, petal.size * 0.64, petal.size * 0.64, 0, petal.size);
+    context.bezierCurveTo(-petal.size * 0.64, petal.size * 0.64, -petal.size * 0.78, -petal.size * 0.42, 0, -petal.size);
+    context.fill();
+    context.restore();
+  };
+
+  const draw = (now: number) => {
+    if (!canvas || !context || reduceMotion.matches || document.hidden) {
+      context?.clearRect(0, 0, width, height);
+      if (canvas) {
+        canvas.hidden = true;
+      }
+      frame = 0;
+      return;
+    }
+
+    canvas.hidden = false;
+    context.clearRect(0, 0, width, height);
+    const frozen = updateFreezeState(now);
+
+    for (const petal of petals) {
+      if (!frozen) {
+        petal.y += petal.speed;
+        petal.x += petal.drift;
+        petal.rotation += petal.rotationSpeed;
+      }
+
+      if (petal.y > height + 28 || petal.x < -80 || petal.x > width + 80) {
+        Object.assign(petal, createPetal(false));
+      }
+
+      drawPetal(petal, now);
+    }
+
+    frame = window.requestAnimationFrame(draw);
+  };
+
+  const pause = () => {
+    if (frame) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
+  };
+
+  const resume = () => {
+    pause();
+    bindCanvas();
+
+    if (!canvas || !context || reduceMotion.matches || document.hidden) {
+      context?.clearRect(0, 0, width, height);
+      if (canvas) {
+        canvas.hidden = true;
+      }
+      return;
+    }
+
+    frame = window.requestAnimationFrame(draw);
+  };
+
+  const refresh = () => {
+    pause();
+    resize();
+    scheduleFreeze();
+    resume();
+  };
+
+  const handleResize = () => {
+    window.clearTimeout(resizeTimer);
+    resizeTimer = window.setTimeout(refresh, 150);
+  };
+
+  const handleVisibility = () => {
+    if (document.hidden) {
+      pause();
+    } else {
+      resume();
+    }
+  };
+
+  refresh();
+
+  window.addEventListener("resize", handleResize);
+  reduceMotion.addEventListener("change", refresh);
+  document.addEventListener("visibilitychange", handleVisibility);
+  document.addEventListener("astro:after-swap", refresh);
+
+  controllerWindow.__tsukinomiSakuraBackdrop = {
+    destroy() {
+      pause();
+      window.clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+      reduceMotion.removeEventListener("change", refresh);
+      document.removeEventListener("visibilitychange", handleVisibility);
+      document.removeEventListener("astro:after-swap", refresh);
+    },
+  };
+</script>
+
+<style>
+  .sakura-backdrop,
+  .sakura-backdrop__base,
+  .sakura-backdrop__tint,
+  .sakura-backdrop__moon,
+  .sakura-backdrop__mist,
+  .sakura-backdrop__petals,
+  .sakura-backdrop__clock,
+  .sakura-backdrop__frame {
+    position: fixed;
+    pointer-events: none;
+  }
+
+  .sakura-backdrop {
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    background: var(--bg-night);
+  }
+
+  .sakura-backdrop__base,
+  .sakura-backdrop__tint,
+  .sakura-backdrop__moon,
+  .sakura-backdrop__petals,
+  .sakura-backdrop__frame {
+    inset: 0;
+  }
+
+  .sakura-backdrop__base {
+    background-image: var(--bg-image);
+    background-position: center;
+    background-size: cover;
+    opacity: 0.72;
+    transform: scale(1.01);
+  }
+
+  .sakura-backdrop__tint {
+    background:
+      linear-gradient(180deg, rgba(14, 11, 30, 0.84) 0%, rgba(23, 20, 48, 0.74) 44%, rgba(181, 86, 47, 0.32) 100%),
+      radial-gradient(circle at 18% 92%, rgba(224, 138, 76, 0.18), transparent 34rem);
+    mix-blend-mode: multiply;
+  }
+
+  .sakura-backdrop__moon {
+    background: radial-gradient(circle at 76% 14%, color-mix(in srgb, var(--moon) 48%, transparent), transparent 14rem);
+    opacity: 0.34;
+    animation: sakura-moon-flicker 9s ease-in-out infinite;
+  }
+
+  .sakura-backdrop__mist {
+    inset: -22%;
+    background:
+      radial-gradient(ellipse at 20% 64%, color-mix(in srgb, var(--mist) 13%, transparent), transparent 28rem),
+      radial-gradient(ellipse at 74% 38%, color-mix(in srgb, var(--mist) 9%, transparent), transparent 24rem),
+      linear-gradient(90deg, transparent, color-mix(in srgb, var(--mist) 8%, transparent), transparent);
+    filter: blur(20px);
+  }
+
+  .sakura-backdrop__mist--far {
+    opacity: 0.32;
+    transform: translate3d(-6%, 2%, 0) scale(1.2);
+    animation: sakura-mist-far 96s ease-in-out infinite alternate;
+  }
+
+  .sakura-backdrop__mist--middle {
+    opacity: 0.42;
+    transform: translate3d(4%, -1%, 0) scale(1.1);
+    animation: sakura-mist-middle 72s ease-in-out infinite alternate;
+  }
+
+  .sakura-backdrop__mist--near {
+    opacity: 0.5;
+    transform: translate3d(-2%, 0, 0);
+    animation: sakura-mist-near 54s ease-in-out infinite alternate;
+  }
+
+  .sakura-backdrop__petals {
+    width: 100vw;
+    height: 100vh;
+  }
+
+  .sakura-backdrop__clock {
+    right: clamp(1rem, 3vw, 2.75rem);
+    bottom: clamp(1.1rem, 3vw, 2.6rem);
+    z-index: 5;
+    color: var(--moon);
+    font-family: var(--font-mono);
+    font-size: clamp(2.6rem, 8vw, 7rem);
+    letter-spacing: 0;
+    line-height: 1;
+    opacity: 0.05;
+  }
+
+  .sakura-backdrop__frame {
+    z-index: 6;
+    box-shadow:
+      inset 0 0 8rem rgba(4, 3, 10, 0.82),
+      inset 0 -28vh 24vh rgba(14, 11, 30, 0.52);
+  }
+
+  @keyframes sakura-moon-flicker {
+    0%,
+    100% {
+      opacity: 0.3;
+    }
+
+    48% {
+      opacity: 0.36;
+    }
+
+    54% {
+      opacity: 0.25;
+    }
+
+    62% {
+      opacity: 0.34;
+    }
+  }
+
+  @keyframes sakura-mist-near {
+    from {
+      transform: translate3d(-3%, 0, 0) scale(1.04);
+    }
+
+    to {
+      transform: translate3d(4%, -1.5%, 0) scale(1.08);
+    }
+  }
+
+  @keyframes sakura-mist-middle {
+    from {
+      transform: translate3d(3%, -1%, 0) scale(1.1);
+    }
+
+    to {
+      transform: translate3d(-4%, 2%, 0) scale(1.16);
+    }
+  }
+
+  @keyframes sakura-mist-far {
+    from {
+      transform: translate3d(-6%, 2%, 0) scale(1.2);
+    }
+
+    to {
+      transform: translate3d(5%, -2%, 0) scale(1.24);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sakura-backdrop__moon,
+    .sakura-backdrop__mist {
+      animation: none;
+    }
+
+    .sakura-backdrop__petals,
+    .sakura-backdrop__clock {
+      display: none;
+    }
+  }
+</style>

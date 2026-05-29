@@ -5,7 +5,7 @@ export const MUSIC_CUES = [
     title: "Walkman & Rain",
     label: "Walkman & Rain",
     srcBase: "/assets/tsukinomi/audio/music/discovery",
-    intent: "Light rain, damp maple leaves, soft piano, not horror.",
+    intent: "Light rain, suspended sakura petals, soft piano, not horror.",
   },
   {
     id: "reveal",
