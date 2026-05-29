@@ -102,11 +102,59 @@ function remarkNeutralizeStrayDirectives() {
   return transform;
 }
 
-function rehypeRuneDividers() {
+function rehypeHeadingIds() {
   /** @param {any} tree */
   const transform = (tree) => {
     visit(tree, "element", (node) => {
+      if (!/^h[1-6]$/.test(node.tagName) || !Array.isArray(node.children)) {
+        return;
+      }
+
+      const lastChild = node.children[node.children.length - 1];
+      if (lastChild?.type !== "text" || typeof lastChild.value !== "string") {
+        return;
+      }
+
+      const match = lastChild.value.match(/\s+\{#([A-Za-z0-9_-]+)\}$/);
+      if (!match) {
+        return;
+      }
+
+      lastChild.value = lastChild.value.replace(/\s+\{#[A-Za-z0-9_-]+\}$/, "");
+      node.properties = { ...(node.properties || {}), id: match[1] };
+    });
+  };
+
+  return transform;
+}
+
+function rehypeStoryDividers() {
+  /**
+   * @param {any} tree
+   * @param {any} file
+   */
+  const transform = (tree, file) => {
+    const sourcePath = String(file?.path || file?.history?.[0] || "").replaceAll("\\", "/");
+    const isTsukinomi = sourcePath.includes("/src/content/tsukinomi/sections/");
+
+    visit(tree, "element", (node) => {
       if (node.tagName !== "hr") {
+        return;
+      }
+
+      if (isTsukinomi) {
+        node.tagName = "div";
+        node.properties = { className: ["tape-divider"], ariaHidden: "true" };
+        node.children = [
+          { type: "element", tagName: "span", properties: { className: ["tape-line"] }, children: [] },
+          {
+            type: "element",
+            tagName: "span",
+            properties: { className: ["tape-mark"] },
+            children: [{ type: "text", value: "▶︎ ‖" }],
+          },
+          { type: "element", tagName: "span", properties: { className: ["tape-line"] }, children: [] },
+        ];
         return;
       }
 
@@ -154,7 +202,7 @@ export default defineConfig({
       remarkEmphasisDirective,
       remarkNeutralizeStrayDirectives,
     ],
-    rehypePlugins: [rehypeRuneDividers],
+    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers],
   },
   vite: {
     plugins: [tailwindcss()],

@@ -132,6 +132,21 @@ article.tsukinomi-section p {
   margin: 1.35em 0;
 }
 
+article.tsukinomi-section:not([data-section-palette="snow-pact"]) > p:first-of-type::first-letter {
+  float: left;
+  margin: 0.08em 0.16em -0.12em 0;
+  color: var(--accent-warm);
+  font-family: var(--font-display-tsukinomi);
+  font-size: 4.4em;
+  font-style: italic;
+  line-height: 0.82;
+}
+
+.palette-twilight article.tsukinomi-section > p:first-of-type::first-letter,
+.palette-winter-light article.tsukinomi-section > p:first-of-type::first-letter {
+  color: var(--accent-cold);
+}
+
 article.tsukinomi-section blockquote {
   margin: 2.2rem 0;
   padding: 1rem 1.25rem;
@@ -153,6 +168,36 @@ article.tsukinomi-section h2 {
 
 article.tsukinomi-section hr {
   display: none;
+}
+
+.tape-divider {
+  display: grid;
+  grid-template-columns: minmax(42px, 1fr) auto minmax(42px, 1fr);
+  gap: 0.75rem;
+  align-items: center;
+  margin: 2.75rem auto;
+  color: var(--rail);
+  opacity: 0.72;
+}
+
+.tape-line {
+  height: 1px;
+  background: currentColor;
+}
+
+.tape-mark {
+  color: var(--accent-warm);
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+}
+
+.palette-twilight .tape-mark,
+.palette-winter-light .tape-mark {
+  color: var(--accent-cold);
+}
+
+.palette-snow-pact .tape-mark {
+  color: var(--accent-deep);
 }
 
 .end-of-section {
