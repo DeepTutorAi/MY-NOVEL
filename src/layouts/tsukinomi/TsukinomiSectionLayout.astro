@@ -18,6 +18,7 @@ const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — $
   description={section.data.summary}
   bodyClass={`tsukinomi-section-page section-${section.data.number} palette-${section.data.palette}`}
   sectionPalette={section.data.palette}
+  musicCueId={section.data.musicCueId}
 >
   <main class="tsukinomi-section-shell">
     <article
@@ -26,6 +27,7 @@ const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — $
       data-section-number={section.data.number}
       data-section-title={section.data.title}
       data-section-palette={section.data.palette}
+      data-music-cue={section.data.musicCueId}
     >
       <SectionDropcap />
       <slot />

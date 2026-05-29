@@ -28,5 +28,19 @@
   - `lodge/audio/music/dark-nightmare.mp3`, `.ogg`
   - `lodge/audio/music/after-climax-quiet.mp3`, `.ogg`
   - `lodge/audio/music/mirror-haunting.mp3`, `.ogg`
+  - `tsukinomi/audio/music/discovery.mp3`, `.ogg`
+  - `tsukinomi/audio/music/reveal.mp3`, `.ogg`
+  - `tsukinomi/audio/music/decision.mp3`, `.ogg`
+  - `tsukinomi/audio/music/mountain.mp3`, `.ogg`
+  - `tsukinomi/audio/music/ten-years.mp3`, `.ogg`
+- Tsukinomi soundscapes:
+  - `tsukinomi/audio/soundscape/cassette-hiss.mp3`, `.ogg`
+  - `tsukinomi/audio/soundscape/distant-train.mp3`, `.ogg`
+  - `tsukinomi/audio/soundscape/mountain-wind.mp3`, `.ogg`
+- Tsukinomi SFX:
+  - `tsukinomi/audio/sfx/tape-click.mp3`
+  - `tsukinomi/audio/sfx/tape-rewind.mp3`
 
 ไฟล์เพลงใน `lodge/audio/music/` ถูกแทนด้วยเพลงจริงจาก Pixabay แล้วทั้ง `.mp3` และ `.ogg` เพื่อให้ player เล่นไฟล์ที่มีเสียงจริงใน browser ที่รองรับ format ต่างกัน ดู source/license ของแต่ละ cue ได้ที่ `lodge/audio/music/SOURCES.md`
+
+Tsukinomi Walkman audio uses licensed Pixabay MP3 assets plus local OGG fallbacks for looping music/soundscapes. Source/license rows are in `tsukinomi/audio/SOURCES.md`.

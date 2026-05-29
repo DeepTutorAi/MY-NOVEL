@@ -28,6 +28,23 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/lodge/prompts/hvitveldt-music-cue-plan.md` | Hand-authored cue plan | Project-owned text | None | Copy-ready music prompts |
 | `public/assets/lodge/prompts/claude-hvitveldt-quality-guard.md` | Hand-authored Claude guardrail prompt | Project-owned text | None | Content QA and workflow prompt |
 
+## Licensed Audio Assets
+
+These assets were downloaded from Pixabay pages that showed "Free for use under the Pixabay Content License" on 2026-05-29. Source details are also recorded beside each novel's audio folder.
+
+| File | Source | License | Attribution | Status |
+|---|---|---|---|---|
+| `public/assets/tsukinomi/audio/music/discovery.mp3`, `public/assets/tsukinomi/audio/music/discovery.ogg` | Asagiri (Original Version); source URL: https://pixabay.com/music/solo-piano-asagiri-original-version-494121/ | Pixabay Content License | HarumachiMusic | Tsukinomi section 1 music cue |
+| `public/assets/tsukinomi/audio/music/reveal.mp3`, `public/assets/tsukinomi/audio/music/reveal.ogg` | Melancholic Piano Music; source URL: https://pixabay.com/music/modern-classical-melancholic-piano-music-267025/ | Pixabay Content License | tramp963 | Tsukinomi section 2 music cue |
+| `public/assets/tsukinomi/audio/music/decision.mp3`, `public/assets/tsukinomi/audio/music/decision.ogg` | Childhood Piano; source URL: https://pixabay.com/music/modern-classical-childhood-piano-147919/ | Pixabay Content License | The_Mountain | Tsukinomi section 3 music cue |
+| `public/assets/tsukinomi/audio/music/mountain.mp3`, `public/assets/tsukinomi/audio/music/mountain.ogg` | The Shakuhachi Calling (Japan Flute Is); source URL: https://pixabay.com/music/solo-instruments-the-shakuhachi-calling-japan-flute-is-179962/ | Pixabay Content License | Diamond_Tunes | Tsukinomi section 4 music cue |
+| `public/assets/tsukinomi/audio/music/ten-years.mp3`, `public/assets/tsukinomi/audio/music/ten-years.ogg` | Emotional Piano Piece with a Touch of Hope; source URL: https://pixabay.com/music/modern-classical-emotional-piano-piece-with-a-touch-of-hope-230456/ | Pixabay Content License | nickpanekAIassets | Tsukinomi section 5 music cue |
+| `public/assets/tsukinomi/audio/soundscape/cassette-hiss.mp3`, `public/assets/tsukinomi/audio/soundscape/cassette-hiss.ogg` | cassette tape hiss and ground hum white noise static full level +switch on, off; source URL: https://pixabay.com/sound-effects/technology-cassette-tape-hiss-and-ground-hum-white-noise-static-full-level-switch-on-off-17671/ | Pixabay Content License | kyles (Freesound) | Tsukinomi Walkman soundscape loop |
+| `public/assets/tsukinomi/audio/soundscape/distant-train.mp3`, `public/assets/tsukinomi/audio/soundscape/distant-train.ogg` | Train Station ambience; source URL: https://pixabay.com/sound-effects/city-train-station-ambience-52096/ | Pixabay Content License | indieground (Freesound) | Tsukinomi optional distant train soundscape |
+| `public/assets/tsukinomi/audio/soundscape/mountain-wind.mp3`, `public/assets/tsukinomi/audio/soundscape/mountain-wind.ogg` | Mountain forest winter amb trees creak light wind BANFF 190107; source URL: https://pixabay.com/sound-effects/nature-mountain-forest-winter-amb-trees-creak-light-wind-banff-190107-49062/ | Pixabay Content License | TRP (Freesound) | Tsukinomi optional mountain wind soundscape |
+| `public/assets/tsukinomi/audio/sfx/tape-click.mp3` | press button(Cassette player); source URL: https://pixabay.com/sound-effects/film-special-effects-press-buttoncassette-player-94424/ | Pixabay Content License | 220bluebulb (Freesound) | Tsukinomi Walkman toggle SFX |
+| `public/assets/tsukinomi/audio/sfx/tape-rewind.mp3` | Cassette Tape Rewind; source URL: https://pixabay.com/sound-effects/household-cassette-tape-rewind-29103/ | Pixabay Content License | albertomarun (Freesound) | Tsukinomi Walkman previous/next SFX |
+
 Fonts are self-hosted through the `@fontsource` packages listed in `package.json`.
 
 ## Placeholder Audio
@@ -36,14 +53,14 @@ These are 30-second silent test tracks generated locally for Phase 5. They keep 
 
 | File | Source | License | Attribution | Status |
 |---|---|---|---|---|
-| `public/assets/lodge/audio/ambient-act1.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 1 wind/calm ambient |
-| `public/assets/lodge/audio/ambient-act1.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 1 wind/calm ambient |
-| `public/assets/lodge/audio/ambient-act2.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 2 distant creak ambient |
-| `public/assets/lodge/audio/ambient-act2.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 2 distant creak ambient |
-| `public/assets/lodge/audio/ambient-act3.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 3 low drone ambient |
-| `public/assets/lodge/audio/ambient-act3.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 3 low drone ambient |
-| `public/assets/lodge/audio/ambient-act4.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 4 silence/heartbeat ambient |
-| `public/assets/lodge/audio/ambient-act4.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | TODO: replace with Act 4 silence/heartbeat ambient |
+| `public/assets/lodge/audio/ambient-act1.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 1 wind/calm ambient |
+| `public/assets/lodge/audio/ambient-act1.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 1 wind/calm ambient |
+| `public/assets/lodge/audio/ambient-act2.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 2 distant creak ambient |
+| `public/assets/lodge/audio/ambient-act2.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 2 distant creak ambient |
+| `public/assets/lodge/audio/ambient-act3.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 3 low drone ambient |
+| `public/assets/lodge/audio/ambient-act3.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 3 low drone ambient |
+| `public/assets/lodge/audio/ambient-act4.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 4 silence/heartbeat ambient |
+| `public/assets/lodge/audio/ambient-act4.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 4 silence/heartbeat ambient |
 
 The current player uses the cue-based files below. They are temporary silent copies until licensed music is selected.
 

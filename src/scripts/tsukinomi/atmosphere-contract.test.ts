@@ -19,7 +19,7 @@ describe("Tsukinomi P4 atmosphere contract", () => {
       "src/components/tsukinomi/atmosphere/MistVeil.astro",
       "src/components/tsukinomi/atmosphere/MapleDriftCanvas.astro",
       "src/components/tsukinomi/atmosphere/StationBackdrop.astro",
-      "src/components/tsukinomi/audio/WalkmanCorner.astro",
+      "src/components/tsukinomi/reading/WalkmanCorner.astro",
       "src/components/tsukinomi/reading/SectionDropcap.astro",
     ];
 

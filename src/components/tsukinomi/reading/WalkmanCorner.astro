@@ -1,0 +1,126 @@
+---
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+
+const walkmanSvg = readFileSync(join(process.cwd(), "public/assets/tsukinomi/icons/walkman.svg"), "utf8").replace(
+  "<svg ",
+  '<svg class="walkman-corner-icon" ',
+);
+---
+
+<button
+  class="walkman-corner"
+  type="button"
+  data-walkman-corner
+  data-playing="false"
+  aria-label="เปิดแผงเสียง Walkman"
+  aria-controls="tsukinomi-walkman-panel"
+  aria-expanded="false"
+>
+  <span class="walkman-corner-led" aria-hidden="true"></span>
+  <span class="walkman-corner-art" set:html={walkmanSvg}></span>
+</button>
+
+<style>
+  .walkman-corner {
+    position: fixed;
+    right: 1rem;
+    bottom: 1rem;
+    z-index: 22;
+    display: grid;
+    place-items: center;
+    width: 84px;
+    min-width: 84px;
+    height: 70px;
+    padding: 7px;
+    border: 1px solid rgba(224, 163, 106, 0.28);
+    background: rgba(20, 17, 12, 0.66);
+    box-shadow: 0 1rem 2rem rgba(0, 0, 0, 0.32);
+    color: var(--tsuki-ink);
+    cursor: pointer;
+    opacity: 0.78;
+    transition:
+      opacity 150ms ease,
+      border-color 150ms ease,
+      transform 150ms ease;
+  }
+
+  .walkman-corner:hover,
+  .walkman-corner:focus-visible,
+  .walkman-corner[data-playing="true"] {
+    border-color: rgba(224, 163, 106, 0.58);
+    opacity: 1;
+    transform: translateY(-2px);
+  }
+
+  .walkman-corner:focus-visible {
+    outline: 2px solid var(--tsuki-accent);
+    outline-offset: 3px;
+  }
+
+  .walkman-corner-art,
+  :global(.walkman-corner-icon) {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  .walkman-corner-led {
+    position: absolute;
+    right: 15px;
+    bottom: 16px;
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: #9d2727;
+    box-shadow: 0 0 0 transparent;
+    opacity: 0.35;
+  }
+
+  .walkman-corner[data-playing="true"] .walkman-corner-led {
+    animation: walkman-led-pulse 1.8s ease-in-out infinite;
+    opacity: 1;
+  }
+
+  .walkman-corner[data-playing="true"] :global(.walkman-corner-icon .reel-left),
+  .walkman-corner[data-playing="true"] :global(.walkman-corner-icon .reel-right) {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: walkman-reel 4s linear infinite;
+  }
+
+  @keyframes walkman-reel {
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes walkman-led-pulse {
+    0%,
+    100% {
+      box-shadow: 0 0 0 rgba(191, 42, 42, 0);
+      opacity: 0.52;
+    }
+
+    45% {
+      box-shadow: 0 0 14px rgba(225, 63, 54, 0.72);
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .walkman-corner,
+    .walkman-corner[data-playing="true"] .walkman-corner-led,
+    .walkman-corner[data-playing="true"] :global(.walkman-corner-icon .reel-left),
+    .walkman-corner[data-playing="true"] :global(.walkman-corner-icon .reel-right) {
+      animation: none;
+      transition: none;
+    }
+  }
+
+  @media (max-width: 760px) {
+    .walkman-corner {
+      display: none;
+    }
+  }
+</style>

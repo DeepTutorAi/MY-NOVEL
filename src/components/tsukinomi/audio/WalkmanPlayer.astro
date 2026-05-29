@@ -1,0 +1,480 @@
+<div
+  id="tsukinomi-walkman-panel"
+  class="walkman-player"
+  data-open="false"
+  data-playing="false"
+  role="dialog"
+  aria-label="แผงเสียง Walkman"
+>
+  <div class="walkman-player-head">
+    <span>Walkman</span>
+    <strong data-walkman-cue>Walkman & Rain</strong>
+  </div>
+
+  <div class="walkman-player-controls" aria-label="ควบคุมเพลง">
+    <button class="walkman-icon-button" type="button" data-walkman-prev aria-label="เพลงก่อนหน้า">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m11 17-5-5 5-5" />
+        <path d="m18 17-5-5 5-5" />
+      </svg>
+    </button>
+    <button class="walkman-icon-button walkman-play" type="button" data-walkman-play aria-label="เปิดเพลง">
+      <svg class="walkman-play-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5v14l11-7Z" />
+      </svg>
+      <svg class="walkman-pause-icon" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M8 5v14" />
+        <path d="M16 5v14" />
+      </svg>
+    </button>
+    <button class="walkman-icon-button" type="button" data-walkman-next aria-label="เพลงถัดไป">
+      <svg viewBox="0 0 24 24" aria-hidden="true">
+        <path d="m6 17 5-5-5-5" />
+        <path d="m13 17 5-5-5-5" />
+      </svg>
+    </button>
+  </div>
+
+  <label class="walkman-field">
+    <span>Music</span>
+    <input data-walkman-volume aria-label="ระดับเสียงเพลง" type="range" min="0" max="1" step="0.04" />
+  </label>
+
+  <div class="walkman-soundscapes" aria-label="เสียงบรรยากาศ">
+    <section class="walkman-soundscape" data-soundscape="cassette-hiss">
+      <label class="walkman-switch">
+        <input data-soundscape-toggle="cassette-hiss" type="checkbox" />
+        <span>Cassette hiss</span>
+      </label>
+      <input
+        data-soundscape-volume="cassette-hiss"
+        aria-label="ระดับเสียง Cassette hiss"
+        type="range"
+        min="0"
+        max="0.7"
+        step="0.04"
+      />
+    </section>
+
+    <section class="walkman-soundscape" data-soundscape="distant-train">
+      <label class="walkman-switch">
+        <input data-soundscape-toggle="distant-train" type="checkbox" />
+        <span>Distant train</span>
+      </label>
+      <input
+        data-soundscape-volume="distant-train"
+        aria-label="ระดับเสียง Distant train"
+        type="range"
+        min="0"
+        max="0.7"
+        step="0.04"
+      />
+    </section>
+
+    <section class="walkman-soundscape" data-soundscape="mountain-wind">
+      <label class="walkman-switch">
+        <input data-soundscape-toggle="mountain-wind" type="checkbox" />
+        <span>Mountain wind</span>
+      </label>
+      <input
+        data-soundscape-volume="mountain-wind"
+        aria-label="ระดับเสียง Mountain wind"
+        type="range"
+        min="0"
+        max="0.7"
+        step="0.04"
+      />
+    </section>
+  </div>
+</div>
+
+<script>
+  import { getMusicCue, isMusicCueId, type SoundscapeId } from "../../../data/tsukinomi/music-cues";
+  import { walkmanAudio } from "../../../scripts/tsukinomi/walkman-state";
+
+  type WalkmanWindow = Window & {
+    __tsukinomiWalkmanGlobalBound?: boolean;
+    __tsukinomiWalkmanDismissBound?: boolean;
+  };
+
+  const walkmanWindow = window as WalkmanWindow;
+
+  const getElements = () => {
+    const root = document.querySelector(".walkman-player");
+    const corner = document.querySelector("[data-walkman-corner]");
+    const mobileTrigger = document.querySelector("[data-walkman-mobile-trigger]");
+
+    return {
+      root,
+      corner,
+      mobileTrigger,
+      play: root?.querySelector("[data-walkman-play]"),
+      previous: root?.querySelector("[data-walkman-prev]"),
+      next: root?.querySelector("[data-walkman-next]"),
+      musicSlider: root?.querySelector("[data-walkman-volume]"),
+      cue: root?.querySelector("[data-walkman-cue]"),
+      soundscapeToggles: root?.querySelectorAll("[data-soundscape-toggle]"),
+      soundscapeSliders: root?.querySelectorAll("[data-soundscape-volume]"),
+    };
+  };
+
+  const currentPageCue = () => {
+    const article = document.querySelector("article.tsukinomi-section");
+    const rawCue =
+      article instanceof HTMLElement
+        ? article.dataset.musicCue
+        : document.body instanceof HTMLBodyElement
+          ? document.body.dataset.musicCue
+          : undefined;
+
+    return rawCue && isMusicCueId(rawCue) ? rawCue : "discovery";
+  };
+
+  const applyCueFromPage = () => {
+    walkmanAudio.setCue(currentPageCue());
+  };
+
+  const setPanelOpen = (open: boolean) => {
+    const { root, corner, mobileTrigger } = getElements();
+
+    root?.setAttribute("data-open", String(open));
+
+    for (const trigger of [corner, mobileTrigger]) {
+      if (trigger instanceof HTMLButtonElement) {
+        trigger.setAttribute("aria-expanded", String(open));
+        trigger.setAttribute("aria-label", open ? "ปิดแผงเสียง Walkman" : "เปิดแผงเสียง Walkman");
+      }
+    }
+  };
+
+  const syncState = () => {
+    const { root, corner, mobileTrigger, play, cue, musicSlider, soundscapeToggles, soundscapeSliders } = getElements();
+    const enabled = walkmanAudio.isEnabled();
+    const currentCue = getMusicCue(walkmanAudio.getCurrentCue());
+
+    root?.setAttribute("data-playing", String(enabled));
+    corner?.setAttribute("data-playing", String(enabled));
+    mobileTrigger?.setAttribute("data-playing", String(enabled));
+
+    if (play instanceof HTMLButtonElement) {
+      play.setAttribute("aria-label", enabled ? "หยุดเพลง" : "เปิดเพลง");
+      play.setAttribute("aria-pressed", String(enabled));
+    }
+
+    if (cue instanceof HTMLElement) {
+      cue.textContent = currentCue.label;
+    }
+
+    if (musicSlider instanceof HTMLInputElement) {
+      musicSlider.value = String(walkmanAudio.getVolume());
+    }
+
+    soundscapeToggles?.forEach((toggle) => {
+      if (!(toggle instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const id = toggle.dataset.soundscapeToggle;
+      if (id) {
+        toggle.checked = walkmanAudio.isSoundscapeEnabled(id as SoundscapeId);
+      }
+    });
+
+    soundscapeSliders?.forEach((slider) => {
+      if (!(slider instanceof HTMLInputElement)) {
+        return;
+      }
+
+      const id = slider.dataset.soundscapeVolume;
+      if (id) {
+        slider.value = String(walkmanAudio.getSoundscapeVolume(id as SoundscapeId));
+      }
+    });
+  };
+
+  const bindPlayer = () => {
+    const { root, corner, mobileTrigger, play, previous, next, musicSlider, soundscapeToggles, soundscapeSliders } =
+      getElements();
+
+    if (
+      !(root instanceof HTMLElement) ||
+      !(play instanceof HTMLButtonElement) ||
+      !(previous instanceof HTMLButtonElement) ||
+      !(next instanceof HTMLButtonElement) ||
+      !(musicSlider instanceof HTMLInputElement)
+    ) {
+      return;
+    }
+
+    walkmanAudio.init();
+    applyCueFromPage();
+    syncState();
+
+    if (root.dataset.walkmanBound === "true") {
+      return;
+    }
+
+    root.dataset.walkmanBound = "true";
+
+    const togglePanel = () => setPanelOpen(root.getAttribute("data-open") !== "true");
+
+    if (corner instanceof HTMLButtonElement) {
+      corner.addEventListener("click", togglePanel);
+    }
+
+    if (mobileTrigger instanceof HTMLButtonElement) {
+      mobileTrigger.addEventListener("click", togglePanel);
+    }
+
+    play.addEventListener("click", async () => {
+      if (walkmanAudio.isEnabled()) {
+        walkmanAudio.disable();
+        syncState();
+        return;
+      }
+
+      applyCueFromPage();
+      await walkmanAudio.enable();
+      syncState();
+    });
+
+    previous.addEventListener("click", () => {
+      walkmanAudio.previousCue();
+      syncState();
+    });
+
+    next.addEventListener("click", () => {
+      walkmanAudio.nextCue();
+      syncState();
+    });
+
+    musicSlider.addEventListener("input", () => {
+      walkmanAudio.setVolume(Number(musicSlider.value));
+      syncState();
+    });
+
+    soundscapeToggles?.forEach((toggle) => {
+      if (!(toggle instanceof HTMLInputElement)) {
+        return;
+      }
+
+      toggle.addEventListener("change", async () => {
+        const id = toggle.dataset.soundscapeToggle;
+        if (id) {
+          await walkmanAudio.setSoundscapeEnabled(id, toggle.checked);
+          syncState();
+        }
+      });
+    });
+
+    soundscapeSliders?.forEach((slider) => {
+      if (!(slider instanceof HTMLInputElement)) {
+        return;
+      }
+
+      slider.addEventListener("input", () => {
+        const id = slider.dataset.soundscapeVolume;
+        if (id) {
+          walkmanAudio.setSoundscapeVolume(id, Number(slider.value));
+          syncState();
+        }
+      });
+    });
+  };
+
+  if (!walkmanWindow.__tsukinomiWalkmanGlobalBound) {
+    walkmanWindow.__tsukinomiWalkmanGlobalBound = true;
+
+    document.addEventListener("astro:page-load", () => {
+      applyCueFromPage();
+      bindPlayer();
+    });
+
+    window.addEventListener("tsukinomi:audio-change", syncState);
+    window.addEventListener("tsukinomi:audio-error", syncState);
+  }
+
+  if (!walkmanWindow.__tsukinomiWalkmanDismissBound) {
+    walkmanWindow.__tsukinomiWalkmanDismissBound = true;
+
+    document.addEventListener("click", (event) => {
+      const { root, corner, mobileTrigger } = getElements();
+      const target = event.target;
+
+      const clickedCorner = target instanceof Node && corner instanceof HTMLElement && corner.contains(target);
+      const clickedMobileTrigger =
+        target instanceof Node && mobileTrigger instanceof HTMLElement && mobileTrigger.contains(target);
+
+      if (
+        root instanceof HTMLElement &&
+        target instanceof Node &&
+        !root.contains(target) &&
+        !clickedCorner &&
+        !clickedMobileTrigger
+      ) {
+        setPanelOpen(false);
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        setPanelOpen(false);
+      }
+    });
+  }
+
+  bindPlayer();
+</script>
+
+<style>
+  .walkman-player {
+    position: fixed;
+    right: 1rem;
+    bottom: 5.9rem;
+    z-index: 21;
+    width: min(21rem, calc(100vw - 2rem));
+    padding: 1rem;
+    border: 1px solid rgba(224, 163, 106, 0.28);
+    background: rgba(20, 17, 12, 0.94);
+    color: var(--tsuki-ink);
+    box-shadow: 0 1.4rem 4rem rgba(0, 0, 0, 0.42);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(0.35rem);
+    transition:
+      opacity 150ms ease,
+      transform 150ms ease;
+  }
+
+  .walkman-player[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+
+  .walkman-player-head {
+    display: grid;
+    gap: 0.18rem;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(232, 220, 196, 0.12);
+  }
+
+  .walkman-player-head span,
+  .walkman-field span,
+  .walkman-switch span {
+    color: var(--tsuki-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .walkman-player-head strong {
+    font-family: var(--font-display-tsukinomi);
+    font-size: 1.18rem;
+    font-weight: 500;
+    line-height: 1.2;
+  }
+
+  .walkman-player-controls {
+    display: flex;
+    justify-content: center;
+    gap: 0.65rem;
+    padding: 1rem 0;
+  }
+
+  .walkman-icon-button {
+    display: grid;
+    place-items: center;
+    width: 2.45rem;
+    min-width: 2.45rem;
+    height: 2.45rem;
+    padding: 0;
+    border: 1px solid rgba(232, 220, 196, 0.16);
+    border-radius: 999px;
+    background: rgba(232, 220, 196, 0.06);
+    color: var(--tsuki-ink);
+    cursor: pointer;
+  }
+
+  .walkman-icon-button:hover,
+  .walkman-icon-button:focus-visible {
+    border-color: rgba(224, 163, 106, 0.62);
+    background: rgba(224, 163, 106, 0.12);
+  }
+
+  .walkman-icon-button:focus-visible,
+  .walkman-field input:focus-visible,
+  .walkman-switch input:focus-visible,
+  .walkman-soundscape > input:focus-visible {
+    outline: 2px solid var(--tsuki-accent);
+    outline-offset: 3px;
+  }
+
+  .walkman-icon-button svg {
+    width: 1.14rem;
+    height: 1.14rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.8;
+  }
+
+  .walkman-pause-icon,
+  .walkman-player[data-playing="true"] .walkman-play-icon {
+    display: none;
+  }
+
+  .walkman-player[data-playing="true"] .walkman-pause-icon {
+    display: block;
+  }
+
+  .walkman-field,
+  .walkman-soundscape {
+    display: grid;
+    gap: 0.42rem;
+  }
+
+  .walkman-field input,
+  .walkman-soundscape > input {
+    width: 100%;
+    accent-color: var(--tsuki-accent);
+    cursor: pointer;
+  }
+
+  .walkman-soundscapes {
+    display: grid;
+    gap: 0.8rem;
+    margin-top: 0.95rem;
+    padding-top: 0.95rem;
+    border-top: 1px solid rgba(232, 220, 196, 0.12);
+  }
+
+  .walkman-switch {
+    display: flex;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .walkman-switch input {
+    width: 1rem;
+    min-width: 1rem;
+    height: 1rem;
+    accent-color: var(--tsuki-accent);
+  }
+
+  @media (max-width: 760px) {
+    .walkman-player {
+      top: calc(var(--tsuki-topbar-height) + 0.55rem);
+      right: 0.75rem;
+      bottom: auto;
+      left: 0.75rem;
+      width: auto;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .walkman-player {
+      transition: none;
+    }
+  }
+</style>
