@@ -1,12 +1,20 @@
-# Hvitveldt Lodge
+# Pii-chan Dechalert — Fiction Hub
 
-Hvitveldt Lodge is a single-author Thai horror reading site for one long-form creepypasta, designed to feel like a found document rather than a tech showcase.
+A single-author Thai fiction site hosting two long-form works under one reading shell. Each novel
+keeps its own identity — layout, atmosphere, audio, and reading state are separate — built on a
+shared Astro stack.
 
-See `codex_handoff.md` for the phased build plan.
+- **`/`** — hub listing both novels
+- **`/lodge/`** — *Hvitveldt Lodge* (ฮวิตเวลต์ ลอดจ์) · สยอง · หนาว · 18 บท
+- **`/tsukinomi/`** — *Tsukinomi no Eki* (สถานีทะเลพระจันทร์) · สงบ · เหงา · 5 ภาค
+
+Documentation lives in [`docs/`](docs/README.md). Phased build plans:
+[`docs/lodge/codex_handoff.md`](docs/lodge/codex_handoff.md) and
+[`docs/tsukinomi/codex_tsukinomi_handoff.md`](docs/tsukinomi/codex_tsukinomi_handoff.md).
 
 ## Requirements
 
-- Node.js 20 LTS or newer; deployment should use Node 20 or 22 LTS.
+- Node.js 20 LTS or newer (deploy on Node 20 or 22 LTS).
 - pnpm 10 or newer.
 
 ## Development
@@ -21,6 +29,7 @@ pnpm dev
 ```bash
 pnpm check
 pnpm build
+pnpm exec tsx --test src/scripts/tsukinomi/*.test.ts   # Tsukinomi contract suite
 ```
 
 ## Deploy
@@ -45,4 +54,7 @@ Deploy:
 git push origin main
 ```
 
-The GitHub Actions workflow runs `pnpm check`, builds the Astro site, uploads `dist`, and deploys it through GitHub Pages. The project is configured with `base: "/MY-NOVEL"` so links and assets work under the repository path.
+The GitHub Actions workflow runs `pnpm check`, builds the Astro site, uploads `dist`, and deploys it
+through GitHub Pages. The project is configured with `base: "/MY-NOVEL"` so links and assets work
+under the repository path. (The repo slug stays `MY-NOVEL`; only the internal package name changed
+to `piichan-novels`.)
