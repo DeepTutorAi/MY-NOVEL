@@ -68,6 +68,35 @@ describe("Tsukinomi P4 atmosphere contract", () => {
     assert.doesNotMatch(backdrop, /SnowCanvas|snow-canvas|Maple|maple|Fuji|mountain|ridge|#C24B3A/i);
   });
 
+  it("weaves per-section profiles, particle kinds, and the distant-train motif", () => {
+    const backdrop = readProjectFile("src/components/tsukinomi/atmosphere/SakuraTwilightBackdrop.astro");
+
+    // Story-woven: profile resolved per section palette.
+    assert.match(backdrop, /palette-/);
+    assert.match(backdrop, /"autumn"/);
+    assert.match(backdrop, /"twilight"/);
+    assert.match(backdrop, /"warm-room"/);
+    assert.match(backdrop, /"snow-pact"/);
+    assert.match(backdrop, /"winter-light"/);
+
+    // Petal -> snow morph: four particle kinds.
+    assert.match(backdrop, /"petal"/);
+    assert.match(backdrop, /"rain"/);
+    assert.match(backdrop, /"ash"/);
+    assert.match(backdrop, /"snow"/);
+
+    // Distant-train-that-never-comes motif.
+    assert.match(backdrop, /sakura-backdrop__train/);
+    assert.match(backdrop, /data-train/);
+
+    // Depth: light breath layer + scroll parallax.
+    assert.match(backdrop, /sakura-backdrop__rays/);
+    assert.match(backdrop, /scroll/);
+
+    // Motion safety still covers the new layers.
+    assert.match(backdrop, /prefers-reduced-motion:\s*reduce/);
+  });
+
   it("wires TsukinomiBaseLayout to the Sakura Twilight stack only", () => {
     const layout = readProjectFile("src/layouts/tsukinomi/TsukinomiBaseLayout.astro");
     const globalCss = readProjectFile("src/styles/tsukinomi/global.css");

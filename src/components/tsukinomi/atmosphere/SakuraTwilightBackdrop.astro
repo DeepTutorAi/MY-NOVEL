@@ -1,17 +1,22 @@
-<div class="sakura-backdrop" aria-hidden="true">
+<div class="sakura-backdrop" aria-hidden="true" data-train="off">
   <div class="sakura-backdrop__base"></div>
   <div class="sakura-backdrop__tint"></div>
   <div class="sakura-backdrop__moon"></div>
+  <div class="sakura-backdrop__rays"></div>
   <div class="sakura-backdrop__mist sakura-backdrop__mist--far"></div>
   <div class="sakura-backdrop__mist sakura-backdrop__mist--middle"></div>
   <div class="sakura-backdrop__mist sakura-backdrop__mist--near"></div>
+  <div class="sakura-backdrop__train"></div>
   <canvas class="sakura-backdrop__petals" data-sakura-petals></canvas>
   <div class="sakura-backdrop__clock">7:14</div>
   <div class="sakura-backdrop__frame"></div>
 </div>
 
 <script>
+  type ParticleKind = "petal" | "rain" | "ash" | "snow";
+
   type Petal = {
+    kind: ParticleKind;
     x: number;
     y: number;
     size: number;
@@ -24,8 +29,32 @@
     opacity: number;
   };
 
+  type Profile = {
+    kinds: ParticleKind[];
+    density: number;
+    train: "off" | "wait" | "far" | "slow" | "return";
+  };
+
   type BackdropController = {
     destroy: () => void;
+  };
+
+  // Story-woven profiles, keyed by section palette. The petal -> snow morph and
+  // the distant-train-that-never-comes motif are encoded here, one per arc beat.
+  const PROFILES: Record<string, Profile> = {
+    "autumn": { kinds: ["petal", "rain"], density: 1, train: "wait" },
+    "twilight": { kinds: ["petal", "snow"], density: 0.72, train: "far" },
+    "warm-room": { kinds: [], density: 0, train: "off" },
+    "snow-pact": { kinds: ["ash", "snow"], density: 0.5, train: "off" },
+    "winter-light": { kinds: ["snow"], density: 0.72, train: "return" },
+  };
+  const HOME_PROFILE: Profile = { kinds: ["petal"], density: 1, train: "slow" };
+
+  const KIND_SPECS: Record<ParticleKind, { size: [number, number]; speed: [number, number]; opacity: [number, number] }> = {
+    petal: { size: [5, 12], speed: [0.16, 0.48], opacity: [0.24, 0.58] },
+    rain: { size: [7, 13], speed: [1.4, 2.4], opacity: [0.1, 0.22] },
+    ash: { size: [1.4, 3], speed: [0.1, 0.26], opacity: [0.14, 0.34] },
+    snow: { size: [2, 4.6], speed: [0.18, 0.5], opacity: [0.3, 0.7] },
   };
 
   const controllerWindow = window as Window & {
@@ -41,15 +70,40 @@
   const desktopPetalCount = 36;
   const mobilePetalCount = 22;
   let petals: Petal[] = [];
+  let currentProfile: Profile = HOME_PROFILE;
+  let colorSakura = "#E6A6BD";
+  let colorMist = "#CDD3E0";
+  let colorMoon = "#E8EDF5";
   let width = 0;
   let height = 0;
   let frame = 0;
   let resizeTimer = 0;
+  let parallaxFrame = 0;
   let freezeUntil = 0;
   let nextFreezeAt = 0;
 
   const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
-  const petalCount = () => (mobile.matches ? mobilePetalCount : desktopPetalCount);
+  const baseCount = () => (mobile.matches ? mobilePetalCount : desktopPetalCount);
+  const profileCount = () => (currentProfile.kinds.length ? Math.round(baseCount() * currentProfile.density) : 0);
+
+  const root = () => document.querySelector(".sakura-backdrop");
+
+  const resolveProfile = (): Profile => {
+    const cls = document.body.className;
+    if (/\bsection-home\b/.test(cls) || /\btsukinomi-home-page\b/.test(cls)) {
+      return HOME_PROFILE;
+    }
+    const match = cls.match(/palette-([a-z-]+)/);
+    const key = match ? match[1] : "autumn";
+    return PROFILES[key] ?? PROFILES.autumn;
+  };
+
+  const readColors = () => {
+    const cs = getComputedStyle(document.documentElement);
+    colorSakura = cs.getPropertyValue("--sakura").trim() || "#E6A6BD";
+    colorMist = cs.getPropertyValue("--mist").trim() || "#CDD3E0";
+    colorMoon = cs.getPropertyValue("--moon").trim() || "#E8EDF5";
+  };
 
   const scheduleFreeze = (now = performance.now()) => {
     nextFreezeAt = now + randomBetween(8_000, 15_000);
@@ -60,21 +114,30 @@
     context = canvas instanceof HTMLCanvasElement ? canvas.getContext("2d") : null;
   };
 
-  const createPetal = (initial = false): Petal => ({
-    x: randomBetween(-40, width + 40),
-    y: initial ? randomBetween(-20, height) : randomBetween(-80, -16),
-    size: randomBetween(5, 12),
-    speed: randomBetween(0.16, 0.48),
-    drift: randomBetween(-0.18, 0.24),
-    sway: randomBetween(0.18, 0.62),
-    phase: randomBetween(0, Math.PI * 2),
-    rotation: randomBetween(0, Math.PI * 2),
-    rotationSpeed: randomBetween(-0.012, 0.012),
-    opacity: randomBetween(0.24, 0.58),
-  });
+  const pickKind = (): ParticleKind => {
+    const kinds = currentProfile.kinds;
+    return kinds.length ? kinds[Math.floor(Math.random() * kinds.length)] : "petal";
+  };
+
+  const createPetal = (initial = false, kind: ParticleKind = pickKind()): Petal => {
+    const spec = KIND_SPECS[kind];
+    return {
+      kind,
+      x: randomBetween(-40, width + 40),
+      y: initial ? randomBetween(-20, height) : randomBetween(-80, -16),
+      size: randomBetween(spec.size[0], spec.size[1]),
+      speed: randomBetween(spec.speed[0], spec.speed[1]),
+      drift: randomBetween(-0.18, 0.24),
+      sway: randomBetween(0.18, 0.62),
+      phase: randomBetween(0, Math.PI * 2),
+      rotation: randomBetween(0, Math.PI * 2),
+      rotationSpeed: randomBetween(-0.012, 0.012),
+      opacity: randomBetween(spec.opacity[0], spec.opacity[1]),
+    };
+  };
 
   const resetPetals = () => {
-    petals = Array.from({ length: petalCount() }, () => createPetal(true));
+    petals = Array.from({ length: profileCount() }, () => createPetal(true));
   };
 
   const resize = () => {
@@ -132,27 +195,50 @@
       return;
     }
 
-    const sakura = getComputedStyle(document.documentElement).getPropertyValue("--sakura").trim() || "#E6A6BD";
     const x = petal.x + Math.sin(now / 1250 + petal.phase) * petal.sway * 8;
 
     context.save();
-    context.translate(x, petal.y);
-    context.rotate(petal.rotation);
     context.globalAlpha = petal.opacity;
-    context.fillStyle = sakura;
-    context.beginPath();
-    context.moveTo(0, -petal.size);
-    context.bezierCurveTo(petal.size * 0.78, -petal.size * 0.42, petal.size * 0.64, petal.size * 0.64, 0, petal.size);
-    context.bezierCurveTo(-petal.size * 0.64, petal.size * 0.64, -petal.size * 0.78, -petal.size * 0.42, 0, -petal.size);
-    context.fill();
+
+    if (petal.kind === "rain") {
+      context.strokeStyle = colorMist;
+      context.lineWidth = 1;
+      context.beginPath();
+      context.moveTo(x, petal.y);
+      context.lineTo(x + petal.drift * 6, petal.y + petal.size * 2.4);
+      context.stroke();
+    } else if (petal.kind === "snow") {
+      context.fillStyle = colorMoon;
+      context.beginPath();
+      context.arc(x, petal.y, petal.size * 0.4, 0, Math.PI * 2);
+      context.fill();
+    } else if (petal.kind === "ash") {
+      context.fillStyle = colorMist;
+      context.beginPath();
+      context.arc(x, petal.y, petal.size * 0.35, 0, Math.PI * 2);
+      context.fill();
+    } else {
+      // petal: bezier sakura shape with a falling flutter (scaleX tumble)
+      const flutter = Math.cos(now / 620 + petal.phase);
+      context.translate(x, petal.y);
+      context.rotate(petal.rotation);
+      context.scale(flutter, 1);
+      context.fillStyle = colorSakura;
+      context.beginPath();
+      context.moveTo(0, -petal.size);
+      context.bezierCurveTo(petal.size * 0.78, -petal.size * 0.42, petal.size * 0.64, petal.size * 0.64, 0, petal.size);
+      context.bezierCurveTo(-petal.size * 0.64, petal.size * 0.64, -petal.size * 0.78, -petal.size * 0.42, 0, -petal.size);
+      context.fill();
+    }
+
     context.restore();
   };
 
   const draw = (now: number) => {
-    if (!canvas || !context || reduceMotion.matches || document.hidden) {
+    if (!canvas || !context || reduceMotion.matches || document.hidden || petals.length === 0) {
       context?.clearRect(0, 0, width, height);
       if (canvas) {
-        canvas.hidden = true;
+        canvas.hidden = reduceMotion.matches;
       }
       frame = 0;
       return;
@@ -170,7 +256,7 @@
       }
 
       if (petal.y > height + 28 || petal.x < -80 || petal.x > width + 80) {
-        Object.assign(petal, createPetal(false));
+        Object.assign(petal, createPetal(false, petal.kind));
       }
 
       drawPetal(petal, now);
@@ -190,10 +276,10 @@
     pause();
     bindCanvas();
 
-    if (!canvas || !context || reduceMotion.matches || document.hidden) {
+    if (!canvas || !context || reduceMotion.matches || document.hidden || petals.length === 0) {
       context?.clearRect(0, 0, width, height);
       if (canvas) {
-        canvas.hidden = true;
+        canvas.hidden = reduceMotion.matches;
       }
       return;
     }
@@ -201,8 +287,18 @@
     frame = window.requestAnimationFrame(draw);
   };
 
+  const applyTrainState = () => {
+    const node = root();
+    if (node instanceof HTMLElement) {
+      node.dataset.train = reduceMotion.matches ? "off" : currentProfile.train;
+    }
+  };
+
   const refresh = () => {
     pause();
+    currentProfile = resolveProfile();
+    readColors();
+    applyTrainState();
     resize();
     scheduleFreeze();
     resume();
@@ -221,9 +317,25 @@
     }
   };
 
+  // Depth: a gentle scroll parallax nudges the moon + light rays (compositor-only).
+  const handleScroll = () => {
+    if (parallaxFrame) {
+      return;
+    }
+
+    parallaxFrame = window.requestAnimationFrame(() => {
+      const node = root();
+      if (node instanceof HTMLElement) {
+        node.style.setProperty("--py", String(window.scrollY * 0.02));
+      }
+      parallaxFrame = 0;
+    });
+  };
+
   refresh();
 
   window.addEventListener("resize", handleResize);
+  window.addEventListener("scroll", handleScroll, { passive: true });
   reduceMotion.addEventListener("change", refresh);
   document.addEventListener("visibilitychange", handleVisibility);
   document.addEventListener("astro:after-swap", refresh);
@@ -232,7 +344,12 @@
     destroy() {
       pause();
       window.clearTimeout(resizeTimer);
+      if (parallaxFrame) {
+        window.cancelAnimationFrame(parallaxFrame);
+        parallaxFrame = 0;
+      }
       window.removeEventListener("resize", handleResize);
+      window.removeEventListener("scroll", handleScroll);
       reduceMotion.removeEventListener("change", refresh);
       document.removeEventListener("visibilitychange", handleVisibility);
       document.removeEventListener("astro:after-swap", refresh);
@@ -245,7 +362,9 @@
   .sakura-backdrop__base,
   .sakura-backdrop__tint,
   .sakura-backdrop__moon,
+  .sakura-backdrop__rays,
   .sakura-backdrop__mist,
+  .sakura-backdrop__train,
   .sakura-backdrop__petals,
   .sakura-backdrop__clock,
   .sakura-backdrop__frame {
@@ -263,6 +382,7 @@
   .sakura-backdrop__base,
   .sakura-backdrop__tint,
   .sakura-backdrop__moon,
+  .sakura-backdrop__rays,
   .sakura-backdrop__petals,
   .sakura-backdrop__frame {
     inset: 0;
@@ -289,7 +409,18 @@
   .sakura-backdrop__moon {
     background: radial-gradient(circle at 76% 14%, color-mix(in srgb, var(--moon) 48%, transparent), transparent 14rem);
     opacity: 0.34;
+    transform: translateY(calc(var(--py, 0) * 1px));
     animation: sakura-moon-flicker 9s ease-in-out infinite;
+  }
+
+  /* Light breath: a faint lamp glow that slowly inhales over the page. */
+  .sakura-backdrop__rays {
+    background:
+      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--lamp, #e0a36a) 12%, transparent), transparent 58%),
+      radial-gradient(ellipse at 50% 116%, color-mix(in srgb, var(--lamp, #e0a36a) 9%, transparent), transparent 52%);
+    opacity: 0.4;
+    transform: translateY(calc(var(--py, 0) * -0.6px));
+    animation: sakura-breath 14s ease-in-out infinite;
   }
 
   .sakura-backdrop__mist {
@@ -317,6 +448,36 @@
     opacity: 0.5;
     transform: translate3d(-2%, 0, 0);
     animation: sakura-mist-near 54s ease-in-out infinite alternate;
+  }
+
+  /* The train that never comes: a low glow that nears, swells, then fades before arriving. */
+  .sakura-backdrop__train {
+    inset: auto 0 33% 0;
+    height: 2px;
+    opacity: 0;
+    background: radial-gradient(
+      ellipse 13rem 2.2rem at 50% 50%,
+      color-mix(in srgb, var(--lamp, #e0a36a) 85%, white 8%),
+      transparent 72%
+    );
+    filter: blur(2px);
+    will-change: opacity, transform;
+  }
+
+  .sakura-backdrop[data-train="wait"] .sakura-backdrop__train {
+    animation: sakura-train-near 32s ease-in-out infinite;
+  }
+
+  .sakura-backdrop[data-train="slow"] .sakura-backdrop__train {
+    animation: sakura-train-near 44s ease-in-out infinite;
+  }
+
+  .sakura-backdrop[data-train="far"] .sakura-backdrop__train {
+    animation: sakura-train-far 52s ease-in-out infinite;
+  }
+
+  .sakura-backdrop[data-train="return"] .sakura-backdrop__train {
+    animation: sakura-train-near 30s ease-in-out 1 both;
   }
 
   .sakura-backdrop__petals {
@@ -362,6 +523,64 @@
     }
   }
 
+  @keyframes sakura-breath {
+    0%,
+    100% {
+      opacity: 0.28;
+    }
+
+    50% {
+      opacity: 0.5;
+    }
+  }
+
+  /* Nears (brightens + widens) then fades out before it ever reaches the platform. */
+  @keyframes sakura-train-near {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scaleX(0.28);
+    }
+
+    42% {
+      opacity: 0.5;
+      transform: scaleX(0.72);
+    }
+
+    68% {
+      opacity: 0.16;
+      transform: scaleX(1.06);
+    }
+
+    82% {
+      opacity: 0;
+      transform: scaleX(1.2);
+    }
+  }
+
+  @keyframes sakura-train-far {
+    0%,
+    100% {
+      opacity: 0;
+      transform: scaleX(0.2);
+    }
+
+    46% {
+      opacity: 0.26;
+      transform: scaleX(0.48);
+    }
+
+    74% {
+      opacity: 0.08;
+      transform: scaleX(0.64);
+    }
+
+    86% {
+      opacity: 0;
+      transform: scaleX(0.72);
+    }
+  }
+
   @keyframes sakura-mist-near {
     from {
       transform: translate3d(-3%, 0, 0) scale(1.04);
@@ -394,8 +613,18 @@
 
   @media (prefers-reduced-motion: reduce) {
     .sakura-backdrop__moon,
-    .sakura-backdrop__mist {
+    .sakura-backdrop__rays,
+    .sakura-backdrop__mist,
+    .sakura-backdrop__train {
       animation: none;
+    }
+
+    .sakura-backdrop__rays {
+      opacity: 0.32;
+    }
+
+    .sakura-backdrop__train {
+      opacity: 0;
     }
 
     .sakura-backdrop__petals,

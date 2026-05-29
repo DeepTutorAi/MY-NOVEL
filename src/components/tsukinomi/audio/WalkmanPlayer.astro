@@ -5,6 +5,7 @@
   data-playing="false"
   role="dialog"
   aria-label="แผงเสียง Walkman"
+  inert
 >
   <div class="walkman-player-head">
     <span>Walkman</span>
@@ -138,6 +139,11 @@
     const { root, corner, mobileTrigger } = getElements();
 
     root?.setAttribute("data-open", String(open));
+
+    if (root instanceof HTMLElement) {
+      // Keep the closed panel out of the tab order and a11y tree, not just visually hidden.
+      root.toggleAttribute("inert", !open);
+    }
 
     for (const trigger of [corner, mobileTrigger]) {
       if (trigger instanceof HTMLButtonElement) {
