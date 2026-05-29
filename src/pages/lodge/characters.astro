@@ -1,0 +1,141 @@
+---
+import LodgeBaseLayout from "../../layouts/lodge/LodgeBaseLayout.astro";
+import { characterGroups } from "../../data/lodge/characters";
+import { withBase } from "../../utils/base-path";
+---
+
+<LodgeBaseLayout
+  title="Character — ฮวิตเวลต์ ลอดจ์"
+  description="แนะนำตัวละครหลักและคนสำคัญในฮวิตเวลต์ ลอดจ์"
+  bodyClass="characters-page"
+>
+  <main class="characters-shell">
+    <header class="characters-hero">
+      <p>Character</p>
+      <h1>คนที่เข้ามาในฮวิตเวลต์</h1>
+      <span>รู้จักก่อนอ่าน โดยไม่เฉลยคำตอบสุดท้ายของเรื่อง</span>
+    </header>
+
+    {
+      characterGroups.map((group) => (
+        <section class="character-group" aria-labelledby={`group-${group.title}`}>
+          <div class="character-group-head">
+            <p>{group.eyebrow}</p>
+            <h2 id={`group-${group.title}`}>{group.title}</h2>
+          </div>
+          <div class="character-grid">
+            {group.characters.map((character) => (
+              <article
+                class="character-card"
+                hidden={Boolean(character.revealAfterChapter)}
+                data-character-spoiler={character.revealAfterChapter ? "true" : undefined}
+                data-reveal-after-chapter={character.revealAfterChapter}
+              >
+                <div
+                  class:list={[
+                    "character-media",
+                    character.extraImages?.length ? "character-media-stack" : undefined,
+                  ]}
+                >
+                  <img
+                    src={withBase(character.image)}
+                    alt={`ภาพตัวละคร ${character.name}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                  {character.extraImages?.map((image, index) => (
+                    <img
+                      src={withBase(image)}
+                      alt={`ภาพตัวละคร ${character.name} อีกมุมที่ ${index + 2}`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ))}
+                </div>
+                <div class="character-copy">
+                  <h3>{character.name}</h3>
+                  <p class="character-role">{character.role}</p>
+                  <p><strong>Personality:</strong> {character.personality}</p>
+                  <p>{character.story}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+
+  <script>
+    const spoilerCards = Array.from(document.querySelectorAll("[data-character-spoiler]"));
+    const spoilerUnlockKey = "hvitveldt:characters:subject8-visible";
+    const puzzleUnlockKey = "hvitveldt:puzzle-unlocked";
+    const lastReadingKey = "hvitveldt:reading:last";
+
+    const parseStored = (key: string) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const getMaxChapterRead = () => {
+      const last = parseStored(lastReadingKey);
+      let maxChapter = Number(last?.maxChapterNumber ?? last?.chapterNumber ?? 0);
+
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (!key || !key.startsWith("hvitveldt:reading:chapter:")) {
+          continue;
+        }
+
+        const saved = parseStored(key);
+        const chapterNumber = Number(saved?.chapterNumber ?? 0);
+        const progress = Number(saved?.progress ?? 0);
+
+        if (Number.isFinite(chapterNumber) && progress >= 0.8) {
+          maxChapter = Math.max(maxChapter, chapterNumber);
+        }
+      }
+
+      return maxChapter;
+    };
+
+    const puzzleUnlocked = () => {
+      const value = localStorage.getItem(puzzleUnlockKey);
+      return value === "true" || value === "karasjok";
+    };
+
+    const revealUnlockedCards = () => {
+      if (spoilerCards.length === 0) {
+        return;
+      }
+
+      const maxChapter = getMaxChapterRead();
+      const hasManualUnlock = localStorage.getItem(spoilerUnlockKey) === "true";
+      const hasPuzzleUnlock = puzzleUnlocked();
+
+      for (const card of spoilerCards) {
+        if (!(card instanceof HTMLElement)) {
+          continue;
+        }
+
+        const revealAfter = Number(card.dataset.revealAfterChapter ?? 0);
+        const shouldReveal = hasManualUnlock || hasPuzzleUnlock || maxChapter >= revealAfter;
+
+        if (shouldReveal) {
+          card.hidden = false;
+          localStorage.setItem(spoilerUnlockKey, "true");
+        }
+      }
+    };
+
+    try {
+      revealUnlockedCards();
+    } catch {
+      // Restricted browser storage should leave spoiler cards hidden.
+    }
+  </script>
+</LodgeBaseLayout>

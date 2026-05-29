@@ -1,6 +1,6 @@
 import { mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import path from "node:path";
-import { actForChapter } from "../utils/act-for-chapter";
+import { actForChapter } from "../data/lodge/acts";
 
 interface ChapterSource {
   number: number;

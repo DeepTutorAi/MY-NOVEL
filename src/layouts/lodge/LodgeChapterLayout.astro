@@ -1,0 +1,54 @@
+---
+import type { CollectionEntry } from "astro:content";
+import LodgeBaseLayout from "./LodgeBaseLayout.astro";
+import ReaderAmbience from "../../components/lodge/reading/ReaderAmbience.astro";
+import { musicCueForChapter } from "../../data/lodge/audio-cues";
+import "../../styles/lodge/chapter.css";
+
+type ChapterLayoutData = CollectionEntry<"chapters"> | {
+  data: {
+    number: number | string;
+    title: string;
+    act: number;
+    summary?: string;
+  };
+};
+
+interface Props {
+  chapter: ChapterLayoutData;
+  bodyClass?: string;
+}
+
+const { chapter, bodyClass } = Astro.props;
+const chapterNumber = chapter.data.number;
+const chapterId = "id" in chapter ? chapter.id : "";
+const initialCueId = typeof chapterNumber === "number" ? musicCueForChapter(chapterNumber).id : "snow-forest";
+const siteTitle = "ฮวิตเวลต์ ลอดจ์";
+const pageTitle =
+  typeof chapterNumber === "number"
+    ? `บทที่ ${chapterNumber} — ${chapter.data.title} — ${siteTitle}`
+    : `${chapter.data.title} — ${siteTitle}`;
+const description =
+  chapter.data.summary ||
+  (typeof chapterNumber === "number" ? `บทที่ ${chapterNumber} ของ ${siteTitle}` : siteTitle);
+---
+
+<LodgeBaseLayout
+  title={pageTitle}
+  description={description}
+  bodyClass={bodyClass ?? `chapter-page act-${chapter.data.act}`}
+>
+  <ReaderAmbience />
+  <main class="chapter-shell">
+    <article
+      class="chapter"
+      data-chapter={String(chapterNumber)}
+      data-chapter-id={chapterId}
+      data-chapter-title={chapter.data.title}
+      data-act={chapter.data.act}
+      data-audio-cue={initialCueId}
+    >
+      <slot />
+    </article>
+  </main>
+</LodgeBaseLayout>

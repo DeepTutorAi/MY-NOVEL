@@ -1,0 +1,132 @@
+---
+import LodgeBaseLayout from "../../layouts/lodge/LodgeBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+const resumeChapterBase = withBase("/lodge/chapters/");
+const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.png");
+---
+
+<LodgeBaseLayout
+  title="ฮวิตเวลต์ ลอดจ์"
+  description="บันทึกเจ็ดวันของผู้รอดชีวิตคนเดียวจากฮวิตเวลต์ ลอดจ์"
+  bodyClass="home-page"
+  showTopBar={false}
+>
+  <main class="home">
+    <section class="home-hero" aria-labelledby="home-title">
+      <picture class="home-hero-art" aria-hidden="true">
+        <img src={homeHeroImage} alt="" loading="eager" decoding="async" />
+      </picture>
+      <span class="home-scroll-probe" aria-hidden="true"></span>
+      <div>
+        <h1 id="home-title" class="home-title">ฮวิตเวลต์ ลอดจ์</h1>
+        <p class="home-subtitle">บันทึกเจ็ดวัน — ของผู้รอดชีวิตคนเดียว</p>
+        <p class="home-meta">18 บท · ประมาณ 8 ชั่วโมงในการอ่าน · เปิดอ่าน, ปิดได้ทุกเมื่อ</p>
+        <div class="home-resume" data-resume-card hidden>
+          <span data-resume-label>อ่านค้างไว้</span>
+          <strong data-resume-title></strong>
+          <small data-resume-detail></small>
+          <p class="home-resume-excerpt" data-resume-excerpt hidden></p>
+          <div class="home-resume-actions">
+            <a data-resume-link href={withBase("/lodge/chapters/01-arrival/")}>อ่านต่อ</a>
+            <button type="button" data-resume-clear>ล้างตำแหน่ง</button>
+          </div>
+        </div>
+      </div>
+      <a class="home-enter" href="#found-note" data-visible="false">เลื่อนอ่าน</a>
+    </section>
+
+    <section id="found-note" class="home-note" aria-label="บันทึกที่พบ">
+      <p>
+        ไฟล์นี้ถูกส่งต่อมาเหมือนของที่ไม่ควรอยู่ในกล่องจดหมายใคร ไม่มีคำอธิบายยาว ไม่มีคำเตือนมากกว่าที่ควรมี มีเพียงชื่อสถานที่ วันที่ และเสียงของคนหนึ่งที่ยังยืนยันว่าเธอเป็นคนเขียนเองทั้งหมด
+      </p>
+      <a class="home-start" href={withBase("/lodge/chapters/01-arrival/")}>เริ่ม → บทที่ ๑</a>
+      <p class="home-secondary-links">
+        หากสนใจ — <a href={withBase("/lodge/chapters/")}>สารบัญ</a> / <a href={withBase("/lodge/characters/")}>Character</a> / <a href={withBase("/lodge/puzzle/")}>แผนที่ปริศนา</a>
+      </p>
+      <footer class="site-footer">
+        2026 · Codex ช่วยดีไซน์ UI/UX · Claude ช่วยวางโครง Storyboard · Pii-chan Dechalert คิดเนื้อเรื่องและกำกับเขียนบท
+      </footer>
+    </section>
+  </main>
+
+  <script is:inline define:vars={{ resumeChapterBase }}>
+    const enter = document.querySelector(".home-enter");
+    const probe = document.querySelector(".home-scroll-probe");
+    const resumeCard = document.querySelector("[data-resume-card]");
+    const resumeTitle = document.querySelector("[data-resume-title]");
+    const resumeDetail = document.querySelector("[data-resume-detail]");
+    const resumeExcerpt = document.querySelector("[data-resume-excerpt]");
+    const resumeLink = document.querySelector("[data-resume-link]");
+    const resumeClear = document.querySelector("[data-resume-clear]");
+    const resumeStorageKey = "hvitveldt:reading:last";
+
+    if (enter instanceof HTMLElement && probe instanceof HTMLElement) {
+      new IntersectionObserver(([entry]) => {
+        if (!entry.isIntersecting) {
+          enter.dataset.visible = "true";
+        }
+      }).observe(probe);
+    }
+
+    if (
+      resumeCard instanceof HTMLElement &&
+      resumeTitle instanceof HTMLElement &&
+      resumeDetail instanceof HTMLElement &&
+      resumeLink instanceof HTMLAnchorElement
+    ) {
+      try {
+        const raw = localStorage.getItem(resumeStorageKey);
+        const saved = raw ? JSON.parse(raw) : null;
+        const progress = Number(saved?.progress);
+
+        if (
+          typeof saved?.chapterId === "string" &&
+          typeof saved?.chapterNumber === "string" &&
+          typeof saved?.chapterTitle === "string" &&
+          Number.isFinite(progress) &&
+          progress > 0.01 &&
+          progress < 0.99
+        ) {
+          const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
+          const jumpText =
+            saved.jumpType === "forward-skip" && saved.fromChapterNumber
+              ? ` · กระโดดมาจากบทที่ ${saved.fromChapterNumber}`
+              : saved.jumpType === "backtrack" && saved.fromChapterNumber
+                ? ` · ย้อนกลับมาจากบทที่ ${saved.fromChapterNumber}`
+                : "";
+          resumeTitle.textContent = `บทที่ ${saved.chapterNumber}: ${saved.chapterTitle}`;
+          resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%${jumpText}`;
+          if (resumeExcerpt instanceof HTMLElement) {
+            const excerpt = typeof saved?.blockExcerpt === "string" ? saved.blockExcerpt.trim() : "";
+            if (excerpt) {
+              resumeExcerpt.textContent = `“${excerpt}”`;
+              resumeExcerpt.hidden = false;
+            } else {
+              resumeExcerpt.hidden = true;
+            }
+          }
+          resumeLink.href = `${resumeChapterBase}${saved.chapterId}/?resume=1`;
+          resumeCard.hidden = false;
+        }
+      } catch {
+        resumeCard.hidden = true;
+      }
+
+      if (resumeClear instanceof HTMLButtonElement) {
+        resumeClear.addEventListener("click", () => {
+          try {
+            const raw = localStorage.getItem(resumeStorageKey);
+            const saved = raw ? JSON.parse(raw) : null;
+            if (typeof saved?.chapterId === "string") {
+              localStorage.removeItem(`hvitveldt:reading:chapter:${saved.chapterId}`);
+            }
+            localStorage.removeItem(resumeStorageKey);
+          } finally {
+            resumeCard.hidden = true;
+          }
+        });
+      }
+    }
+  </script>
+</LodgeBaseLayout>

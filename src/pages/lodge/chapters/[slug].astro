@@ -1,0 +1,38 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import EndOfChapter from "../../../components/lodge/marks/EndOfChapter.astro";
+import ChapterHeader from "../../../components/lodge/reading/ChapterHeader.astro";
+import ChapterNav from "../../../components/lodge/reading/ChapterNav.astro";
+import ReadingProgress from "../../../components/lodge/reading/ReadingProgress.astro";
+import LodgeChapterLayout from "../../../layouts/lodge/LodgeChapterLayout.astro";
+
+export async function getStaticPaths() {
+  const chapters = (await getCollection("chapters")).sort(
+    (a, b) => a.data.number - b.data.number,
+  );
+
+  return chapters.map((chapter) => ({
+      params: { slug: chapter.id },
+      props: { chapter, chapters },
+    }));
+}
+
+interface Props {
+  chapter: CollectionEntry<"chapters">;
+  chapters: CollectionEntry<"chapters">[];
+}
+
+const { chapter, chapters } = Astro.props;
+const { Content } = await render(chapter);
+const currentIndex = chapters.findIndex((item) => item.id === chapter.id);
+const previous = currentIndex > 0 ? chapters[currentIndex - 1] : undefined;
+const next = currentIndex >= 0 ? chapters[currentIndex + 1] : undefined;
+---
+
+<LodgeChapterLayout chapter={chapter}>
+  <ReadingProgress />
+  <ChapterHeader chapter={chapter} />
+  <Content />
+  <EndOfChapter seed={chapter.data.number + 13} />
+  <ChapterNav previous={previous} next={next} isFinalChapter={chapter.data.number === 18} />
+</LodgeChapterLayout>
