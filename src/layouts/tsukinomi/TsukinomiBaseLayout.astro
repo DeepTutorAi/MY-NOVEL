@@ -43,7 +43,15 @@ const bodyClasses = ["tsukinomi-page", "tsukinomi-shell", showTopBar ? "has-tsuk
   .join(" ");
 const backgroundSlot = getTsukinomiBackgroundSlot(backgroundSlotId);
 const backgroundStatus = backgroundSlot.status;
-const backgroundStyle = backgroundSlot.cssImage === "none" ? undefined : `--bg-image: ${backgroundSlot.cssImage};`;
+const imageBase = backgroundSlot.expectedImageBase;
+const bgImage =
+  backgroundSlot.status === "ready"
+    ? `image-set(` +
+      `url("${withBase(`${imageBase}.avif`)}") type("image/avif"), ` +
+      `url("${withBase(`${imageBase}.webp`)}") type("image/webp"), ` +
+      `url("${withBase(`${imageBase}.jpg`)}"))`
+    : "none";
+const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage};`;
 ---
 
 <!doctype html>

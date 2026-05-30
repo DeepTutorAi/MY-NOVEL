@@ -57,6 +57,9 @@ importers:
       '@types/node':
         specifier: ^20.19.41
         version: 20.19.41
+      sharp:
+        specifier: ^0.34.5
+        version: 0.34.5
       tsx:
         specifier: ^4.22.3
         version: 4.22.3
@@ -2815,8 +2818,7 @@ snapshots:
 
   '@fontsource/shippori-mincho-b1@5.2.8': {}
 
-  '@img/colour@1.1.0':
-    optional: true
+  '@img/colour@1.1.0': {}
 
   '@img/sharp-darwin-arm64@0.34.5':
     optionalDependencies:
@@ -4490,7 +4492,6 @@ snapshots:
       '@img/sharp-win32-arm64': 0.34.5
       '@img/sharp-win32-ia32': 0.34.5
       '@img/sharp-win32-x64': 0.34.5
-    optional: true
 
   shiki@3.23.0:
     dependencies:

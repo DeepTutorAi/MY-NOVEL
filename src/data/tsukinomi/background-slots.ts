@@ -13,8 +13,8 @@ export type TsukinomiBackgroundStatus = "pending-user-image" | "ready";
 export interface TsukinomiBackgroundSlot {
   id: TsukinomiBackgroundSlotId;
   label: string;
+  /** Path base (no extension); processed to `.avif` + `.webp` + `.jpg`. */
   expectedImageBase: string;
-  cssImage: "none" | `url("${string}")`;
   status: TsukinomiBackgroundStatus;
   needsUserAsset: boolean;
 }
@@ -24,49 +24,43 @@ export const TSUKINOMI_BACKGROUND_SLOTS = [
     id: "hero-station",
     label: "Home hero station background",
     expectedImageBase: "/assets/tsukinomi/images/hero-station",
-    cssImage: "none",
-    status: "pending-user-image",
-    needsUserAsset: true,
+    status: "ready",
+    needsUserAsset: false,
   },
   {
     id: "section-01",
     label: "Section 1 rainy autumn approach",
     expectedImageBase: "/assets/tsukinomi/images/backgrounds/section-01",
-    cssImage: "none",
-    status: "pending-user-image",
-    needsUserAsset: true,
+    status: "ready",
+    needsUserAsset: false,
   },
   {
     id: "section-02",
     label: "Section 2 foggy twilight reveal",
     expectedImageBase: "/assets/tsukinomi/images/backgrounds/section-02",
-    cssImage: "none",
-    status: "pending-user-image",
-    needsUserAsset: true,
+    status: "ready",
+    needsUserAsset: false,
   },
   {
     id: "section-03",
     label: "Section 3 warm interior memory",
     expectedImageBase: "/assets/tsukinomi/images/backgrounds/section-03",
-    cssImage: "none",
-    status: "pending-user-image",
-    needsUserAsset: true,
+    status: "ready",
+    needsUserAsset: false,
   },
   {
     id: "section-04",
     label: "Section 4 moonlit night ascent",
     expectedImageBase: "/assets/tsukinomi/images/backgrounds/section-04",
-    cssImage: "none",
-    status: "pending-user-image",
-    needsUserAsset: true,
+    status: "ready",
+    needsUserAsset: false,
   },
   {
     id: "section-05",
     label: "Section 5 pale winter return",
     expectedImageBase: "/assets/tsukinomi/images/backgrounds/section-05",
-    cssImage: "none",
-    status: "pending-user-image",
-    needsUserAsset: true,
+    status: "ready",
+    needsUserAsset: false,
   },
 ] as const satisfies readonly TsukinomiBackgroundSlot[];
 
