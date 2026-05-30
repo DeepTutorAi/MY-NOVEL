@@ -1,0 +1,271 @@
+---
+import TsukinomiBaseLayout from "../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
+import { tsukinomiCharacterGroups } from "../../data/tsukinomi/characters";
+import { withBase } from "../../utils/base-path";
+---
+
+<TsukinomiBaseLayout
+  title="ตัวละคร — สถานีทะเลพระจันทร์"
+  description="รู้จักผู้คน (และสิ่งที่ไม่ใช่ผู้คน) ในสถานีทะเลพระจันทร์ โดยไม่เฉลยปลายทางของเรื่อง"
+  bodyClass="tsukinomi-characters-page section-home palette-autumn"
+  sectionPalette="autumn"
+  backgroundSlotId="hero-station"
+>
+  <main id="tsukinomi-main" class="tsuki-characters">
+    <header class="tsuki-characters-hero">
+      <p>Character</p>
+      <h1>ผู้คนที่สถานีทะเลพระจันทร์</h1>
+      <span>รู้จักก่อนอ่าน โดยไม่เฉลยปลายทางของเรื่อง</span>
+    </header>
+
+    {
+      tsukinomiCharacterGroups.map((group) => (
+        <section class="tsuki-character-group" aria-labelledby={`group-${group.title}`}>
+          <div class="tsuki-character-group-head">
+            <p>{group.eyebrow}</p>
+            <h2 id={`group-${group.title}`}>{group.title}</h2>
+          </div>
+          <div class="tsuki-character-grid">
+            {group.characters.map((character) => (
+              <article
+                class="tsuki-character-card"
+                hidden={Boolean(character.revealAfterSection)}
+                data-character-spoiler={character.revealAfterSection ? "true" : undefined}
+                data-reveal-after-section={character.revealAfterSection}
+              >
+                <div class="tsuki-character-media">
+                  <picture>
+                    <source srcset={withBase(character.image.replace(/\.png$/i, ".webp"))} type="image/webp" />
+                    <img
+                      src={withBase(character.image)}
+                      alt={`ภาพตัวละคร ${character.name}`}
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  </picture>
+                </div>
+                <div class="tsuki-character-copy">
+                  <div class="tsuki-character-name">
+                    <h3>{character.name}</h3>
+                    {character.height && <span class="tsuki-character-height">{character.height}</span>}
+                  </div>
+                  <p class="tsuki-character-role">{character.role}</p>
+                  <p>
+                    <strong>นิสัย:</strong> {character.personality}
+                  </p>
+                  <p>{character.story}</p>
+                </div>
+              </article>
+            ))}
+          </div>
+        </section>
+      ))
+    }
+  </main>
+
+  <script>
+    const spoilerCards = Array.from(document.querySelectorAll<HTMLElement>("[data-character-spoiler]"));
+    const lastReadingKey = "tsukinomi:reading:last";
+    const revealedKey = "tsukinomi:characters:revealed";
+
+    const parseStored = (key: string) => {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : null;
+      } catch {
+        return null;
+      }
+    };
+
+    const getMaxSectionRead = (): number => {
+      const last = parseStored(lastReadingKey);
+      let maxSection = Number(last?.sectionNumber ?? 0);
+
+      for (let index = 0; index < localStorage.length; index += 1) {
+        const key = localStorage.key(index);
+        if (!key || !key.startsWith("tsukinomi:reading:section:")) {
+          continue;
+        }
+
+        const saved = parseStored(key);
+        const sectionNumber = Number(saved?.sectionNumber ?? 0);
+        const progress = Number(saved?.progress ?? 0);
+
+        if (Number.isFinite(sectionNumber) && progress >= 0.6) {
+          maxSection = Math.max(maxSection, sectionNumber);
+        }
+      }
+
+      return maxSection;
+    };
+
+    const revealUnlockedCards = () => {
+      if (spoilerCards.length === 0) {
+        return;
+      }
+
+      const maxSection = getMaxSectionRead();
+      const hasManualUnlock = localStorage.getItem(revealedKey) === "true";
+
+      for (const card of spoilerCards) {
+        const revealAfter = Number(card.dataset.revealAfterSection ?? 0);
+        if (hasManualUnlock || maxSection >= revealAfter) {
+          card.hidden = false;
+          localStorage.setItem(revealedKey, "true");
+        }
+      }
+    };
+
+    try {
+      revealUnlockedCards();
+    } catch {
+      // Restricted browser storage leaves spoiler cards hidden — that is fine.
+    }
+  </script>
+
+  <style>
+    .tsuki-characters {
+      max-width: 72rem;
+      margin: 0 auto;
+      padding: calc(var(--tsuki-topbar-height) + 2.4rem) 1.25rem 5rem;
+    }
+
+    .tsuki-characters-hero {
+      text-align: center;
+      margin-bottom: 3rem;
+    }
+
+    .tsuki-characters-hero p {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      letter-spacing: 0.32em;
+      text-transform: uppercase;
+      color: var(--tsuki-ink-dim);
+    }
+
+    .tsuki-characters-hero h1 {
+      margin: 0.5rem 0 0.6rem;
+      font-family: var(--font-display-tsukinomi);
+      font-weight: 500;
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      color: var(--tsuki-ink);
+    }
+
+    .tsuki-characters-hero span {
+      color: var(--tsuki-ink-dim);
+      font-size: 0.92rem;
+    }
+
+    .tsuki-character-group {
+      margin-bottom: 3.2rem;
+    }
+
+    .tsuki-character-group-head {
+      margin-bottom: 1.3rem;
+      padding-bottom: 0.55rem;
+      border-bottom: 1px solid var(--tsuki-line);
+    }
+
+    .tsuki-character-group-head p {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 0.7rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--sunset);
+    }
+
+    .tsuki-character-group-head h2 {
+      margin: 0.25rem 0 0;
+      font-family: var(--font-display-tsukinomi);
+      font-weight: 500;
+      font-size: 1.4rem;
+      color: var(--tsuki-ink);
+    }
+
+    .tsuki-character-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+      gap: 1.1rem;
+    }
+
+    .tsuki-character-card {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      border: 1px solid var(--tsuki-line);
+      background: color-mix(in srgb, var(--surface) 78%, transparent);
+      backdrop-filter: blur(2px);
+    }
+
+    .tsuki-character-card[hidden] {
+      display: none;
+    }
+
+    .tsuki-character-media {
+      aspect-ratio: 4 / 5;
+      display: grid;
+      place-items: center;
+      background: radial-gradient(ellipse at 50% 30%, rgba(232, 237, 245, 0.06), transparent 70%), #0c0a18;
+      border-bottom: 1px solid var(--tsuki-line);
+    }
+
+    .tsuki-character-media img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+
+    .tsuki-character-copy {
+      display: grid;
+      gap: 0.42rem;
+      padding: 0.95rem 1rem 1.15rem;
+    }
+
+    .tsuki-character-name {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 0.5rem;
+    }
+
+    .tsuki-character-name h3 {
+      margin: 0;
+      font-family: var(--font-display-tsukinomi);
+      font-weight: 500;
+      font-size: 1.12rem;
+      color: var(--tsuki-ink);
+    }
+
+    .tsuki-character-height {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--tsuki-ink-dim);
+      white-space: nowrap;
+    }
+
+    .tsuki-character-role {
+      color: var(--sunset);
+      font-size: 0.86rem;
+    }
+
+    .tsuki-character-copy p {
+      margin: 0;
+      color: var(--tsuki-ink);
+      font-size: 0.9rem;
+      line-height: 1.7;
+    }
+
+    .tsuki-character-copy p strong {
+      color: var(--tsuki-ink-dim);
+      font-weight: 600;
+    }
+
+    @media (max-width: 640px) {
+      .tsuki-character-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</TsukinomiBaseLayout>
