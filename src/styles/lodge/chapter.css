@@ -309,6 +309,12 @@ article.chapter hr {
   margin: 3rem calc(50% - min(48vw, 44rem));
 }
 
+/* Portrait-orientation scene art: keep it centered and column-width instead of full-bleed. */
+.chapter-figure.chapter-figure--portrait {
+  margin-inline: auto;
+  max-width: min(30rem, 100%);
+}
+
 .chapter-figure img {
   width: 100%;
   border: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);

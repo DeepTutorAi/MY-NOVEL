@@ -36,7 +36,7 @@ export const NOVELS = [
     mood: "สงบ · เหงา",
     length: "5 ภาค · ประมาณ 3 ชั่วโมง",
     heroImage: "/assets/tsukinomi/images/hero-station.webp",
-    heroState: "placeholder",
+    heroState: "image",
     accent: "#C98648",
     href: "/tsukinomi/",
     status: "เผยแพร่",

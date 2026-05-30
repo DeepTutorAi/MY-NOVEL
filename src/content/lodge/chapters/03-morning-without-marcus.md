@@ -95,6 +95,11 @@ French press ที่ยังอุ่นเล็กน้อย
 
 ฉันกินช้า ๆ
 
+<figure class="chapter-figure">
+  <img src="../../../assets/lodge/images/chapters/03A.png" width="1672" height="941" alt="03A — ห้องอาหารยามเช้า อาหารเช้าถูกจัดวางเต็มโต๊ะยาวแต่เก้าอี้หัวโต๊ะของ Marcus ว่างเปล่า มองเห็นป่าหิมะนอกหน้าต่าง" loading="lazy" decoding="async" />
+  <figcaption>03A — เช้าที่โต๊ะอาหาร ไม่มีเจ้าบ้าน</figcaption>
+</figure>
+
 ที่ 8:38 Diana เดินลงมา
 
 เธอใส่เสื้อแขนยาวสีดำ กางเกง warm-up พลาง ผมมัดเป็น
@@ -986,6 +991,11 @@ Ben ลังเล "สองผมเดาว่า"
 ---
 
 Tom กับฉัน ใน ห้องทำงาน ของ Marcus
+
+<figure class="chapter-figure">
+  <img src="../../../assets/lodge/images/chapters/03B.png" width="1448" height="1086" alt="03B — ห้องทำงานของ Marcus มีรูปคู่ของ Marcus กับ Lillian แขวนเหนือโต๊ะ ตู้เซฟเหล็กดำมีแผงกดรหัสที่มุมห้อง และสมุดแฟ้มแขกเปิดอยู่บนโต๊ะ" loading="lazy" decoding="async" />
+  <figcaption>03B — ห้องทำงานของ Marcus</figcaption>
+</figure>
 
 เราใช้เวลาประมาณสองชั่วโมงไปกับ ลิ้นชัก ใหญ่ของโต๊ะ
 

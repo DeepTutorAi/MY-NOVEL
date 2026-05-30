@@ -78,14 +78,18 @@ These are 30-second silent test tracks generated locally for Phase 5. They keep 
 | `public/assets/lodge/audio/ambient-act4.mp3` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 4 silence/heartbeat ambient |
 | `public/assets/lodge/audio/ambient-act4.ogg` | Generated locally with FFmpeg `anullsrc`; source URL: n/a | Project-owned silent placeholder | None | Legacy placeholder for Act 4 silence/heartbeat ambient |
 
-The current player uses the cue-based files below. They are temporary silent copies until licensed music is selected.
+The cue-based files the player actually uses are now **real licensed audio**, not silent
+placeholders. They were downloaded from Pixabay Music under the Pixabay Content License on
+2026-05-29; per-track source/attribution is recorded in
+`public/assets/lodge/audio/music/SOURCES.md`. Verified playing with audible signal in-browser on
+2026-05-30 (both `.ogg` and `.mp3` decode and play).
 
 | File | Source | License | Attribution | Status |
 |---|---|---|---|---|
-| `public/assets/lodge/audio/music/snow-forest.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with Snow Forest cue |
-| `public/assets/lodge/audio/music/gloomy-night.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with Gloomy Night cue |
-| `public/assets/lodge/audio/music/mystery.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with Mystery cue |
-| `public/assets/lodge/audio/music/eerie-tension.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with Eerie Tension cue |
-| `public/assets/lodge/audio/music/dark-nightmare.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with Dark Nightmare cue |
-| `public/assets/lodge/audio/music/after-climax-quiet.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with After Climax Quiet cue |
-| `public/assets/lodge/audio/music/mirror-haunting.mp3` / `.ogg` | Temporary silent placeholder | Project-owned silent placeholder | None | Replace with Mirror Haunting cue |
+| `public/assets/lodge/audio/music/snow-forest.mp3` / `.ogg` | Pixabay — "Snow Forest - quiet ambient piano" | Pixabay Content License | HarumachiMusic | Final Snow Forest cue |
+| `public/assets/lodge/audio/music/gloomy-night.mp3` / `.ogg` | Pixabay — "Dark Piano Ambient (concrete forest)" | Pixabay Content License | back_drop | Final Gloomy Night cue |
+| `public/assets/lodge/audio/music/mystery.mp3` / `.ogg` | Pixabay — "Dark Ambient Soundscape" | Pixabay Content License | LemonMusicLab | Final Mystery cue |
+| `public/assets/lodge/audio/music/eerie-tension.mp3` / `.ogg` | Pixabay — "Eerie Dark Ambient" | Pixabay Content License | Megalix | Final Eerie Tension cue |
+| `public/assets/lodge/audio/music/dark-nightmare.mp3` / `.ogg` | Pixabay — "Ambient Dark Nightmare" | Pixabay Content License | PaoloArgento | Final Dark Nightmare cue |
+| `public/assets/lodge/audio/music/after-climax-quiet.mp3` / `.ogg` | Pixabay — "Calm Ambient Dreamscape" | Pixabay Content License | Morgan | Final After Climax Quiet cue |
+| `public/assets/lodge/audio/music/mirror-haunting.mp3` / `.ogg` | Pixabay — "Haunting Dark Atmosphere" | Pixabay Content License | Trenox8 | Final Mirror Haunting cue |

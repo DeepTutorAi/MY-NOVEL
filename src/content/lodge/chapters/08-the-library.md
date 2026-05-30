@@ -387,6 +387,11 @@ Sarah วางกล่องลง
 
 "Tom เจอ"
 
+<figure class="chapter-figure">
+  <img src="../../../assets/lodge/images/chapters/08A.png" width="1672" height="941" alt="08A — Sarah ที่ใส่แว่นกับ Tom ชายสูงวัย ย่อตัวดึงลิ้นชักที่ซ่อนอยู่ใต้เก้าอี้หนังในห้องสมุด พบกล่องไม้ใส่เอกสารเก่า" loading="lazy" decoding="async" />
+  <figcaption>08A — ลิ้นชักลับใต้เก้าอี้ในห้องสมุด</figcaption>
+</figure>
+
 ทุกคนหัน Tom
 
 Tom เงียบครู่หนึ่งแล้วพูดเสียงแตก
@@ -727,6 +732,11 @@ darkness"
 Tom หลับบนโซฟาเขาเหนื่อยผ่านขีดจำกัด
 
 Sarah นั่งตรงข้ามฉัน
+
+<figure class="chapter-figure">
+  <img src="../../../assets/lodge/images/chapters/08B.png" width="1448" height="1086" alt="08B — Elena กับ Sarah นั่งหันหน้าเข้าหากันคนละฝั่งโต๊ะเตี้ยข้างเตาผิงที่ไฟลดลง ด้านหลัง Tom หลับอยู่บนโซฟา" loading="lazy" decoding="async" />
+  <figcaption>08B — เที่ยงคืนก่อนวันที่จะลองหนี</figcaption>
+</figure>
 
 "Sarah" ฉันพูดเบา
 

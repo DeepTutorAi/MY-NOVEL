@@ -315,6 +315,13 @@ export class WalkmanAudio {
       return;
     }
 
+    // Tracks are created with preload:false, so the file isn't fetched until asked for.
+    // Howler's play() only queues while a track is unloaded — it won't start the download
+    // on its own — so trigger the load here or the queued play never fires (no sound).
+    if (track.howl.state() === "unloaded") {
+      track.howl.load();
+    }
+
     if (track.soundId === undefined || !track.howl.playing(track.soundId)) {
       track.soundId = track.howl.play();
     }
@@ -333,6 +340,10 @@ export class WalkmanAudio {
 
     if (!track) {
       return;
+    }
+
+    if (track.howl.state() === "unloaded") {
+      track.howl.load();
     }
 
     if (track.soundId === undefined || !track.howl.playing(track.soundId)) {
@@ -421,6 +432,9 @@ export class WalkmanAudio {
   private playOneShot(id: SfxId) {
     try {
       const howl = this.ensureSfx(id);
+      if (howl.state() === "unloaded") {
+        howl.load();
+      }
       howl.volume(SFX_VOLUME);
       howl.play();
     } catch {

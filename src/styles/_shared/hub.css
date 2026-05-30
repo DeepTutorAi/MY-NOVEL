@@ -6,6 +6,9 @@
   --hub-panel: #12100e;
   --hub-panel-strong: #181411;
   --hub-line: rgba(238, 232, 221, 0.14);
+  /* Neutral warm-gold hub accent — sits between the lodge (red) and tsukinomi (amber)
+     novel accents so the shared hub chrome doesn't read as either novel. */
+  --hub-accent: #cf9a5e;
 
   min-height: 100vh;
   overflow-x: hidden;
@@ -72,9 +75,9 @@
   align-items: center;
   margin-bottom: 24px;
   padding: 18px 20px;
-  border: 1px solid rgba(194, 75, 58, 0.34);
+  border: 1px solid color-mix(in srgb, var(--hub-accent) 38%, transparent);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--hub-panel-strong) 84%, #c24b3a 16%);
+  background: color-mix(in srgb, var(--hub-panel-strong) 86%, var(--hub-accent) 14%);
 }
 
 .resume-card[hidden] {
@@ -131,8 +134,8 @@
 }
 
 .resume-card-actions a {
-  border-color: rgba(194, 75, 58, 0.72);
-  background: rgba(194, 75, 58, 0.16);
+  border-color: color-mix(in srgb, var(--hub-accent) 70%, transparent);
+  background: color-mix(in srgb, var(--hub-accent) 16%, transparent);
 }
 
 .resume-card-actions button {

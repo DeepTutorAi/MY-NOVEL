@@ -35,6 +35,11 @@ Tom เดินช้ากว่าทุกคน เขาดูเหนื
 
 ฉันวางกล่องลงบนโต๊ะกลาง
 
+<figure class="chapter-figure">
+  <img src="../../../assets/lodge/images/chapters/04A.png" width="1672" height="941" alt="04A — แขกทุกคนล้อมวงรอบโต๊ะกลางห้องนั่งเล่น มีกล่องแฟ้ม GUEST RECORDS และเอกสารวางอยู่ ข้างเตาผิงที่ลุกไหม้" loading="lazy" decoding="async" />
+  <figcaption>04A — เปิดกล่องบันทึกแขกร่วมกัน</figcaption>
+</figure>
+
 "พบใน ลิ้นชัก ลึกที่สุดของ Marcus" ฉันเริ่ม "GUEST RECORDS
 ทุกแขกของลอดจ์ นี้ ตั้งแต่ปี 2019"
 
@@ -815,6 +820,11 @@ Diana และฉันยืนใน ห้องทำงาน อีกส
 บ่ายสามโมงแสงเริ่มจาง
 
 เราอยู่ในห้องนั่งเล่นหมด
+
+<figure class="chapter-figure">
+  <img src="../../../assets/lodge/images/chapters/04B.png" width="1448" height="1086" alt="04B — ถ้วยกาแฟที่เย็นลงบนโต๊ะไม้ มีเม็ดผงสีขาวโรยกระจายบนจานรอง ด้านหลังเงาคนสวมเสื้อโค้ทยืนมองออกนอกหน้าต่างทรงโค้งขณะแสงใกล้หมด" loading="lazy" decoding="async" />
+  <figcaption>04B — ปลายวันแรกที่ต้องเฝ้าระวัง</figcaption>
+</figure>
 
 Sarah ยังอ่านสมุดบันทึกของ Lillian เธอบอกว่า "ยังหาอะไร
 ใหม่"
