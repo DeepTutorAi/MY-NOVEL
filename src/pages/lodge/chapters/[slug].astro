@@ -5,6 +5,7 @@ import ChapterHeader from "../../../components/lodge/reading/ChapterHeader.astro
 import ChapterNav from "../../../components/lodge/reading/ChapterNav.astro";
 import ReadingProgress from "../../../components/lodge/reading/ReadingProgress.astro";
 import LodgeChapterLayout from "../../../layouts/lodge/LodgeChapterLayout.astro";
+import { withBase } from "../../../utils/base-path";
 
 export async function getStaticPaths() {
   const chapters = (await getCollection("chapters")).sort(
@@ -35,4 +36,130 @@ const next = currentIndex >= 0 ? chapters[currentIndex + 1] : undefined;
   <Content />
   <EndOfChapter seed={chapter.data.number + 13} />
   <ChapterNav previous={previous} next={next} isFinalChapter={chapter.data.number === 18} />
+
+  <div
+    class="lodge-unlock-toast"
+    data-lodge-unlock-toast
+    data-chapter-number={chapter.data.number}
+    hidden
+    role="status"
+    aria-live="polite"
+  >
+    <div class="lodge-unlock-copy">
+      <strong>🔓 ปลดล็อกตัวละครลับ</strong>
+      <span>มีตัวละครใหม่ปรากฏในหน้า Character แล้ว</span>
+    </div>
+    <a class="lodge-unlock-go" href={withBase("/lodge/characters/")}>ดู →</a>
+    <button class="lodge-unlock-close" type="button" data-lodge-unlock-close aria-label="ปิด">✕</button>
+  </div>
 </LodgeChapterLayout>
+
+<script>
+  const setupLodgeUnlock = () => {
+    const REVEAL_CHAPTER = 17;
+    const SHOWN_KEY = "hvitveldt:characters:toast-shown";
+    const toast = document.querySelector("[data-lodge-unlock-toast]");
+    if (!(toast instanceof HTMLElement)) {
+      return;
+    }
+
+    const chapterNumber = Number(toast.dataset.chapterNumber ?? 0);
+    if (chapterNumber >= REVEAL_CHAPTER) {
+      try {
+        if (localStorage.getItem(SHOWN_KEY) !== "true") {
+          localStorage.setItem("hvitveldt:characters:subject8-visible", "true");
+          localStorage.setItem(SHOWN_KEY, "true");
+          window.setTimeout(() => {
+            toast.hidden = false;
+            window.setTimeout(() => toast.classList.add("is-visible"), 30);
+          }, 1400);
+        }
+      } catch {
+        // storage blocked — skip
+      }
+    }
+
+    toast.querySelector("[data-lodge-unlock-close]")?.addEventListener(
+      "click",
+      () => {
+        toast.classList.remove("is-visible");
+        window.setTimeout(() => {
+          toast.hidden = true;
+        }, 220);
+      },
+      { once: true },
+    );
+  };
+
+  if (document.readyState !== "loading") {
+    setupLodgeUnlock();
+  } else {
+    document.addEventListener("DOMContentLoaded", setupLodgeUnlock);
+  }
+  document.addEventListener("astro:page-load", setupLodgeUnlock);
+</script>
+
+<style is:global>
+  .lodge-unlock-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 1.4rem;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: 0.85rem 1rem;
+    border: 1px solid color-mix(in oklab, var(--accent, #c24b3a) 55%, transparent);
+    background: rgb(12 11 10 / 0.96);
+    color: var(--ink);
+    box-shadow: 0 1.2rem 3.5rem rgb(0 0 0 / 0.5);
+    transform: translate(-50%, 1.6rem);
+    opacity: 0;
+    transition:
+      transform 240ms ease,
+      opacity 240ms ease;
+  }
+
+  .lodge-unlock-toast.is-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  .lodge-unlock-copy {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .lodge-unlock-copy strong {
+    font-size: 0.92rem;
+  }
+
+  .lodge-unlock-copy span {
+    color: var(--ink-dim);
+    font-size: 0.78rem;
+  }
+
+  .lodge-unlock-go {
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--accent, #c24b3a);
+  }
+
+  .lodge-unlock-close {
+    background: none;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.2rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .lodge-unlock-toast {
+      transition: none;
+    }
+  }
+</style>

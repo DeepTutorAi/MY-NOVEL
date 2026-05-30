@@ -31,7 +31,109 @@ const firstSection = sections[0];
           <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/sections/")}>สารบัญ</a>
           <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/characters/")}>ตัวละคร</a>
         </div>
+
+        <div class="tsukinomi-home-resume" data-tsuki-resume hidden>
+          <span class="tsukinomi-home-resume-label">อ่านค้างไว้</span>
+          <strong data-tsuki-resume-title></strong>
+          <small data-tsuki-resume-detail></small>
+          <div class="tsukinomi-home-resume-actions">
+            <a class="tsukinomi-primary-link" data-tsuki-resume-link href={withBase("/tsukinomi/sections/")}>อ่านต่อ</a>
+            <button type="button" data-tsuki-resume-clear>ล้างตำแหน่ง</button>
+          </div>
+        </div>
       </div>
     </section>
   </main>
+
+  <script is:inline define:vars={{ resumeBase: withBase("/tsukinomi/sections/") }}>
+    const card = document.querySelector("[data-tsuki-resume]");
+    const title = document.querySelector("[data-tsuki-resume-title]");
+    const detail = document.querySelector("[data-tsuki-resume-detail]");
+    const link = document.querySelector("[data-tsuki-resume-link]");
+    const clearBtn = document.querySelector("[data-tsuki-resume-clear]");
+    const KEY = "tsukinomi:reading:last";
+
+    if (card && title && detail && link instanceof HTMLAnchorElement) {
+      try {
+        const raw = localStorage.getItem(KEY);
+        const saved = raw ? JSON.parse(raw) : null;
+        const progress = Number(saved?.progress);
+
+        if (
+          saved &&
+          typeof saved.sectionId === "string" &&
+          Number.isFinite(progress) &&
+          progress > 0.01 &&
+          progress < 0.99
+        ) {
+          const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
+          title.textContent = `ภาค ${saved.sectionNumber}: ${saved.sectionTitle}`;
+          detail.textContent = `ค้างไว้ประมาณ ${percent}%`;
+          link.href = `${resumeBase}${saved.sectionId}/?resume=1`;
+          card.hidden = false;
+        }
+      } catch (error) {
+        card.hidden = true;
+      }
+
+      clearBtn?.addEventListener("click", () => {
+        try {
+          const raw = localStorage.getItem(KEY);
+          const saved = raw ? JSON.parse(raw) : null;
+          if (saved && typeof saved.sectionId === "string") {
+            localStorage.removeItem(`tsukinomi:reading:section:${saved.sectionId}`);
+          }
+          localStorage.removeItem(KEY);
+        } finally {
+          card.hidden = true;
+        }
+      });
+    }
+  </script>
+
+  <style>
+    .tsukinomi-home-resume {
+      display: grid;
+      gap: 0.3rem;
+      max-width: 30rem;
+      margin-top: 1.6rem;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--tsuki-line);
+      background: color-mix(in srgb, var(--surface) 72%, transparent);
+    }
+
+    .tsukinomi-home-resume-label {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--sunset);
+    }
+
+    .tsukinomi-home-resume strong {
+      font-family: var(--font-display-tsukinomi);
+      font-weight: 500;
+      color: var(--tsuki-ink);
+    }
+
+    .tsukinomi-home-resume small {
+      color: var(--tsuki-ink-dim);
+    }
+
+    .tsukinomi-home-resume-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    .tsukinomi-home-resume-actions button {
+      background: none;
+      border: none;
+      color: var(--tsuki-ink-dim);
+      font-size: 0.82rem;
+      cursor: pointer;
+      text-decoration: underline;
+    }
+  </style>
 </TsukinomiBaseLayout>

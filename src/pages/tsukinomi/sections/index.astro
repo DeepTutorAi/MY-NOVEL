@@ -6,6 +6,15 @@ import { withBase } from "../../../utils/base-path";
 const sections = (await getCollection("tsukinomiSections")).sort(
   (a, b) => a.data.number - b.data.number,
 );
+
+const formatReadingTime = (minutes: number): string => {
+  if (minutes < 60) {
+    return `${minutes} นาที`;
+  }
+  const hours = Math.floor(minutes / 60);
+  const rest = minutes % 60;
+  return rest ? `${hours} ชม ${rest} นาที` : `${hours} ชม`;
+};
 ---
 
 <TsukinomiBaseLayout
@@ -26,7 +35,7 @@ const sections = (await getCollection("tsukinomiSections")).sort(
               <span class="toc-copy">
                 <strong>{section.data.title}</strong>
                 <span>{section.data.englishTitle}</span>
-                <small>{section.data.chapterRange} · {section.data.readingMinutes} นาที</small>
+                <small>{section.data.chapterRange} · {formatReadingTime(section.data.readingMinutes)}</small>
                 <em>{section.data.summary}</em>
               </span>
             </a>

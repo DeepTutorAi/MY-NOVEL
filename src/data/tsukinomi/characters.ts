@@ -24,7 +24,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
     characters: [
       {
         name: "Takahashi Haruto",
-        image: `${base}/Takahashi Haruto.png`,
+        image: `${base}/Takahashi Haruto.webp`,
         role: "เด็กชาย ม.6 ผู้เล่าเรื่อง",
         personality: "เงียบ คิดเยอะ เก็บตัว ไม่ใช่เศร้า แค่ปิดบางบานไว้",
         story:
@@ -33,7 +33,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
       },
       {
         name: "Mizushima Kaori",
-        image: `${base}/Mizushima Kaori.png`,
+        image: `${base}/Mizushima Kaori.webp`,
         role: "เด็กผู้หญิงที่นั่งรอรถไฟ",
         personality: "เงียบ อ่อนโยน พูดน้อย ยิ้มช้า ๆ",
         story:
@@ -42,7 +42,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
       },
       {
         name: "Hina",
-        image: `${base}/Hina.png`,
+        image: `${base}/Hina.webp`,
         role: "น้องสาวของ Haruto",
         personality: "สดใส ตรงข้ามพี่ชาย กินข้าวช้ามาก",
         story:
@@ -51,7 +51,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
       },
       {
         name: "Suzuki Akira",
-        image: `${base}/Suzuki Akira.png`,
+        image: `${base}/Suzuki Akira.webp`,
         role: "เพื่อนคนเดียวของ Haruto",
         personality: "โอตาคุตัวยง พูดเก่ง ซื่อสัตย์ มีมุมขี้กังวล",
         story:
@@ -66,7 +66,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
     characters: [
       {
         name: "Naomi",
-        image: `${base}/Naomi.png`,
+        image: `${base}/Naomi.webp`,
         role: "แม่ของ Haruto และ Hina",
         personality: "เข้มแข็ง พูดน้อย เก็บความเศร้าไว้เงียบ ๆ",
         story: "ดูแลร้านของแห้งและลูกสองคนลำพังหลังพ่อจากไป มีบางเรื่องที่เธอรู้แต่ไม่เคยเอ่ย",
@@ -74,7 +74,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
       },
       {
         name: "Tanaka Akihiro",
-        image: `${base}/Tanaka Akihiro.png`,
+        image: `${base}/Tanaka Akihiro.webp`,
         role: "น้าของ Haruto · ครูพละ",
         personality: "หนักแน่น ใจดี แฝงความเสียดายในอดีต",
         story: "น้องชายของพ่อ ผู้เคยขึ้นไปบนเขาลูกนั้นมาก่อน และรู้ดีว่ามันพรากอะไรไปจากคนในครอบครัว",
@@ -82,7 +82,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
       },
       {
         name: "Watanabe",
-        image: `${base}/Watanabe.png`,
+        image: `${base}/Watanabe.webp`,
         role: "ผู้ดูแลศาลเจ้าจิ้งจอก",
         personality: "สงบ อดทน รู้มากกว่าที่พูด",
         story: "เฝ้าศาลเจ้า Kitsune-jinja มากว่าห้าสิบปี รู้จักทั้งครอบครัวของ Haruto และเด็กผู้หญิงที่สถานี",
@@ -96,7 +96,7 @@ export const tsukinomiCharacterGroups: TsukinomiCharacterGroup[] = [
     characters: [
       {
         name: "Yamaba-baa",
-        image: `${base}/Yamaba-baa.png`,
+        image: `${base}/Yamaba-baa.webp`,
         role: "ยายแก่แห่งภูเขา (โยไก)",
         personality: "เงียบงัน เดียวดาย และโหยหาบางสิ่ง",
         story:

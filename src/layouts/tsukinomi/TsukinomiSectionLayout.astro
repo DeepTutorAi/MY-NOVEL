@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import SectionDropcap from "../../components/tsukinomi/reading/SectionDropcap.astro";
 import { backgroundSlotIdForSection } from "../../data/tsukinomi/background-slots";
+import { withBase } from "../../utils/base-path";
 import "../../styles/tsukinomi/section.css";
 import TsukinomiBaseLayout from "./TsukinomiBaseLayout.astro";
 
@@ -35,4 +36,120 @@ const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — $
       <slot />
     </article>
   </main>
+
+  <div class="tsuki-unlock-toast" data-unlock-toast hidden role="status" aria-live="polite">
+    <div class="tsuki-unlock-copy">
+      <strong>🔓 ปลดล็อกตัวละครลับ</strong>
+      <span>มีตัวละครใหม่ปรากฏในหน้าตัวละครแล้ว</span>
+    </div>
+    <a class="tsuki-unlock-go" href={withBase("/tsukinomi/characters/")}>ดู →</a>
+    <button class="tsuki-unlock-close" type="button" data-unlock-close aria-label="ปิด">✕</button>
+  </div>
 </TsukinomiBaseLayout>
+
+<script>
+  const setupUnlockToast = () => {
+    const REVEAL_SECTION = 3;
+    const SHOWN_KEY = "tsukinomi:characters:toast-shown";
+    const toast = document.querySelector("[data-unlock-toast]");
+    if (!(toast instanceof HTMLElement)) {
+      return;
+    }
+
+    const article = document.querySelector("article.tsukinomi-section");
+    const sectionNumber = Number(article?.getAttribute("data-section-number") ?? 0);
+
+    if (sectionNumber >= REVEAL_SECTION) {
+      try {
+        if (localStorage.getItem(SHOWN_KEY) !== "true") {
+          localStorage.setItem("tsukinomi:characters:revealed", "true");
+          localStorage.setItem(SHOWN_KEY, "true");
+          window.setTimeout(() => {
+            toast.hidden = false;
+            window.setTimeout(() => toast.classList.add("is-visible"), 30);
+          }, 1400);
+        }
+      } catch {
+        // localStorage blocked — silently skip the toast
+      }
+    }
+
+    toast.querySelector("[data-unlock-close]")?.addEventListener(
+      "click",
+      () => {
+        toast.classList.remove("is-visible");
+        window.setTimeout(() => {
+          toast.hidden = true;
+        }, 220);
+      },
+      { once: true },
+    );
+  };
+
+  document.addEventListener("astro:page-load", setupUnlockToast);
+</script>
+
+<style is:global>
+  .tsuki-unlock-toast {
+    position: fixed;
+    left: 50%;
+    bottom: 1.4rem;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+    max-width: min(26rem, calc(100vw - 2rem));
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(224, 163, 106, 0.4);
+    background: rgba(20, 17, 12, 0.96);
+    color: var(--tsuki-ink);
+    box-shadow: 0 1.2rem 3.5rem rgba(0, 0, 0, 0.5);
+    transform: translate(-50%, 1.6rem);
+    opacity: 0;
+    transition:
+      transform 240ms ease,
+      opacity 240ms ease;
+  }
+
+  .tsuki-unlock-toast.is-visible {
+    transform: translate(-50%, 0);
+    opacity: 1;
+  }
+
+  .tsuki-unlock-copy {
+    display: grid;
+    gap: 0.1rem;
+  }
+
+  .tsuki-unlock-copy strong {
+    font-size: 0.92rem;
+  }
+
+  .tsuki-unlock-copy span {
+    color: var(--tsuki-ink-dim);
+    font-size: 0.78rem;
+  }
+
+  .tsuki-unlock-go {
+    white-space: nowrap;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--sunset);
+  }
+
+  .tsuki-unlock-close {
+    background: none;
+    border: none;
+    color: var(--tsuki-ink-dim);
+    font-size: 1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0.2rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .tsuki-unlock-toast {
+      transition: none;
+    }
+  }
+</style>

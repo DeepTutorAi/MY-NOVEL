@@ -1,0 +1,52 @@
+---
+import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
+---
+
+<TsukinomiBaseLayout
+  title="ส่วนเสริม — สถานีทะเลพระจันทร์"
+  description="เบื้องหลัง ภาพประกอบ และของแถมของสถานีทะเลพระจันทร์"
+  bodyClass="tsukinomi-extra-page section-home palette-autumn"
+  sectionPalette="autumn"
+  backgroundSlotId="hero-station"
+>
+  <main id="tsukinomi-main" class="tsuki-extra">
+    <p class="tsukinomi-kicker">Extra</p>
+    <h1>ส่วนเสริม</h1>
+    <p class="tsuki-extra-lead">
+      พื้นที่สำหรับเบื้องหลัง บทสัมภาษณ์ ภาพประกอบ และของแถมของสถานีทะเลพระจันทร์
+    </p>
+    <div class="tsuki-extra-soon">กำลังจัดเตรียม — เร็ว ๆ นี้</div>
+  </main>
+
+  <style>
+    .tsuki-extra {
+      max-width: 44rem;
+      margin: 0 auto;
+      padding: calc(var(--tsuki-topbar-height) + 3rem) 1.25rem 5rem;
+      text-align: center;
+    }
+
+    .tsuki-extra h1 {
+      margin: 0.45rem 0 1rem;
+      font-family: var(--font-display-tsukinomi);
+      font-weight: 500;
+      font-size: clamp(1.8rem, 5vw, 2.6rem);
+      color: var(--tsuki-ink);
+    }
+
+    .tsuki-extra-lead {
+      color: var(--tsuki-ink);
+      line-height: 1.8;
+    }
+
+    .tsuki-extra-soon {
+      margin-top: 2.4rem;
+      padding: 1.4rem;
+      border: 1px dashed var(--tsuki-line);
+      color: var(--tsuki-ink-dim);
+      font-family: var(--font-mono);
+      font-size: 0.9rem;
+      letter-spacing: 0.04em;
+    }
+  </style>
+</TsukinomiBaseLayout>

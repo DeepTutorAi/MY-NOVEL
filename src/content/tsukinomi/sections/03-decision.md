@@ -3,8 +3,8 @@ number: 3
 title: "คำตัดสิน"
 englishTitle: "The Decision"
 chapterRange: "บทที่ 7–10"
-summary: "Haruto เลือกที่จะไม่บอก Kaori ว่าเธอตาย; เริ่มแบ่งเพลงกัน; Hina เริ่มรู้; และคืนหนึ่งแม่ได้ฟังจากปากเขาเอง"
-readingMinutes: 42
+summary: "Haruto ตัดสินใจเก็บความจริงบางอย่างเอาไว้ พวกเขาเริ่มแบ่งเพลงกันฟัง Hina เริ่มสังเกตเห็น และคืนหนึ่งเขาก็เอ่ยเรื่องนี้กับแม่"
+readingMinutes: 154
 musicCueId: "decision"
 backgroundImage: "/assets/tsukinomi/images/backgrounds/section-03.webp"
 palette: "warm-room"

@@ -34,15 +34,12 @@ import { withBase } from "../../utils/base-path";
                 data-reveal-after-section={character.revealAfterSection}
               >
                 <div class="tsuki-character-media">
-                  <picture>
-                    <source srcset={withBase(character.image.replace(/\.png$/i, ".webp"))} type="image/webp" />
-                    <img
-                      src={withBase(character.image)}
-                      alt={`ภาพตัวละคร ${character.name}`}
-                      loading="lazy"
-                      decoding="async"
-                    />
-                  </picture>
+                  <img
+                    src={withBase(character.image)}
+                    alt={`ภาพตัวละคร ${character.name}`}
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
                 <div class="tsuki-character-copy">
                   <div class="tsuki-character-name">
