@@ -85,8 +85,8 @@ const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.
           typeof saved?.chapterNumber === "string" &&
           typeof saved?.chapterTitle === "string" &&
           Number.isFinite(progress) &&
-          progress > 0.01 &&
-          progress < 0.99
+          progress >= 0.005 &&
+          progress < 0.995
         ) {
           const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
           const jumpText =

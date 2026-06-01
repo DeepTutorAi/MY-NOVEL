@@ -182,9 +182,8 @@ article.chapter hr {
 }
 
 .chapter-nav {
-  display: flex;
-  justify-content: space-between;
-  gap: 2rem;
+  display: grid;
+  gap: 1.25rem;
   padding-block-start: 1.75rem;
   border-block-start: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
   color: var(--ink-dim);
@@ -192,8 +191,21 @@ article.chapter hr {
   font-size: 0.8rem;
 }
 
-.chapter-nav > div:last-child {
-  margin-inline-start: auto;
+.chapter-nav .reader-return-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+  font-size: 0.78rem;
+}
+
+.chapter-nav-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 2rem;
+}
+
+.chapter-nav-flow > div:last-child {
   text-align: end;
 }
 
@@ -499,8 +511,12 @@ article.chapter figure.chapter-figure .resume-highlight::before {
     gap: 1rem;
   }
 
-  .chapter-nav > div:last-child {
-    margin-inline-start: 0;
+  .chapter-nav-flow {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .chapter-nav-flow > div:last-child {
     text-align: start;
   }
 

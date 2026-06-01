@@ -63,8 +63,8 @@ const firstSection = sections[0];
           saved &&
           typeof saved.sectionId === "string" &&
           Number.isFinite(progress) &&
-          progress > 0.01 &&
-          progress < 0.99
+          progress >= 0.005 &&
+          progress < 0.995
         ) {
           const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
           title.textContent = `ภาค ${saved.sectionNumber}: ${saved.sectionTitle}`;

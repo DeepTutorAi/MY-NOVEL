@@ -62,8 +62,8 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
         !number ||
         !chapterTitle ||
         !Number.isFinite(progress) ||
-        progress <= 0.01 ||
-        progress >= 0.99
+        progress < 0.005 ||
+        progress >= 0.995
       ) {
         return null;
       }

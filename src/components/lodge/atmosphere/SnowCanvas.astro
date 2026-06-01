@@ -3,6 +3,8 @@
 <script>
   const canvas = document.querySelector(".snow-canvas");
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const MOTION_STORAGE_KEY = "hvitveldt:motion:snow";
+  const MOTION_EVENT = "hvitveldt:motion-change";
 
   if (canvas instanceof HTMLCanvasElement) {
     const context = canvas.getContext("2d");
@@ -24,6 +26,19 @@
       pad: number;
     };
     let particles: SnowParticle[] = [];
+    let motionEnabled = true;
+
+    const readMotionEnabled = () => {
+      try {
+        return localStorage.getItem(MOTION_STORAGE_KEY) !== "false";
+      } catch {
+        return true;
+      }
+    };
+
+    const clearCanvas = () => {
+      context?.clearRect(0, 0, width, height);
+    };
 
     const isHome = () => document.body.classList.contains("home-page");
     const isReader = () => document.body.classList.contains("chapter-page");
@@ -108,12 +123,19 @@
       canvas.height = Math.floor(height * ratio);
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
+      canvas.hidden = !motionEnabled;
       context?.setTransform(ratio, 0, 0, ratio, 0, 0);
       particles = Array.from({ length: particleCap() }, () => createParticle(true));
     };
 
     const draw = () => {
       if (!context) {
+        return;
+      }
+
+      if (!motionEnabled) {
+        clearCanvas();
+        frame = 0;
         return;
       }
 
@@ -157,6 +179,14 @@
     };
 
     const resume = () => {
+      if (!motionEnabled) {
+        canvas.hidden = true;
+        clearCanvas();
+        return;
+      }
+
+      canvas.hidden = false;
+
       if (reduceMotion.matches) {
         draw();
         return;
@@ -167,6 +197,23 @@
       }
     };
 
+    const applyMotionPreference = () => {
+      motionEnabled = readMotionEnabled();
+      canvas.dataset.motion = motionEnabled ? "on" : "off";
+
+      if (!motionEnabled) {
+        pause();
+        canvas.hidden = true;
+        clearCanvas();
+        return;
+      }
+
+      resize();
+      resume();
+    };
+
+    motionEnabled = readMotionEnabled();
+    canvas.dataset.motion = motionEnabled ? "on" : "off";
     resize();
     resume();
 
@@ -183,8 +230,7 @@
 
     document.addEventListener("astro:after-swap", () => {
       pause();
-      resize();
-      resume();
+      applyMotionPreference();
     });
 
     document.addEventListener("visibilitychange", () => {
@@ -194,6 +240,8 @@
         resume();
       }
     });
+
+    window.addEventListener(MOTION_EVENT, applyMotionPreference);
   }
 </script>
 

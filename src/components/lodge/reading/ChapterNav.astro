@@ -12,28 +12,35 @@ const { previous, next, isFinalChapter = false } = Astro.props;
 ---
 
 <nav class="chapter-nav" aria-label="นำทางบท">
-  <div>
-    {
-      previous ? (
-        <a href={withBase(`/lodge/chapters/${previous.id}/`)}>← บทที่ {previous.data.number} — {previous.data.title}</a>
-      ) : (
-        <span aria-hidden="true"></span>
-      )
-    }
+  <div class="reader-return-links" aria-label="กลับหน้าหลัก">
+    <a href={withBase("/lodge/")}>หน้าหลักเรื่อง</a>
+    <span aria-hidden="true">/</span>
+    <a href={withBase("/")}>ฮับนิยาย</a>
   </div>
-  <div>
-    {
-      isFinalChapter ? (
-        <a class="chapter-nav-warning" href={withBase("/lodge/puzzle/")}>
-          <svg viewBox="0 0 24 24" aria-hidden="true">
-            <path d="M12 4 21 20H3L12 4Z" />
-            <path d="M12 9v5M12 17h.01" />
-          </svg>
-          แผนที่ปริศนา →
-        </a>
-      ) : next ? (
-        <a href={withBase(`/lodge/chapters/${next.id}/`)}>บทที่ {next.data.number} — {next.data.title} →</a>
-      ) : null
-    }
+  <div class="chapter-nav-flow">
+    <div>
+      {
+        previous ? (
+          <a href={withBase(`/lodge/chapters/${previous.id}/`)}>← บทที่ {previous.data.number} — {previous.data.title}</a>
+        ) : (
+          <span aria-hidden="true"></span>
+        )
+      }
+    </div>
+    <div>
+      {
+        isFinalChapter ? (
+          <a class="chapter-nav-warning" href={withBase("/lodge/puzzle/")}>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 4 21 20H3L12 4Z" />
+              <path d="M12 9v5M12 17h.01" />
+            </svg>
+            แผนที่ปริศนา →
+          </a>
+        ) : next ? (
+          <a href={withBase(`/lodge/chapters/${next.id}/`)}>บทที่ {next.data.number} — {next.data.title} →</a>
+        ) : null
+      }
+    </div>
   </div>
 </nav>

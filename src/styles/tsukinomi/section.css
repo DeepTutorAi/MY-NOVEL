@@ -68,12 +68,14 @@ article.tsukinomi-section {
   margin: 0 auto;
   padding: 4.2rem 2rem 5.5rem;
   border-inline: 1px solid var(--tsuki-line);
-  background: color-mix(in srgb, var(--surface) 78%, var(--bg-night) 22%);
-  box-shadow: 0 2rem 5rem rgba(4, 3, 10, 0.28);
+  background: color-mix(in srgb, var(--surface) 92%, var(--bg-night) 8%);
+  box-shadow:
+    0 2rem 5rem rgba(4, 3, 10, 0.34),
+    inset 0 0 0 1px rgba(232, 220, 196, 0.03);
 }
 
 .palette-snow-pact article.tsukinomi-section {
-  background: color-mix(in srgb, var(--surface) 72%, var(--bg-night) 28%);
+  background: color-mix(in srgb, var(--surface) 90%, var(--bg-night) 10%);
 }
 
 .section-header {
@@ -284,8 +286,7 @@ article.tsukinomi-section hr {
 
 .section-nav {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 1.5rem;
+  gap: 1.25rem;
   padding-top: 1.8rem;
   border-top: 1px solid var(--tsuki-line);
   color: var(--tsuki-ink-dim);
@@ -293,7 +294,20 @@ article.tsukinomi-section hr {
   font-size: 0.78rem;
 }
 
-.section-nav > div:last-child {
+.section-nav .reader-return-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  justify-content: center;
+}
+
+.section-nav-flow {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 1.5rem;
+}
+
+.section-nav-flow > div:last-child {
   text-align: right;
 }
 
@@ -312,10 +326,14 @@ article.tsukinomi-section hr {
   }
 
   .section-nav {
+    gap: 1rem;
+  }
+
+  .section-nav-flow {
     grid-template-columns: 1fr;
   }
 
-  .section-nav > div:last-child {
+  .section-nav-flow > div:last-child {
     text-align: left;
   }
 }

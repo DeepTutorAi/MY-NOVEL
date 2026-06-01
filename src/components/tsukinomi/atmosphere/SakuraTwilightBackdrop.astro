@@ -49,6 +49,8 @@
     "winter-light": { kinds: ["snow"], density: 0.72, train: "return" },
   };
   const HOME_PROFILE: Profile = { kinds: ["petal"], density: 1, train: "slow" };
+  const MOTION_STORAGE_KEY = "tsukinomi:motion:backdrop";
+  const MOTION_EVENT = "tsukinomi:motion-change";
 
   const KIND_SPECS: Record<ParticleKind, { size: [number, number]; speed: [number, number]; opacity: [number, number] }> = {
     petal: { size: [5, 12], speed: [0.16, 0.48], opacity: [0.24, 0.58] },
@@ -81,12 +83,21 @@
   let parallaxFrame = 0;
   let freezeUntil = 0;
   let nextFreezeAt = 0;
+  let motionEnabled = true;
 
   const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
   const baseCount = () => (mobile.matches ? mobilePetalCount : desktopPetalCount);
   const profileCount = () => (currentProfile.kinds.length ? Math.round(baseCount() * currentProfile.density) : 0);
 
   const root = () => document.querySelector(".sakura-backdrop");
+
+  const readMotionEnabled = () => {
+    try {
+      return localStorage.getItem(MOTION_STORAGE_KEY) !== "false";
+    } catch {
+      return true;
+    }
+  };
 
   const resolveProfile = (): Profile => {
     const cls = document.body.className;
@@ -155,7 +166,7 @@
     canvas.style.width = `${width}px`;
     canvas.style.height = `${height}px`;
     context.setTransform(ratio, 0, 0, ratio, 0, 0);
-    canvas.hidden = reduceMotion.matches;
+    canvas.hidden = reduceMotion.matches || !motionEnabled;
     resetPetals();
   };
 
@@ -235,10 +246,10 @@
   };
 
   const draw = (now: number) => {
-    if (!canvas || !context || reduceMotion.matches || document.hidden || petals.length === 0) {
+    if (!canvas || !context || reduceMotion.matches || !motionEnabled || document.hidden || petals.length === 0) {
       context?.clearRect(0, 0, width, height);
       if (canvas) {
-        canvas.hidden = reduceMotion.matches;
+        canvas.hidden = reduceMotion.matches || !motionEnabled;
       }
       frame = 0;
       return;
@@ -276,10 +287,10 @@
     pause();
     bindCanvas();
 
-    if (!canvas || !context || reduceMotion.matches || document.hidden || petals.length === 0) {
+    if (!canvas || !context || reduceMotion.matches || !motionEnabled || document.hidden || petals.length === 0) {
       context?.clearRect(0, 0, width, height);
       if (canvas) {
-        canvas.hidden = reduceMotion.matches;
+        canvas.hidden = reduceMotion.matches || !motionEnabled;
       }
       return;
     }
@@ -290,14 +301,23 @@
   const applyTrainState = () => {
     const node = root();
     if (node instanceof HTMLElement) {
-      node.dataset.train = reduceMotion.matches ? "off" : currentProfile.train;
+      node.dataset.train = reduceMotion.matches || !motionEnabled ? "off" : currentProfile.train;
+    }
+  };
+
+  const applyMotionState = () => {
+    const node = root();
+    if (node instanceof HTMLElement) {
+      node.dataset.motion = motionEnabled ? "on" : "off";
     }
   };
 
   const refresh = () => {
     pause();
+    motionEnabled = readMotionEnabled();
     currentProfile = resolveProfile();
     readColors();
+    applyMotionState();
     applyTrainState();
     resize();
     scheduleFreeze();
@@ -337,6 +357,7 @@
   window.addEventListener("resize", handleResize);
   window.addEventListener("scroll", handleScroll, { passive: true });
   reduceMotion.addEventListener("change", refresh);
+  window.addEventListener(MOTION_EVENT, refresh);
   document.addEventListener("visibilitychange", handleVisibility);
   document.addEventListener("astro:after-swap", refresh);
 
@@ -351,6 +372,7 @@
       window.removeEventListener("resize", handleResize);
       window.removeEventListener("scroll", handleScroll);
       reduceMotion.removeEventListener("change", refresh);
+      window.removeEventListener(MOTION_EVENT, refresh);
       document.removeEventListener("visibilitychange", handleVisibility);
       document.removeEventListener("astro:after-swap", refresh);
     },
@@ -478,6 +500,21 @@
 
   .sakura-backdrop[data-train="return"] .sakura-backdrop__train {
     animation: sakura-train-near 30s ease-in-out 1 both;
+  }
+
+  .sakura-backdrop[data-motion="off"] .sakura-backdrop__moon,
+  .sakura-backdrop[data-motion="off"] .sakura-backdrop__rays,
+  .sakura-backdrop[data-motion="off"] .sakura-backdrop__mist,
+  .sakura-backdrop[data-motion="off"] .sakura-backdrop__train {
+    animation: none;
+  }
+
+  .sakura-backdrop[data-motion="off"] .sakura-backdrop__train {
+    opacity: 0;
+  }
+
+  .sakura-backdrop[data-motion="off"] .sakura-backdrop__petals {
+    display: none;
   }
 
   .sakura-backdrop__petals {

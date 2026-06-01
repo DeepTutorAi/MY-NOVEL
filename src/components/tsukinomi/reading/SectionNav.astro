@@ -11,26 +11,33 @@ const { previous, next } = Astro.props;
 ---
 
 <nav class="section-nav" aria-label="นำทางภาค">
-  <div>
-    {
-      previous ? (
-        <a href={withBase(`/tsukinomi/sections/${previous.id}/`)}>
-          ← ภาค {previous.data.number}: {previous.data.title}
-        </a>
-      ) : (
-        <a href={withBase("/tsukinomi/sections/")}>← สารบัญ</a>
-      )
-    }
+  <div class="reader-return-links" aria-label="กลับหน้าหลัก">
+    <a href={withBase("/tsukinomi/")}>หน้าหลักเรื่อง</a>
+    <span aria-hidden="true">/</span>
+    <a href={withBase("/")}>ฮับนิยาย</a>
   </div>
-  <div>
-    {
-      next ? (
-        <a href={withBase(`/tsukinomi/sections/${next.id}/`)}>
-          ภาค {next.data.number}: {next.data.title} →
-        </a>
-      ) : (
-        <a href={withBase("/tsukinomi/")}>กลับหน้าสถานี →</a>
-      )
-    }
+  <div class="section-nav-flow">
+    <div>
+      {
+        previous ? (
+          <a href={withBase(`/tsukinomi/sections/${previous.id}/`)}>
+            ← ภาค {previous.data.number}: {previous.data.title}
+          </a>
+        ) : (
+          <a href={withBase("/tsukinomi/sections/")}>← สารบัญ</a>
+        )
+      }
+    </div>
+    <div>
+      {
+        next ? (
+          <a href={withBase(`/tsukinomi/sections/${next.id}/`)}>
+            ภาค {next.data.number}: {next.data.title} →
+          </a>
+        ) : (
+          <a href={withBase("/tsukinomi/")}>กลับหน้าสถานี →</a>
+        )
+      }
+    </div>
   </div>
 </nav>

@@ -52,6 +52,11 @@
       <span>เสียงไฟไม้และลม</span>
     </label>
 
+    <label class="ambient-switch">
+      <input data-snow-toggle type="checkbox" />
+      <span>หิมะพื้นหลัง</span>
+    </label>
+
     <label class="ambient-field">
       <span>ระดับเสียงไฟ</span>
       <input data-soundscape-volume aria-label="ระดับเสียงไฟ" type="range" min="0" max="0.7" step="0.05" />
@@ -63,6 +68,9 @@
   import { getMusicCue, musicCueForChapter } from "../../../data/lodge/audio-cues";
   import { ambientAudio } from "../../../scripts/lodge/audio-state";
   import { soundscapeAudio } from "../../../scripts/lodge/soundscape-state";
+
+  const SNOW_MOTION_KEY = "hvitveldt:motion:snow";
+  const SNOW_MOTION_EVENT = "hvitveldt:motion-change";
 
   type AmbientWindow = Window & {
     __hvitveldtAmbientPlayerGlobalBound?: boolean;
@@ -83,6 +91,7 @@
       next: root?.querySelector("[data-ambient-next]"),
       musicSlider: root?.querySelector("[data-ambient-volume]"),
       soundscapeToggle: root?.querySelector("[data-soundscape-toggle]"),
+      snowToggle: root?.querySelector("[data-snow-toggle]"),
       soundscapeSlider: root?.querySelector("[data-soundscape-volume]"),
       cue: root?.querySelector("[data-ambient-cue]"),
     };
@@ -108,6 +117,24 @@
     ambientAudio.setCue(cue.id);
   };
 
+  const readSnowMotionEnabled = () => {
+    try {
+      return localStorage.getItem(SNOW_MOTION_KEY) !== "false";
+    } catch {
+      return true;
+    }
+  };
+
+  const setSnowMotionEnabled = (enabled: boolean) => {
+    try {
+      localStorage.setItem(SNOW_MOTION_KEY, String(enabled));
+    } catch {
+      // localStorage can be unavailable in private or restricted browser modes.
+    }
+
+    window.dispatchEvent(new CustomEvent(SNOW_MOTION_EVENT));
+  };
+
   const cueText = () => {
     const cue = getMusicCue(ambientAudio.getCurrentCue());
     return `เพลง ${cue.number}: ${cue.label}`;
@@ -125,12 +152,14 @@
   };
 
   const syncState = () => {
-    const { root, play, cue, soundscapeToggle, musicSlider, soundscapeSlider } = getElements();
+    const { root, play, cue, soundscapeToggle, snowToggle, musicSlider, soundscapeSlider } = getElements();
     const enabled = ambientAudio.isEnabled();
     const soundscapeEnabled = soundscapeAudio.isEnabled();
+    const snowMotionEnabled = readSnowMotionEnabled();
 
     root?.setAttribute("data-enabled", String(enabled));
     root?.setAttribute("data-soundscape", String(soundscapeEnabled));
+    root?.setAttribute("data-snow-motion", String(snowMotionEnabled));
 
     if (play instanceof HTMLButtonElement) {
       play.setAttribute("aria-label", enabled ? "หยุดเพลง" : "เปิดเพลง");
@@ -145,6 +174,10 @@
       soundscapeToggle.checked = soundscapeEnabled;
     }
 
+    if (snowToggle instanceof HTMLInputElement) {
+      snowToggle.checked = snowMotionEnabled;
+    }
+
     if (musicSlider instanceof HTMLInputElement) {
       musicSlider.value = String(ambientAudio.getVolume());
     }
@@ -155,7 +188,7 @@
   };
 
   const bindPlayer = () => {
-    const { root, main, play, previous, next, musicSlider, soundscapeToggle, soundscapeSlider } = getElements();
+    const { root, main, play, previous, next, musicSlider, soundscapeToggle, snowToggle, soundscapeSlider } = getElements();
 
     if (
       !(root instanceof HTMLElement) ||
@@ -165,6 +198,7 @@
       !(next instanceof HTMLButtonElement) ||
       !(musicSlider instanceof HTMLInputElement) ||
       !(soundscapeToggle instanceof HTMLInputElement) ||
+      !(snowToggle instanceof HTMLInputElement) ||
       !(soundscapeSlider instanceof HTMLInputElement)
     ) {
       return;
@@ -220,6 +254,11 @@
         soundscapeAudio.disable();
       }
 
+      syncState();
+    });
+
+    snowToggle.addEventListener("change", () => {
+      setSnowMotionEnabled(snowToggle.checked);
       syncState();
     });
 

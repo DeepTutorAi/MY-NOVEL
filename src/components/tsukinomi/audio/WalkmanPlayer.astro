@@ -41,6 +41,11 @@
     <input data-walkman-volume aria-label="ระดับเสียงเพลง" type="range" min="0" max="1" step="0.04" />
   </label>
 
+  <label class="walkman-switch walkman-backdrop-switch">
+    <input data-backdrop-toggle type="checkbox" />
+    <span>Sakura / rain backdrop</span>
+  </label>
+
   <div class="walkman-soundscapes" aria-label="เสียงบรรยากาศ">
     <section class="walkman-soundscape" data-soundscape="cassette-hiss">
       <label class="walkman-switch">
@@ -93,6 +98,9 @@
   import { getMusicCue, isMusicCueId, type SoundscapeId } from "../../../data/tsukinomi/music-cues";
   import { walkmanAudio } from "../../../scripts/tsukinomi/walkman-state";
 
+  const BACKDROP_MOTION_KEY = "tsukinomi:motion:backdrop";
+  const BACKDROP_MOTION_EVENT = "tsukinomi:motion-change";
+
   type WalkmanWindow = Window & {
     __tsukinomiWalkmanGlobalBound?: boolean;
     __tsukinomiWalkmanDismissBound?: boolean;
@@ -114,6 +122,7 @@
       next: root?.querySelector("[data-walkman-next]"),
       musicSlider: root?.querySelector("[data-walkman-volume]"),
       cue: root?.querySelector("[data-walkman-cue]"),
+      backdropToggle: root?.querySelector("[data-backdrop-toggle]"),
       soundscapeToggles: root?.querySelectorAll("[data-soundscape-toggle]"),
       soundscapeSliders: root?.querySelectorAll("[data-soundscape-volume]"),
     };
@@ -135,6 +144,24 @@
     walkmanAudio.setCue(currentPageCue());
   };
 
+  const readBackdropMotionEnabled = () => {
+    try {
+      return localStorage.getItem(BACKDROP_MOTION_KEY) !== "false";
+    } catch {
+      return true;
+    }
+  };
+
+  const setBackdropMotionEnabled = (enabled: boolean) => {
+    try {
+      localStorage.setItem(BACKDROP_MOTION_KEY, String(enabled));
+    } catch {
+      // localStorage can be unavailable in private or restricted browser modes.
+    }
+
+    window.dispatchEvent(new CustomEvent(BACKDROP_MOTION_EVENT));
+  };
+
   const setPanelOpen = (open: boolean) => {
     const { root, corner, mobileTrigger } = getElements();
 
@@ -154,11 +181,14 @@
   };
 
   const syncState = () => {
-    const { root, corner, mobileTrigger, play, cue, musicSlider, soundscapeToggles, soundscapeSliders } = getElements();
+    const { root, corner, mobileTrigger, play, cue, musicSlider, backdropToggle, soundscapeToggles, soundscapeSliders } =
+      getElements();
     const enabled = walkmanAudio.isEnabled();
     const currentCue = getMusicCue(walkmanAudio.getCurrentCue());
+    const backdropMotionEnabled = readBackdropMotionEnabled();
 
     root?.setAttribute("data-playing", String(enabled));
+    root?.setAttribute("data-backdrop-motion", String(backdropMotionEnabled));
     corner?.setAttribute("data-playing", String(enabled));
     mobileTrigger?.setAttribute("data-playing", String(enabled));
 
@@ -173,6 +203,10 @@
 
     if (musicSlider instanceof HTMLInputElement) {
       musicSlider.value = String(walkmanAudio.getVolume());
+    }
+
+    if (backdropToggle instanceof HTMLInputElement) {
+      backdropToggle.checked = backdropMotionEnabled;
     }
 
     soundscapeToggles?.forEach((toggle) => {
@@ -199,15 +233,26 @@
   };
 
   const bindPlayer = () => {
-    const { root, corner, mobileTrigger, play, previous, next, musicSlider, soundscapeToggles, soundscapeSliders } =
-      getElements();
+    const {
+      root,
+      corner,
+      mobileTrigger,
+      play,
+      previous,
+      next,
+      musicSlider,
+      backdropToggle,
+      soundscapeToggles,
+      soundscapeSliders,
+    } = getElements();
 
     if (
       !(root instanceof HTMLElement) ||
       !(play instanceof HTMLButtonElement) ||
       !(previous instanceof HTMLButtonElement) ||
       !(next instanceof HTMLButtonElement) ||
-      !(musicSlider instanceof HTMLInputElement)
+      !(musicSlider instanceof HTMLInputElement) ||
+      !(backdropToggle instanceof HTMLInputElement)
     ) {
       return;
     }
@@ -256,6 +301,11 @@
 
     musicSlider.addEventListener("input", () => {
       walkmanAudio.setVolume(Number(musicSlider.value));
+      syncState();
+    });
+
+    backdropToggle.addEventListener("change", () => {
+      setBackdropMotionEnabled(backdropToggle.checked);
       syncState();
     });
 
@@ -459,6 +509,12 @@
     display: flex;
     align-items: center;
     gap: 0.55rem;
+  }
+
+  .walkman-backdrop-switch {
+    margin-top: 0.85rem;
+    padding-top: 0.85rem;
+    border-top: 1px solid rgba(232, 220, 196, 0.12);
   }
 
   .walkman-switch input {

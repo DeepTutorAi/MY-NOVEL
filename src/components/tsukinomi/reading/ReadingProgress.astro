@@ -3,27 +3,58 @@
 </div>
 
 <script>
-  const article = document.querySelector("article.tsukinomi-section");
-  const progressBar = document.querySelector("[data-tsukinomi-reading-progress]");
+  type TsukinomiReadingProgressController = {
+    destroy: () => void;
+  };
+
+  type TsukinomiReadingProgressWindow = Window & {
+    __tsukinomiReadingProgress?: TsukinomiReadingProgressController;
+    __tsukinomiReadingProgressBound?: boolean;
+  };
+
+  const progressWindow = window as TsukinomiReadingProgressWindow;
   const storageKey = "tsukinomi:reading:last";
-  const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+  const MIN_TRACKED_PROGRESS = 0.005;
+  const COMPLETED_PROGRESS = 0.995;
 
-  if (resumeRequested && "scrollRestoration" in history) {
-    try {
-      history.scrollRestoration = "manual";
-    } catch {
-      // Some browsers do not allow changing scroll restoration.
+  const setupTsukinomiReadingProgress = () => {
+    progressWindow.__tsukinomiReadingProgress?.destroy();
+
+    const article = document.querySelector("article.tsukinomi-section");
+    const progressBar = document.querySelector("[data-tsukinomi-reading-progress]");
+    const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+
+    if (resumeRequested && "scrollRestoration" in history) {
+      try {
+        history.scrollRestoration = "manual";
+      } catch {
+        // Some browsers do not allow changing scroll restoration.
+      }
     }
-  }
 
-  if (article instanceof HTMLElement && progressBar instanceof HTMLElement) {
+    if (!(article instanceof HTMLElement) || !(progressBar instanceof HTMLElement)) {
+      progressWindow.__tsukinomiReadingProgress = undefined;
+      return;
+    }
+
     let ticking = false;
     let lastSavedAt = 0;
     const sectionId = article.dataset.sectionId ?? "";
     const sectionKey = sectionId ? `tsukinomi:reading:section:${sectionId}` : "";
     const enteredAt = Date.now();
+    const timers = new Set<number>();
+    let loadStart: (() => void) | null = null;
     const ANCHOR_SELECTOR = "h2, h3, p, blockquote, ul, ol";
     const blocks = Array.from(article.querySelectorAll<HTMLElement>(`:scope > ${ANCHOR_SELECTOR}`));
+
+    const setTimer = (callback: () => void, ms: number) => {
+      const timer = window.setTimeout(() => {
+        timers.delete(timer);
+        callback();
+      }, ms);
+      timers.add(timer);
+      return timer;
+    };
 
     const buildExcerpt = (el: HTMLElement): string => {
       const text = (el.textContent ?? "").replace(/\s+/g, " ").trim();
@@ -62,6 +93,15 @@
       }
     };
 
+    const previous = readStored(storageKey);
+    const previousSectionId =
+      typeof previous?.sectionId === "string"
+        ? previous.sectionId
+        : typeof previous?.chapterId === "string"
+          ? previous.chapterId
+          : "";
+    const enteringNewSection = sectionId ? previousSectionId !== sectionId : false;
+
     const getRatio = () => {
       const rect = article.getBoundingClientRect();
       const scrollable = Math.max(1, rect.height - window.innerHeight);
@@ -70,12 +110,13 @@
     };
 
     const saveProgress = (ratio: number) => {
-      if (!sectionId || ratio < 0.005) {
+      if (!Number.isFinite(ratio) || !sectionId || (ratio < MIN_TRACKED_PROGRESS && !enteringNewSection)) {
         return;
       }
 
+      const normalizedProgress = ratio >= COMPLETED_PROGRESS ? 1 : Math.max(ratio, MIN_TRACKED_PROGRESS);
       const now = Date.now();
-      if (now - lastSavedAt < 750 && ratio < 0.99) {
+      if (now - lastSavedAt < 750 && ratio < COMPLETED_PROGRESS) {
         return;
       }
 
@@ -88,7 +129,7 @@
         sectionNumber: article.dataset.sectionNumber ?? "",
         sectionTitle: article.dataset.sectionTitle ?? "",
         path: window.location.pathname,
-        progress: Number(ratio.toFixed(4)),
+        progress: Number(normalizedProgress.toFixed(4)),
         blockIndex,
         blockExcerpt,
         blockCount: blocks.length,
@@ -116,10 +157,11 @@
       }
     };
 
-    window.addEventListener("scroll", requestUpdate, { passive: true });
-    window.addEventListener("resize", requestUpdate);
+    const startResume = () => {
+      if (!resumeRequested || !sectionKey) {
+        return;
+      }
 
-    if (resumeRequested && sectionKey) {
       const saved = readStored(sectionKey);
       const savedProgress = Number(saved?.progress);
       const savedBlockIndex = Number(saved?.blockIndex);
@@ -133,63 +175,102 @@
 
       if (hasBlockAnchor) {
         highlightBlock = blocks[savedBlockIndex];
-      } else if (Number.isFinite(savedProgress) && savedProgress > 0.01 && savedProgress < 0.99) {
+      } else if (
+        Number.isFinite(savedProgress) &&
+        savedProgress >= MIN_TRACKED_PROGRESS &&
+        savedProgress < COMPLETED_PROGRESS
+      ) {
         ratioFallback = savedProgress;
-        highlightBlock = blocks[Math.max(0, Math.min(blocks.length - 1, Math.floor(savedProgress * blocks.length)))] ?? null;
+        highlightBlock =
+          blocks[Math.max(0, Math.min(blocks.length - 1, Math.floor(savedProgress * blocks.length)))] ?? null;
       }
 
-      if (highlightBlock || ratioFallback !== null) {
-        const computeTarget = (): number => {
-          if (highlightBlock) {
-            const absoluteTop = highlightBlock.getBoundingClientRect().top + window.scrollY;
-            return Math.max(0, absoluteTop - window.innerHeight * 0.3);
-          }
+      if (!highlightBlock && ratioFallback === null) {
+        return;
+      }
 
-          const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
-          return article.offsetTop + scrollable * (ratioFallback ?? 0);
-        };
-
-        const flashHighlight = () => {
-          if (!highlightBlock) {
-            return;
-          }
-
-          highlightBlock.classList.add("resume-highlight");
-          window.setTimeout(() => {
-            highlightBlock?.classList.remove("resume-highlight");
-          }, 2100);
-        };
-
-        let corrections = 0;
-        const settleAndCorrect = () => {
-          const desired = computeTarget();
-
-          if (Math.abs(window.scrollY - desired) > 8 && corrections < 5) {
-            corrections += 1;
-            window.scrollTo({ top: desired, behavior: "auto" });
-            window.setTimeout(settleAndCorrect, 160);
-            return;
-          }
-
-          flashHighlight();
-        };
-
-        const start = () => {
-          window.scrollTo({ top: computeTarget(), behavior: "auto" });
-          history.replaceState(null, "", window.location.pathname + window.location.hash);
-          window.setTimeout(settleAndCorrect, 200);
-        };
-
-        if (document.readyState === "complete") {
-          window.setTimeout(start, 80);
-        } else {
-          window.addEventListener("load", () => window.setTimeout(start, 80), { once: true });
-          window.setTimeout(start, 1400);
+      const computeTarget = (): number => {
+        if (highlightBlock) {
+          const absoluteTop = highlightBlock.getBoundingClientRect().top + window.scrollY;
+          return Math.max(0, absoluteTop - window.innerHeight * 0.3);
         }
-      }
-    }
 
-    window.addEventListener("pagehide", () => saveProgress(getRatio()));
+        const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
+        return article.offsetTop + scrollable * (ratioFallback ?? 0);
+      };
+
+      const flashHighlight = () => {
+        if (!highlightBlock) {
+          return;
+        }
+
+        highlightBlock.classList.add("resume-highlight");
+        setTimer(() => {
+          highlightBlock?.classList.remove("resume-highlight");
+        }, 2100);
+      };
+
+      let corrections = 0;
+      const settleAndCorrect = () => {
+        const desired = computeTarget();
+
+        if (Math.abs(window.scrollY - desired) > 8 && corrections < 5) {
+          corrections += 1;
+          window.scrollTo({ top: desired, behavior: "auto" });
+          setTimer(settleAndCorrect, 160);
+          return;
+        }
+
+        flashHighlight();
+      };
+
+      let started = false;
+      const start = () => {
+        if (started) return;
+        started = true;
+        window.scrollTo({ top: computeTarget(), behavior: "auto" });
+        history.replaceState(null, "", window.location.pathname + window.location.hash);
+        setTimer(settleAndCorrect, 200);
+      };
+
+      if (document.readyState === "complete") {
+        setTimer(start, 80);
+      } else {
+        loadStart = () => setTimer(start, 80);
+        window.addEventListener("load", loadStart, { once: true });
+        setTimer(start, 1400);
+      }
+    };
+
+    const handlePageHide = () => saveProgress(getRatio());
+
+    window.addEventListener("scroll", requestUpdate, { passive: true });
+    window.addEventListener("resize", requestUpdate);
+    window.addEventListener("pagehide", handlePageHide);
+
+    startResume();
     update();
+
+    progressWindow.__tsukinomiReadingProgress = {
+      destroy() {
+        window.removeEventListener("scroll", requestUpdate);
+        window.removeEventListener("resize", requestUpdate);
+        window.removeEventListener("pagehide", handlePageHide);
+        if (loadStart) {
+          window.removeEventListener("load", loadStart);
+        }
+        for (const timer of timers) {
+          window.clearTimeout(timer);
+        }
+        timers.clear();
+      },
+    };
+  };
+
+  if (!progressWindow.__tsukinomiReadingProgressBound) {
+    progressWindow.__tsukinomiReadingProgressBound = true;
+    document.addEventListener("astro:page-load", setupTsukinomiReadingProgress);
   }
+
+  setupTsukinomiReadingProgress();
 </script>
