@@ -31,16 +31,16 @@
 - ปั่นจักรยาน mama-chari สีน้ำตาลเก่า (พ่อซื้อตอน ม.1)
 - บ้านบนเนินเหนือเมือง 2.3 กม. จากโรงเรียน
 - ตู้รองเท้า 312, ห้อง 3-B
-- Akira ล้อ "buddha"
+- Akira ล้อ "คนตื่นธรรม"
 - กลิ่นเขาตอนกลับจากสถานี: "เก่า — ของของคนอื่น" (Hina ดม)
 - ตื่นปกติ 6:54 (3 นาทีก่อนปลุก) → ช่วงนี้เริ่มตื่น 5:11 (เวลาตาย Kaori) → Ch 6 ตื่น 7:14 (เวลานาฬิกาสถานี)
 - ฝัน: รถไฟ Kaori นั่งอ่าน Patalliro → รถไฟสั่น → ผมตื่น
 - **ตัดสินใจแล้ว**: แลกเทปพ่อ-Haruto 6 ขวบ → ปลด Kaori
-- **สัญญา Hina**: "ผมจะไม่ลืม Hina"
+- **สัญญา Hina**: "พี่จะไม่ลืม Hina"
 - **สัญญาแม่**: "กลับมากินข้าวเย็น"
 
 **Mizushima Kaori (水島 香織)** — 16, ม.5, ตาย 5 ตุลาคม 1991
-- **Current draft voice**: Kaori uses "ผม" consistently. Do not mix with "ฉัน" unless doing a deliberate global voice pass.
+- **Voice lock (corrected 2026-06-01)**: Kaori is not boku-musume. She is a mysterious, gentle, quietly charming ghost girl who speaks little, refers to herself as "ฉัน", and may use "ค่ะ/คะ/นะคะ" sparingly when softness or distance needs it. Any older "ผม/ครับ" Kaori dialogue in current draft prose is stale voice contamination to repair, not canon.
 - โรงเรียน Nagano Joshi Gakuin (หญิงล้วน) ที่ Matsumoto
 - หอพักโรงเรียน, กลับบ้านสุดสัปดาห์
 - ชุดนักเรียนสีกรมท่า, **ผมเปียยาวผูกริบบิ้น (พาดไหล่)**, ถุงเท้าขาวสูงเหนือข้อเท้า
@@ -295,16 +295,16 @@
 
 - เพลง core: **"守ってあげたい" (Mamotte agetai)** — Yumi Matsutoya — "อยากปกป้องเธอ"
 - Yamaba ขีด: **色即是空 (Shikisokuzeku)** — Heart Sutra "รูปคือความว่าง"
-- Akira ล้อ Haruto: **"buddha"** (running joke — ใช้ได้)
+- Akira ล้อ Haruto: **"คนตื่นธรรม"** (running joke canonical; ห้ามใช้ "buddha" หรือ "พ่อพระ" ใน prose ใหม่)
 - Tanaka บอก: **"นาย — ดื้อ — แบบพ่อ"**
-- Kaori พลั้งปาก: **"ผม รอ 30 ปี"** → แก้ → ใน Ch 5 ยืนยัน 34 ปี
-- Kaori: **"คุณ เห็น ผม / คน อื่น ไม่ เห็น ผม"**
+- Kaori พลั้งปาก: **"ฉัน รอ 30 ปี"** → แก้ → ใน Ch 5 ยืนยัน 34 ปี
+- Kaori: **"คุณ เห็น ฉัน / คน อื่น ไม่ เห็น ฉัน"**
 - Haruto บอก Kaori: **"คุณเป็น Mizushima Kaori — รักดนตรี อยากเป็นครู รักน้อง รัก Patalliro และมีผมเป็นเพื่อน"**
-- Kaori ขอ: **"ผมรอ 34 ปี ผมรออีกนิดได้ / ผมแค่อยากฟังเพลงกับคุณอีก สาม ครั้ง ก่อน"**
+- Kaori ขอ: **"ฉันรอ 34 ปี ฉันรออีกนิดได้ / ฉันแค่อยากฟังเพลงกับคุณอีก สาม ครั้ง ก่อน"**
 - Kaori: **"ดูแลน้องสาว"**
 - พ่อในจดหมาย: **"ฟังเทป 10 ครั้ง — เพื่อจำเสียงผม / กลับมาบ้าน"**
 - Hina: **"พี่ บอก Hina ก็ได้ ถ้า พี่ อยาก Hina เก็บ"**
-- Hina: **"พี่ จะ ลืม ผม?"** → Haruto: **"ผม สัญญา Hina"**
+- Hina: **"พี่ จะ ลืม Hina?"** → Haruto: **"พี่ สัญญา Hina"**
 - Hina: **"Hina จะ เตือน พี่ ทุก วัน — เรื่อง พ่อ"**
 - Watanabe: **"ผม รอ ตั้งแต่ พ่อ คุณ ตาย"**
 - Tanaka: **"ผม ก็โกรธ — สิบ — ปี"**
@@ -697,9 +697,9 @@
 - Almost-touch: มือ Haruto solid, มือ Kaori โปร่งแสง — ใกล้ไม่แตะ
 - Kaori ฝากคำ:
   - **Takeshi** (น้องชาย): พี่รัก / ให้อภัยเรื่องเค้ก / ขอโทษไม่กลับ / ถ้ามีลูกบอก "มีป้าชื่อ Kaori"
-  - **Setsuko**: ผมรักเธอ
+  - **Setsuko**: หนูรักแม่
   - **Yuto** ผ่าน Akira: Yuto บอก Kaori "รักแม่" + Yuto รู้จะไม่กลับ
-- Kaori หัวเราะครั้งแรก: "ผมรอลุก 34 ปี"
+- Kaori หัวเราะครั้งแรก: "ฉันรอลุกมา 34 ปี"
 - บ้าน: sukiyaki พิเศษ — แม่เล่าเรื่องพ่อที่ Haruto ไม่เคยรู้ — Hina หัวเราะ
 - Hina reveal ห่อ: **ผม Hina ตอน 4 ขวบ ที่แม่เก็บจากตัดครั้งแรก**
 - "สัญญาเปิดตอนพี่รู้สึกผม"
@@ -708,7 +708,7 @@
 - ลุง 7-Eleven อยู่หน้าร้าน ดึก — ก้มหัวเงียบ
 - 12:18 ถึงลานหิน
 - **Kaori ยืนเป็นครั้งแรก** — ถือ gardenia, ดวงจันทร์ส่องผ่านเธอราวกับเธอเป็นแสง
-- "ผมรอ" / "ผมมา" / "ไปกัน"
+- Kaori: "ฉันรอ" / Haruto: "ผมมา" / "ไปกัน"
 
 **สถานะ ณ จบ Ch 12:**
 - เวลา: เที่ยงคืน 22 ตุลาคม (ก่อนตี 1)
@@ -720,12 +720,12 @@
 - Tanaka จะรอที่ลานหินตอนเช้า
 
 **Ch 13 highlights (THE TRADE happened — climax)**:
-- Kaori ก้าวออกสถานี ครั้งแรก — หัวเราะ "ฟ้าใหญ่กว่าที่ผมจำได้"
+- Kaori ก้าวออกสถานี ครั้งแรก — หัวเราะ "ฟ้าใหญ่กว่าที่ฉันจำได้"
 - เธอเดินได้ปกติ แต่: ไม่มีรอยเท้าในดิน, ไม่หายใจ
-- ขอบเธอเริ่ม "โปร่งใส" ในแสงจันทร์ — "ผมเริ่มลด" / "เหมือนถอดเสื้อหนัก"
+- ขอบเธอเริ่ม "โปร่งใส" ในแสงจันทร์ — "ฉันเริ่มลด" / "เหมือนถอดเสื้อหนัก"
 - **เปิดห่อ Hina ระหว่างทาง**: 3 เส้นผม + จดหมาย "Hina จะไม่ปล่อยพี่ลืม"
 - Haruto เก็บผม Hina ในกระเป๋าเสื้อ ใกล้หัวใจ — anchor
-- ผ่านหมู่บ้าน Mizushima — Kaori **ไม่เข้าบ้าน** "ผมรู้สิ่งที่อยู่ภายใน / ลายาก"
+- ผ่านหมู่บ้าน Mizushima — Kaori **ไม่เข้าบ้าน** "ฉันรู้สิ่งที่อยู่ภายใน / ลายาก"
 - ผ่านสวนหลัง gardenia — Kaori ดมดอก
 - ศาลเจ้า: Yamaba **ยืนกลางลานรอ** (ไม่ใช่ที่ขอบ)
 - Kaori + Yamaba ก้มหัวลึกใส่กัน, almost-hug (ไม่แตะ)
@@ -737,7 +737,7 @@
 - **Yamaba "ร้องเพลง"** — ปากเธอไม่ขยับ (ไม่มีปาก) — เสียงพ่อ Haruto + Haruto 6 ขวบ ร้อง "Mamotte agetai" ออกจากเธอ
 - เพลงเล่นเต็มความยาว 4 นาที — Haruto ฟังครั้งสุดท้าย — ร้องไห้
 - Kaori + Yamaba almost-hug ของการลา (2 นาที)
-- Kaori: "ผมรักคุณ Haruto-kun / ขอบคุณที่ทำให้ผมกล้าไป"
+- Kaori: "ฉันรักคุณ ฮารุโตะคุง / ขอบคุณที่ทำให้ฉันกล้าไป"
 - Haruto: "ขอบคุณที่ทำให้ผมกล้ารัก"
 - Kaori เดินเข้าแสงสีฟ้าเหนือหิน 不空 — หาย
 - **Haruto ความทรงจำเริ่มลบทันที**: scenes ที่สถานี / รอยในดิน / almost-touch / เธอร้องไห้
@@ -820,7 +820,7 @@
   - Akira: "จะเล่านายเรื่อง Takeshi ในการอ่านครั้งแรกที่ Tokyo"
   - จับมือ (ของกัน ตั้งแต่ ม.2)
 - **คืนสุดท้ายในบ้าน** (เสาร์ 28 มี.ค.):
-  - sukiyaki ใหญ่; ที่นั่งพ่อมีถ้วยน้ำ + ข้าวเล็ก
+  - sukiyaki ใหญ่; ที่นั่งพ่อมีถ้วยน้ำ + ข้าวชามเล็ก
   - Hina: "พ่อกินกับเรา"
   - แม่เล่าพ่อทำเค้กล้มเหลว — ครอบครัวหัวเราะ
   - Hina ให้ซองจดหมาย "เปิดตอนพี่คิดถึง Hina"
@@ -842,7 +842,7 @@
 
 **สถานะ ณ จบ Ch 17:**
 - Day: อาทิตย์ 29 มี.ค. 2026 ขึ้นรถไฟ ออกจาก Hakuba ไป Tokyo
-- File: 19,307 บรรทัด (Ch 17 ~1,446 บรรทัด หลัง hygiene/edit รอบล่าสุด)
+- File: `src/content/tsukinomi/sections/05-ten-years.md` มี 2,628 บรรทัด (Ch 17 ~1,449 บรรทัด หลัง current hygiene/edit รอบล่าสุด)
 - เหลือ: 1 chapter (Ch 18 = Epilogue ~2036, Haruto 28)
 
 **สิ่งใหม่ที่ต้อง pay off ใน Ch 18 (epilogue):**
@@ -937,6 +937,7 @@
 **สถานะ ณ จบนิยาย:**
 - Date: 4 ม.ค. 2037 — Haruto บนรถไฟกลับ Tokyo
 - File: **20,419 บรรทัด** หลัง Ch1-Ch12 readability pass (จบสมบูรณ์ — current target ~20,000 บรรทัด)
+- Current section file: `src/content/tsukinomi/sections/05-ten-years.md` มี 2,632 บรรทัดหลัง Ch17-Ch18 current hygiene pass
 - Chapters: **18 ตอน** (เป้าเดิม 22)
 - All canon paid off: trade, memory loss, body remembers, network of memory holders, Hina as future possible guardian, Watanabe lineage, Takeshi connection (via letter), Mamotte agetai motif (final image), ghost girl glimpse (canon ending)
 - All major plot threads resolved or set in motion
@@ -951,13 +952,19 @@
 - Ch1-Ch12 final readability pass: cleaned broken dialogue/article line wraps and updated the novel front matter to 18 chapters.
 - Final body-memory payoff exists in Ch18: station site is gone, wet iron smell returns without rain, Kaori-like girl appears and vanishes, Haruto cries without knowing why.
 - Yokai still does not speak in dialogue; Yamaba communicates by presence, gesture, writing, and the tape-light sequence.
-- Kaori uses "ผม" consistently in current draft. Only known "ฉัน" in the novel is a side-character line from Sato.
+- Kaori's previous "ผม" draft voice is now classified as stale voice contamination, not canon. Corrected voice uses "ฉัน" with sparse "ค่ะ/คะ/นะคะ" only when the line's emotional rhythm calls for it.
 
 **Closeout assumptions:**
-- Kaori's "ผม" is locked as current-draft voice for this goal. A later change to "ฉัน/ค่ะ" is a separate global voice rewrite, not part of this closeout.
+- The old closeout assumption that Kaori's "ผม" was locked is superseded by the 2026-06-01 character guide. Treat that older note as historical bug evidence while preserving all non-voice story canon.
 - Untracked local files (`.claude/`, `.static-4326.out.log`, `tsukinomi_station.txt.backup`) remain outside the tracked novel files; do not delete unless user asks.
 
-## 15 · CHAPTER CLOSEOUT STATUS (2026-05-29)
+**Current rewrite-pass status (2026-06-02):**
+- Ch7-Ch18 have passed the current scoped hygiene checks for Kaori voice, Akira/Hina/Haruto address, raw Japanese leakage, Yamaba no-dialogue, and targeted AI-sludge/prose-tic markers.
+- Ch13-Ch16 in `src/content/tsukinomi/sections/04-mountain.md` are current-pass clean under `check_round7.js` through `check_round10.js`.
+- Ch17 in `src/content/tsukinomi/sections/05-ten-years.md` is current-pass clean under `check_round11.js`; the pass also repaired Akira formal voice, the graduation Shinshu/Tokyo label swap, and targeted Thai prose tics.
+- Ch18 in `src/content/tsukinomi/sections/05-ten-years.md` is current-pass clean under `check_round12.js`; the pass labeled remaining dialogue, repaired Hina/Haruto register drift, removed the station-recap hyphen cadence, and preserved the intended final body-memory payoff.
+
+## 15 · CHAPTER CLOSEOUT STATUS (2026-06-02 current hygiene)
 
 **Ch1 — The Walkman: OK.** Family silence, father's walkman, rain/iron smell, and empty-chair grief are established without melodrama.
 
@@ -983,17 +990,17 @@
 
 **Ch12 — Last Visit: OK.** Final visit with Kaori sets up the trade, Takeshi message, gardenia, still cloth, and body-memory loss cleanly.
 
-**Ch13 — The Mountain: OK.** Ritual and release work without yokai speech; Yamaba communicates through gesture, light, and exchange.
+**Ch13 — The Mountain: CURRENT HYGIENE CLEAN.** Ritual and release beats are canon-useful; current pass has speaker labels, Kaori voice repair, and peak-drama polish.
 
-**Ch14 — Coming Home: OK.** Immediate memory-loss aftermath lands; Haruto does not recover Kaori, only the shape of absence.
+**Ch14 — Coming Home: CURRENT HYGIENE CLEAN.** Immediate memory-loss aftermath is the intended shape; current pass has voice/speaker-label cleanup.
 
-**Ch15 — Ordinary Light: OK.** Ordinary school/home scenes create the memory network through Akira, Hina, Naomi, teachers, and Sato.
+**Ch15 — Ordinary Light: CURRENT HYGIENE CLEAN.** Memory-network scenes are useful; current pass has nickname/voice/prose checks.
 
-**Ch16 — First Frost: OK.** New warmth, Hina's drawings, Watanabe continuity, and winter imagery make aftermath feel lived-in.
+**Ch16 — First Frost: CURRENT HYGIENE CLEAN.** Hina's drawings, Watanabe continuity, and winter imagery are canon-useful; current pass has revalidated the chapter.
 
-**Ch17 — Through Winter: OK.** Long exhale functions as emotional bridge: Akira reads memory back, Hina draws what Haruto lacks, empty station visit and left-hand warmth prepare Ch18.
+**Ch17 — Through Winter: CURRENT HYGIENE CLEAN.** Long exhale functions as emotional bridge; `check_round11.js` validates labels, Akira/Haruto/Hina voice, no Yamaba dialogue, no Japanese leaks, and targeted prose tics.
 
-**Ch18 — Ten Years: OK.** Final body-memory payoff is intact: station gone, wet iron smell without rain, Kaori-like girl vanishes, left palm warms, Haruto cries without knowing why.
+**Ch18 — Ten Years: CURRENT HYGIENE CLEAN.** Final body-memory payoff is intact; `check_round12.js` validates labels, Hina/Haruto register, no Yamaba dialogue, no Japanese leaks, no stale nickname/honorific drift, and targeted prose tics.
 
 **ตัวละครสำคัญ ตอนจบ (10 ปีต่อมา):**
 - Haruto: 28, ป.เอก ที่ Aoyama Gakuin (thermodynamic ของระบบเปิด), เรียนเปียโน 3 ปี, ไม่มีคนรักชัดเจน, ยังพก walkman
