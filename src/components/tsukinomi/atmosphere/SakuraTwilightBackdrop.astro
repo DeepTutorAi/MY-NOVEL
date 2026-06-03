@@ -84,6 +84,13 @@
   let freezeUntil = 0;
   let nextFreezeAt = 0;
   let motionEnabled = true;
+  // The reader panel element + its rect are cached so the petal loop never
+  // queries the DOM or forces layout per-particle (was 1 querySelector +
+  // 1 getBoundingClientRect per petal per frame -> up to ~36 layout reads a
+  // frame, the main source of scroll jank). Element is re-found on refresh;
+  // the rect is sampled once per animation frame inside draw().
+  let readerEl: HTMLElement | null = null;
+  let readerRect: DOMRect | null = null;
 
   const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
   const baseCount = () => (mobile.matches ? mobilePetalCount : desktopPetalCount);
@@ -183,14 +190,18 @@
     return now < freezeUntil;
   };
 
-  const petalOverReader = (petal: Petal) => {
+  const refreshReaderEl = () => {
     const article = document.querySelector("article.tsukinomi-section");
+    readerEl = article instanceof HTMLElement ? article : null;
+  };
 
-    if (!(article instanceof HTMLElement)) {
+  const petalOverReader = (petal: Petal) => {
+    const rect = readerRect;
+
+    if (!rect) {
       return false;
     }
 
-    const rect = article.getBoundingClientRect();
     const pad = mobile.matches ? 10 : 20;
 
     return (
@@ -257,6 +268,8 @@
 
     canvas.hidden = false;
     context.clearRect(0, 0, width, height);
+    // Sample the reader rect once per frame instead of once per petal.
+    readerRect = readerEl ? readerEl.getBoundingClientRect() : null;
     const frozen = updateFreezeState(now);
 
     for (const petal of petals) {
@@ -316,6 +329,7 @@
     pause();
     motionEnabled = readMotionEnabled();
     currentProfile = resolveProfile();
+    refreshReaderEl();
     readColors();
     applyMotionState();
     applyTrainState();

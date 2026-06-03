@@ -192,6 +192,60 @@ function rehypeStoryDividers() {
   return transform;
 }
 
+// Thai drop caps via CSS `::first-letter` look broken when the opening
+// paragraph is a single short line (a date stamp, a one-line sentence): the
+// floated multi-line cap has no second line to sit beside, so it overhangs
+// into the paragraph below ("วั" hanging crooked under the date). A cap can
+// only sit flush against a paragraph that wraps to several lines. This plugin
+// finds the first *substantial* top-level paragraph — one long enough to wrap —
+// and tags it `has-dropcap`; short metadata/openers are left plain. The reader
+// stylesheets target `> p.has-dropcap::first-letter` instead of `:first-of-type`.
+const DROPCAP_MIN_CHARS = 64;
+
+function rehypeOpeningDropcap() {
+  /** @param {any} node @returns {number} */
+  const textLength = (node) => {
+    if (node.type === "text") {
+      return (node.value || "").trim().length;
+    }
+    if (Array.isArray(node.children)) {
+      let sum = 0;
+      for (const child of node.children) {
+        sum += textLength(child);
+      }
+      return sum;
+    }
+    return 0;
+  };
+
+  /** @param {any} tree */
+  const transform = (tree) => {
+    if (!Array.isArray(tree.children)) {
+      return;
+    }
+
+    for (const node of tree.children) {
+      if (node.type !== "element" || node.tagName !== "p") {
+        continue;
+      }
+      if (textLength(node) < DROPCAP_MIN_CHARS) {
+        continue;
+      }
+
+      const properties = node.properties || (node.properties = {});
+      const existing = Array.isArray(properties.className)
+        ? properties.className
+        : properties.className
+          ? [properties.className]
+          : [];
+      properties.className = [...existing, "has-dropcap"];
+      break;
+    }
+  };
+
+  return transform;
+}
+
 export default defineConfig({
   site: "https://deeptutorai.github.io",
   base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
@@ -202,7 +256,7 @@ export default defineConfig({
       remarkEmphasisDirective,
       remarkNeutralizeStrayDirectives,
     ],
-    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers],
+    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers, rehypeOpeningDropcap],
   },
   vite: {
     plugins: [tailwindcss()],

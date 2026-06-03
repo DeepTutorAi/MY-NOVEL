@@ -598,14 +598,14 @@ Composition: 4:3, bathroom doorframe tight on the left, mirror on the back wall 
 
 ตำแหน่งใช้: เปิดตอนหรือจังหวะเคาะประตู
 
-ใช้ ref: Diana Webb, Vincent Leroux, Elena Vasquez (เฉพาะมือบนกรอบประตูครัว)
+ใช้ ref: Diana Webb, Vincent Leroux, Elena Vasquez (over-the-shoulder — เห็นหลังหัว/ไหล่/ผม ไม่เห็นหน้า)
 
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-Lodge main entry hall just before dawn. The forced wooden main door is held shut by an improvised barricade of overturned chairs braced against it. Diana Webb stands in front of the door in dark long-sleeves and her hair tied back, Glock 17 raised steady, her broken-electronics lockpanel dangling beside the frame. Vincent Leroux stands just behind her with a sledgehammer ready in both hands. Through the small frosted glass window above the door, only a vague hooded silhouette is visible from outside, faint and snow-blasted. The narrator's hand is at the edge of the kitchen archway in the deep left foreground, sleeve and fingertips only, no face. Snow visibly pressing against the bottom of the door.
+Lodge main entry hall just before dawn, framed over the shoulder of Elena Vasquez — her shoulder-length dark wavy hair and one shoulder soft and large in the lower-left foreground, seen from behind at the kitchen archway, no face. Beyond her, the forced wooden main door is held shut by an improvised barricade of overturned chairs braced against it. Diana Webb stands in front of the door in dark long-sleeves and her hair tied back, Glock 17 raised steady, her broken-electronics lockpanel dangling beside the frame. Vincent Leroux stands just behind her with a sledgehammer ready in both hands. Through the small frosted glass window above the door, only a vague hooded silhouette is visible from outside, faint and snow-blasted. Snow visibly pressing against the bottom of the door.
 
-Composition: 16:9, door and frosted glass central, Diana foreground center, Vincent behind her right, narrator's hand on left archway edge, no readable door markings, tense pre-dawn silence.
+Composition: 16:9 over-the-shoulder framing, Elena's dark hair and shoulder soft in the lower-left foreground (back of head only, never her face), door and frosted glass central as the focal point, Diana sharp in the mid-ground center, Vincent behind her right, no readable door markings, tense pre-dawn silence.
 ```
 
 #### 12B - สัญญาณกะพริบตาของ Diana
@@ -654,14 +654,14 @@ Composition: 16:9, raised bench hatch lower center as the dark mouth, Diana crou
 
 ตำแหน่งใช้: ภาพสำคัญท้ายตอน
 
-ใช้ ref: Marcus Hale, Diana Webb, Vincent Leroux, Elena Vasquez (เป็น flashlight beam จากประตู)
+ใช้ ref: Marcus Hale, Diana Webb, Vincent Leroux, Elena Vasquez (over-the-shoulder ที่ปากห้องขัง — เห็นหลังหัว/ไหล่/เงา ไม่เห็นหน้า)
 
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-A small ancient stone cell deep below the lodge. The real Marcus Hale sits on the damp stone floor against the wall, gaunt to the point of skeletal after 32 days of captivity, lean pale face broken with exhaustion, hair grown out and tangled, a thick rough six-month beard he never had above ground, sunken red-rimmed eyes still alive. His clothes are the same dark fur coat from his arrival but filthy. Diana Webb crouches in front of him cautiously holding out a metal water bottle to verify his identity. Vincent Leroux stands at the cell threshold half in shadow holding a flashlight. The narrator's flashlight beam intrudes from the left doorway, no body visible, only the cone of light across stone. Damp moss on the walls, old iron restraint loops, no gore.
+A small ancient stone cell deep below the lodge, framed over the shoulder of Elena Vasquez — her dark wavy hair and one shoulder a soft dark mass in the lower foreground at the cell threshold, seen from behind, no face, her flashlight held up so its beam crosses the cell ahead of her. Beyond her, the real Marcus Hale sits on the damp stone floor against the wall, gaunt to the point of skeletal after 32 days of captivity, lean pale face broken with exhaustion, hair grown out and tangled, a thick rough six-month beard he never had above ground, sunken red-rimmed eyes still alive. His clothes are the same dark fur coat from his arrival but filthy. Diana Webb crouches in front of him cautiously holding out a metal water bottle to verify his identity. Vincent Leroux stands deeper at the cell threshold half in shadow holding a flashlight. Damp moss on the walls, old iron restraint loops, no gore.
 
-Composition: 16:9, Marcus low in center against the back wall, Diana crouched foreground right, Vincent silhouette at the threshold left, narrator's flashlight beam slicing across from the lower left, no blood focus, no readable marks.
+Composition: 16:9 over-the-shoulder framing, Elena's hair and shoulder dark and soft in the lower-left foreground (back of head only, never her face) with her flashlight beam slicing across the cell, Marcus low center against the back wall as the focal point, Diana crouched mid-ground right, Vincent silhouette deeper at the threshold, no blood focus, no readable marks.
 ```
 
 ### Chapter 14 - Marcus
@@ -674,14 +674,14 @@ Composition: 16:9, Marcus low in center against the back wall, Diana crouched fo
 
 ตำแหน่งใช้: กลางตอนช่วงอธิบายความจริง
 
-ใช้ ref: Marcus Hale, Diana Webb, Sarah Kovac, Vincent Leroux
+ใช้ ref: Marcus Hale, Diana Webb, Sarah Kovac, Vincent Leroux, Elena Vasquez (over-the-shoulder — เห็นหลังหัว/ไหล่/ผม ไม่เห็นหน้า)
 
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-The ancient stone cell deep below the lodge. The real Marcus Hale, emaciated, bearded, exhausted but lucid, sits on the floor with his back against the cold wall confessing the truth of fifteen years of research. Diana Webb sits cross-legged across from him in her ADF jacket listening with controlled suspicion, hand resting on her holstered Glock. Sarah Kovac kneels beside Diana in Tom's navy cardigan, hands folded in her lap as if in session with a patient. Vincent Leroux stands apart against the far wall, slim, ashamed, half-lit, arms crossed. The narrator is implied only by an open notebook and pencil on the stone floor in the foreground, no face. A single battery lantern and one upright flashlight give the only light. Damp old papers and a scattered loose page about a Sami covenant lie on the floor between them.
+The ancient stone cell deep below the lodge, framed over the shoulder of Elena Vasquez — her shoulder-length dark wavy hair and one shoulder soft and large in the lower-left foreground, seen from behind, no face — looking across the cell at the real Marcus Hale, emaciated, bearded, exhausted but lucid, sitting on the floor with his back against the cold wall confessing the truth of fifteen years of research. Diana Webb sits cross-legged near Marcus in her ADF jacket listening with controlled suspicion, hand resting on her holstered Glock. Sarah Kovac kneels beside Diana in Tom's navy cardigan, hands folded in her lap as if in session with a patient. Vincent Leroux stands apart against the far wall, slim, ashamed, half-lit, arms crossed. An open notebook and pencil rest on the stone floor by Elena's knee. A single battery lantern and one upright flashlight give the only light. Damp old papers and a scattered loose page about a Sami covenant lie on the floor between them.
 
-Composition: 16:9, Marcus seated against the back wall center, three figures in a loose semicircle around him, narrator's notebook and pencil in lower foreground, flashlight and lantern contrast, no readable document text, serious confession mood.
+Composition: 16:9 over-the-shoulder framing, Elena's dark hair and shoulder large and soft in the lower-left foreground (back of head only, never her face), Marcus sharp against the back wall as the focal point, Diana and Sarah in the mid-ground semicircle, Vincent silhouette at the far wall, notebook and pencil by Elena's knee, flashlight and lantern contrast, no readable document text, serious confession mood.
 ```
 
 #### 14B - ห้องเก็บของของเหยื่อในถ้ำ
@@ -826,14 +826,14 @@ Composition: 16:9, four ref characters loosely gathered around the small wheeled
 
 ตำแหน่งใช้: object clue ตอนเฉลย
 
-ใช้ ref: Detective Karlsen, Elena Vasquez (เฉพาะมือถือถ้วยชา)
+ใช้ ref: Detective Karlsen, Elena Vasquez (over-the-shoulder — เห็นหลังหัว/ไหล่/ผม ไม่เห็นหน้า)
 
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-A small wooden table inside a quiet Park Slope café in Brooklyn on a winter afternoon. Detective Karlsen sits across the table in a dark navy winter coat, lined practical face, an open manila case folder spread between them. From the folder, several old photographs and unreadable Norwegian police reports fan out across the table. One photograph clearly shows Elena Vasquez's face from years earlier, her usual 2019 social-media portrait, with a small unreadable tag pinned to its corner. A second photograph shows the lodge porch in summer. Beside the folder, two ceramic cups: a coffee in front of Karlsen, a black tea in front of Elena. The narrator's hand enters the frame from the right holding her tea cup, sleeve and fingertips only, no face. A faint snowy window of brownstone street beyond.
+A small wooden table inside a quiet Park Slope café in Brooklyn on a winter afternoon, framed over the shoulder of Elena Vasquez — her shoulder-length dark wavy hair and one shoulder soft and large in the lower foreground, seen from behind, no face. Across the table sits Detective Karlsen in a dark navy winter coat, lined practical face, an open manila case folder spread between them. From the folder, several old photographs and unreadable Norwegian police reports fan out across the table. One photograph clearly shows Elena Vasquez's own face from years earlier, her usual 2019 social-media portrait, with a small unreadable tag pinned to its corner — the pictured face quietly echoing the back of the present-day head in the foreground. A second photograph shows the lodge porch in summer. Beside the folder, two ceramic cups: a coffee in front of Karlsen, a black tea near Elena's side. A faint snowy window of brownstone street beyond.
 
-Composition: 4:3, folder and photo array as the foreground center, Karlsen's shoulders and chest framing the upper background, narrator's hand and tea cup intruding from the right edge, no readable report text, no dramatic police-office look, quiet impossible realization.
+Composition: 4:3 over-the-shoulder framing, Elena's dark hair and shoulder soft and large in the lower foreground (back of head only, never her face), the folder and photo array sharp on the table as the focal center, Karlsen facing the viewer across the table in the mid-ground, her tea cup near the lower edge, no readable report text, no dramatic police-office look, quiet impossible realization.
 ```
 
 #### 18B - กระจก: Elena ที่ไม่ใช่ Elena
@@ -866,6 +866,7 @@ Composition: 4:5 intimate mirror portrait or 16:9 final illustration, real Elena
 เพื่อรักษาความรู้สึก first-person ของ Elena การพรรณนาภาพแบ่งเป็นสามแบบ:
 
 - **POV (มุมมองบุคคลที่หนึ่ง)**: `02B`, `09B`, `16A` ใช้สำหรับฉากที่ Elena เป็นผู้สังเกตและความรู้สึกของเธอคือหัวใจของฉาก
-- **Object close-up (ของเล่ารายละเอียด)**: `04B`, `05B`, `07B`, `11B`, `14B`, `16B`, `18A` ใช้เพื่อให้หลักฐานพูดเอง โดย Elena ปรากฏแค่มือหรือไหล่
-- **Scenery / ensemble (ภาพหมู่หรือบรรยากาศ)**: `01A`, `01B`, `02A`, `03A`, `04A`, `08A`, `10B`, `13A`, `13B`, `14A`, `15A`, `15B`, `17A`, `17B` ใช้เมื่อมีตัวละครหลายคนสำคัญพร้อมกัน
+- **Over-the-shoulder (เหนือไหล่ Elena)**: `12A`, `13B`, `14A`, `18A` กล้องอยู่หลัง Elena เห็นหลังหัว/ไหล่/ผม แต่ไม่เห็นหน้า รักษาความรู้สึก first-person ไว้พร้อมกับให้ Elena มีตัวตนในเฟรม และลดความซ้ำของลูกเล่น "มือโผล่ขอบล่าง"
+- **Object close-up (ของเล่ารายละเอียด)**: `04B`, `05B`, `07B`, `11B`, `14B`, `16B` ใช้เพื่อให้หลักฐานพูดเอง โดย Elena ปรากฏแค่มือหรือไหล่
+- **Scenery / ensemble (ภาพหมู่หรือบรรยากาศ)**: `01A`, `01B`, `02A`, `03A`, `04A`, `08A`, `10B`, `13A`, `15A`, `15B`, `17A`, `17B` ใช้เมื่อมีตัวละครหลายคนสำคัญพร้อมกัน
 - Elena แสดงเต็มร่างเฉพาะเมื่อจำเป็น เช่น `01A`, `01B`, `11B`, `18B` เพื่อให้ภาพปิดเรื่องและภาพ Subject 8 ทำงานอย่างชัดเจน

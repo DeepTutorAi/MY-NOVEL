@@ -2,19 +2,11 @@
 import { getCollection } from "astro:content";
 import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
 import { withBase } from "../../../utils/base-path";
+import { formatReadingTime } from "../../../utils/reading-time";
 
 const sections = (await getCollection("tsukinomiSections")).sort(
   (a, b) => a.data.number - b.data.number,
 );
-
-const formatReadingTime = (minutes: number): string => {
-  if (minutes < 60) {
-    return `${minutes} นาที`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return rest ? `${hours} ชม ${rest} นาที` : `${hours} ชม`;
-};
 ---
 
 <TsukinomiBaseLayout

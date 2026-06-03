@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
 import { ACTS } from "../../../data/lodge/acts";
 import { withBase } from "../../../utils/base-path";
+import { formatReadingTime } from "../../../utils/reading-time";
 import "../../../styles/lodge/chapter.css";
 
 const roman = ["I", "II", "III", "IV"];
@@ -43,7 +44,7 @@ const chapters = (await getCollection("chapters")).sort(
                         <span class="toc-row-summary">{chapter.data.summary}</span>
                       )}
                     </span>
-                    <span class="toc-row-time">{chapter.data.readingMinutes} นาที</span>
+                    <span class="toc-row-time">{formatReadingTime(chapter.data.readingMinutes)}</span>
                   </a>
                 </li>
               ))}

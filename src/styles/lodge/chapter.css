@@ -100,7 +100,7 @@ article.chapter[data-act="4"] {
   opacity: 0.6;
 }
 
-article.chapter > p:first-of-type::first-letter {
+article.chapter > p.has-dropcap::first-letter {
   float: left;
   margin: 0.05em 0.15em -0.15em 0;
   color: var(--accent);
@@ -474,7 +474,7 @@ article.chapter figure.chapter-figure .resume-highlight::before {
     max-inline-size: calc(100vw - 2rem) !important;
   }
 
-  article.chapter > p:first-of-type::first-letter {
+  article.chapter > p.has-dropcap::first-letter {
     float: none;
     margin: 0;
     font: inherit;

@@ -23,9 +23,11 @@ describe("shared reading experience contract", () => {
     assert.match(progress, /astro:page-load/);
     assert.match(progress, /removeEventListener\("scroll", requestUpdate\)/);
     assert.match(home, /progress >= 0\.005/);
-    assert.match(home, /progress < 0\.995/);
+    assert.match(home, /COMPLETED_PROGRESS = 0\.995/);
+    assert.match(home, /units\[index \+ 1\]/);
     assert.match(hubResume, /progress < 0\.005/);
-    assert.match(hubResume, /progress >= 0\.995/);
+    assert.match(hubResume, /COMPLETED_PROGRESS = 0\.995/);
+    assert.match(hubResume, /units\[index \+ 1\]/);
   });
 
   it("tracks a newly opened Tsukinomi section immediately and only treats true-bottom progress as complete", () => {
@@ -41,9 +43,11 @@ describe("shared reading experience contract", () => {
     assert.match(progress, /astro:page-load/);
     assert.match(progress, /removeEventListener\("scroll", requestUpdate\)/);
     assert.match(home, /progress >= 0\.005/);
-    assert.match(home, /progress < 0\.995/);
+    assert.match(home, /COMPLETED_PROGRESS = 0\.995/);
+    assert.match(home, /units\[index \+ 1\]/);
     assert.match(hubResume, /progress < 0\.005/);
-    assert.match(hubResume, /progress >= 0\.995/);
+    assert.match(hubResume, /COMPLETED_PROGRESS = 0\.995/);
+    assert.match(hubResume, /units\[index \+ 1\]/);
   });
 
   it("exposes background animation controls in both music players and persists them by novel namespace", () => {
@@ -105,5 +109,17 @@ describe("shared reading experience contract", () => {
     assert.match(sectionDropcap, /@media \(min-width: 761px\)/);
     assert.match(sectionDropcap, /font-size: 3\.4em/);
     assert.doesNotMatch(sectionDropcap, /font-size: 4\.4em/);
+  });
+
+  it("keeps the reading marker alive at completion by handing the reader the next unit", () => {
+    const hubResume = readProjectFile("src/components/_shared/ResumeCard.astro");
+    const lodgeHome = readProjectFile("src/pages/lodge/index.astro");
+    const tsukiHome = readProjectFile("src/pages/tsukinomi/index.astro");
+
+    for (const source of [hubResume, lodgeHome, tsukiHome]) {
+      assert.match(source, /COMPLETED_PROGRESS = 0\.995/);
+      assert.match(source, /units\[index \+ 1\]/);
+      assert.match(source, /อ่านจบ/);
+    }
   });
 });

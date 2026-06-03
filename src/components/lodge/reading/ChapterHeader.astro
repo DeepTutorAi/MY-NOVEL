@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import Rune from "../marks/Rune.astro";
+import { formatReadingTime } from "../../../utils/reading-time";
 
 interface Props {
   chapter: CollectionEntry<"chapters">;
@@ -16,7 +17,7 @@ const { chapter } = Astro.props;
   {chapter.data.thaiTitle && <div class="chapter-thai-title">{chapter.data.thaiTitle}</div>}
   {
     chapter.data.readingMinutes && (
-      <div class="chapter-reading-time">{chapter.data.readingMinutes} นาที</div>
+      <div class="chapter-reading-time">{formatReadingTime(chapter.data.readingMinutes)}</div>
     )
   }
   <Rune seed={chapter.data.number} />
