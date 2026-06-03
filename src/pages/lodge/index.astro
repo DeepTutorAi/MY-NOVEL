@@ -1,16 +1,20 @@
 ---
+import { getCollection } from "astro:content";
 import LodgeBaseLayout from "../../layouts/lodge/LodgeBaseLayout.astro";
 import { withBase } from "../../utils/base-path";
 
 const resumeChapterBase = withBase("/lodge/chapters/");
+const tocHref = withBase("/lodge/chapters/");
 const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.png");
+const chapterUnits = (await getCollection("chapters"))
+  .sort((a, b) => a.data.number - b.data.number)
+  .map((chapter) => ({ id: chapter.id, number: chapter.data.number, title: chapter.data.title }));
 ---
 
 <LodgeBaseLayout
   title="ฮวิตเวลต์ ลอดจ์"
   description="บันทึกเจ็ดวันของผู้รอดชีวิตคนเดียวจากฮวิตเวลต์ ลอดจ์"
   bodyClass="home-page"
-  showTopBar={false}
 >
   <main class="home">
     <section class="home-hero" aria-labelledby="home-title">
@@ -21,7 +25,7 @@ const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.
       <div>
         <h1 id="home-title" class="home-title">ฮวิตเวลต์ ลอดจ์</h1>
         <p class="home-subtitle">บันทึกเจ็ดวัน — ของผู้รอดชีวิตคนเดียว</p>
-        <p class="home-meta">18 บท · ประมาณ 8 ชั่วโมงในการอ่าน · เปิดอ่าน, ปิดได้ทุกเมื่อ</p>
+        <p class="home-meta">18 บท · ประมาณ 14 ชั่วโมงในการอ่าน · เปิดอ่าน, ปิดได้ทุกเมื่อ</p>
         <div class="home-resume" data-resume-card hidden>
           <span data-resume-label>อ่านค้างไว้</span>
           <strong data-resume-title></strong>
@@ -50,16 +54,18 @@ const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.
     </section>
   </main>
 
-  <script is:inline define:vars={{ resumeChapterBase }}>
+  <script is:inline define:vars={{ resumeChapterBase, tocHref, units: chapterUnits }}>
     const enter = document.querySelector(".home-enter");
     const probe = document.querySelector(".home-scroll-probe");
     const resumeCard = document.querySelector("[data-resume-card]");
+    const resumeLabel = document.querySelector("[data-resume-label]");
     const resumeTitle = document.querySelector("[data-resume-title]");
     const resumeDetail = document.querySelector("[data-resume-detail]");
     const resumeExcerpt = document.querySelector("[data-resume-excerpt]");
     const resumeLink = document.querySelector("[data-resume-link]");
     const resumeClear = document.querySelector("[data-resume-clear]");
     const resumeStorageKey = "hvitveldt:reading:last";
+    const COMPLETED_PROGRESS = 0.995;
 
     if (enter instanceof HTMLElement && probe instanceof HTMLElement) {
       new IntersectionObserver(([entry]) => {
@@ -85,28 +91,48 @@ const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.
           typeof saved?.chapterNumber === "string" &&
           typeof saved?.chapterTitle === "string" &&
           Number.isFinite(progress) &&
-          progress >= 0.005 &&
-          progress < 0.995
+          progress >= 0.005
         ) {
-          const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
-          const jumpText =
-            saved.jumpType === "forward-skip" && saved.fromChapterNumber
-              ? ` · กระโดดมาจากบทที่ ${saved.fromChapterNumber}`
-              : saved.jumpType === "backtrack" && saved.fromChapterNumber
-                ? ` · ย้อนกลับมาจากบทที่ ${saved.fromChapterNumber}`
-                : "";
           resumeTitle.textContent = `บทที่ ${saved.chapterNumber}: ${saved.chapterTitle}`;
-          resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%${jumpText}`;
-          if (resumeExcerpt instanceof HTMLElement) {
-            const excerpt = typeof saved?.blockExcerpt === "string" ? saved.blockExcerpt.trim() : "";
-            if (excerpt) {
-              resumeExcerpt.textContent = `“${excerpt}”`;
-              resumeExcerpt.hidden = false;
+
+          if (progress >= COMPLETED_PROGRESS) {
+            // Finished this chapter: keep the marker at 100% and offer the next
+            // chapter instead of vanishing the moment the reader hits the bottom.
+            const index = units.findIndex((unit) => unit.id === saved.chapterId);
+            const next = index >= 0 ? units[index + 1] : null;
+            if (resumeLabel instanceof HTMLElement) resumeLabel.textContent = "อ่านจบแล้ว";
+            if (next) {
+              resumeDetail.textContent = `อ่านจบ 100% · ไปต่อบทที่ ${next.number}: ${next.title}`;
+              resumeLink.href = `${resumeChapterBase}${next.id}/`;
+              resumeLink.textContent = "อ่านบทต่อไป →";
             } else {
-              resumeExcerpt.hidden = true;
+              resumeDetail.textContent = "อ่านจบเรื่องแล้ว · ครบทุกบท";
+              resumeLink.href = tocHref;
+              resumeLink.textContent = "กลับสารบัญ";
             }
+            if (resumeExcerpt instanceof HTMLElement) resumeExcerpt.hidden = true;
+          } else {
+            const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
+            const jumpText =
+              saved.jumpType === "forward-skip" && saved.fromChapterNumber
+                ? ` · กระโดดมาจากบทที่ ${saved.fromChapterNumber}`
+                : saved.jumpType === "backtrack" && saved.fromChapterNumber
+                  ? ` · ย้อนกลับมาจากบทที่ ${saved.fromChapterNumber}`
+                  : "";
+            if (resumeLabel instanceof HTMLElement) resumeLabel.textContent = "อ่านค้างไว้";
+            resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%${jumpText}`;
+            if (resumeExcerpt instanceof HTMLElement) {
+              const excerpt = typeof saved?.blockExcerpt === "string" ? saved.blockExcerpt.trim() : "";
+              if (excerpt) {
+                resumeExcerpt.textContent = `“${excerpt}”`;
+                resumeExcerpt.hidden = false;
+              } else {
+                resumeExcerpt.hidden = true;
+              }
+            }
+            resumeLink.href = `${resumeChapterBase}${saved.chapterId}/?resume=1`;
+            resumeLink.textContent = "อ่านต่อ";
           }
-          resumeLink.href = `${resumeChapterBase}${saved.chapterId}/?resume=1`;
           resumeCard.hidden = false;
         }
       } catch {

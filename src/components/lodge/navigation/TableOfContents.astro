@@ -25,8 +25,22 @@ const chapters = (await getCollection("chapters")).sort(
     </div>
     <div class="toc-panel-body">
       {
+        chapters.filter(c => c.data.number === 0).map(c => (
+          <section class="toc-panel-act">
+            <ul>
+              <li>
+                <a class="toc-panel-row" data-chapter-id={c.id} href={withBase(`/lodge/chapters/${c.id}/`)}>
+                  <span>บทนำ —</span>
+                  <strong>{c.data.title}</strong>
+                </a>
+              </li>
+            </ul>
+          </section>
+        ))
+      }
+      {
         ACTS.map((act, index) => {
-          const actChapters = chapters.filter((chapter) => chapter.data.act === act.number);
+          const actChapters = chapters.filter((chapter) => chapter.data.act === act.number && chapter.data.number !== 0);
 
           return (
             <section class="toc-panel-act" aria-labelledby={`toc-menu-act-${act.number}`}>
@@ -36,7 +50,7 @@ const chapters = (await getCollection("chapters")).sort(
               <ul>
                 {actChapters.map((chapter) => (
                   <li>
-                    <a href={withBase(`/lodge/chapters/${chapter.id}/`)}>
+                    <a class="toc-panel-row" data-chapter-id={chapter.id} href={withBase(`/lodge/chapters/${chapter.id}/`)}>
                       <span>บทที่ {chapter.data.number} —</span>
                       <strong>{chapter.data.title}</strong>
                     </a>
@@ -101,6 +115,27 @@ const chapters = (await getCollection("chapters")).sort(
       }
     }
   });
+
+  const updateMenuReads = () => {
+    try {
+      const raw = localStorage.getItem("hvitveldt:secret:reads");
+      const reads = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(reads)) {
+        const links = document.querySelectorAll(".toc-panel-row[data-chapter-id]");
+        links.forEach((link) => {
+          if (link instanceof HTMLElement) {
+            const id = link.dataset.chapterId;
+            if (id && reads.includes(id)) {
+              link.classList.add("is-read");
+            }
+          }
+        });
+      }
+    } catch (e) {}
+  };
+
+  updateMenuReads();
+  document.addEventListener("astro:page-load", updateMenuReads);
 </script>
 
 <style>
@@ -245,6 +280,13 @@ const chapters = (await getCollection("chapters")).sort(
     font-size: 1rem;
     font-weight: 400;
     line-height: 1.25;
+  }
+
+  .toc-panel-row.is-read strong::after {
+    content: " 📌";
+    margin-left: 0.25rem;
+    font-size: 0.85em;
+    filter: drop-shadow(0 0 2px var(--accent));
   }
 
   @media (max-width: 700px) {

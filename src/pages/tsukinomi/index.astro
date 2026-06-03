@@ -7,6 +7,19 @@ const sections = (await getCollection("tsukinomiSections")).sort(
   (a, b) => a.data.number - b.data.number,
 );
 const firstSection = sections[0];
+// Never dereference firstSection.id directly: the Astro dev content store can
+// be momentarily empty on the first request after boot or a content edit, and
+// an unguarded `.id` turns that race into a hard 500. Fall back to the table of
+// contents so the page always renders.
+const sectionsHref = withBase("/tsukinomi/sections/");
+const startHref = firstSection
+  ? withBase(`/tsukinomi/sections/${firstSection.id}/`)
+  : sectionsHref;
+const sectionUnits = sections.map((section) => ({
+  id: section.id,
+  number: section.data.number,
+  title: section.data.title,
+}));
 ---
 
 <TsukinomiBaseLayout
@@ -25,7 +38,7 @@ const firstSection = sections[0];
         <p>ฝนบนทางขึ้นเขาทำให้ Haruto เลี้ยวเข้าไปในสถานีร้างที่ไม่มีรถไฟวิ่งมานาน และพบเด็กผู้หญิงคนหนึ่งที่ยังนั่งรออยู่ตรงชานชาลาเดิม</p>
         <p>เรื่องนี้เดินช้ากว่าเสียงฝนเล็กน้อย อุ่นกว่าความทรงจำเล็กน้อย และปล่อยให้ช่องว่างบางอย่างพูดแทนคำตอบ</p>
         <div class="tsukinomi-home-actions">
-          <a class="tsukinomi-primary-link" href={withBase(`/tsukinomi/sections/${firstSection.id}/`)}>
+          <a class="tsukinomi-primary-link" href={startHref}>
             เริ่ม → ภาค 1
           </a>
           <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/sections/")}>สารบัญ</a>
@@ -33,7 +46,7 @@ const firstSection = sections[0];
         </div>
 
         <div class="tsukinomi-home-resume" data-tsuki-resume hidden>
-          <span class="tsukinomi-home-resume-label">อ่านค้างไว้</span>
+          <span class="tsukinomi-home-resume-label" data-tsuki-resume-label>อ่านค้างไว้</span>
           <strong data-tsuki-resume-title></strong>
           <small data-tsuki-resume-detail></small>
           <div class="tsukinomi-home-resume-actions">
@@ -45,13 +58,15 @@ const firstSection = sections[0];
     </section>
   </main>
 
-  <script is:inline define:vars={{ resumeBase: withBase("/tsukinomi/sections/") }}>
+  <script is:inline define:vars={{ resumeBase: withBase("/tsukinomi/sections/"), tocHref: withBase("/tsukinomi/sections/"), units: sectionUnits }}>
     const card = document.querySelector("[data-tsuki-resume]");
+    const label = document.querySelector("[data-tsuki-resume-label]");
     const title = document.querySelector("[data-tsuki-resume-title]");
     const detail = document.querySelector("[data-tsuki-resume-detail]");
     const link = document.querySelector("[data-tsuki-resume-link]");
     const clearBtn = document.querySelector("[data-tsuki-resume-clear]");
     const KEY = "tsukinomi:reading:last";
+    const COMPLETED_PROGRESS = 0.995;
 
     if (card && title && detail && link instanceof HTMLAnchorElement) {
       try {
@@ -63,13 +78,32 @@ const firstSection = sections[0];
           saved &&
           typeof saved.sectionId === "string" &&
           Number.isFinite(progress) &&
-          progress >= 0.005 &&
-          progress < 0.995
+          progress >= 0.005
         ) {
-          const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
           title.textContent = `ภาค ${saved.sectionNumber}: ${saved.sectionTitle}`;
-          detail.textContent = `ค้างไว้ประมาณ ${percent}%`;
-          link.href = `${resumeBase}${saved.sectionId}/?resume=1`;
+
+          if (progress >= COMPLETED_PROGRESS) {
+            // Finished this section: hold at "done" and hand the reader the
+            // next section, rather than dropping the marker entirely.
+            const index = units.findIndex((unit) => unit.id === saved.sectionId);
+            const next = index >= 0 ? units[index + 1] : null;
+            if (label) label.textContent = "อ่านจบแล้ว";
+            if (next) {
+              detail.textContent = `อ่านจบ 100% · ไปต่อภาค ${next.number}: ${next.title}`;
+              link.href = `${resumeBase}${next.id}/`;
+              link.textContent = "อ่านภาคต่อไป →";
+            } else {
+              detail.textContent = "อ่านจบเรื่องแล้ว · ครบทุกภาค";
+              link.href = tocHref;
+              link.textContent = "กลับสารบัญ";
+            }
+          } else {
+            const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
+            if (label) label.textContent = "อ่านค้างไว้";
+            detail.textContent = `ค้างไว้ประมาณ ${percent}%`;
+            link.href = `${resumeBase}${saved.sectionId}/?resume=1`;
+            link.textContent = "อ่านต่อ";
+          }
           card.hidden = false;
         }
       } catch (error) {

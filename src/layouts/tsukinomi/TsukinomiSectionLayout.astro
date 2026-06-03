@@ -13,6 +13,17 @@ interface Props {
 const { section } = Astro.props;
 const siteTitle = "สถานีทะเลพระจันทร์";
 const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — ${siteTitle}`;
+
+const EPIGRAPHS: Record<number, string> = {
+  1: "ใต้หลังคาสังกะสีที่ฝนกระหน่ำตก ณ ชานชาลาสถานีร้างสึคิโนมิ สายหูฟังเส้นบางเชื่อมต่อคนสองคนผ่านเครื่องเล่นวอล์กแมนเก่าๆ... ท่วงทำนองเพลงรักแผ่วเบากำลังละลายความอ้างว้างในหัวใจเด็กหนุ่ม ท่ามกลางเสียงหัวเราะของเด็กสาวผู้โผล่มาพร้อมหยาดน้ำค้างยามเย็นราวไอหมอก",
+  2: "ตัวโน้ตเพลงเก่าที่สลักเสลาเสียงหัวเราะแสนสดใสของเธอ มันดังก้องอยู่ในโลกใบเล็กที่เวลากำลังหมุนย้อนกลับ... ความสุขแสนสั้นที่ถักทอขึ้นจากเศษเสี้ยวความทรงจำที่ไม่มีจริงของเด็กสาวผู้ไร้เงา ชวนให้หัวใจเต้นผิดจังหวะด้วยความอบอุ่นที่รู้ดีว่าจะต้องสูญสลายไปในไม่ช้า",
+  3: "หมอกยามเย็นเริ่มคืบคลานบดบังเส้นขอบฟ้า และความทรงจำเกี่ยวกับเธอเริ่มจางหายราวภาพถ่ายเก่าที่ถูกแดดเลีย... คำถามสุดท้ายก่อนรถไฟขบวนข้ามเวลาจะก้าวผ่าน ไม่ใช่ทำอย่างไรให้เธออยู่ต่อ แต่คือหัวใจดวงนี้จะยอมเลือกจดจำความงดงามแสนเจ็บปวด หรือจะปล่อยให้มันเลือนหายไปตลอดกาล",
+  4: "ก้าวเดินฝ่าพายุหิมะที่พัดคลั่งท่ามกลางความหนาวเหน็บที่แช่แข็งทุกความหวัง แสงไฟรำไรนำทางขึ้นสู่ยอดเขาสถานที่เก็บงำความจริงอันน่าเศร้า... ความจริงของโบกี้รถไฟที่ตกลงมาเมื่อสิบปีก่อน และคำสัญญาในวัยเยาว์ที่ถูกหิมะทับถมแช่แข็งไว้คอยวันให้ท่วงทำนองกลับมาละลายมัน",
+  5: "สิบปีผ่านพ้น ท่ามกลางกระแสฝูงชนที่เร่งรีบในโตเกียว รถไฟกาลเวลานำพาทุกชีวิตให้เติบโตและลืมเลือนอดีตไป... ทว่าสายลมแผ่วบางที่พัดผ่านตึกสูงยังคงพัดพาทำนองเพลงรักเพลงเดิมจากหูฟังเส้นนั้นกลับมาสะกิดหัวใจ เพื่อเตือนใจว่าบางความรักไม่เคยล่วงโรยไปตามกาลเวลา"
+};
+
+const epigraphText = EPIGRAPHS[section.data.number];
+const hasCutscene = !!epigraphText;
 ---
 
 <TsukinomiBaseLayout
@@ -21,8 +32,25 @@ const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — $
   bodyClass={`tsukinomi-section-page section-${section.data.number} palette-${section.data.palette}`}
   sectionPalette={section.data.palette}
   musicCueId={section.data.musicCueId}
-  backgroundSlotId={backgroundSlotIdForSection(section.data.number)}
+  backgroundSlotId={section.data.number === 0 ? "section-01" : backgroundSlotIdForSection(section.data.number)}
 >
+  {
+    hasCutscene && epigraphText && (
+      <div class="cutscene-overlay" id="cutscene-overlay">
+        <div class="cutscene-content">
+          <div class="cutscene-epigraph" id="cutscene-text">
+            {
+              epigraphText.split("").map((char, index) => (
+                <span class="fade-char" style={`transition-delay: ${index * 25}ms`}>{char === " " ? "\u00A0" : char}</span>
+              ))
+            }
+          </div>
+          <button class="cutscene-continue" id="cutscene-continue">เดินทางต่อ</button>
+        </div>
+      </div>
+    )
+  }
+
   <main id="tsukinomi-main" class="tsukinomi-section-shell">
     <article
       class="tsukinomi-section"
@@ -150,6 +178,162 @@ const pageTitle = `ภาค ${section.data.number}: ${section.data.title} — $
   @media (prefers-reduced-motion: reduce) {
     .tsuki-unlock-toast {
       transition: none;
+    }
+  }
+</style>
+
+{
+  hasCutscene && epigraphText && (
+    <script is:inline define:vars={{ textLength: epigraphText.length }}>
+      const runTsukiAnimation = () => {
+        const overlay = document.getElementById('cutscene-overlay');
+        const btn = document.getElementById('cutscene-continue');
+        if (!overlay || !btn) return;
+
+        document.body.classList.add('has-cutscene');
+        btn.classList.remove('is-visible');
+        btn.style.display = 'none';
+
+        setTimeout(() => {
+          overlay.classList.add('is-active');
+        }, 100);
+
+        const totalDuration = textLength * 25 + 500;
+        setTimeout(() => {
+          btn.style.display = 'block';
+          setTimeout(() => {
+            btn.classList.add('is-visible');
+          }, 100);
+        }, totalDuration);
+
+        const onDismiss = () => {
+          overlay.classList.add('fade-out');
+          document.body.classList.remove('has-cutscene');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 800);
+        };
+
+        btn.addEventListener('click', onDismiss, { once: true });
+      };
+
+      if (document.readyState !== 'loading') {
+        runTsukiAnimation();
+      } else {
+        document.addEventListener('DOMContentLoaded', runTsukiAnimation);
+      }
+      document.addEventListener('astro:page-load', runTsukiAnimation);
+    </script>
+  )
+}
+
+<style is:global>
+  body.has-cutscene {
+    overflow: hidden;
+  }
+  body.has-cutscene .sakura-backdrop {
+    z-index: 998 !important;
+    background: #000000 !important;
+  }
+  body.has-cutscene .sakura-backdrop__base,
+  body.has-cutscene .sakura-backdrop__tint,
+  body.has-cutscene .sakura-backdrop__moon,
+  body.has-cutscene .sakura-backdrop__rays,
+  body.has-cutscene .sakura-backdrop__mist,
+  body.has-cutscene .sakura-backdrop__train,
+  body.has-cutscene .sakura-backdrop__clock,
+  body.has-cutscene .sakura-backdrop__frame {
+    opacity: 0 !important;
+    visibility: hidden !important;
+  }
+  body.has-cutscene .sakura-backdrop__petals {
+    opacity: 1 !important;
+    visibility: visible !important;
+    z-index: 999 !important;
+  }
+
+  .cutscene-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    z-index: 997;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: var(--font-display), sans-serif;
+    transition: opacity 800ms ease, visibility 800ms ease;
+  }
+
+  .cutscene-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .cutscene-content {
+    max-width: 38rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3.5rem;
+    text-align: center;
+    z-index: 1000;
+  }
+
+  .cutscene-epigraph {
+    color: var(--tsuki-ink, #f5f3ef);
+    font-size: 1.25rem;
+    line-height: 1.9;
+    letter-spacing: 0.05em;
+    font-weight: 300;
+    text-shadow: 0 0 10px rgba(224, 163, 106, 0.15);
+  }
+
+  .fade-char {
+    opacity: 0;
+    filter: blur(8px);
+    display: inline;
+    transition: opacity 800ms ease-out, filter 800ms ease-out;
+  }
+
+  .cutscene-overlay.is-active .fade-char {
+    opacity: 1;
+    filter: blur(0);
+  }
+
+  .cutscene-continue {
+    background: transparent;
+    border: 1px solid rgba(224, 163, 106, 0.25);
+    color: var(--tsuki-ink-dim, rgba(232, 220, 196, 0.7));
+    padding: 0.75rem 2.2rem;
+    font-family: var(--font-mono), monospace;
+    font-size: 0.88rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1s ease, transform 1s ease, border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+    display: none;
+  }
+
+  .cutscene-continue.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .cutscene-continue:hover {
+    border-color: var(--tsuki-accent, #e0a36a);
+    color: var(--tsuki-ink, #ffffff);
+    background: rgba(224, 163, 106, 0.1);
+    box-shadow: 0 0 15px rgba(224, 163, 106, 0.2);
+  }
+
+  @media (max-width: 600px) {
+    .cutscene-epigraph {
+      font-size: 1.05rem;
+      line-height: 1.8;
     }
   }
 </style>

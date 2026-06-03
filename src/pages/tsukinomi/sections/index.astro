@@ -2,19 +2,11 @@
 import { getCollection } from "astro:content";
 import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
 import { withBase } from "../../../utils/base-path";
+import { formatReadingTime } from "../../../utils/reading-time";
 
 const sections = (await getCollection("tsukinomiSections")).sort(
   (a, b) => a.data.number - b.data.number,
 );
-
-const formatReadingTime = (minutes: number): string => {
-  if (minutes < 60) {
-    return `${minutes} นาที`;
-  }
-  const hours = Math.floor(minutes / 60);
-  const rest = minutes % 60;
-  return rest ? `${hours} ชม ${rest} นาที` : `${hours} ชม`;
-};
 ---
 
 <TsukinomiBaseLayout
@@ -30,8 +22,8 @@ const formatReadingTime = (minutes: number): string => {
       {
         sections.map((section) => (
           <li>
-            <a href={withBase(`/tsukinomi/sections/${section.id}/`)}>
-              <span class="toc-number">ภาค {section.data.number}</span>
+            <a class="tsukinomi-toc-row" data-section-id={section.id} href={withBase(`/tsukinomi/sections/${section.id}/`)}>
+              <span class="toc-number">{section.data.number === 0 ? "บทนำ" : `ภาค ${section.data.number}`}</span>
               <span class="toc-copy">
                 <strong>{section.data.title}</strong>
                 <span>{section.data.englishTitle}</span>
@@ -44,4 +36,38 @@ const formatReadingTime = (minutes: number): string => {
       }
     </ol>
   </main>
+
+  <script>
+    const updateReads = () => {
+      try {
+        const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
+        const reads = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(reads)) {
+          const links = document.querySelectorAll(".tsukinomi-toc-row[data-section-id]");
+          links.forEach((link) => {
+            if (link instanceof HTMLElement) {
+              const id = link.dataset.sectionId;
+              if (id && reads.includes(id)) {
+                link.classList.add("is-read");
+              }
+            }
+          });
+        }
+      } catch (e) {}
+    };
+
+    updateReads();
+    document.addEventListener("astro:page-load", updateReads);
+  </script>
+
+  <style>
+    .tsukinomi-toc-row.is-read .toc-number::after {
+      content: " 🚂";
+      margin-left: 0.35rem;
+      font-size: 0.85em;
+      display: inline-block;
+      vertical-align: middle;
+      filter: drop-shadow(0 0 2px var(--sakura, #e6a6bd));
+    }
+  </style>
 </TsukinomiBaseLayout>

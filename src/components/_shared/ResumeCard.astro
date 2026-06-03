@@ -1,8 +1,16 @@
 ---
+import { getCollection } from "astro:content";
 import { withBase } from "../../utils/base-path";
 
 const lodgeChapterBase = withBase("/lodge/chapters/");
 const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
+
+const lodgeUnits = (await getCollection("chapters"))
+  .sort((a, b) => a.data.number - b.data.number)
+  .map((chapter) => ({ id: chapter.id, number: chapter.data.number, title: chapter.data.title }));
+const tsukinomiUnits = (await getCollection("tsukinomiSections"))
+  .sort((a, b) => a.data.number - b.data.number)
+  .map((section) => ({ id: section.id, number: section.data.number, title: section.data.title }));
 ---
 
 <section class="resume-card" data-hub-resume hidden aria-live="polite">
@@ -18,7 +26,10 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
   </div>
 </section>
 
-<script is:inline define:vars={{ lodgeChapterBase, tsukinomiSectionBase }}>
+<script
+  is:inline
+  define:vars={{ lodgeChapterBase, tsukinomiSectionBase, lodgeUnits, tsukinomiUnits }}
+>
   (() => {
     const card = document.querySelector("[data-hub-resume]");
     const novelLabel = document.querySelector("[data-resume-novel]");
@@ -38,6 +49,7 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
       return;
     }
 
+    const COMPLETED_PROGRESS = 0.995;
     const percentText = (progress) => `${Math.max(1, Math.min(99, Math.round(progress * 100)))}%`;
 
     const readJson = (key) => {
@@ -57,24 +69,25 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
       const chapterTitle = config.getTitle(saved);
       const updatedAt = Number(saved?.updatedAt);
 
-      if (
-        !id ||
-        !number ||
-        !chapterTitle ||
-        !Number.isFinite(progress) ||
-        progress < 0.005 ||
-        progress >= 0.995
-      ) {
+      if (!id || !number || !chapterTitle || !Number.isFinite(progress) || progress < 0.005) {
         return null;
       }
+
+      const index = config.units.findIndex((unit) => String(unit.id) === String(id));
+      const next = index >= 0 ? config.units[index + 1] : null;
 
       return {
         storageKey: config.storageKey,
         detailKey: `${config.detailPrefix}${id}`,
-        href: `${config.baseHref}${id}/?resume=1`,
         novelTitle: config.novelTitle,
+        unitLabel: config.unitLabel,
         title: `${config.unitLabel} ${number}: ${chapterTitle}`,
         progress,
+        completed: progress >= COMPLETED_PROGRESS,
+        resumeHref: `${config.baseHref}${id}/?resume=1`,
+        nextHref: next ? `${config.baseHref}${next.id}/` : "",
+        nextLabel: next ? `${config.unitLabel} ${next.number}: ${next.title}` : "",
+        tocHref: config.baseHref,
         updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
       };
     };
@@ -86,6 +99,7 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
         baseHref: lodgeChapterBase,
         novelTitle: "ฮวิตเวลต์ ลอดจ์",
         unitLabel: "บทที่",
+        units: lodgeUnits,
         getId: (saved) => (typeof saved?.chapterId === "string" ? saved.chapterId : ""),
         getNumber: (saved) => `${saved?.chapterNumber ?? ""}`.trim(),
         getTitle: (saved) => (typeof saved?.chapterTitle === "string" ? saved.chapterTitle.trim() : ""),
@@ -96,6 +110,7 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
         baseHref: tsukinomiSectionBase,
         novelTitle: "สถานีทะเลพระจันทร์",
         unitLabel: "ภาคที่",
+        units: tsukinomiUnits,
         getId: (saved) =>
           typeof saved?.sectionId === "string"
             ? saved.sectionId
@@ -121,8 +136,24 @@ const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
 
     novelLabel.textContent = saved.novelTitle;
     title.textContent = saved.title;
-    detail.textContent = `ค้างไว้ประมาณ ${percentText(saved.progress)}`;
-    link.href = saved.href;
+
+    if (saved.completed) {
+      // A finished chapter/section keeps its place at 100% and points the
+      // reader at the next unit instead of disappearing.
+      if (saved.nextHref) {
+        detail.textContent = `อ่านจบ 100% · ไปต่อ ${saved.nextLabel}`;
+        link.href = saved.nextHref;
+        link.textContent = "อ่านต่อบทถัดไป";
+      } else {
+        detail.textContent = "อ่านจบเรื่องแล้ว";
+        link.href = saved.tocHref;
+        link.textContent = "กลับสารบัญ";
+      }
+    } else {
+      detail.textContent = `ค้างไว้ประมาณ ${percentText(saved.progress)}`;
+      link.href = saved.resumeHref;
+      link.textContent = "อ่านต่อ";
+    }
     card.hidden = false;
 
     clear.addEventListener("click", () => {

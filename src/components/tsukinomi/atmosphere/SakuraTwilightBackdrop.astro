@@ -84,6 +84,13 @@
   let freezeUntil = 0;
   let nextFreezeAt = 0;
   let motionEnabled = true;
+  // The reader panel element + its rect are cached so the petal loop never
+  // queries the DOM or forces layout per-particle (was 1 querySelector +
+  // 1 getBoundingClientRect per petal per frame -> up to ~36 layout reads a
+  // frame, the main source of scroll jank). Element is re-found on refresh;
+  // the rect is sampled once per animation frame inside draw().
+  let readerEl: HTMLElement | null = null;
+  let readerRect: DOMRect | null = null;
 
   const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
   const baseCount = () => (mobile.matches ? mobilePetalCount : desktopPetalCount);
@@ -132,18 +139,36 @@
 
   const createPetal = (initial = false, kind: ParticleKind = pickKind()): Petal => {
     const spec = KIND_SPECS[kind];
+    const timeOfDay = document.body.getAttribute('data-time-of-day') || 'evening';
+
+    let speedMult = 1.0;
+    let opacityMult = 1.0;
+    if (timeOfDay === 'morning') {
+      speedMult = 0.5;
+      opacityMult = 0.8;
+    } else if (timeOfDay === 'afternoon') {
+      speedMult = 0.85;
+      opacityMult = 0.9;
+    } else if (timeOfDay === 'night') {
+      speedMult = 1.3;
+      opacityMult = 1.1;
+    }
+
+    const baseSpeed = randomBetween(spec.speed[0], spec.speed[1]);
+    const baseOpacity = randomBetween(spec.opacity[0], spec.opacity[1]);
+
     return {
       kind,
       x: randomBetween(-40, width + 40),
       y: initial ? randomBetween(-20, height) : randomBetween(-80, -16),
       size: randomBetween(spec.size[0], spec.size[1]),
-      speed: randomBetween(spec.speed[0], spec.speed[1]),
-      drift: randomBetween(-0.18, 0.24),
+      speed: baseSpeed * speedMult,
+      drift: randomBetween(-0.18, 0.24) * speedMult,
       sway: randomBetween(0.18, 0.62),
       phase: randomBetween(0, Math.PI * 2),
       rotation: randomBetween(0, Math.PI * 2),
       rotationSpeed: randomBetween(-0.012, 0.012),
-      opacity: randomBetween(spec.opacity[0], spec.opacity[1]),
+      opacity: Math.min(1, baseOpacity * opacityMult),
     };
   };
 
@@ -183,14 +208,18 @@
     return now < freezeUntil;
   };
 
-  const petalOverReader = (petal: Petal) => {
+  const refreshReaderEl = () => {
     const article = document.querySelector("article.tsukinomi-section");
+    readerEl = article instanceof HTMLElement ? article : null;
+  };
 
-    if (!(article instanceof HTMLElement)) {
+  const petalOverReader = (petal: Petal) => {
+    const rect = readerRect;
+
+    if (!rect) {
       return false;
     }
 
-    const rect = article.getBoundingClientRect();
     const pad = mobile.matches ? 10 : 20;
 
     return (
@@ -257,6 +286,8 @@
 
     canvas.hidden = false;
     context.clearRect(0, 0, width, height);
+    // Sample the reader rect once per frame instead of once per petal.
+    readerRect = readerEl ? readerEl.getBoundingClientRect() : null;
     const frozen = updateFreezeState(now);
 
     for (const petal of petals) {
@@ -316,6 +347,7 @@
     pause();
     motionEnabled = readMotionEnabled();
     currentProfile = resolveProfile();
+    refreshReaderEl();
     readColors();
     applyMotionState();
     applyTrainState();

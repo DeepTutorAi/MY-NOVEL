@@ -21,7 +21,7 @@ export const NOVELS = [
     titleEn: "Hvitveldt Lodge",
     subtitle: "เจ็ดวันในลอดจ์กลางป่าหิมะ ที่ความเงียบเรียบร้อยไม่ได้แปลว่าปลอดภัย",
     mood: "สยอง · หนาว",
-    length: "18 บท · ประมาณ 8 ชั่วโมง",
+    length: "18 บท · ประมาณ 14 ชั่วโมง",
     heroImage: "/assets/lodge/images/backgrounds/home-hero.webp",
     heroState: "image",
     accent: "#C24B3A",

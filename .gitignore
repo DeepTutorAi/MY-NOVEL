@@ -9,3 +9,5 @@ dist/
 .astro-preview.*.log
 .qa/
 .claude/
+repo_implementation.md
+

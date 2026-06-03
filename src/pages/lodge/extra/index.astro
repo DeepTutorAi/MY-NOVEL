@@ -8,19 +8,315 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
   bodyClass="extra-page"
 >
   <main class="lodge-extra">
-    <p class="lodge-extra-kicker">Extra</p>
-    <h1>ส่วนเสริม</h1>
-    <p>พื้นที่สำหรับเบื้องหลัง เอกสารที่พบ และของแถมของฮวิตเวลต์ ลอดจ์</p>
-    <div class="lodge-extra-soon">กำลังจัดเตรียม — เร็ว ๆ นี้</div>
+    <!-- LOCKED GATE -->
+    <section class="lodge-extra-gate" data-extra-gate>
+      <div class="gate-card">
+        <div class="lock-icon">🔒</div>
+        <h2>ส่วนเสริมพิเศษถูกจำกัดการเข้าถึง</h2>
+        <p class="gate-desc">
+          พื้นที่นี้จะเปิดใช้งานให้เฉพาะผู้อ่านที่มีความคืบหน้าการอ่านจริง (อย่างน้อย 80% หรือ 15 บทจากทั้งหมด 18 บท โดยมีเวลาอ่านอย่างน้อยบทละ 7 นาที)
+        </p>
+        
+        <div class="progress-bar-container">
+          <div class="progress-label">ความคืบหน้าการอ่านแบบลับของคุณ</div>
+          <div class="progress-track">
+            <div class="progress-fill" data-progress-fill style="width: 0%"></div>
+          </div>
+          <div class="progress-status" data-progress-status>0 / 18 บท (0%)</div>
+        </div>
+
+        <div class="bypass-form">
+          <label for="bypass-password">สิทธิ์เข้าถึงของทีมงาน (Developer Bypass)</label>
+          <div class="bypass-input-group">
+            <input
+              type="password"
+              id="bypass-password"
+              placeholder="กรอกรหัสผ่านเพื่อปลดล็อคทันที..."
+              data-bypass-input
+            />
+            <button type="button" data-bypass-btn>ปลดล็อค</button>
+          </div>
+          <p class="bypass-error" data-bypass-error hidden>รหัสผ่านไม่ถูกต้อง</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- UNLOCKED PREMIUM CONTENT -->
+    <article class="lodge-extra-content" data-extra-content hidden>
+      <p class="lodge-extra-kicker">Premium Extra</p>
+      <h1>แฟ้มเอกสารลับและเบื้องหลัง</h1>
+      <p class="intro-text">
+        ยินดีต้อนรับสู่ส่วนบันทึกข้อมูลพิเศษสำหรับผู้ติดตามที่เหนียวแน่นของ ฮวิตเวลต์ ลอดจ์
+      </p>
+
+      <div class="extra-grid">
+        <section class="extra-card">
+          <h2>🌲 แรงบันดาลใจและบรรยากาศ</h2>
+          <p>
+            ฮวิตเวลต์ ลอดจ์ ได้รับอิทธิพลจากวรรณกรรมแนวลึกลับแบบนอร์ดิก (Nordic Noir) ร่วมกับความสยองขวัญทางจิตวิทยา ความหนาวเย็นเยือกในเขตป่าสน Karasjok และความโดดเดี่ยวตัดขาดจากโลกภายนอกถูกนำมาขับเน้นผ่านเสียงลมพัดและซาวด์เอฟเฟกต์เฉพาะบท
+          </p>
+        </section>
+
+        <section class="extra-card">
+          <h2>📼 บันทึกเสียงเพลงประกอบ (Audio Cue Ledger)</h2>
+          <table class="audio-ledger-table">
+            <thead>
+              <tr>
+                <th>ช่วงเนื้อเรื่อง</th>
+                <th>ธีมเพลง</th>
+                <th>สไตล์เพลง</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>องก์ที่ 1 (บทที่ 1-5)</td>
+                <td>Snow Forest</td>
+                <td>เปียโนโทนหม่น บรรยากาศหนาวเหน็บ</td>
+              </tr>
+              <tr>
+                <td>องก์ที่ 2 (บทที่ 6-12)</td>
+                <td>Gloomy Night</td>
+                <td>เสียงความถี่ต่ำ ลึกลับ สั่นประสาท</td>
+              </tr>
+              <tr>
+                <td>องก์ที่ 3 (บทที่ 13-16)</td>
+                <td>Basement Investigation</td>
+                <td>ความกดดันระดับสูง ไร้ท่วงทำนองหลัก</td>
+              </tr>
+              <tr>
+                <td>องก์ที่ 4 (บทที่ 17-18)</td>
+                <td>Haunting Memory</td>
+                <td>เสียงแอมเบียนต์หลอนสะท้อนความหลัง</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section class="extra-card">
+          <h2>✍️ บันทึกผู้เขียน</h2>
+          <blockquote>
+            "ความสยองขวัญที่แท้จริงไม่ได้อยู่ในความมืด แต่อยู่ในคำถามที่ว่าคนที่อยู่ข้าง ๆ เรายังเป็นคนเดิมหรือไม่... ขอบคุณที่ร่วมเดินทางผ่านค่ำคืนอันยาวนานที่ฮวิตเวลต์"
+          </blockquote>
+        </section>
+      </div>
+    </article>
   </main>
+
+  <script>
+    const gate = document.querySelector("[data-extra-gate]");
+    const content = document.querySelector("[data-extra-content]");
+    const fill = document.querySelector("[data-progress-fill]");
+    const status = document.querySelector("[data-progress-status]");
+    const passwordInput = document.querySelector("[data-bypass-input]");
+    const bypassBtn = document.querySelector("[data-bypass-btn]");
+    const bypassError = document.querySelector("[data-bypass-error]");
+
+    const SECRET_READS_KEY = "hvitveldt:secret:reads";
+    const BYPASS_KEY = "hvitveldt:extra-bypassed";
+    const BYPASS_PASSWORD = "lodge-bypass-gate-2026";
+    const TOTAL_CHAPTERS = 18;
+    const UNLOCK_THRESHOLD = 15; // 80% of 18 is 14.4 -> 15 chapters
+
+    const getSecretReadsCount = (): number => {
+      try {
+        const raw = localStorage.getItem(SECRET_READS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(arr)) {
+          return arr.filter(id => id !== "00-introduction").length;
+        }
+        return 0;
+      } catch {
+        return 0;
+      }
+    };
+
+    const checkUnlocked = (): boolean => {
+      if (localStorage.getItem(BYPASS_KEY) === "true") {
+        return true;
+      }
+      return getSecretReadsCount() >= UNLOCK_THRESHOLD;
+    };
+
+    const updateUI = () => {
+      const readCount = getSecretReadsCount();
+      const percent = Math.round((readCount / TOTAL_CHAPTERS) * 100);
+
+      if (fill instanceof HTMLElement) {
+        fill.style.width = `${percent}%`;
+      }
+      if (status) {
+        status.textContent = `${readCount} / ${TOTAL_CHAPTERS} บท (${percent}%)`;
+      }
+
+      if (checkUnlocked()) {
+        gate?.setAttribute("hidden", "");
+        content?.removeAttribute("hidden");
+      } else {
+        gate?.removeAttribute("hidden");
+        content?.setAttribute("hidden", "");
+      }
+    };
+
+    const attemptBypass = () => {
+      if (passwordInput instanceof HTMLInputElement) {
+        if (passwordInput.value.trim() === BYPASS_PASSWORD) {
+          localStorage.setItem(BYPASS_KEY, "true");
+          bypassError?.setAttribute("hidden", "");
+          updateUI();
+        } else {
+          bypassError?.removeAttribute("hidden");
+        }
+      }
+    };
+
+    if (bypassBtn) {
+      bypassBtn.addEventListener("click", attemptBypass);
+    }
+
+    if (passwordInput instanceof HTMLInputElement) {
+      passwordInput.addEventListener("keydown", (e) => {
+        if (e.key === "Enter") {
+          attemptBypass();
+        }
+      });
+    }
+
+    // Initialize UI on load
+    updateUI();
+    document.addEventListener("astro:page-load", updateUI);
+  </script>
 
   <style>
     .lodge-extra {
-      max-width: 44rem;
+      max-width: 50rem;
       margin: 0 auto;
       padding: 6rem 1.25rem 5rem;
-      text-align: center;
       color: var(--ink);
+    }
+
+    /* LOCKED GATE STYLING */
+    .lodge-extra-gate {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 3rem 1rem;
+    }
+
+    .gate-card {
+      background: var(--paper-2);
+      border: 1px solid var(--rune);
+      border-radius: 8px;
+      padding: 3rem 2rem;
+      text-align: center;
+      max-width: 32rem;
+      width: 100%;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .lock-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
+
+    .gate-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .gate-desc {
+      color: var(--ink-dim);
+      font-size: 0.95rem;
+      line-height: 1.6;
+      margin-bottom: 2rem;
+    }
+
+    .progress-bar-container {
+      margin-bottom: 2.5rem;
+      text-align: left;
+    }
+
+    .progress-label {
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-track {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--rune);
+      border-radius: 4px;
+      height: 10px;
+      overflow: hidden;
+      margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+      background: var(--ink);
+      height: 100%;
+      transition: width 0.4s ease;
+    }
+
+    .progress-status {
+      font-size: 0.85rem;
+      text-align: right;
+      font-family: var(--font-mono);
+    }
+
+    .bypass-form {
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      padding-top: 1.5rem;
+      text-align: left;
+    }
+
+    .bypass-form label {
+      display: block;
+      font-size: 0.8rem;
+      color: var(--ink-dim);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .bypass-input-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .bypass-input-group input {
+      flex: 1;
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid var(--rune);
+      border-radius: 4px;
+      color: var(--ink);
+      padding: 0.6rem 0.8rem;
+      font-size: 0.9rem;
+    }
+
+    .bypass-input-group button {
+      background: var(--ink);
+      color: var(--bg);
+      border: none;
+      border-radius: 4px;
+      padding: 0.6rem 1.2rem;
+      font-size: 0.9rem;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .bypass-input-group button:hover {
+      opacity: 0.9;
+    }
+
+    .bypass-error {
+      color: #e57373;
+      font-size: 0.85rem;
+      margin-top: 0.5rem;
+    }
+
+    /* CONTENT STYLING */
+    .lodge-extra-content {
+      animation: fadeIn 0.6s ease forwards;
     }
 
     .lodge-extra-kicker {
@@ -29,25 +325,79 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
       text-transform: uppercase;
       color: var(--ink-dim);
       font-size: 0.74rem;
+      text-align: center;
     }
 
     .lodge-extra h1 {
       margin: 0.45rem 0 1rem;
       font-size: clamp(1.8rem, 5vw, 2.6rem);
+      text-align: center;
     }
 
-    .lodge-extra p {
+    .intro-text {
       color: var(--ink-dim);
       line-height: 1.8;
+      text-align: center;
+      margin-bottom: 3rem;
     }
 
-    .lodge-extra-soon {
-      margin-top: 2.4rem;
-      padding: 1.4rem;
-      border: 1px dashed color-mix(in oklab, var(--ink) 22%, transparent);
+    .extra-grid {
+      display: grid;
+      gap: 2rem;
+    }
+
+    .extra-card {
+      background: var(--paper-2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 6px;
+      padding: 2rem;
+    }
+
+    .extra-card h2 {
+      font-size: 1.25rem;
+      margin-bottom: 1rem;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 0.5rem;
+    }
+
+    .extra-card p {
       color: var(--ink-dim);
-      font-family: var(--font-mono);
+      line-height: 1.7;
+    }
+
+    blockquote {
+      font-style: italic;
+      color: var(--ink);
+      border-left: 3px solid var(--rune);
+      padding-left: 1.2rem;
+      margin: 1rem 0;
+    }
+
+    .audio-ledger-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 1rem;
       font-size: 0.9rem;
+    }
+
+    .audio-ledger-table th, .audio-ledger-table td {
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    .audio-ledger-table th {
+      background: rgba(255, 255, 255, 0.03);
+      color: var(--ink);
+    }
+
+    .audio-ledger-table td {
+      color: var(--ink-dim);
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
   </style>
 </LodgeBaseLayout>

@@ -100,7 +100,7 @@ article.chapter[data-act="4"] {
   opacity: 0.6;
 }
 
-article.chapter > p:first-of-type::first-letter {
+article.chapter > p.has-dropcap::first-letter {
   float: left;
   margin: 0.05em 0.15em -0.15em 0;
   color: var(--accent);
@@ -396,7 +396,7 @@ article.chapter .cold-detail {
 
 article.chapter .resume-highlight {
   position: relative;
-  animation: resume-glow 1800ms ease-out 1;
+  animation: resume-glow 3000ms ease-out 1;
 }
 
 article.chapter .resume-highlight::before {
@@ -411,7 +411,7 @@ article.chapter .resume-highlight::before {
     transparent 70%
   );
   opacity: 0;
-  animation: resume-glow-bg 1800ms ease-out 1;
+  animation: resume-glow-bg 3000ms ease-out 1;
   pointer-events: none;
 }
 
@@ -474,7 +474,7 @@ article.chapter figure.chapter-figure .resume-highlight::before {
     max-inline-size: calc(100vw - 2rem) !important;
   }
 
-  article.chapter > p:first-of-type::first-letter {
+  article.chapter > p.has-dropcap::first-letter {
     float: none;
     margin: 0;
     font: inherit;

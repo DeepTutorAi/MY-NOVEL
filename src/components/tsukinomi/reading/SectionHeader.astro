@@ -1,26 +1,28 @@
 ---
 import type { CollectionEntry } from "astro:content";
+import { formatReadingTime } from "../../../utils/reading-time";
 
 interface Props {
   section: CollectionEntry<"tsukinomiSections">;
 }
 
 const { section } = Astro.props;
-const roman = ["I", "II", "III", "IV", "V"][section.data.number - 1] ?? String(section.data.number);
+const isIntro = section.data.number === 0;
+const roman = isIntro ? "" : (["I", "II", "III", "IV", "V"][section.data.number - 1] ?? String(section.data.number));
 const rangeMatch = section.data.chapterRange.match(/(\d+)\D+(\d+)/);
 const firstChapter = rangeMatch ? Number(rangeMatch[1]) : section.data.number;
 const lastChapter = rangeMatch ? Number(rangeMatch[2]) : firstChapter;
 const chapterLinks =
-  Number.isFinite(firstChapter) && Number.isFinite(lastChapter) && lastChapter >= firstChapter
+  !isIntro && Number.isFinite(firstChapter) && Number.isFinite(lastChapter) && lastChapter >= firstChapter
     ? Array.from({ length: lastChapter - firstChapter + 1 }, (_, index) => ({ number: firstChapter + index }))
     : [];
 ---
 
 <header class="section-header">
-  <div class="section-number">Section {roman}</div>
+  <div class="section-number">{isIntro ? "Introduction" : `Section ${roman}`}</div>
   <div class="section-english">{section.data.englishTitle}</div>
   <h1>{section.data.title}</h1>
-  <div class="section-range">{section.data.chapterRange} · {section.data.readingMinutes} นาที</div>
+  <div class="section-range">{section.data.chapterRange} · {formatReadingTime(section.data.readingMinutes)}</div>
   {
     chapterLinks.length > 0 && (
       <nav class="section-chapter-links" aria-label="สารบัญย่อยของภาค">

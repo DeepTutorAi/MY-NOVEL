@@ -49,8 +49,54 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
     <ClientRouter />
-  </head>
   <body class={bodyClasses}>
+    <script is:inline>
+      (function() {
+        function setTimeOfDay(hour) {
+          let tod = 'evening';
+          if (hour >= 6 && hour < 13) {
+            tod = 'morning';
+          } else if (hour >= 13 && hour < 19) {
+            tod = 'afternoon';
+          } else if (hour >= 19 || hour < 1) {
+            tod = 'evening';
+          } else {
+            tod = 'night';
+          }
+          document.body.setAttribute('data-time-of-day', tod);
+          window.__currentTimeOfDay = tod;
+        }
+
+        const localHour = new Date().getHours();
+        setTimeOfDay(localHour);
+
+        fetch('https://worldtimeapi.org/api/ip')
+          .then(res => res.json())
+          .then(data => {
+            if (data && typeof data.datetime === 'string') {
+              const tIndex = data.datetime.indexOf('T');
+              if (tIndex !== -1) {
+                const hourStr = data.datetime.substring(tIndex + 1, tIndex + 3);
+                const hour = parseInt(hourStr, 10);
+                if (!isNaN(hour)) {
+                  setTimeOfDay(hour);
+                }
+              }
+            }
+          })
+          .catch(err => {
+            console.warn('IP-based time fetch failed, using local device time.', err);
+          });
+
+        if (!window.__timeOfDayBound) {
+          window.__timeOfDayBound = true;
+          document.addEventListener('astro:after-swap', () => {
+            const currentTod = window.__currentTimeOfDay || 'evening';
+            document.body.setAttribute('data-time-of-day', currentTod);
+          });
+        }
+      })();
+    </script>
     <BackgroundFog />
     <GrainOverlay />
     <SnowCanvas />

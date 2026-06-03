@@ -5,7 +5,7 @@ import { z } from "astro/zod";
 const chapters = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/lodge/chapters" }),
   schema: z.object({
-    number: z.number().int().min(1).max(18),
+    number: z.number().int().min(0).max(18),
     title: z.string(),
     thaiTitle: z.string().optional(),
     act: z.number().int().min(1).max(4),
@@ -27,7 +27,7 @@ const extras = defineCollection({
 const tsukinomiSections = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/tsukinomi/sections" }),
   schema: z.object({
-    number: z.number().int().min(1).max(5),
+    number: z.number().int().min(0).max(5),
     title: z.string(),
     englishTitle: z.string(),
     chapterRange: z.string(),

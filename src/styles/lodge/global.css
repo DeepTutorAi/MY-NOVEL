@@ -128,3 +128,44 @@ canvas {
 .font-check p {
   color: var(--ink-dim);
 }
+
+/* --- Circadian Theme Styling --- */
+body {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+body[data-time-of-day="morning"] {
+  --paper: #13171a; /* Frosty, pale blue-gray */
+  --paper-2: #1c2125;
+}
+
+body[data-time-of-day="afternoon"] {
+  --paper: #0f1214; /* Dim, neutral slate */
+  --paper-2: #181d21;
+}
+
+body[data-time-of-day="evening"] {
+  --paper: #0E0D0C; /* Standard warm dark */
+  --paper-2: #181613;
+}
+
+body[data-time-of-day="night"] {
+  --paper: #050505; /* Pitch black */
+  --paper-2: #0d0d0d;
+  --accent: #b02313; /* Deeper crimson */
+}
+
+/* Adjusting background forest image brightness according to time of day */
+body[data-time-of-day="morning"] .background-fog img {
+  filter: brightness(0.5) saturate(0.65) contrast(1.1) blur(1.5px) sepia(0.05);
+}
+body[data-time-of-day="afternoon"] .background-fog img {
+  filter: brightness(0.4) saturate(0.6) blur(1.5px);
+}
+body[data-time-of-day="evening"] .background-fog img {
+  filter: brightness(0.3) saturate(0.65) blur(1.5px);
+}
+body[data-time-of-day="night"] .background-fog img {
+  filter: brightness(0.12) saturate(0.4) contrast(1.2) blur(2.5px);
+}
+

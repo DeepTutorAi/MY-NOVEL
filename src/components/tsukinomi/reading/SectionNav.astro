@@ -21,7 +21,7 @@ const { previous, next } = Astro.props;
       {
         previous ? (
           <a href={withBase(`/tsukinomi/sections/${previous.id}/`)}>
-            ← ภาค {previous.data.number}: {previous.data.title}
+            ← {previous.data.number === 0 ? "บทนำ" : `ภาค ${previous.data.number}`}: {previous.data.title}
           </a>
         ) : (
           <a href={withBase("/tsukinomi/sections/")}>← สารบัญ</a>
@@ -32,7 +32,7 @@ const { previous, next } = Astro.props;
       {
         next ? (
           <a href={withBase(`/tsukinomi/sections/${next.id}/`)}>
-            ภาค {next.data.number}: {next.data.title} →
+            {next.data.number === 0 ? "บทนำ" : `ภาค ${next.data.number}`}: {next.data.title} →
           </a>
         ) : (
           <a href={withBase("/tsukinomi/")}>กลับหน้าสถานี →</a>

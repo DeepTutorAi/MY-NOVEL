@@ -293,3 +293,48 @@ html {
     transition-duration: 1ms;
   }
 }
+
+/* --- Circadian Theme Styling --- */
+.tsukinomi-page {
+  transition: background-color 0.5s ease, color 0.5s ease;
+}
+
+body[data-time-of-day="morning"] {
+  --tsuki-paper: #121021; /* Soft morning blue/indigo */
+  --tsuki-ink: #f0e9dd;
+}
+body[data-time-of-day="afternoon"] {
+  --tsuki-paper: #16122b; /* Warm afternoon violet */
+  --tsuki-ink: #eeddcc;
+}
+body[data-time-of-day="evening"] {
+  --tsuki-paper: #0E0B1E; /* Standard deep night */
+  --tsuki-ink: #ECE6DA;
+}
+body[data-time-of-day="night"] {
+  --tsuki-paper: #05040d; /* Pure dark midnight */
+  --tsuki-ink: #dcd6cb;
+}
+
+/* Adjusting the gradient backdrop to reflect time of day */
+body[data-time-of-day="morning"] .sakura-backdrop__tint {
+  background:
+    linear-gradient(180deg, rgba(14, 11, 30, 0.75) 0%, rgba(30, 36, 70, 0.65) 50%, rgba(230, 166, 189, 0.4) 100%),
+    radial-gradient(circle at 18% 92%, rgba(230, 166, 189, 0.25), transparent 30rem);
+}
+body[data-time-of-day="afternoon"] .sakura-backdrop__tint {
+  background:
+    linear-gradient(180deg, rgba(14, 11, 30, 0.8) 0%, rgba(46, 28, 56, 0.7) 44%, rgba(224, 138, 76, 0.45) 100%),
+    radial-gradient(circle at 18% 92%, rgba(224, 138, 76, 0.3), transparent 34rem);
+}
+body[data-time-of-day="evening"] .sakura-backdrop__tint {
+  background:
+    linear-gradient(180deg, rgba(14, 11, 30, 0.84) 0%, rgba(23, 20, 48, 0.74) 44%, rgba(181, 86, 47, 0.32) 100%),
+    radial-gradient(circle at 18% 92%, rgba(224, 138, 76, 0.18), transparent 34rem);
+}
+body[data-time-of-day="night"] .sakura-backdrop__tint {
+  background:
+    linear-gradient(180deg, rgba(6, 4, 15, 0.95) 0%, rgba(14, 11, 30, 0.9) 60%, rgba(30, 15, 45, 0.5) 100%),
+    radial-gradient(circle at 18% 92%, rgba(181, 86, 47, 0.08), transparent 34rem);
+}
+

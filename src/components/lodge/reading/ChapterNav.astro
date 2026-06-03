@@ -21,7 +21,9 @@ const { previous, next, isFinalChapter = false } = Astro.props;
     <div>
       {
         previous ? (
-          <a href={withBase(`/lodge/chapters/${previous.id}/`)}>← บทที่ {previous.data.number} — {previous.data.title}</a>
+          <a href={withBase(`/lodge/chapters/${previous.id}/`)}>
+            ← {previous.data.number === 0 ? "บทนำ" : `บทที่ ${previous.data.number}`} — {previous.data.title}
+          </a>
         ) : (
           <span aria-hidden="true"></span>
         )
@@ -38,7 +40,9 @@ const { previous, next, isFinalChapter = false } = Astro.props;
             แผนที่ปริศนา →
           </a>
         ) : next ? (
-          <a href={withBase(`/lodge/chapters/${next.id}/`)}>บทที่ {next.data.number} — {next.data.title} →</a>
+          <a href={withBase(`/lodge/chapters/${next.id}/`)}>
+            {next.data.number === 0 ? "บทนำ" : `บทที่ ${next.data.number}`} — {next.data.title} →
+          </a>
         ) : null
       }
     </div>

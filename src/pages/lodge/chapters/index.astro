@@ -3,6 +3,7 @@ import { getCollection } from "astro:content";
 import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
 import { ACTS } from "../../../data/lodge/acts";
 import { withBase } from "../../../utils/base-path";
+import { formatReadingTime } from "../../../utils/reading-time";
 import "../../../styles/lodge/chapter.css";
 
 const roman = ["I", "II", "III", "IV"];
@@ -21,8 +22,32 @@ const chapters = (await getCollection("chapters")).sort(
     <p class="toc-intro">เลือกอ่านตามบท บทอ่านจะเปิดในหน้าที่จัดสำหรับการอ่านยาวโดยเฉพาะ</p>
 
     {
+      chapters.filter(c => c.data.number === 0).map(c => (
+        <section class="toc-act">
+          <ul class="toc-list">
+            <li>
+              <a class="toc-row" data-chapter-id={c.id} href={withBase(`/lodge/chapters/${c.id}/`)}>
+                <span class="toc-row-number">บทนำ —</span>
+                <span class="toc-row-copy">
+                  <span class="toc-row-title">{c.data.title}</span>
+                  {c.data.thaiTitle && (
+                    <span class="toc-row-thai"> — {c.data.thaiTitle}</span>
+                  )}
+                  {c.data.summary && (
+                    <span class="toc-row-summary">{c.data.summary}</span>
+                  )}
+                </span>
+                <span class="toc-row-time">{formatReadingTime(c.data.readingMinutes)}</span>
+              </a>
+            </li>
+          </ul>
+        </section>
+      ))
+    }
+
+    {
       ACTS.map((act, index) => {
-        const actChapters = chapters.filter((chapter) => chapter.data.act === act.number);
+        const actChapters = chapters.filter((chapter) => chapter.data.act === act.number && chapter.data.number !== 0);
 
         return (
           <section class="toc-act" aria-labelledby={`act-${act.number}`}>
@@ -32,7 +57,7 @@ const chapters = (await getCollection("chapters")).sort(
             <ul class="toc-list">
               {actChapters.map((chapter) => (
                 <li>
-                  <a class="toc-row" href={withBase(`/lodge/chapters/${chapter.id}/`)}>
+                  <a class="toc-row" data-chapter-id={chapter.id} href={withBase(`/lodge/chapters/${chapter.id}/`)}>
                     <span class="toc-row-number">บทที่ {chapter.data.number} —</span>
                     <span class="toc-row-copy">
                       <span class="toc-row-title">{chapter.data.title}</span>
@@ -43,7 +68,7 @@ const chapters = (await getCollection("chapters")).sort(
                         <span class="toc-row-summary">{chapter.data.summary}</span>
                       )}
                     </span>
-                    <span class="toc-row-time">{chapter.data.readingMinutes} นาที</span>
+                    <span class="toc-row-time">{formatReadingTime(chapter.data.readingMinutes)}</span>
                   </a>
                 </li>
               ))}
@@ -53,4 +78,36 @@ const chapters = (await getCollection("chapters")).sort(
       })
     }
   </main>
+
+  <script>
+    const updateReads = () => {
+      try {
+        const raw = localStorage.getItem("hvitveldt:secret:reads");
+        const reads = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(reads)) {
+          const links = document.querySelectorAll(".toc-row[data-chapter-id]");
+          links.forEach((link) => {
+            if (link instanceof HTMLElement) {
+              const id = link.dataset.chapterId;
+              if (id && reads.includes(id)) {
+                link.classList.add("is-read");
+              }
+            }
+          });
+        }
+      } catch (e) {}
+    };
+
+    updateReads();
+    document.addEventListener("astro:page-load", updateReads);
+  </script>
+
+  <style>
+    .toc-row.is-read::after {
+      content: " 📌";
+      margin-left: 0.5rem;
+      font-size: 0.9em;
+      filter: drop-shadow(0 0 2px var(--accent));
+    }
+  </style>
 </LodgeBaseLayout>

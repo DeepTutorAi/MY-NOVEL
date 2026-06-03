@@ -4,6 +4,7 @@ import LodgeBaseLayout from "./LodgeBaseLayout.astro";
 import ReaderAmbience from "../../components/lodge/reading/ReaderAmbience.astro";
 import { musicCueForChapter } from "../../data/lodge/audio-cues";
 import "../../styles/lodge/chapter.css";
+/* typewriter animation style */
 
 type ChapterLayoutData = CollectionEntry<"chapters"> | {
   data: {
@@ -31,6 +32,16 @@ const pageTitle =
 const description =
   chapter.data.summary ||
   (typeof chapterNumber === "number" ? `บทที่ ${chapterNumber} ของ ${siteTitle}` : siteTitle);
+
+const EPIGRAPHS: Record<number, string> = {
+  1: "ความหนาวเหน็บในผืนป่าฟินมาร์กไม่เคยพรากสิ่งใดไปโดยปราศจากคำอนุญาต มันเพียงกลืนเสียงของคุณไปกับพายุหิมะ รอคอยให้คุณก้าวเท้าเข้าสู่ฮวิตเวลต์ ลอดจ์... ที่ซึ่งกฎทุกข้อไม่ใช่ข้อห้ามเพื่อความปลอดภัย ทว่าคือการตระเตรียมเหยื่ออย่างประณีตเพื่อให้คุณก้มหัวยอมรับมันโดยดุษฎี",
+  6: "เมื่อรอยร้าวเริ่มลามเลียความไว้เนื้อเชื่อใจ ความสยองขวัญที่แท้จริงไม่ได้กรีดร้องอยู่ในความมืดภายนอก แต่มันกำลังนั่งอยู่ฝั่งตรงข้ามในค่ำคืนนี้... ยามที่ใบหน้าคุ้นเคยนั้นหันมาสบตาคุณด้วยรอยยิ้มค้างนานเกินจริง และหัวใจเริ่มกรีดร้องเตือนว่า คนข้างกายอาจไม่ใช่เพื่อนร่วมทางคนเดิมอีกต่อไป",
+  13: "ดิ่งลึกลงไปภายใต้เปลือกนอกอันอบอุ่นของเปลวไฟในเตาผิง ทางเดินหินโบราณสลักอักขระซามิซ่อนตัวกบดานอยู่ใต้ดิน... นำพาไปสู่กองข้าวของทิ้งร้างของเหล่านักเดินทางที่เลือนหาย และพันธสัญญาโลหิตที่ต้องการเหยื่อสังเวยรายใหม่เพื่อต่อลมหายใจของสิ่งที่ ‘ไม่มาจากที่ใด’",
+  18: "หิมะละลายแล้ว และคุณอาจคิดว่าตนเองหนีพ้นความหนาวเหน็บมาสู่ความอึกทึกของนิวยอร์กได้สำเร็จ ทว่าความจริงแล้วคุณเพียงแบกกรงขังข้ามฤดูกาลกลับมาด้วย... ยามที่คุณจ้องมองกระจกเงาในบรูคลิน แล้วพบว่าภาพสะท้อนที่หันกลับมาสบตานั้น ไม่ใช่ตัวตนจริงของคุณอีกต่อไป"
+};
+
+const epigraphText = typeof chapterNumber === "number" ? EPIGRAPHS[chapterNumber] : undefined;
+const hasCutscene = !!epigraphText;
 ---
 
 <LodgeBaseLayout
@@ -39,6 +50,18 @@ const description =
   bodyClass={bodyClass ?? `chapter-page act-${chapter.data.act}`}
 >
   <ReaderAmbience />
+
+  {
+    hasCutscene && epigraphText && (
+      <div class="cutscene-overlay" id="cutscene-overlay">
+        <div class="cutscene-content">
+          <div class="cutscene-epigraph" id="cutscene-text"></div>
+          <button class="cutscene-continue" id="cutscene-continue">เดินทางต่อ</button>
+        </div>
+      </div>
+    )
+  }
+
   <main class="chapter-shell">
     <article
       class="chapter"
@@ -52,3 +75,150 @@ const description =
     </article>
   </main>
 </LodgeBaseLayout>
+
+{
+  hasCutscene && epigraphText && (
+    <script is:inline define:vars={{ epigraphText }}>
+      const runAnimation = () => {
+        const overlay = document.getElementById('cutscene-overlay');
+        const textEl = document.getElementById('cutscene-text');
+        const btn = document.getElementById('cutscene-continue');
+        if (!overlay || !textEl || !btn) return;
+
+        document.body.classList.add('has-cutscene');
+        textEl.textContent = '';
+        btn.classList.remove('is-visible');
+        btn.style.display = 'none';
+
+        let index = 0;
+        const speed = 40;
+
+        const type = () => {
+          if (index < epigraphText.length) {
+            textEl.textContent += epigraphText.charAt(index);
+            index++;
+            setTimeout(type, speed);
+          } else {
+            btn.style.display = 'block';
+            setTimeout(() => {
+              btn.classList.add('is-visible');
+            }, 100);
+          }
+        };
+
+        setTimeout(type, 800);
+
+        const onDismiss = () => {
+          overlay.classList.add('fade-out');
+          document.body.classList.remove('has-cutscene');
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 800);
+        };
+
+        btn.addEventListener('click', onDismiss, { once: true });
+      };
+
+      if (document.readyState !== 'loading') {
+        runAnimation();
+      } else {
+        document.addEventListener('DOMContentLoaded', runAnimation);
+      }
+      document.addEventListener('astro:page-load', runAnimation);
+    </script>
+  )
+}
+
+<style is:global>
+  body.has-cutscene {
+    overflow: hidden;
+  }
+  body.has-cutscene .snow-canvas {
+    z-index: 998 !important;
+  }
+
+  .cutscene-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    z-index: 997;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: var(--font-mono), monospace;
+    transition: opacity 800ms ease, visibility 800ms ease;
+  }
+
+  .cutscene-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .cutscene-content {
+    max-width: 38rem;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 3rem;
+    text-align: center;
+    z-index: 999;
+  }
+
+  .cutscene-epigraph {
+    color: #e5e5e5;
+    font-size: 1.2rem;
+    line-height: 1.8;
+    min-height: 7rem;
+    letter-spacing: 0.05em;
+    font-weight: 300;
+    text-shadow: 0 0 10px rgba(255,255,255,0.15);
+  }
+
+  .cutscene-epigraph::after {
+    content: "▋";
+    margin-left: 0.15rem;
+    color: var(--accent, #c24b3a);
+    animation: cutscene-caret-blink 1s step-start infinite;
+  }
+
+  @keyframes cutscene-caret-blink {
+    50% { opacity: 0; }
+  }
+
+  .cutscene-continue {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    color: rgba(255, 255, 255, 0.75);
+    padding: 0.75rem 2.2rem;
+    font-family: var(--font-mono), monospace;
+    font-size: 0.9rem;
+    letter-spacing: 0.15em;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 1s ease, transform 1s ease, border-color 0.3s ease, color 0.3s ease, background-color 0.3s ease;
+    display: none;
+  }
+
+  .cutscene-continue.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .cutscene-continue:hover {
+    border-color: var(--accent, #c24b3a);
+    color: #ffffff;
+    background: rgba(194, 75, 58, 0.1);
+    box-shadow: 0 0 15px rgba(194, 75, 58, 0.2);
+  }
+
+  @media (max-width: 600px) {
+    .cutscene-epigraph {
+      font-size: 1.05rem;
+      line-height: 1.7;
+    }
+  }
+</style>

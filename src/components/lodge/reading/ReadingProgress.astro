@@ -222,7 +222,7 @@
       el.classList.add("resume-highlight");
       setTimer(() => {
         el.classList.remove("resume-highlight");
-      }, 2100);
+      }, 3000);
     };
 
     const startResume = () => {
@@ -299,11 +299,96 @@
       }
     };
 
-    const handlePageHide = () => saveProgress(getRatio());
+    // --- SECRET READING TRACKING SYSTEM ---
+    const secretTimersKey = "hvitveldt:secret:timers";
+    const secretReadsKey = "hvitveldt:secret:reads";
+    const SECRET_THRESHOLD_SEC = 420; // 7 minutes
+
+    let activeSeconds = 0;
+    let lastInteraction = Date.now();
+
+    const loadSecretTimers = (): Record<string, number> => {
+      try {
+        const raw = localStorage.getItem(secretTimersKey);
+        return raw ? JSON.parse(raw) : {};
+      } catch {
+        return {};
+      }
+    };
+
+    const saveSecretTimers = (timersObj: Record<string, number>) => {
+      try {
+        localStorage.setItem(secretTimersKey, JSON.stringify(timersObj));
+      } catch {}
+    };
+
+    const getSecretReads = (): string[] => {
+      try {
+        const raw = localStorage.getItem(secretReadsKey);
+        return Array.isArray(raw ? JSON.parse(raw) : null) ? JSON.parse(raw!) : [];
+      } catch {
+        return [];
+      }
+    };
+
+    const saveSecretReads = (reads: string[]) => {
+      try {
+        localStorage.setItem(secretReadsKey, JSON.stringify(reads));
+      } catch {}
+    };
+
+    if (chapterId) {
+      const currentTimers = loadSecretTimers();
+      activeSeconds = currentTimers[chapterId] || 0;
+    }
+
+    const recordInteraction = () => {
+      lastInteraction = Date.now();
+    };
+
+    const updateSecretTimer = () => {
+      if (!chapterId) return;
+      const now = Date.now();
+      // User is active if there was interaction in the last 60 seconds
+      if (now - lastInteraction < 60000) {
+        activeSeconds += 1;
+
+        if (activeSeconds % 10 === 0 || activeSeconds >= SECRET_THRESHOLD_SEC) {
+          const currentTimers = loadSecretTimers();
+          currentTimers[chapterId] = activeSeconds;
+          saveSecretTimers(currentTimers);
+        }
+
+        if (activeSeconds >= SECRET_THRESHOLD_SEC) {
+          const currentReads = getSecretReads();
+          if (!currentReads.includes(chapterId)) {
+            currentReads.push(chapterId);
+            saveSecretReads(currentReads);
+          }
+        }
+      }
+    };
+
+    const secretInterval = window.setInterval(updateSecretTimer, 1000);
+
+    const handlePageHide = () => {
+      saveProgress(getRatio());
+      if (chapterId) {
+        const currentTimers = loadSecretTimers();
+        currentTimers[chapterId] = activeSeconds;
+        saveSecretTimers(currentTimers);
+      }
+    };
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
     window.addEventListener("pagehide", handlePageHide);
+
+    // Interaction listeners for secret tracking
+    window.addEventListener("mousemove", recordInteraction, { passive: true });
+    window.addEventListener("keydown", recordInteraction, { passive: true });
+    window.addEventListener("touchstart", recordInteraction, { passive: true });
+    window.addEventListener("click", recordInteraction, { passive: true });
 
     startResume();
     update();
@@ -313,6 +398,12 @@
         window.removeEventListener("scroll", requestUpdate);
         window.removeEventListener("resize", requestUpdate);
         window.removeEventListener("pagehide", handlePageHide);
+        window.removeEventListener("mousemove", recordInteraction);
+        window.removeEventListener("keydown", recordInteraction);
+        window.removeEventListener("touchstart", recordInteraction);
+        window.removeEventListener("click", recordInteraction);
+        window.clearInterval(secretInterval);
+        
         if (loadStart) {
           window.removeEventListener("load", loadStart);
         }

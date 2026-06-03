@@ -1,6 +1,6 @@
 <style is:global>
   @media (min-width: 761px) {
-    article.tsukinomi-section:not([data-section-palette="snow-pact"]) > p:first-of-type::first-letter {
+    article.tsukinomi-section:not([data-section-palette="snow-pact"]) > p.has-dropcap::first-letter {
       float: left;
       margin: 0.12em 0.32em 0.02em 0;
       color: var(--accent-warm);
@@ -10,8 +10,8 @@
       line-height: 0.98;
     }
 
-    .palette-twilight article.tsukinomi-section > p:first-of-type::first-letter,
-    .palette-winter-light article.tsukinomi-section > p:first-of-type::first-letter {
+    .palette-twilight article.tsukinomi-section > p.has-dropcap::first-letter,
+    .palette-winter-light article.tsukinomi-section > p.has-dropcap::first-letter {
       color: var(--accent-cold);
     }
   }
