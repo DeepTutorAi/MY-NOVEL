@@ -255,7 +255,7 @@ export class WalkmanAudio {
       const howl = new Howl({
         src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
         loop: true,
-        html5: false,
+        html5: true,
         preload: false,
         volume: 0,
         onloaderror: (_, error) => this.handleLoadError(error),
@@ -275,7 +275,7 @@ export class WalkmanAudio {
     const howl = new Howl({
       src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
       loop: true,
-      html5: false,
+      html5: true,
       preload: false,
       volume: 0,
       onloaderror: (_, error) => this.handleLoadError(error),

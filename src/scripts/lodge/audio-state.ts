@@ -153,7 +153,7 @@ export class AmbientAudio {
       const howl = new Howl({
         src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
         loop: true,
-        html5: false,
+        html5: true,
         preload: true,
         volume: 0,
         onloaderror: (_, error) => this.handleLoadError(error),

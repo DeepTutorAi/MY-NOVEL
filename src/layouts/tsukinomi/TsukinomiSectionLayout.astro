@@ -37,7 +37,7 @@ const hasCutscene = !!epigraphText;
 >
   {
     hasCutscene && epigraphText && (
-      <div class="cutscene-overlay" id="cutscene-overlay">
+      <div class="cutscene-overlay" id="cutscene-overlay" style="display: none;">
         <div class="cutscene-content">
           <div class="cutscene-epigraph" id="cutscene-text">
             {
@@ -185,14 +185,27 @@ const hasCutscene = !!epigraphText;
 
 {
   hasCutscene && epigraphText && (
-    <script is:inline define:vars={{ textLength: epigraphText.length }}>
+    <script is:inline define:vars={{ textLength: epigraphText.length, sectionNumber: section.data.number }}>
       const runTsukiAnimation = () => {
         const overlay = document.getElementById('cutscene-overlay');
         const btn = document.getElementById('cutscene-continue');
         if (!overlay || !btn) return;
+
+        // Check 1-day (24 hours) cooldown
+        const cooldownKey = `tsukinomi:cutscene:played:${sectionNumber}`;
+        const lastPlayed = localStorage.getItem(cooldownKey);
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (lastPlayed && (now - Number(lastPlayed)) < oneDay) {
+          return;
+        }
+
         if (overlay.dataset.cutsceneStarted === 'true') return;
         overlay.dataset.cutsceneStarted = 'true';
 
+        // Show overlay and start character fading animation
+        overlay.style.display = 'flex';
         document.body.classList.add('has-cutscene');
         btn.classList.remove('is-visible');
         btn.style.display = 'none';
@@ -212,6 +225,9 @@ const hasCutscene = !!epigraphText;
         const onDismiss = () => {
           overlay.classList.add('fade-out');
           document.body.classList.remove('has-cutscene');
+          try {
+            localStorage.setItem(cooldownKey, String(Date.now()));
+          } catch (e) {}
           setTimeout(() => {
             overlay.style.display = 'none';
           }, 800);

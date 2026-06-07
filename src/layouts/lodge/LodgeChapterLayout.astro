@@ -35,7 +35,7 @@ const description =
 
 const EPIGRAPHS: Record<number, string> = {
   0: "ถ้าบันทึกเล่มนี้อยู่ในมือคุณแล้ว อย่าเชื่อทุกครั้งที่ฉันเขียนคำว่า \"ฉัน\"... เพราะบางครั้งสิ่งที่กลับออกมาจากพายุ ไม่ได้เป็นเจ้าของชื่อที่มันใช้เรียกตัวเองอีกต่อไป",
-  1: "ความหนาวเหน็บในผืนป่าฟินมาร์กไม่เคยพรากสิ่งใดไปโดยปราศจากคำอนุญาต มันเพียงกลืนเสียงของคุณไปกับพายุหิมะ รอคอยให้คุณก้าวเท้าเข้าสู่ฮวิตเวลต์ ลอดจ์... ที่ซึ่งกฎทุกข้อไม่ใช่ข้อห้ามเพื่อความปลอดภัย ทว่าคือการตระเตรียมเหยื่ออย่างประณีตเพื่อให้คุณก้มหัวยอมรับมันโดยดุษฎี",
+  1: "ความหนาวเหน็บในผืนป่าฟินมาร์กไม่เคยพรากสิ่งใดไปโดยปราศจากคำอนุญาต มันเพียงกลืนเสียงของคุณไปกับพายุหิมะ รอคอยให้คุณก้าวเท้าเข้าสู่ฮวิตเวลต์ ลอดจ์... ที่ซึ่งกฎทุกข้อไม่ใช่ข้อห้ามเพื่อความปลอดภัย ทว่าคือการตระเตรียมเหยื่ออย่างประณีตเพื่อให้คุณก้มหัวยอมรับมันแต่โดยดี",
   6: "เมื่อรอยร้าวเริ่มลามเลียความไว้เนื้อเชื่อใจ ความสยองขวัญที่แท้จริงไม่ได้กรีดร้องอยู่ในความมืดภายนอก แต่มันกำลังนั่งอยู่ฝั่งตรงข้ามในค่ำคืนนี้... ยามที่ใบหน้าคุ้นเคยนั้นหันมาสบตาคุณด้วยรอยยิ้มค้างนานเกินจริง และหัวใจเริ่มกรีดร้องเตือนว่า คนข้างกายอาจไม่ใช่เพื่อนร่วมทางคนเดิมอีกต่อไป",
   13: "ดิ่งลึกลงไปภายใต้เปลือกนอกอันอบอุ่นของเปลวไฟในเตาผิง ทางเดินหินโบราณสลักอักขระซามิซ่อนตัวกบดานอยู่ใต้ดิน... นำพาไปสู่กองข้าวของทิ้งร้างของเหล่านักเดินทางที่เลือนหาย และพันธสัญญาโลหิตที่ต้องการเหยื่อสังเวยรายใหม่เพื่อต่อลมหายใจของสิ่งที่ ‘ไม่มาจากที่ใด’",
   18: "หิมะละลายแล้ว และคุณอาจคิดว่าตนเองหนีพ้นความหนาวเหน็บมาสู่ความอึกทึกของนิวยอร์กได้สำเร็จ ทว่าความจริงแล้วคุณเพียงแบกกรงขังข้ามฤดูกาลกลับมาด้วย... ยามที่คุณจ้องมองกระจกเงาในบรูคลิน แล้วพบว่าภาพสะท้อนที่หันกลับมาสบตานั้น ไม่ใช่ตัวตนจริงของคุณอีกต่อไป"
@@ -54,7 +54,7 @@ const hasCutscene = !!epigraphText;
 
   {
     hasCutscene && epigraphText && (
-      <div class="cutscene-overlay" id="cutscene-overlay">
+      <div class="cutscene-overlay" id="cutscene-overlay" style="display: none;">
         <div class="cutscene-content">
           <div class="cutscene-epigraph" id="cutscene-text"></div>
           <button class="cutscene-continue" id="cutscene-continue">เดินทางต่อ</button>
@@ -79,15 +79,28 @@ const hasCutscene = !!epigraphText;
 
 {
   hasCutscene && epigraphText && (
-    <script is:inline define:vars={{ epigraphText }}>
+    <script is:inline define:vars={{ epigraphText, chapterNumber }}>
       const runAnimation = () => {
         const overlay = document.getElementById('cutscene-overlay');
         const textEl = document.getElementById('cutscene-text');
         const btn = document.getElementById('cutscene-continue');
         if (!overlay || !textEl || !btn) return;
+
+        // Check 1-day (24 hours) cooldown
+        const cooldownKey = `hvitveldt:cutscene:played:${chapterNumber}`;
+        const lastPlayed = localStorage.getItem(cooldownKey);
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (lastPlayed && (now - Number(lastPlayed)) < oneDay) {
+          return;
+        }
+
         if (overlay.dataset.cutsceneStarted === 'true') return;
         overlay.dataset.cutsceneStarted = 'true';
 
+        // Show overlay and start typing animation
+        overlay.style.display = 'flex';
         document.body.classList.add('has-cutscene');
         textEl.textContent = '';
         btn.classList.remove('is-visible');
@@ -114,6 +127,9 @@ const hasCutscene = !!epigraphText;
         const onDismiss = () => {
           overlay.classList.add('fade-out');
           document.body.classList.remove('has-cutscene');
+          try {
+            localStorage.setItem(cooldownKey, String(Date.now()));
+          } catch (e) {}
           setTimeout(() => {
             overlay.style.display = 'none';
           }, 800);
