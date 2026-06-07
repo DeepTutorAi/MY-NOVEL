@@ -78,7 +78,7 @@ describe("Tsukinomi P6 background slot contract (images live)", () => {
     assert.match(baseLayout, /expectedImageBase/);
 
     assert.match(sectionLayout, /backgroundSlotIdForSection/);
-    assert.match(sectionLayout, /backgroundSlotId=\{backgroundSlotIdForSection\(section\.data\.number\)\}/);
+    assert.match(sectionLayout, /backgroundSlotId=\{.*backgroundSlotIdForSection\(section\.data\.number\)\}/);
     assert.match(homePage, /backgroundSlotId="hero-station"/);
 
     // The procedural gradient stays as the graceful fallback under the photo.

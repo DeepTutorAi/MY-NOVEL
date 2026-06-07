@@ -113,9 +113,18 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
 
     const SECRET_READS_KEY = "hvitveldt:secret:reads";
     const BYPASS_KEY = "hvitveldt:extra-bypassed";
-    const BYPASS_PASSWORD = "lodge-bypass-gate-2026";
+    // Double hash verification: H2 = sha256(H1)
+    const EXPECTED_H2 = "6d4829eebb416434779797994fa3b4324fcf1b3eb2392c99b0c6599313b8dad7";
     const TOTAL_CHAPTERS = 18;
     const UNLOCK_THRESHOLD = 15; // 80% of 18 is 14.4 -> 15 chapters
+
+    // SHA-256 helper
+    async function sha256(message: string): Promise<string> {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     const getSecretReadsCount = (): number => {
       try {
@@ -130,14 +139,18 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
       }
     };
 
-    const checkUnlocked = (): boolean => {
-      if (localStorage.getItem(BYPASS_KEY) === "true") {
-        return true;
+    const checkUnlocked = async (): Promise<boolean> => {
+      const storedH1 = localStorage.getItem(BYPASS_KEY);
+      if (storedH1) {
+        const calculatedH2 = await sha256(storedH1);
+        if (calculatedH2 === EXPECTED_H2) {
+          return true;
+        }
       }
       return getSecretReadsCount() >= UNLOCK_THRESHOLD;
     };
 
-    const updateUI = () => {
+    const updateUI = async () => {
       const readCount = getSecretReadsCount();
       const percent = Math.round((readCount / TOTAL_CHAPTERS) * 100);
 
@@ -148,7 +161,8 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
         status.textContent = `${readCount} / ${TOTAL_CHAPTERS} บท (${percent}%)`;
       }
 
-      if (checkUnlocked()) {
+      const unlocked = await checkUnlocked();
+      if (unlocked) {
         gate?.setAttribute("hidden", "");
         content?.removeAttribute("hidden");
       } else {
@@ -157,12 +171,15 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
       }
     };
 
-    const attemptBypass = () => {
+    const attemptBypass = async () => {
       if (passwordInput instanceof HTMLInputElement) {
-        if (passwordInput.value.trim() === BYPASS_PASSWORD) {
-          localStorage.setItem(BYPASS_KEY, "true");
+        const password = passwordInput.value.trim();
+        const h1 = await sha256(password);
+        const h2 = await sha256(h1);
+        if (h2 === EXPECTED_H2) {
+          localStorage.setItem(BYPASS_KEY, h1);
           bypassError?.setAttribute("hidden", "");
-          updateUI();
+          await updateUI();
         } else {
           bypassError?.removeAttribute("hidden");
         }

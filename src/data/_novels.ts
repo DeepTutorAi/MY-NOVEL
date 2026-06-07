@@ -39,6 +39,6 @@ export const NOVELS = [
     heroState: "image",
     accent: "#C98648",
     href: "/tsukinomi/",
-    status: "เผยแพร่",
+    status: "เร็วๆ นี้",
   },
 ] as const satisfies readonly NovelMeta[];

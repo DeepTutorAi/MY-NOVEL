@@ -42,6 +42,7 @@ describe("Tsukinomi P5 Walkman audio contract", () => {
     assert.match(cueData, /previousMusicCue/);
 
     const expectedBySection = new Map([
+      [0, "discovery"],
       [1, "discovery"],
       [2, "reveal"],
       [3, "decision"],

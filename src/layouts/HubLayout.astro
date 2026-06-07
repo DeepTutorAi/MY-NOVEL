@@ -25,6 +25,50 @@ const faviconPng = withBase("/favicon.png");
 <!doctype html>
 <html lang="th">
   <head>
+    <script is:inline>
+      (function() {
+        if (window.__localStorageIntercepted) return;
+        window.__localStorageIntercepted = true;
+
+        const originalGet = localStorage.getItem;
+        const originalSet = localStorage.setItem;
+        const originalRemove = localStorage.removeItem;
+
+        function getActiveProfileId() {
+          try {
+            return originalGet.call(localStorage, "piichan-novels:active-profile-id") || "guest";
+          } catch(e) {
+            return "guest";
+          }
+        }
+
+        function getProfileKey(key) {
+          const prefixes = [
+            "hvitveldt:reading:",
+            "tsukinomi:reading:",
+            "hvitveldt:secret:",
+            "tsukinomi:reading:secret:",
+            "hvitveldt:extra-bypassed",
+            "tsukinomi:extra-bypassed"
+          ];
+          if (prefixes.some(p => key.startsWith(p))) {
+            const activeProfile = getActiveProfileId();
+            return `${key}:${activeProfile}`;
+          }
+          return key;
+        }
+
+        localStorage.getItem = function(key) {
+          return originalGet.call(localStorage, getProfileKey(key));
+        };
+        localStorage.setItem = function(key, value) {
+          originalSet.call(localStorage, getProfileKey(key), value);
+        };
+        localStorage.removeItem = function(key) {
+          originalRemove.call(localStorage, getProfileKey(key));
+        };
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>

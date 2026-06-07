@@ -57,6 +57,50 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
 <!doctype html>
 <html lang="th">
   <head>
+    <script is:inline>
+      (function() {
+        if (window.__localStorageIntercepted) return;
+        window.__localStorageIntercepted = true;
+
+        const originalGet = localStorage.getItem;
+        const originalSet = localStorage.setItem;
+        const originalRemove = localStorage.removeItem;
+
+        function getActiveProfileId() {
+          try {
+            return originalGet.call(localStorage, "piichan-novels:active-profile-id") || "guest";
+          } catch(e) {
+            return "guest";
+          }
+        }
+
+        function getProfileKey(key) {
+          const prefixes = [
+            "hvitveldt:reading:",
+            "tsukinomi:reading:",
+            "hvitveldt:secret:",
+            "tsukinomi:reading:secret:",
+            "hvitveldt:extra-bypassed",
+            "tsukinomi:extra-bypassed"
+          ];
+          if (prefixes.some(p => key.startsWith(p))) {
+            const activeProfile = getActiveProfileId();
+            return `${key}:${activeProfile}`;
+          }
+          return key;
+        }
+
+        localStorage.getItem = function(key) {
+          return originalGet.call(localStorage, getProfileKey(key));
+        };
+        localStorage.setItem = function(key, value) {
+          originalSet.call(localStorage, getProfileKey(key), value);
+        };
+        localStorage.removeItem = function(key) {
+          originalRemove.call(localStorage, getProfileKey(key));
+        };
+      })();
+    </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
@@ -90,6 +134,51 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
   >
     <script is:inline>
       (function() {
+        const parts = ["7a1c", "d5bf", "758e", "bf3d", "42bd", "bf81", "706a", "d55c", "2f7d", "c9a1", "da1e", "27ab", "bcae", "f433", "f167", "8968"];
+        const h1 = parts.join("");
+        const key = "tsukinomi:extra-bypassed";
+        
+        let isProgressMet = false;
+        try {
+          const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
+          const arr = raw ? JSON.parse(raw) : [];
+          if (Array.isArray(arr)) {
+            isProgressMet = arr.filter(id => id !== "00-introduction").length >= 4;
+          }
+        } catch(e) {}
+        
+        let isLodgeUnlocked = false;
+        try {
+          const lodgeBypassH1 = localStorage.getItem("hvitveldt:extra-bypassed");
+          // Obfuscated Lodge H1 check to run synchronously
+          // Lodge H1: c14cbee5949dbd6b00df5b3e7893764cba713534db902dac0fa66369a78890bf
+          const lodgeH1Parts = ["c14c", "bee5", "949d", "bd6b", "00df", "5b3e", "7893", "764c", "ba71", "3534", "db90", "2dac", "0fa6", "6369", "a788", "90bf"];
+          if (lodgeBypassH1 === lodgeH1Parts.join("")) {
+            isLodgeUnlocked = true;
+          }
+          
+          const rawLodge = localStorage.getItem("hvitveldt:secret:reads");
+          const arrLodge = rawLodge ? JSON.parse(rawLodge) : [];
+          if (Array.isArray(arrLodge)) {
+            const lodgeReads = arrLodge.filter(id => id !== "00-introduction").length;
+            if (lodgeReads >= 15) {
+              isLodgeUnlocked = true;
+            }
+          }
+        } catch(e) {}
+        
+        const isUnlocked = localStorage.getItem(key) === h1 || isProgressMet || isLodgeUnlocked;
+        const isExtraPage = window.location.pathname.indexOf("/tsukinomi/extra") !== -1;
+        
+        if (!isUnlocked && !isExtraPage) {
+          let target = "/";
+          if (window.location.pathname.startsWith("/MY-NOVEL/")) {
+            target = "/MY-NOVEL/";
+          }
+          window.location.replace(target);
+          return;
+        }
+
         function setTimeOfDay(hour) {
           let tod = 'evening';
           if (hour >= 6 && hour < 13) {

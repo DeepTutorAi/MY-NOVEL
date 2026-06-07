@@ -120,9 +120,18 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
 
     const SECRET_READS_KEY = "tsukinomi:reading:secret:reads";
     const BYPASS_KEY = "tsukinomi:extra-bypassed";
-    const BYPASS_PASSWORD = "tsukinomi-bypass-gate-2026";
+    // Double hash verification: H2 = sha256(H1)
+    const EXPECTED_H2 = "ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18";
     const TOTAL_SECTIONS = 5;
     const UNLOCK_THRESHOLD = 4; // 80% of 5 is 4 sections
+
+    // SHA-256 helper
+    async function sha256(message: string): Promise<string> {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
 
     const getSecretReadsCount = (): number => {
       try {
@@ -137,14 +146,18 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
       }
     };
 
-    const checkUnlocked = (): boolean => {
-      if (localStorage.getItem(BYPASS_KEY) === "true") {
-        return true;
+    const checkUnlocked = async (): Promise<boolean> => {
+      const storedH1 = localStorage.getItem(BYPASS_KEY);
+      if (storedH1) {
+        const calculatedH2 = await sha256(storedH1);
+        if (calculatedH2 === EXPECTED_H2) {
+          return true;
+        }
       }
       return getSecretReadsCount() >= UNLOCK_THRESHOLD;
     };
 
-    const updateUI = () => {
+    const updateUI = async () => {
       const readCount = getSecretReadsCount();
       const percent = Math.round((readCount / TOTAL_SECTIONS) * 100);
 
@@ -155,7 +168,8 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
         status.textContent = `${readCount} / ${TOTAL_SECTIONS} ภาค (${percent}%)`;
       }
 
-      if (checkUnlocked()) {
+      const unlocked = await checkUnlocked();
+      if (unlocked) {
         gate?.setAttribute("hidden", "");
         content?.removeAttribute("hidden");
       } else {
@@ -164,12 +178,15 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
       }
     };
 
-    const attemptBypass = () => {
+    const attemptBypass = async () => {
       if (passwordInput instanceof HTMLInputElement) {
-        if (passwordInput.value.trim() === BYPASS_PASSWORD) {
-          localStorage.setItem(BYPASS_KEY, "true");
+        const password = passwordInput.value.trim();
+        const h1 = await sha256(password);
+        const h2 = await sha256(h1);
+        if (h2 === EXPECTED_H2) {
+          localStorage.setItem(BYPASS_KEY, h1);
           bypassError?.setAttribute("hidden", "");
-          updateUI();
+          await updateUI();
         } else {
           bypassError?.removeAttribute("hidden");
         }
