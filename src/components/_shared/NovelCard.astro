@@ -158,11 +158,11 @@ const useImage = novel.heroState !== "placeholder";
         const updateCardUI = async () => {
           const unlocked = await checkUnlocked();
           if (unlocked && activeCard && lockedCard) {
-            activeCard.style.display = 'flex';
+            activeCard.style.display = '';
             lockedCard.style.display = 'none';
           } else if (activeCard && lockedCard) {
             activeCard.style.display = 'none';
-            lockedCard.style.display = 'flex';
+            lockedCard.style.display = '';
           }
         };
 

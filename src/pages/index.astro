@@ -19,12 +19,17 @@ import HubLayout from "../layouts/HubLayout.astro";
       <div class="hub-side-col">
         <div class="hub-profile-widget" data-profile-widget style="display: none;">
           <div class="hub-profile-info">
-            <span class="profile-icon">👤</span>
+            <span class="profile-icon" data-profile-icon>👤</span>
             <span class="profile-name" data-profile-name>...</span>
           </div>
-          <button type="button" class="hub-profile-settings-btn" data-profile-settings-btn>
-            สลับโปรไฟล์ / สำรองข้อมูล
-          </button>
+          <div class="hub-profile-actions">
+            <button type="button" class="hub-profile-edit-btn" data-profile-edit-btn>
+              แก้ไขโปรไฟล์
+            </button>
+            <button type="button" class="hub-profile-settings-btn" data-profile-settings-btn>
+              สลับ Guest
+            </button>
+          </div>
         </div>
         <p class="hub-side-note">ฮับกลางสำหรับนิยายที่เปิดให้อ่านแล้ว และเรื่องถัดไปที่กำลังรอเวลาเดินทางมาถึง</p>
       </div>
@@ -42,76 +47,68 @@ import HubLayout from "../layouts/HubLayout.astro";
     </footer>
   </main>
 
-  <!-- WELCOME PROFILE OVERLAY -->
-  <div class="hub-modal-overlay" data-welcome-modal style="display: none;">
+  <!-- EDIT PROFILE MODAL -->
+  <div class="hub-modal-overlay" data-edit-profile-modal style="display: none;">
     <div class="hub-modal-card">
       <div class="modal-header">
-        <h2>ยินดีต้อนรับสู่คลังนิยาย</h2>
+        <h2>แก้ไขโปรไฟล์ Guest</h2>
+        <button type="button" class="modal-close-btn" data-edit-profile-close-btn>×</button>
       </div>
       <div class="modal-body">
-        <p class="modal-desc">
-          เพื่อบันทึกประวัติการอ่านของแต่ละบุคคลอย่างถาวรและเป็นสัดส่วน (สามารถแชร์เครื่องอ่านกันได้โดยประวัติไม่ปนกัน) โปรดเลือกเข้าใช้งาน:
-        </p>
-        
         <div class="modal-form-group">
-          <label for="new-profile-name">สร้างโปรไฟล์ใหม่ (พิมพ์ชื่อของคุณ)</label>
-          <div class="modal-input-row">
-            <input type="text" id="new-profile-name" placeholder="ระบุชื่อโปรไฟล์..." maxlength="15" />
-            <button type="button" class="btn-primary" data-create-profile-btn>สร้าง</button>
+          <label for="edit-profile-name">ชื่อของคุณ (เปลี่ยนได้ตามใจชอบ)</label>
+          <input type="text" id="edit-profile-name" placeholder="ระบุชื่อของคุณ..." maxlength="20" />
+        </div>
+        
+        <div class="modal-form-group" style="margin-top: 16px;">
+          <label>รูปโปรไฟล์ (เลือกอิโมจิ หรือวางลิงก์รูปภาพ)</label>
+          <div class="avatar-selectors">
+            <button type="button" class="avatar-preset-btn" data-preset="👤">👤</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🐱">🐱</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🐶">🐶</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🐸">🐸</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🦊">🦊</button>
+            <button type="button" class="avatar-preset-btn" data-preset="👻">👻</button>
+            <button type="button" class="avatar-preset-btn" data-preset="👽">👽</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🤖">🤖</button>
+            <button type="button" class="avatar-preset-btn" data-preset="💩">💩</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🤡">🤡</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🍆">🍆</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🍑">🍑</button>
+            <button type="button" class="avatar-preset-btn" data-preset="💦">💦</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🤪">🤪</button>
+            <button type="button" class="avatar-preset-btn" data-preset="🖕">🖕</button>
+          </div>
+          
+          <div style="display: flex; gap: 8px; margin-top: 8px;">
+            <input type="text" id="edit-profile-avatar-input" placeholder="พิมพ์ข้อความ/วางลิงก์รูปภาพ..." style="flex: 1;" />
           </div>
         </div>
         
-        <div class="modal-divider"><span>หรือ</span></div>
-        
-        <button type="button" class="btn-secondary btn-full" data-guest-profile-btn>
-          เข้าใช้งานในฐานะ Guest (ผู้เข้าชมชั่วคราว)
+        <button type="button" class="btn-primary btn-full" style="margin-top: 24px;" data-save-profile-btn>
+          บันทึกการเปลี่ยนแปลง
         </button>
       </div>
     </div>
   </div>
 
-  <!-- SWITCH PROFILE & SETTINGS MODAL -->
+  <!-- SWITCH PROFILE MODAL -->
   <div class="hub-modal-overlay" data-settings-modal style="display: none;">
     <div class="hub-modal-card">
       <div class="modal-header">
-        <h2>สลับโปรไฟล์ / สำรองข้อมูล</h2>
+        <h2>สลับโปรไฟล์ Guest</h2>
         <button type="button" class="modal-close-btn" data-settings-close-btn>×</button>
       </div>
       <div class="modal-body">
-        <!-- Profile list -->
         <section class="settings-section">
-          <h3>👤 โปรไฟล์ทั้งหมดบนเครื่องนี้</h3>
+          <h3>👥 โปรไฟล์ Guest ทั้งหมดบนเครื่องนี้</h3>
           <div class="profiles-list" data-profiles-list>
             <!-- Profiles generated dynamically -->
           </div>
           
-          <div class="add-profile-inline">
-            <input type="text" id="inline-profile-name" placeholder="เพิ่มโปรไฟล์ใหม่..." maxlength="15" />
-            <button type="button" data-inline-create-btn>เพิ่ม</button>
-          </div>
-        </section>
-        
-        <!-- Backup / Restore -->
-        <section class="settings-section border-top">
-          <h3>💾 ระบบสำรองและกู้คืนข้อมูล</h3>
-          <p class="section-desc">
-            คัดลอกรหัสสำรองข้อมูลเก็บไว้ เพื่อป้องกันความคืบหน้าการอ่านสูญหายหากเบราว์เซอร์ล้างข้อมูลแคช
-          </p>
-          
-          <div class="backup-group">
-            <label>รหัสสำรองข้อมูลของคุณ (Copy ไปเก็บไว้)</label>
-            <textarea id="backup-code-text" readonly onclick="this.select()"></textarea>
-            <button type="button" class="btn-copy" data-copy-backup-btn>คัดลอกรหัส</button>
-          </div>
-          
-          <div class="restore-group">
-            <label for="restore-code-input">วางรหัสเพื่อกู้คืนข้อมูลที่นี่</label>
-            <div class="restore-input-row">
-              <input type="text" id="restore-code-input" placeholder="วางรหัสกู้คืนที่นี่..." />
-              <button type="button" class="btn-restore" data-restore-btn>กู้คืน</button>
-            </div>
-            <p class="restore-error" data-restore-error style="display: none; color: #ff6b6b; font-size: 0.85rem; margin-top: 0.4rem;"></p>
-          </div>
+          <button type="button" class="btn-primary btn-full" style="margin-top: 12px;" data-add-guest-btn>
+            ➕ เพิ่ม Guest ใหม่ (สุ่มชื่อปั่นๆ)
+          </button>
         </section>
       </div>
     </div>
@@ -148,26 +145,54 @@ import HubLayout from "../layouts/HubLayout.astro";
   }
 
   .profile-icon {
-    font-size: 1.1rem;
+    font-size: 1.25rem;
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    overflow: hidden;
+  }
+
+  .profile-icon img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
   }
 
   .profile-name {
     font-weight: 500;
     color: var(--hub-ink);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 180px;
   }
 
+  .hub-profile-actions {
+    display: flex;
+    gap: 6px;
+    width: 100%;
+  }
+
+  .hub-profile-edit-btn,
   .hub-profile-settings-btn {
+    flex: 1;
     background: none;
     border: 1px solid var(--hub-line);
     color: var(--hub-muted);
-    font-size: 0.8rem;
-    padding: 6px 10px;
+    font-size: 0.75rem;
+    padding: 6px 4px;
     border-radius: 4px;
     cursor: pointer;
     text-align: center;
     transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
   }
 
+  .hub-profile-edit-btn:hover,
   .hub-profile-settings-btn:hover {
     background: rgba(238, 232, 221, 0.05);
     color: var(--hub-ink);
@@ -232,13 +257,6 @@ import HubLayout from "../layouts/HubLayout.astro";
     padding: 24px;
   }
 
-  .modal-desc {
-    color: var(--hub-muted);
-    font-size: 0.95rem;
-    line-height: 1.6;
-    margin: 0 0 20px;
-  }
-
   .modal-form-group {
     display: flex;
     flex-direction: column;
@@ -250,21 +268,12 @@ import HubLayout from "../layouts/HubLayout.astro";
     color: var(--hub-muted);
   }
 
-  .modal-input-row {
-    display: flex;
-    gap: 8px;
-  }
-
-  .modal-input-row input,
-  .restore-input-row input,
-  .add-profile-inline input {
-    flex: 1;
+  .modal-form-group input {
     background: rgba(0, 0, 0, 0.25);
     border: 1px solid var(--hub-line);
     color: var(--hub-ink);
     padding: 8px 12px;
     border-radius: 4px;
-    font-size: 0.95rem;
   }
 
   .btn-primary {
@@ -283,43 +292,36 @@ import HubLayout from "../layouts/HubLayout.astro";
     opacity: 0.9;
   }
 
-  .modal-divider {
-    display: flex;
-    align-items: center;
-    text-align: center;
-    color: var(--hub-faint);
-    margin: 20px 0;
-    font-size: 0.85rem;
-  }
-
-  .modal-divider::before,
-  .modal-divider::after {
-    content: '';
-    flex: 1;
-    border-bottom: 1px solid var(--hub-line);
-  }
-
-  .modal-divider span {
-    padding: 0 10px;
-  }
-
-  .btn-secondary {
-    background: none;
-    border: 1px solid var(--hub-line);
-    color: var(--hub-ink);
-    padding: 10px 16px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: background 0.2s;
-  }
-
-  .btn-secondary:hover {
-    background: rgba(238, 232, 221, 0.05);
-  }
-
   .btn-full {
     width: 100%;
+  }
+
+  /* Avatar Selectors */
+  .avatar-selectors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  .avatar-preset-btn {
+    width: 32px;
+    height: 32px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--hub-line);
+    border-radius: 4px;
+    cursor: pointer;
+    background: rgba(0, 0, 0, 0.15);
+    font-size: 1.15rem;
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .avatar-preset-btn:hover,
+  .avatar-preset-btn.is-selected {
+    background: rgba(238, 232, 221, 0.1);
+    border-color: var(--hub-accent);
   }
 
   /* Settings Card specific */
@@ -327,7 +329,6 @@ import HubLayout from "../layouts/HubLayout.astro";
     display: flex;
     flex-direction: column;
     gap: 12px;
-    margin-bottom: 24px;
   }
 
   .settings-section h3 {
@@ -337,16 +338,11 @@ import HubLayout from "../layouts/HubLayout.astro";
     color: var(--hub-ink);
   }
 
-  .border-top {
-    border-top: 1px solid var(--hub-line);
-    padding-top: 20px;
-  }
-
   .profiles-list {
     display: flex;
     flex-direction: column;
     gap: 8px;
-    max-height: 160px;
+    max-height: 180px;
     overflow-y: auto;
   }
 
@@ -364,6 +360,12 @@ import HubLayout from "../layouts/HubLayout.astro";
     display: flex;
     align-items: center;
     gap: 8px;
+    font-size: 0.95rem;
+  }
+
+  .profile-item-info .profile-icon {
+    width: 24px;
+    height: 24px;
     font-size: 0.95rem;
   }
 
@@ -486,14 +488,45 @@ import HubLayout from "../layouts/HubLayout.astro";
 <script is:inline>
   (() => {
     const activeProfileNameEl = document.querySelector('[data-profile-name]');
+    const activeProfileIconEl = document.querySelector('[data-profile-icon]');
     const profileWidget = document.querySelector('[data-profile-widget]');
-    const welcomeModal = document.querySelector('[data-welcome-modal]');
+    
+    // Modals
+    const editProfileModal = document.querySelector('[data-edit-profile-modal]');
     const settingsModal = document.querySelector('[data-settings-modal]');
+    
+    // Buttons to open modals
+    const editProfileBtn = document.querySelector('[data-profile-edit-btn]');
     const settingsBtn = document.querySelector('[data-profile-settings-btn]');
+    
+    // Buttons to close modals
+    const editProfileCloseBtn = document.querySelector('[data-edit-profile-close-btn]');
     const settingsCloseBtn = document.querySelector('[data-settings-close-btn]');
+    
+    // Edit Modal inputs & buttons
+    const editProfileNameInput = document.getElementById('edit-profile-name');
+    const editProfileAvatarInput = document.getElementById('edit-profile-avatar-input');
+    const saveProfileBtn = document.querySelector('[data-save-profile-btn]');
+    const presetButtons = document.querySelectorAll('.avatar-preset-btn');
+    
+    // Settings Modal buttons
+    const addGuestBtn = document.querySelector('[data-add-guest-btn]');
     
     const PROFILES_KEY = "piichan-novels:profiles";
     const ACTIVE_KEY = "piichan-novels:active-profile-id";
+
+    const TROLL_NAMES = [
+      "ดูดหีน้ำแตก", "ขี้ทะลวงดาก", "อมไข่สั่นสู้ชีวิต", "กูชื่อไรวะ?", "ตดเปียกในลิฟต์",
+      "ขี้เล็ดกลางห้าง", "จิ๋มกระพือฮือฮา", "หีบินได้", "ควยเหล็กเจ็ดสี", "ดากดำช้ำรัก",
+      "ตูดหมึกอมนิ้ว", "จิบเบียร์เลียตูด", "อมขี้มาพ่น", "ส้นตีนกระแทกปาก", "ไข่เหี่ยวเปรี้ยวเยี่ยว",
+      "ตดไม่มีเสียงแต่ดมแล้วตาย", "หำหดตดหาย", "อมหำช้าง", "ตดอัดกระป๋อง", "เสี้ยนดากอยากโดน",
+      "ควยเรืองแสง", "แรดบินตินถีบ", "หัวควยสี่ทิศ", "เยี่ยวราดรดกางเกง", "ดมตูดหมาแก่งแก้",
+      "อ่างขี้ปลาทอง", "คนบ้าปัญญาอ่อน", "เลียกระป๋องกาว", "น้ำเงี่ยนไหลอาบแก้ม", "อมขี้หมาสู้ชีวิต",
+      "ตดเปียกทะลุกางเกง", "มะเร็งควย", "กระโถนท้องพระโรง", "คูดารูสึกดี", "เลียแคมสะท้านโลกันตร์",
+      "ควยระเบิด", "ดมกลิ่นดากตัวเอง", "ขี้คาตูด", "ดากฉีกถึงหู", "ล้างตูดไม่สะอาด",
+      "ชักว่าวจนไข่แห้ง", "อมท่อไอเสีย", "หน้าควยธรรมชาติ", "เยี่ยวเหนียวเคี้ยวหนึบ", "ส้วมเต็มช้อนกิน",
+      "นิ้วเขี่ยตูดดม", "ขี้เหนียวเคี้ยวเพลิน", "ควยเปียกแดด", "ดมผ้าอนามัยใช้แล้ว", "ดากทองคำฝังเพชร"
+    ];
 
     function getProfiles() {
       try {
@@ -516,18 +549,65 @@ import HubLayout from "../layouts/HubLayout.astro";
       localStorage.setItem(ACTIVE_KEY, id);
     }
 
-    const init = () => {
-      const activeId = getActiveProfileId();
-      const profiles = getProfiles();
+    function getRandomTrollName(profiles) {
+      const usedNames = new Set(profiles.map(p => p.name));
+      const availableNames = TROLL_NAMES.filter(name => !usedNames.has(name));
+      
+      if (availableNames.length > 0) {
+        const randomIndex = Math.floor(Math.random() * availableNames.length);
+        return availableNames[randomIndex];
+      }
+      
+      // Fallback: append random number
+      const baseName = TROLL_NAMES[Math.floor(Math.random() * TROLL_NAMES.length)];
+      return `${baseName} #${Math.floor(Math.random() * 1000)}`;
+    }
 
-      if (!activeId) {
-        // Show welcome overlay
-        welcomeModal.style.display = 'flex';
+    function renderAvatar(avatarValue, containerElement) {
+      if (!containerElement) return;
+      containerElement.innerHTML = '';
+      
+      const val = (avatarValue || '👤').trim();
+      const isUrl = val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/') || val.startsWith('./') || val.startsWith('../');
+      
+      if (isUrl) {
+        const img = document.createElement('img');
+        img.src = val;
+        img.alt = 'Avatar';
+        containerElement.appendChild(img);
       } else {
-        // Show profile bar
-        const activeProfile = profiles.find(p => p.id === activeId) || { name: 'Guest (ผู้เข้าชม)', type: 'guest' };
+        containerElement.textContent = val;
+      }
+    }
+
+    const init = () => {
+      let activeId = getActiveProfileId();
+      let profiles = getProfiles();
+
+      // Check if we need to auto-initialize guest profile
+      if (!activeId || !profiles.some(p => p.id === activeId)) {
+        const newGuestId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+        const name = getRandomTrollName(profiles);
+        profiles.push({
+          id: newGuestId,
+          name: name,
+          avatar: "👤",
+          type: 'guest',
+          createdAt: Date.now()
+        });
+        saveProfiles(profiles);
+        setActiveProfileId(newGuestId);
+        activeId = newGuestId;
+      }
+
+      // Show profile bar
+      const activeProfile = profiles.find(p => p.id === activeId);
+      if (activeProfile) {
         if (activeProfileNameEl) {
           activeProfileNameEl.textContent = activeProfile.name;
+        }
+        if (activeProfileIconEl) {
+          renderAvatar(activeProfile.avatar, activeProfileIconEl);
         }
         if (profileWidget) {
           profileWidget.style.display = 'flex';
@@ -535,67 +615,97 @@ import HubLayout from "../layouts/HubLayout.astro";
       }
     };
 
-    // Welcome actions
-    const createProfileBtn = document.querySelector('[data-create-profile-btn]');
-    const guestProfileBtn = document.querySelector('[data-guest-profile-btn]');
-    const newProfileNameInput = document.getElementById('new-profile-name');
-
-    const createProfile = (name) => {
-      const trimmed = name.trim();
-      if (!trimmed) return;
-      const id = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
-      const profiles = getProfiles();
-      profiles.push({ id, name: trimmed, type: 'user', createdAt: Date.now() });
-      saveProfiles(profiles);
-      setActiveProfileId(id);
-      welcomeModal.style.display = 'none';
-      window.location.reload();
-    };
-
-    if (createProfileBtn && newProfileNameInput instanceof HTMLInputElement) {
-      createProfileBtn.addEventListener('click', () => {
-        createProfile(newProfileNameInput.value);
-      });
-      newProfileNameInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          createProfile(newProfileNameInput.value);
-        }
-      });
-    }
-
-    if (guestProfileBtn) {
-      guestProfileBtn.addEventListener('click', () => {
+    // Edit Profile Modal logic
+    if (editProfileBtn) {
+      editProfileBtn.addEventListener('click', () => {
+        const activeId = getActiveProfileId();
         const profiles = getProfiles();
-        if (!profiles.some(p => p.id === 'guest')) {
-          profiles.push({ id: 'guest', name: 'Guest (ผู้เข้าชม)', type: 'guest', createdAt: Date.now() });
-          saveProfiles(profiles);
+        const activeProfile = profiles.find(p => p.id === activeId);
+        
+        if (activeProfile && editProfileNameInput instanceof HTMLInputElement && editProfileAvatarInput instanceof HTMLInputElement) {
+          editProfileNameInput.value = activeProfile.name;
+          editProfileAvatarInput.value = activeProfile.avatar || '👤';
+          
+          // Clear active presets
+          presetButtons.forEach(btn => btn.classList.remove('is-selected'));
+          
+          // Highlight preset if matching
+          presetButtons.forEach(btn => {
+            if (btn.getAttribute('data-preset') === activeProfile.avatar) {
+              btn.classList.add('is-selected');
+            }
+          });
+          
+          if (editProfileModal) {
+            editProfileModal.style.display = 'flex';
+          }
         }
-        setActiveProfileId('guest');
-        welcomeModal.style.display = 'none';
-        window.location.reload();
       });
     }
 
-    // Settings actions
+    if (editProfileCloseBtn) {
+      editProfileCloseBtn.addEventListener('click', () => {
+        if (editProfileModal) editProfileModal.style.display = 'none';
+      });
+    }
+
+    presetButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        presetButtons.forEach(b => b.classList.remove('is-selected'));
+        btn.classList.add('is-selected');
+        if (editProfileAvatarInput instanceof HTMLInputElement) {
+          editProfileAvatarInput.value = btn.getAttribute('data-preset') || '👤';
+        }
+      });
+    });
+
+    if (saveProfileBtn) {
+      saveProfileBtn.addEventListener('click', () => {
+        if (editProfileNameInput instanceof HTMLInputElement && editProfileAvatarInput instanceof HTMLInputElement) {
+          const newName = editProfileNameInput.value.trim();
+          const newAvatar = editProfileAvatarInput.value.trim();
+          
+          if (!newName) {
+            alert('โปรดระบุชื่อผู้ใช้!');
+            return;
+          }
+          
+          const activeId = getActiveProfileId();
+          let profiles = getProfiles();
+          const pIndex = profiles.findIndex(p => p.id === activeId);
+          
+          if (pIndex !== -1) {
+            profiles[pIndex].name = newName;
+            profiles[pIndex].avatar = newAvatar || '👤';
+            saveProfiles(profiles);
+            if (editProfileModal) editProfileModal.style.display = 'none';
+            window.location.reload();
+          }
+        }
+      });
+    }
+
+    // Switch profile modal logic
     if (settingsBtn) {
       settingsBtn.addEventListener('click', () => {
-        settingsModal.style.display = 'flex';
-        renderSettingsProfiles();
-        generateBackup();
+        if (settingsModal) {
+          settingsModal.style.display = 'flex';
+          renderSettingsProfiles();
+        }
       });
     }
 
     if (settingsCloseBtn) {
       settingsCloseBtn.addEventListener('click', () => {
-        settingsModal.style.display = 'none';
+        if (settingsModal) settingsModal.style.display = 'none';
       });
     }
 
-    // Close on clicking overlay
-    [welcomeModal, settingsModal].forEach(modal => {
+    // Close modal on background click
+    [editProfileModal, settingsModal].forEach(modal => {
       if (modal) {
         modal.addEventListener('click', (e) => {
-          if (e.target === modal && modal !== welcomeModal) {
+          if (e.target === modal) {
             modal.style.display = 'none';
           }
         });
@@ -616,7 +726,16 @@ import HubLayout from "../layouts/HubLayout.astro";
         
         const info = document.createElement('div');
         info.className = 'profile-item-info';
-        info.innerHTML = `<span>${p.type === 'guest' ? '👤' : '📖'}</span><strong>${p.name}</strong>`;
+        
+        const iconSpan = document.createElement('span');
+        iconSpan.className = 'profile-icon';
+        renderAvatar(p.avatar, iconSpan);
+        
+        const nameStrong = document.createElement('strong');
+        nameStrong.textContent = p.name;
+        
+        info.appendChild(iconSpan);
+        info.appendChild(nameStrong);
         item.appendChild(info);
 
         const actions = document.createElement('div');
@@ -633,32 +752,31 @@ import HubLayout from "../layouts/HubLayout.astro";
           });
           actions.appendChild(switchBtn);
 
-          if (p.id !== 'guest') {
-            const deleteBtn = document.createElement('button');
-            deleteBtn.type = 'button';
-            deleteBtn.className = 'btn-delete-profile';
-            deleteBtn.textContent = 'ลบ';
-            deleteBtn.addEventListener('click', () => {
-              if (confirm(`คุณแน่ใจหรือไม่ที่จะลบโปรไฟล์ "${p.name}"? ประวัติการอ่านของโปรไฟล์นี้ทั้งหมดจะหายไปถาวร`)) {
-                const prefixes = [
-                  "hvitveldt:reading:",
-                  "tsukinomi:reading:",
-                  "hvitveldt:secret:",
-                  "tsukinomi:reading:secret:",
-                  "hvitveldt:extra-bypassed",
-                  "tsukinomi:extra-bypassed"
-                ];
-                prefixes.forEach(prefix => {
-                  localStorage.removeItem(`${prefix}:${p.id}`);
-                });
-                
-                const updated = getProfiles().filter(profile => profile.id !== p.id);
-                saveProfiles(updated);
-                renderSettingsProfiles();
-              }
-            });
-            actions.appendChild(deleteBtn);
-          }
+          const deleteBtn = document.createElement('button');
+          deleteBtn.type = 'button';
+          deleteBtn.className = 'btn-delete-profile';
+          deleteBtn.textContent = 'ลบ';
+          deleteBtn.addEventListener('click', () => {
+            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบโปรไฟล์ "${p.name}"?`)) {
+              // Remove reading state prefixes
+              const prefixes = [
+                "hvitveldt:reading:",
+                "tsukinomi:reading:",
+                "hvitveldt:secret:",
+                "tsukinomi:reading:secret:",
+                "hvitveldt:extra-bypassed",
+                "tsukinomi:extra-bypassed"
+              ];
+              prefixes.forEach(prefix => {
+                localStorage.removeItem(`${prefix}:${p.id}`);
+              });
+              
+              const updated = getProfiles().filter(profile => profile.id !== p.id);
+              saveProfiles(updated);
+              renderSettingsProfiles();
+            }
+          });
+          actions.appendChild(deleteBtn);
         }
 
         item.appendChild(actions);
@@ -666,110 +784,24 @@ import HubLayout from "../layouts/HubLayout.astro";
       });
     };
 
-    const inlineCreateBtn = document.querySelector('[data-inline-create-btn]');
-    const inlineInput = document.getElementById('inline-profile-name');
-    if (inlineCreateBtn && inlineInput instanceof HTMLInputElement) {
-      const addInline = () => {
-        const val = inlineInput.value.trim();
-        if (!val) return;
-        const id = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+    if (addGuestBtn) {
+      addGuestBtn.addEventListener('click', () => {
         const profiles = getProfiles();
-        profiles.push({ id, name: val, type: 'user', createdAt: Date.now() });
-        saveProfiles(profiles);
-        inlineInput.value = '';
-        renderSettingsProfiles();
-      };
-      inlineCreateBtn.addEventListener('click', addInline);
-      inlineInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') addInline();
-      });
-    }
-
-    // Backup & Restore
-    const generateBackup = () => {
-      const text = document.getElementById('backup-code-text');
-      if (!(text instanceof HTMLTextAreaElement)) return;
-
-      try {
-        const data = {};
-        for (let i = 0; i < localStorage.length; i++) {
-          const key = localStorage.key(i);
-          if (
-            key.startsWith("piichan-novels:") || 
-            key.startsWith("hvitveldt:") || 
-            key.startsWith("tsukinomi:")
-          ) {
-            data[key] = localStorage.getItem(key);
-          }
-        }
-        const json = JSON.stringify(data);
-        const base64 = btoa(encodeURIComponent(json).replace(/%([0-9A-F]{2})/g, (_, p1) => {
-          return String.fromCharCode(parseInt(p1, 16));
-        }));
-        text.value = base64;
-      } catch (e) {
-        text.value = 'ไม่สามารถสร้างรหัสสำรองข้อมูลได้';
-      }
-    };
-
-    const copyBackupBtn = document.querySelector('[data-copy-backup-btn]');
-    if (copyBackupBtn) {
-      copyBackupBtn.addEventListener('click', () => {
-        const text = document.getElementById('backup-code-text');
-        if (text instanceof HTMLTextAreaElement) {
-          text.select();
-          navigator.clipboard.writeText(text.value).then(() => {
-            const old = copyBackupBtn.textContent;
-            copyBackupBtn.textContent = 'คัดลอกสำเร็จแล้ว!';
-            setTimeout(() => {
-              copyBackupBtn.textContent = old;
-            }, 2000);
-          });
-        }
-      });
-    }
-
-    const restoreBtn = document.querySelector('[data-restore-btn]');
-    const restoreInput = document.getElementById('restore-code-input');
-    const restoreError = document.querySelector('[data-restore-error]');
-
-    if (restoreBtn && restoreInput instanceof HTMLInputElement) {
-      restoreBtn.addEventListener('click', () => {
-        const code = restoreInput.value.trim();
-        if (!code) return;
+        const newGuestId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
+        const name = getRandomTrollName(profiles);
         
-        try {
-          const json = decodeURIComponent(Array.prototype.map.call(atob(code), (c) => {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-          }).join(''));
-          const data = JSON.parse(json);
-          
-          for (let i = localStorage.length - 1; i >= 0; i--) {
-            const key = localStorage.key(i);
-            if (
-              key.startsWith("piichan-novels:") || 
-              key.startsWith("hvitveldt:") || 
-              key.startsWith("tsukinomi:")
-            ) {
-              localStorage.removeItem(key);
-            }
-          }
-
-          for (const key in data) {
-            localStorage.setItem(key, data[key]);
-          }
-
-          if (restoreError instanceof HTMLElement) {
-            restoreError.style.display = 'none';
-          }
-          alert('กู้คืนข้อมูลสำเร็จ! หน้าเว็บจะเริ่มต้นใหม่');
-          window.location.reload();
-        } catch (e) {
-          if (restoreError instanceof HTMLElement) {
-            restoreError.textContent = 'รหัสกู้คืนไม่ถูกต้องหรือข้อมูลชำรุด';
-            restoreError.style.display = 'block';
-          }
-        }
+        profiles.push({
+          id: newGuestId,
+          name: name,
+          avatar: "👤",
+          type: 'guest',
+          createdAt: Date.now()
+        });
+        saveProfiles(profiles);
+        setActiveProfileId(newGuestId);
+        
+        if (settingsModal) settingsModal.style.display = 'none';
+        window.location.reload();
       });
     }
 
