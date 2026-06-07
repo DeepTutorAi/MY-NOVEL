@@ -122,7 +122,6 @@ describe("shared reading experience contract", () => {
       assert.match(source, /อ่านจบ/);
     }
   });
-
   it("implements secret reading progress tracking and locked extra pages with bypass keys", () => {
     const lodgeProgress = readProjectFile("src/components/lodge/reading/ReadingProgress.astro");
     const tsukiProgress = readProjectFile("src/components/tsukinomi/reading/ReadingProgress.astro");
@@ -140,12 +139,12 @@ describe("shared reading experience contract", () => {
     assert.match(tsukiProgress, /SECRET_THRESHOLD_SEC = 1080/); // 18 minutes
     assert.match(tsukiProgress, /lastInteraction < 60000/);
 
-    // Extra page requirements: bypass passwords and 80% threshold checks
-    assert.match(lodgeExtra, /lodge-bypass-gate-2026/);
+    // Extra page requirements: bypass passwords (securely hashed) and 80% threshold checks
+    assert.match(lodgeExtra, /6d4829eebb416434779797994fa3b4324fcf1b3eb2392c99b0c6599313b8dad7/);
     assert.match(lodgeExtra, /UNLOCK_THRESHOLD = 15/);
     assert.match(lodgeExtra, /hvitveldt:extra-bypassed/);
 
-    assert.match(tsukiExtra, /tsukinomi-bypass-gate-2026/);
+    assert.match(tsukiExtra, /ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18/);
     assert.match(tsukiExtra, /UNLOCK_THRESHOLD = 4/);
     assert.match(tsukiExtra, /tsukinomi:extra-bypassed/);
   });
@@ -221,3 +220,4 @@ describe("shared reading experience contract", () => {
     assert.match(tsukiHeader, /isIntro \? "Introduction"/);
   });
 });
+
