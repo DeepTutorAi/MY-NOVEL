@@ -1,0 +1,577 @@
+---
+---
+<div class="dynamic-city-bg">
+  <canvas id="city-canvas"></canvas>
+</div>
+
+<style>
+  .dynamic-city-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1; /* Sits behind text and cards (z-index 2) but above the page background */
+    pointer-events: none;
+    overflow: hidden;
+  }
+  #city-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>
+
+<script>
+  interface Window {
+    __dynamicCityBgInitialized?: boolean;
+  }
+
+  interface WindowWithGlobal extends Window {
+    __dynamicCityBgCleanup?: () => void;
+  }
+
+  const initBackground = () => {
+    const canvas = document.getElementById("city-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Resize handler
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    };
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    // Time of day setup
+    let hour = new Date().getHours();
+
+    // Weather/Sky RNG events
+    const rngSolarEclipse = Math.random() < 0.01; // 1% chance
+    const rngBloodMoon = Math.random() < 0.01;    // 1% chance
+    const rngFullMoon = Math.random() < 0.10;     // 10% chance
+    const rngNewMoon = Math.random() < 0.10;      // 10% chance
+
+    // Seasons determination by Month
+    const month = new Date().getMonth(); // 0-11
+    let season: "spring" | "summer" | "autumn" | "winter" = "winter";
+    if (month >= 2 && month <= 4) {
+      season = "spring"; // Mar - May
+    } else if (month >= 5 && month <= 7) {
+      season = "summer"; // Jun - Aug
+    } else if (month >= 8 && month <= 10) {
+      season = "autumn"; // Sep - Nov
+    } else {
+      season = "winter"; // Dec - Feb
+    }
+
+    // Stars generation for night
+    const starCount = rngNewMoon ? 160 : 80;
+    const stars: Array<{ x: number; y: number; size: number; phase: number; speed: number }> = [];
+    for (let i = 0; i < starCount; i++) {
+      stars.push({
+        x: Math.random(),
+        y: Math.random() * 0.75, // Only in top 75% of sky
+        size: 0.5 + Math.random() * 1.5,
+        phase: Math.random() * Math.PI * 2,
+        speed: 0.02 + Math.random() * 0.03,
+      });
+    }
+
+    // Parallax Mouse tracking
+    let targetX = 0;
+    let targetY = 0;
+    let offsetX = 0;
+    let offsetY = 0;
+
+    const onMouseMove = (e: MouseEvent) => {
+      targetX = (e.clientX - window.innerWidth / 2) * 0.05;
+      targetY = (e.clientY - window.innerHeight / 2) * 0.02;
+    };
+    window.addEventListener("mousemove", onMouseMove);
+
+    // Weather particles
+    const particles: Array<{
+      x: number;
+      y: number;
+      size: number;
+      speedX: number;
+      speedY: number;
+      angle?: number;
+      rotSpeed?: number;
+      color?: string;
+    }> = [];
+
+    const spawnParticle = (init = false) => {
+      const x = Math.random() * canvas.width;
+      const y = init ? Math.random() * canvas.height : -20;
+
+
+      if (season === "spring") {
+        // Sakura petals
+        return {
+          x,
+          y,
+          size: 3 + Math.random() * 4,
+          speedX: 0.5 + Math.random() * 1.2,
+          speedY: 1 + Math.random() * 1.5,
+          angle: Math.random() * Math.PI * 2,
+          rotSpeed: -0.02 + Math.random() * 0.04,
+          color: `rgba(255, ${175 + Math.floor(Math.random() * 25)}, ${190 + Math.floor(Math.random() * 25)}, ${0.6 + Math.random() * 0.3})`,
+        };
+      } else if (season === "summer") {
+        // Rain lines
+        return {
+          x,
+          y,
+          size: 1 + Math.random() * 1.5,
+          speedX: -2 - Math.random() * 2,
+          speedY: 10 + Math.random() * 6,
+        };
+      } else if (season === "autumn") {
+        // Amber leaves
+        const r = 200 + Math.floor(Math.random() * 55);
+        const g = 100 + Math.floor(Math.random() * 80);
+        const b = 30 + Math.floor(Math.random() * 30);
+        return {
+          x,
+          y,
+          size: 4 + Math.random() * 6,
+          speedX: -0.5 + Math.random() * 1.5,
+          speedY: 0.8 + Math.random() * 1.4,
+          angle: Math.random() * Math.PI * 2,
+          rotSpeed: -0.03 + Math.random() * 0.06,
+          color: `rgba(${r}, ${g}, ${b}, ${0.5 + Math.random() * 0.4})`,
+        };
+      } else {
+        // Winter Snow
+        return {
+          x,
+          y,
+          size: 1.2 + Math.random() * 3.2,
+          speedX: -0.4 + Math.random() * 0.8,
+          speedY: 0.6 + Math.random() * 1.1,
+        };
+      }
+    };
+
+    // Pre-populate particles
+    const maxParticles = season === "summer" ? 180 : 80;
+    for (let i = 0; i < maxParticles; i++) {
+      particles.push(spawnParticle(true));
+    }
+
+    // Building definitions
+    interface WindowLight {
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      color: string;
+      isOn: boolean;
+      isBlinking: boolean;
+      blinkRate: number;
+      blinkOffset: number;
+    }
+
+    interface Building {
+      xRatio: number; // Ratio along canvas width
+      wRatio: number; // Width ratio relative to canvas width
+      hRatio: number; // Height ratio relative to canvas height
+      color: string;
+      antenna: boolean;
+      windows: WindowLight[];
+    }
+
+    const layers: { back: Building[]; mid: Building[]; fore: Building[] } = {
+      back: [],
+      mid: [],
+      fore: [],
+    };
+
+    const generateBuildings = () => {
+      layers.back = [];
+      layers.mid = [];
+      layers.fore = [];
+
+      // Helper to init windows *during initialization* so they are stable
+      const createWindows = (w: number, h: number, density: number): WindowLight[] => {
+        const list: WindowLight[] = [];
+        const padX = 6;
+        const padY = 8;
+        const winW = 4;
+        const winH = 6;
+
+        const cols = Math.floor((w - padX * 2) / (winW + padX));
+        const rows = Math.floor((h - padY * 2) / (winH + padY));
+
+        for (let c = 0; c < cols; c++) {
+          for (let r = 0; r < rows; r++) {
+            if (Math.random() < density) {
+              const colors = ["#fdcb6e", "#ffeaa7", "#00cec9", "#dfe6e9", "#cf9a5e"];
+              const winColor = colors[Math.floor(Math.random() * colors.length)];
+
+              list.push({
+                x: padX + c * (winW + padX),
+                y: padY + r * (winH + padY),
+                w: winW,
+                h: winH,
+                color: winColor,
+                isOn: Math.random() < 0.55,
+                isBlinking: Math.random() < 0.12,
+                blinkRate: 80 + Math.floor(Math.random() * 120),
+                blinkOffset: Math.floor(Math.random() * 300),
+              });
+            }
+          }
+        }
+        return list;
+      };
+
+      // 1. Back Layer (Tall, wide, red antenna beacons, dark silhouette)
+      const backCount = 8;
+      for (let i = 0; i < backCount; i++) {
+        const wRatio = 0.12 + Math.random() * 0.08;
+        const hRatio = 0.55 + Math.random() * 0.28;
+        const xRatio = (i / backCount) * 0.95 - 0.05 + Math.random() * 0.05;
+        layers.back.push({
+          xRatio,
+          wRatio,
+          hRatio,
+          color: "#08070d",
+          antenna: Math.random() < 0.7,
+          windows: [], // Back layer buildings are silhouettes or have negligible window details
+        });
+      }
+
+      // 2. Mid Layer (Medium height, standard window grid)
+      const midCount = 10;
+      for (let i = 0; i < midCount; i++) {
+        const wRatio = 0.09 + Math.random() * 0.06;
+        const hRatio = 0.38 + Math.random() * 0.22;
+        const xRatio = (i / midCount) * 0.94 - 0.02 + Math.random() * 0.04;
+        const tempWidth = wRatio * window.innerWidth;
+        const tempHeight = hRatio * window.innerHeight;
+        layers.mid.push({
+          xRatio,
+          wRatio,
+          hRatio,
+          color: "#0d0c15",
+          antenna: false,
+          windows: createWindows(tempWidth, tempHeight, 0.4),
+        });
+      }
+
+      // 3. Fore Layer (Shorter, darker silhouette, slightly faster window blink rate)
+      const foreCount = 12;
+      for (let i = 0; i < foreCount; i++) {
+        const wRatio = 0.07 + Math.random() * 0.05;
+        const hRatio = 0.20 + Math.random() * 0.22;
+        const xRatio = (i / foreCount) * 0.96 - 0.02 + Math.random() * 0.03;
+        const tempWidth = wRatio * window.innerWidth;
+        const tempHeight = hRatio * window.innerHeight;
+        layers.fore.push({
+          xRatio,
+          wRatio,
+          hRatio,
+          color: "#050409",
+          antenna: false,
+          windows: createWindows(tempWidth, tempHeight, 0.5),
+        });
+      }
+    };
+
+    generateBuildings();
+
+    // Listen to resize to regenerate windows based on physical size
+    const onResizeWidth = () => {
+      generateBuildings();
+    };
+    window.addEventListener("resize", onResizeWidth);
+
+    // Frame counter
+    let t = 0;
+    let animationFrameId: number;
+
+    // Drawing loop
+    const draw = () => {
+      t++;
+
+      // Ease parallax offset
+      offsetX += (targetX - offsetX) * 0.08;
+      offsetY += (targetY - offsetY) * 0.08;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const isNight = hour >= 18 || hour < 6;
+      const isSunset = hour >= 16 && hour < 18;
+      const isMorning = hour >= 6 && hour < 12;
+      const isSolarEclipseActive = rngSolarEclipse && !isNight;
+
+      // 1. SKY GRADIENT (Kept dark and moody)
+      let skyGrad = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      if (isSolarEclipseActive) {
+        // Solar Eclipse Sky: Deep dark purple-indigo
+        skyGrad.addColorStop(0, "#080410");
+        skyGrad.addColorStop(0.5, "#100a1c");
+        skyGrad.addColorStop(1, "#040306");
+      } else if (isSunset) {
+        // Sunset Sky: Dark plum to crimson-amber glow
+        skyGrad.addColorStop(0, "#12081a");
+        skyGrad.addColorStop(0.5, "#2c0f20");
+        skyGrad.addColorStop(1, "#441a22");
+      } else if (isMorning) {
+        // Morning Sky: Dark slate blue to soft amber twilight
+        skyGrad.addColorStop(0, "#05080f");
+        skyGrad.addColorStop(0.6, "#141824");
+        skyGrad.addColorStop(1, "#2c221b"); // Kept dark as requested
+      } else if (isNight) {
+        // Night Sky: Pure space black to deep violet-black
+        skyGrad.addColorStop(0, "#010103");
+        skyGrad.addColorStop(0.7, "#040308");
+        skyGrad.addColorStop(1, "#07060f");
+      } else {
+        // Afternoon Sky: Deep twilight indigo to grey-gold
+        skyGrad.addColorStop(0, "#070a12");
+        skyGrad.addColorStop(0.7, "#121622");
+        skyGrad.addColorStop(1, "#1c1815");
+      }
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. STARS (Only drawn at Night, Sunset, or during Solar Eclipse)
+      if (isNight || isSunset || isSolarEclipseActive) {
+        stars.forEach((star) => {
+          const starX = star.x * canvas.width;
+          const starY = star.y * canvas.height;
+          // Twinkle logic using sine wave
+          const alpha = 0.15 + Math.sin(t * star.speed + star.phase) * 0.65;
+          ctx.fillStyle = `rgba(238, 232, 221, ${alpha})`;
+          ctx.beginPath();
+          ctx.arc(starX, starY, star.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+      }
+
+      // 3. CELESTIAL BODIES (Sun or Moon movements)
+      const celestialArcX = (1 - (hour % 12) / 12) * (canvas.width + 200) - 100;
+      const celestialArcY = Math.sin(((hour % 12) / 12) * Math.PI) * (canvas.height * 0.45) + (canvas.height * 0.25);
+
+      if (isSolarEclipseActive) {
+        // Draw Solar Eclipse: Black disk with glowing corona
+        const cx = canvas.width * 0.55;
+        const cy = canvas.height * 0.35;
+
+        // Glowing corona
+        const corona = ctx.createRadialGradient(cx, cy, 32, cx, cy, 75);
+        corona.addColorStop(0, "rgba(255, 255, 255, 0.9)");
+        corona.addColorStop(0.2, "rgba(240, 244, 255, 0.65)");
+        corona.addColorStop(0.6, "rgba(200, 210, 255, 0.15)");
+        corona.addColorStop(1, "transparent");
+        ctx.fillStyle = corona;
+        ctx.beginPath();
+        ctx.arc(cx, cy, 75, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Dark sun disk
+        ctx.fillStyle = "#040306";
+        ctx.beginPath();
+        ctx.arc(cx, cy, 34, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (isNight) {
+        // Moon logic
+        const mx = celestialArcX;
+        const my = celestialArcY;
+
+        if (!rngNewMoon) {
+          if (rngBloodMoon) {
+            // Blood Moon: Copper-red color with red glow
+            ctx.shadowColor = "rgba(235, 47, 6, 0.6)";
+            ctx.shadowBlur = 30;
+            ctx.fillStyle = "#eb2f06";
+            ctx.beginPath();
+            ctx.arc(mx, my, 28, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+          } else if (rngFullMoon) {
+            // Full Moon: Glowing warm-white disk
+            ctx.shadowColor = "rgba(254, 203, 110, 0.38)";
+            ctx.shadowBlur = 40;
+            ctx.fillStyle = "rgba(254, 203, 110, 0.9)";
+            ctx.beginPath();
+            ctx.arc(mx, my, 26, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.shadowBlur = 0; // reset
+          } else {
+            // Crescent Moon: Draw circle, then subtract offset circle
+            ctx.fillStyle = "rgba(238, 232, 221, 0.85)";
+            ctx.beginPath();
+            ctx.arc(mx, my, 24, 0, Math.PI * 2);
+            ctx.fill();
+
+            ctx.fillStyle = skyGrad; // Subtracting using the sky background gradient
+            ctx.beginPath();
+            ctx.arc(mx - 8, my - 4, 24, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      } else {
+        // Standard Sun: Soft amber glow rising or setting
+        const sx = celestialArcX;
+        const sy = celestialArcY;
+
+        ctx.shadowColor = "rgba(207, 154, 94, 0.22)";
+        ctx.shadowBlur = 50;
+        ctx.fillStyle = "rgba(207, 154, 94, 0.4)";
+        ctx.beginPath();
+        ctx.arc(sx, sy, 32, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0; // reset
+      }
+
+      // 4. DRAWING BUILDINGS (3 Layers)
+      const drawLayer = (layerBuildings: Building[], parallaxMultX: number, parallaxMultY: number) => {
+        layerBuildings.forEach((b) => {
+          const bx = b.xRatio * canvas.width + offsetX * parallaxMultX;
+          const bw = b.wRatio * canvas.width;
+          const bh = b.hRatio * canvas.height;
+          const by = canvas.height - bh + offsetY * parallaxMultY;
+
+          // Draw building body
+          ctx.fillStyle = b.color;
+          ctx.fillRect(bx, by, bw, bh);
+
+          // Draw red warning beacon on antenna (uses t frame counter, no stored state!)
+          if (b.antenna) {
+            const antX = bx + bw / 2;
+            const antY = by - 32;
+            ctx.strokeStyle = b.color;
+            ctx.lineWidth = 1.5;
+            ctx.beginPath();
+            ctx.moveTo(antX, by);
+            ctx.lineTo(antX, antY);
+            ctx.stroke();
+
+            // Blink beacon
+            const beaconOn = Math.floor(t / 30) % 2 === 0;
+            if (beaconOn) {
+              ctx.fillStyle = "rgba(235, 47, 6, 0.95)";
+              ctx.beginPath();
+              ctx.arc(antX, antY, 2.5, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          }
+
+          // Draw windows (Window light positions and base properties are static from init)
+          b.windows.forEach((w) => {
+            let winOn = w.isOn;
+            if (isSolarEclipseActive) {
+              // During eclipse: emergency rapid flashing
+              winOn = Math.floor((t + w.blinkOffset) / 10) % 2 === 0;
+            } else if (w.isBlinking) {
+              // Regular slow breathing/blinking using frame counter
+              winOn = Math.floor((t + w.blinkOffset) / w.blinkRate) % 2 === 0;
+            }
+
+            if (winOn) {
+              // Draw lit window
+              ctx.fillStyle = w.color;
+              ctx.fillRect(bx + w.x, by + w.y, w.w, w.h);
+            }
+          });
+        });
+      };
+
+      // Back Layer (slowest parallax, back buildings)
+      drawLayer(layers.back, 0.12, 0.06);
+
+      // Mid Layer (medium parallax, mid buildings)
+      drawLayer(layers.mid, 0.28, 0.14);
+
+      // Fore Layer (fastest parallax, fore buildings)
+      drawLayer(layers.fore, 0.52, 0.26);
+
+      // 5. WEATHER PARTICLES (Frontmost layer)
+      particles.forEach((p, index) => {
+        // Update position
+        p.x += p.speedX;
+        p.y += p.speedY;
+
+        if (season === "spring") {
+          // Drifting sakura: apply sway
+          if (p.angle !== undefined && p.rotSpeed !== undefined) {
+            p.angle += p.rotSpeed;
+            p.x += Math.sin(p.angle) * 0.4;
+          }
+        } else if (season === "winter") {
+          // Fluttering snow: apply sway
+          p.x += Math.sin(t * 0.02 + index) * 0.35;
+        }
+
+        // Wrap around canvas
+        if (p.y > canvas.height + 20 || p.x < -20 || p.x > canvas.width + 20) {
+          particles[index] = spawnParticle();
+        }
+
+        // Draw particle
+        if (season === "spring" && p.color) {
+          // Sakura oval petals
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y, p.size, p.size * 0.6, p.angle || 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (season === "summer") {
+          // Rain diagonal lines
+          ctx.strokeStyle = "rgba(174, 198, 207, 0.16)";
+          ctx.lineWidth = p.size;
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y);
+          ctx.lineTo(p.x - 3, p.y + 11);
+          ctx.stroke();
+        } else if (season === "autumn" && p.color) {
+          // Amber leaves
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y, p.size, p.size * 0.5, p.angle || 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Winter snow circular flakes
+          ctx.fillStyle = `rgba(255, 255, 255, ${0.45 + Math.random() * 0.4})`;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    // Cleanup helper
+    const cleanup = () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("resize", onResizeWidth);
+      window.removeEventListener("mousemove", onMouseMove);
+    };
+
+    (window as WindowWithGlobal).__dynamicCityBgCleanup = cleanup;
+  };
+
+  const bindDynamicCityBg = () => {
+    if ((window as any).__dynamicCityBgInitialized) {
+      // Run cleanup of previous instance if routing
+      const win = window as any;
+      if (typeof win.__dynamicCityBgCleanup === "function") {
+        win.__dynamicCityBgCleanup();
+      }
+    }
+    (window as any).__dynamicCityBgInitialized = true;
+    initBackground();
+  };
+
+  document.addEventListener("astro:page-load", bindDynamicCityBg);
+</script>

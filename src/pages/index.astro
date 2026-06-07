@@ -3,12 +3,14 @@ import NovelCard from "../components/_shared/NovelCard.astro";
 import ResumeCard from "../components/_shared/ResumeCard.astro";
 import { NOVELS } from "../data/_novels";
 import HubLayout from "../layouts/HubLayout.astro";
+import DynamicCityBackground from "../components/_shared/DynamicCityBackground.astro";
 ---
 
 <HubLayout
   title="Pii-chan Dechalert — Fiction Hub"
   description="พื้นที่รวมผลงานนิยายของ Pii-chan Dechalert"
 >
+  <DynamicCityBackground />
   <main class="hub-shell" aria-labelledby="hub-title">
     <section class="hub-hero">
       <div class="hub-title-group">
