@@ -458,10 +458,10 @@ article.chapter figure.chapter-figure .resume-highlight::before {
   }
 
   article.chapter {
-    inline-size: 100vw !important;
-    max-inline-size: 100vw !important;
-    margin-inline: 0;
-    border-inline: 0;
+    inline-size: min(100% - 1rem, var(--measure)) !important;
+    max-inline-size: min(100% - 1rem, var(--measure)) !important;
+    margin-inline: auto;
+    border-inline: 1px solid color-mix(in oklab, var(--ink) 7%, transparent);
     font-size: 16px;
     line-height: 1.85;
     padding: 3rem 1rem 5rem;
@@ -470,8 +470,8 @@ article.chapter figure.chapter-figure .resume-highlight::before {
   article.chapter p,
   article.chapter blockquote,
   .journal {
-    inline-size: calc(100vw - 2rem) !important;
-    max-inline-size: calc(100vw - 2rem) !important;
+    inline-size: 100% !important;
+    max-inline-size: 100% !important;
   }
 
   article.chapter > p.has-dropcap::first-letter {

@@ -7,6 +7,16 @@ const DEFAULT_VOLUME = 0.4;
 const TRACKS = MUSIC_CUES.map((cue) => cue.id);
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
 
+const getAudioSources = (srcBase: string) => {
+  if (typeof window === "undefined" || typeof Audio === "undefined") {
+    return [assetPath(`${srcBase}.mp3`)];
+  }
+  const supportsOgg = new Audio().canPlayType('audio/ogg; codecs="vorbis"') !== "";
+  return supportsOgg
+    ? [assetPath(`${srcBase}.ogg`), assetPath(`${srcBase}.mp3`)]
+    : [assetPath(`${srcBase}.mp3`)];
+};
+
 type TrackState = {
   howl: Howl;
   soundId?: number;
@@ -151,13 +161,13 @@ export class AmbientAudio {
       }
 
       const howl = new Howl({
-        src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
+        src: getAudioSources(cue.srcBase),
         loop: true,
         html5: true,
-        preload: true,
+        preload: false,
         volume: 0,
         onloaderror: (_, error) => this.handleLoadError(error),
-        onplayerror: (_, error) => this.handleLoadError(error),
+        onplayerror: (_, error) => this.handlePlayError(cue.id, error),
       });
 
       this.tracks.set(cue.id, { howl });
@@ -169,6 +179,10 @@ export class AmbientAudio {
 
     if (!track || document.visibilityState === "hidden") {
       return;
+    }
+
+    if (track.howl.state() === "unloaded") {
+      track.howl.load();
     }
 
     if (track.soundId === undefined || !track.howl.playing(track.soundId)) {
@@ -203,7 +217,17 @@ export class AmbientAudio {
 
   private handleLoadError(error: unknown) {
     console.warn("Ambient audio track failed to load.", error);
-    this.disable();
+    window.dispatchEvent(new CustomEvent("hvitveldt:audio-error"));
+  }
+
+  private handlePlayError(cueId: MusicCueId, error: unknown) {
+    console.warn("Ambient audio track failed to play.", error);
+    const track = this.tracks.get(cueId);
+    track?.howl.once("unlock", () => {
+      if (this.enabled) {
+        this.playCue(cueId, 4000);
+      }
+    });
     window.dispatchEvent(new CustomEvent("hvitveldt:audio-error"));
   }
 

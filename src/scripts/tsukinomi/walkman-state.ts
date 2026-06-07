@@ -19,6 +19,16 @@ const FADE_IN_MS = 4_000;
 const FADE_OUT_MS = 2_000;
 const SFX_VOLUME = 0.42;
 const assetPath = (path: string) => `${import.meta.env.BASE_URL}${path.replace(/^\//, "")}`;
+
+const getAudioSources = (srcBase: string) => {
+  if (typeof window === "undefined" || typeof Audio === "undefined") {
+    return [assetPath(`${srcBase}.mp3`)];
+  }
+  const supportsOgg = new Audio().canPlayType('audio/ogg; codecs="vorbis"') !== "";
+  return supportsOgg
+    ? [assetPath(`${srcBase}.ogg`), assetPath(`${srcBase}.mp3`)]
+    : [assetPath(`${srcBase}.mp3`)];
+};
 const SOUNDSCAPE_ENABLED_KEYS = {
   "cassette-hiss": "tsukinomi:soundscape:cassette-hiss:enabled",
   "distant-train": "tsukinomi:soundscape:distant-train:enabled",
@@ -253,7 +263,7 @@ export class WalkmanAudio {
       }
 
       const howl = new Howl({
-        src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
+        src: getAudioSources(cue.srcBase),
         loop: true,
         html5: true,
         preload: false,
@@ -273,7 +283,7 @@ export class WalkmanAudio {
 
     const cue = getSoundscapeCue(id);
     const howl = new Howl({
-      src: [assetPath(`${cue.srcBase}.ogg`), assetPath(`${cue.srcBase}.mp3`)],
+      src: getAudioSources(cue.srcBase),
       loop: true,
       html5: true,
       preload: false,

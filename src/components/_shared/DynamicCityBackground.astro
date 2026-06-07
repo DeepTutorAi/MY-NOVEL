@@ -67,6 +67,20 @@
       season = "winter"; // Dec - Feb
     }
 
+    // RNG Weather
+    // Spring: 20% rain. Summer: 10% rain. Autumn: 25% rain. Winter: 15% snow.
+    let weather: "clear" | "rain" | "snow" = "clear";
+    const weatherRoll = Math.random();
+    if (season === "spring" && weatherRoll < 0.20) {
+      weather = "rain";
+    } else if (season === "summer" && weatherRoll < 0.10) {
+      weather = "rain";
+    } else if (season === "autumn" && weatherRoll < 0.25) {
+      weather = "rain";
+    } else if (season === "winter" && weatherRoll < 0.15) {
+      weather = "snow";
+    }
+
     // Stars generation for night
     const starCount = rngNewMoon ? 160 : 80;
     const stars: Array<{ x: number; y: number; size: number; phase: number; speed: number }> = [];
@@ -93,7 +107,8 @@
     window.addEventListener("mousemove", onMouseMove);
 
     // Weather particles
-    const particles: Array<{
+    interface WeatherParticle {
+      type: "sakura" | "leaf" | "rain" | "snow";
       x: number;
       y: number;
       size: number;
@@ -102,16 +117,41 @@
       angle?: number;
       rotSpeed?: number;
       color?: string;
-    }> = [];
+    }
 
-    const spawnParticle = (init = false) => {
+    const particles: WeatherParticle[] = [];
+
+    const spawnParticle = (init = false): WeatherParticle => {
       const x = Math.random() * canvas.width;
       const y = init ? Math.random() * canvas.height : -20;
 
-
+      const activeTypes: Array<"sakura" | "leaf" | "rain" | "snow"> = [];
       if (season === "spring") {
-        // Sakura petals
+        activeTypes.push("sakura");
+      }
+      if (season === "autumn") {
+        activeTypes.push("leaf");
+      }
+      if (weather === "rain") {
+        activeTypes.push("rain");
+      }
+      if (weather === "snow") {
+        activeTypes.push("snow");
+      }
+      // Fallback
+      if (activeTypes.length === 0) {
+        if (season === "winter") {
+          activeTypes.push("snow");
+        } else {
+          activeTypes.push("sakura");
+        }
+      }
+
+      const type = activeTypes[Math.floor(Math.random() * activeTypes.length)];
+
+      if (type === "sakura") {
         return {
+          type,
           x,
           y,
           size: 3 + Math.random() * 4,
@@ -121,21 +161,12 @@
           rotSpeed: -0.02 + Math.random() * 0.04,
           color: `rgba(255, ${175 + Math.floor(Math.random() * 25)}, ${190 + Math.floor(Math.random() * 25)}, ${0.6 + Math.random() * 0.3})`,
         };
-      } else if (season === "summer") {
-        // Rain lines
-        return {
-          x,
-          y,
-          size: 1 + Math.random() * 1.5,
-          speedX: -2 - Math.random() * 2,
-          speedY: 10 + Math.random() * 6,
-        };
-      } else if (season === "autumn") {
-        // Amber leaves
+      } else if (type === "leaf") {
         const r = 200 + Math.floor(Math.random() * 55);
         const g = 100 + Math.floor(Math.random() * 80);
         const b = 30 + Math.floor(Math.random() * 30);
         return {
+          type,
           x,
           y,
           size: 4 + Math.random() * 6,
@@ -145,9 +176,18 @@
           rotSpeed: -0.03 + Math.random() * 0.06,
           color: `rgba(${r}, ${g}, ${b}, ${0.5 + Math.random() * 0.4})`,
         };
-      } else {
-        // Winter Snow
+      } else if (type === "rain") {
         return {
+          type,
+          x,
+          y,
+          size: 1 + Math.random() * 1.5,
+          speedX: -2 - Math.random() * 2,
+          speedY: 10 + Math.random() * 6,
+        };
+      } else {
+        return {
+          type,
           x,
           y,
           size: 1.2 + Math.random() * 3.2,
@@ -158,9 +198,88 @@
     };
 
     // Pre-populate particles
-    const maxParticles = season === "summer" ? 180 : 80;
+    const maxParticles = weather === "rain" ? 180 : 80;
     for (let i = 0; i < maxParticles; i++) {
       particles.push(spawnParticle(true));
+    }
+
+    // SUMMER FIREWORKS
+    interface FireworkParticle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      alpha: number;
+      size: number;
+    }
+    interface Firework {
+      x: number;
+      y: number;
+      targetY: number;
+      color: string;
+      trail: Array<{ x: number; y: number; alpha: number }>;
+      particles: FireworkParticle[];
+      state: "rising" | "exploded" | "done";
+    }
+    const fireworks: Firework[] = [];
+
+    const spawnFirework = () => {
+      const x = 100 + Math.random() * (canvas.width - 200);
+      const y = canvas.height;
+      const targetY = 50 + Math.random() * (canvas.height * 0.4);
+      const colors = ["#ff7675", "#74b9ff", "#55efc4", "#ffeaa7", "#a29bfe", "#fd79a8"];
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      fireworks.push({
+        x,
+        y,
+        targetY,
+        color,
+        trail: [],
+        particles: [],
+        state: "rising",
+      });
+    };
+
+    // AUTUMN LANTERNS
+    interface Lantern {
+      x: number;
+      y: number;
+      size: number;
+      speedY: number;
+      swaySpeed: number;
+      swayOffset: number;
+      alpha: number;
+    }
+    const lanterns: Lantern[] = [];
+
+    const spawnLantern = (init = false) => {
+      const x = Math.random() * canvas.width;
+      const y = init ? Math.random() * canvas.height : canvas.height + 20;
+      lanterns.push({
+        x,
+        y,
+        size: 3 + Math.random() * 5,
+        speedY: 0.4 + Math.random() * 0.6,
+        swaySpeed: 0.01 + Math.random() * 0.015,
+        swayOffset: Math.random() * Math.PI * 2,
+        alpha: 0.1 + Math.random() * 0.6,
+      });
+    };
+
+    // Winter Night Aurora waves
+    const auroraWaves = [
+      { yBase: 120, amplitude: 35, speed: 0.0018, color: "rgba(46, 204, 113, 0.08)", length: 0.0025 },
+      { yBase: 140, amplitude: 45, speed: 0.0012, color: "rgba(26, 188, 156, 0.06)", length: 0.0018 },
+      { yBase: 100, amplitude: 25, speed: 0.0022, color: "rgba(155, 89, 182, 0.04)", length: 0.0032 },
+    ];
+
+    // Pre-populate lanterns if starting at night in Autumn
+    const tempHour = new Date().getHours();
+    const tempIsNight = tempHour >= 18 || tempHour < 6;
+    if (season === "autumn" && weather === "clear" && tempIsNight) {
+      for (let i = 0; i < 15; i++) {
+        spawnLantern(true);
+      }
     }
 
     // Building definitions
@@ -431,6 +550,44 @@
         ctx.shadowBlur = 0; // reset
       }
 
+      // 3.5. AURORA BOREALIS (Winter night clear weather - drawn behind buildings)
+      if (season === "winter" && weather === "clear" && isNight) {
+        ctx.save();
+        ctx.globalCompositeOperation = "screen";
+        auroraWaves.forEach((wave) => {
+          ctx.strokeStyle = wave.color;
+          ctx.lineWidth = 32 + Math.sin(t * 0.01) * 8;
+          ctx.lineCap = "round";
+          ctx.lineJoin = "round";
+
+          ctx.beginPath();
+          const segments = 12;
+          const step = canvas.width / segments;
+
+          for (let i = 0; i <= segments; i++) {
+            const x = i * step;
+            const timeOffset = t * wave.speed;
+            const xOffset = x * wave.length;
+            const y = wave.yBase + Math.sin(xOffset + timeOffset) * wave.amplitude + Math.cos(xOffset * 0.5 - timeOffset * 0.7) * (wave.amplitude * 0.4);
+            
+            if (i === 0) {
+              ctx.moveTo(x, y);
+            } else {
+              const prevX = (i - 1) * step;
+              const prevTimeOffset = t * wave.speed;
+              const prevXOffset = prevX * wave.length;
+              const prevY = wave.yBase + Math.sin(prevXOffset + prevTimeOffset) * wave.amplitude + Math.cos(prevXOffset * 0.5 - prevTimeOffset * 0.7) * (wave.amplitude * 0.4);
+              
+              const xc = (prevX + x) / 2;
+              const yc = (prevY + y) / 2;
+              ctx.quadraticCurveTo(prevX, prevY, xc, yc);
+            }
+          }
+          ctx.stroke();
+        });
+        ctx.restore();
+      }
+
       // 4. DRAWING BUILDINGS (3 Layers)
       const drawLayer = (layerBuildings: Building[], parallaxMultX: number, parallaxMultY: number) => {
         layerBuildings.forEach((b) => {
@@ -493,19 +650,153 @@
       // Fore Layer (fastest parallax, fore buildings)
       drawLayer(layers.fore, 0.52, 0.26);
 
+      // 4.5. LANTERNS & FIREWORKS (Autumn Night / Summer Night clear weather - drawn in front of buildings)
+      if (isNight && weather === "clear") {
+        if (season === "summer") {
+          // Spawn fireworks
+          if (Math.random() < 0.008 && fireworks.length < 3) {
+            spawnFirework();
+          }
+          // Update & draw fireworks
+          fireworks.forEach((fw) => {
+            if (fw.state === "rising") {
+              fw.y -= 7;
+              fw.trail.push({ x: fw.x, y: fw.y, alpha: 1.0 });
+              if (fw.trail.length > 15) fw.trail.shift();
+
+              fw.trail.forEach((pt) => {
+                pt.alpha -= 0.06;
+                ctx.fillStyle = fw.color;
+                ctx.globalAlpha = Math.max(0, pt.alpha);
+                ctx.beginPath();
+                ctx.arc(pt.x, pt.y, 1.5, 0, Math.PI * 2);
+                ctx.fill();
+              });
+              ctx.globalAlpha = 1.0;
+
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(fw.x, fw.y, 2.5, 0, Math.PI * 2);
+              ctx.fill();
+
+              if (fw.y <= fw.targetY) {
+                fw.state = "exploded";
+                const pCount = 40 + Math.floor(Math.random() * 20);
+                for (let i = 0; i < pCount; i++) {
+                  const angle = Math.random() * Math.PI * 2;
+                  const speed = 1.5 + Math.random() * 3.5;
+                  fw.particles.push({
+                    x: fw.x,
+                    y: fw.y,
+                    vx: Math.cos(angle) * speed,
+                    vy: Math.sin(angle) * speed,
+                    alpha: 1.0,
+                    size: 1.2 + Math.random() * 1.5,
+                  });
+                }
+              }
+            } else if (fw.state === "exploded") {
+              let allFaded = true;
+              fw.particles.forEach((p) => {
+                p.x += p.vx;
+                p.y += p.vy;
+                p.vy += 0.04; // gravity
+                p.vx *= 0.98; // air resistance
+                p.vy *= 0.98;
+                p.alpha -= 0.015;
+
+                if (p.alpha > 0) {
+                  allFaded = false;
+                  ctx.fillStyle = fw.color;
+                  ctx.globalAlpha = p.alpha;
+                  ctx.beginPath();
+                  ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                  ctx.fill();
+                }
+              });
+              ctx.globalAlpha = 1.0;
+              if (allFaded) {
+                fw.state = "done";
+              }
+            }
+          });
+          // Remove done fireworks
+          for (let i = fireworks.length - 1; i >= 0; i--) {
+            if (fireworks[i].state === "done") {
+              fireworks.splice(i, 1);
+            }
+          }
+        } else if (season === "autumn") {
+          // Spawn lanterns
+          if (Math.random() < 0.02 && lanterns.length < 25) {
+            spawnLantern();
+          }
+          // Update & draw lanterns
+          lanterns.forEach((l) => {
+            l.y -= l.speedY;
+            l.x += Math.sin(t * l.swaySpeed + l.swayOffset) * 0.25;
+
+            let currentAlpha = l.alpha;
+            if (l.y < 150) {
+              currentAlpha = l.alpha * (l.y / 150);
+            }
+
+            if (l.y < -20) {
+              l.y = canvas.height + 20;
+              l.x = Math.random() * canvas.width;
+              l.alpha = 0.1 + Math.random() * 0.6;
+            }
+
+            if (currentAlpha > 0) {
+              ctx.globalAlpha = currentAlpha;
+              const glow = ctx.createRadialGradient(l.x, l.y, 0, l.x, l.y, l.size * 2.5);
+              glow.addColorStop(0, "rgba(253, 203, 110, 0.7)");
+              glow.addColorStop(0.4, "rgba(230, 126, 34, 0.2)");
+              glow.addColorStop(1, "transparent");
+              ctx.fillStyle = glow;
+              ctx.beginPath();
+              ctx.arc(l.x, l.y, l.size * 2.5, 0, Math.PI * 2);
+              ctx.fill();
+
+              ctx.fillStyle = "rgba(253, 150, 68, 0.9)";
+              ctx.beginPath();
+              ctx.rect(l.x - l.size * 0.6, l.y - l.size, l.size * 1.2, l.size * 1.6);
+              ctx.fill();
+
+              ctx.fillStyle = "rgba(235, 94, 40, 0.95)";
+              ctx.beginPath();
+              ctx.arc(l.x, l.y - l.size, l.size * 0.6, Math.PI, 0);
+              ctx.fill();
+
+              ctx.fillStyle = "#ffffff";
+              ctx.beginPath();
+              ctx.arc(l.x, l.y + l.size * 0.2, l.size * 0.25, 0, Math.PI * 2);
+              ctx.fill();
+            }
+          });
+          ctx.globalAlpha = 1.0;
+        }
+      }
+
       // 5. WEATHER PARTICLES (Frontmost layer)
       particles.forEach((p, index) => {
         // Update position
         p.x += p.speedX;
         p.y += p.speedY;
 
-        if (season === "spring") {
+        if (p.type === "sakura") {
           // Drifting sakura: apply sway
           if (p.angle !== undefined && p.rotSpeed !== undefined) {
             p.angle += p.rotSpeed;
             p.x += Math.sin(p.angle) * 0.4;
           }
-        } else if (season === "winter") {
+        } else if (p.type === "leaf") {
+          // Drifting leaf: apply slight sway
+          if (p.angle !== undefined && p.rotSpeed !== undefined) {
+            p.angle += p.rotSpeed;
+            p.x += Math.sin(p.angle) * 0.2;
+          }
+        } else if (p.type === "snow") {
           // Fluttering snow: apply sway
           p.x += Math.sin(t * 0.02 + index) * 0.35;
         }
@@ -516,13 +807,13 @@
         }
 
         // Draw particle
-        if (season === "spring" && p.color) {
+        if (p.type === "sakura" && p.color) {
           // Sakura oval petals
           ctx.fillStyle = p.color;
           ctx.beginPath();
           ctx.ellipse(p.x, p.y, p.size, p.size * 0.6, p.angle || 0, 0, Math.PI * 2);
           ctx.fill();
-        } else if (season === "summer") {
+        } else if (p.type === "rain") {
           // Rain diagonal lines
           ctx.strokeStyle = "rgba(174, 198, 207, 0.16)";
           ctx.lineWidth = p.size;
@@ -530,13 +821,13 @@
           ctx.moveTo(p.x, p.y);
           ctx.lineTo(p.x - 3, p.y + 11);
           ctx.stroke();
-        } else if (season === "autumn" && p.color) {
+        } else if (p.type === "leaf" && p.color) {
           // Amber leaves
           ctx.fillStyle = p.color;
           ctx.beginPath();
           ctx.ellipse(p.x, p.y, p.size, p.size * 0.5, p.angle || 0, 0, Math.PI * 2);
           ctx.fill();
-        } else {
+        } else if (p.type === "snow") {
           // Winter snow circular flakes
           ctx.fillStyle = `rgba(255, 255, 255, ${0.45 + Math.random() * 0.4})`;
           ctx.beginPath();
