@@ -1,0 +1,226 @@
+---
+---
+<div class="dynamic-city-bg">
+  <canvas id="city-canvas"></canvas>
+</div>
+
+<style>
+  .dynamic-city-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1; /* Sits behind text and cards (z-index 2) but above the page background */
+    pointer-events: none;
+    overflow: hidden;
+  }
+  #city-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+</style>
+
+<script>
+  interface Window {
+    __dynamicCityBgInitialized?: boolean;
+  }
+
+  interface WindowWithGlobal extends Window {
+    __dynamicCityBgCleanup?: () => void;
+  }
+
+  interface ConstellationNode {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    size: number;
+    color: string;
+    alpha: number;
+    baseAlpha: number;
+  }
+
+  const initBackground = () => {
+    const canvas = document.getElementById("city-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    // Resize handler
+    const resizeCanvas = () => {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      generateNodes();
+    };
+    window.addEventListener("resize", resizeCanvas);
+
+    // Mouse tracking
+    let mouseX = -1000;
+    let mouseY = -1000;
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+    const onMouseLeave = () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    };
+    window.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseleave", onMouseLeave);
+
+    // Nodes definition
+    let nodes: ConstellationNode[] = [];
+    const maxDistance = 110; // Max distance to draw connecting line
+    const mouseRadius = 140; // Area of mouse repulsion force
+
+    const generateNodes = () => {
+      // Scale node count by screen area
+      const area = canvas.width * canvas.height;
+      const count = Math.min(110, Math.floor(area / 14000));
+      nodes = [];
+
+      // Harmonious, non-clashing colors that match the warm-gold/amber/crimson palette
+      const colors = [
+        "rgba(207, 154, 94,",  // Warm gold
+        "rgba(201, 134, 72,",  // Soft amber
+        "rgba(224, 180, 128,", // Creamy gold
+        "rgba(238, 232, 221,"  // Warm white/cream
+      ];
+
+      for (let i = 0; i < count; i++) {
+        const baseAlpha = 0.15 + Math.random() * 0.3;
+        const colorPrefix = colors[Math.floor(Math.random() * colors.length)];
+        nodes.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.35, // slow drifting speed
+          vy: (Math.random() - 0.5) * 0.35,
+          size: 1.0 + Math.random() * 1.8,
+          color: colorPrefix,
+          alpha: baseAlpha,
+          baseAlpha: baseAlpha
+        });
+      }
+    };
+
+    // First initialization
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    generateNodes();
+
+    let animationFrameId: number;
+    let t = 0;
+
+    // Drawing loop
+    const draw = () => {
+      t++;
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // 1. DRAW SUBTLE DUAL NEBULA GLOW (Crimson left, Gold right - extremely faint)
+      const leftGlow = ctx.createRadialGradient(
+        0, canvas.height * 0.5, 50,
+        0, canvas.height * 0.5, Math.max(canvas.width * 0.6, 500)
+      );
+      leftGlow.addColorStop(0, "rgba(194, 75, 58, 0.04)"); // Soft Lodge Red
+      leftGlow.addColorStop(1, "transparent");
+      ctx.fillStyle = leftGlow;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      const rightGlow = ctx.createRadialGradient(
+        canvas.width, canvas.height * 0.5, 50,
+        canvas.width, canvas.height * 0.5, Math.max(canvas.width * 0.6, 500)
+      );
+      rightGlow.addColorStop(0, "rgba(201, 134, 72, 0.04)"); // Soft Tsukinomi Amber/Gold
+      rightGlow.addColorStop(1, "transparent");
+      ctx.fillStyle = rightGlow;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      // 2. UPDATE NODES AND DRAW LINES
+      nodes.forEach((node, i) => {
+        // Move node
+        node.x += node.vx;
+        node.y += node.vy;
+
+        // Bounce or wrap edges
+        if (node.x < 0) node.x = canvas.width;
+        if (node.x > canvas.width) node.x = 0;
+        if (node.y < 0) node.y = canvas.height;
+        if (node.y > canvas.height) node.y = 0;
+
+        // Mouse Repulsion Force
+        if (mouseX !== -1000 && mouseY !== -1000) {
+          const dx = node.x - mouseX;
+          const dy = node.y - mouseY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < mouseRadius) {
+            const force = (mouseRadius - dist) / mouseRadius;
+            // Push node away from mouse position
+            const angle = Math.atan2(dy, dx);
+            const forceX = Math.cos(angle) * force * 0.8;
+            const forceY = Math.sin(angle) * force * 0.8;
+
+            node.x += forceX;
+            node.y += forceY;
+          }
+        }
+
+        // Draw connections
+        for (let j = i + 1; j < nodes.length; j++) {
+          const other = nodes[j];
+          const dx = node.x - other.x;
+          const dy = node.y - other.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          if (dist < maxDistance) {
+            // Opacity fades out as distance increases
+            const alpha = (1 - dist / maxDistance) * 0.08;
+            ctx.strokeStyle = `rgba(207, 154, 94, ${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.beginPath();
+            ctx.moveTo(node.x, node.y);
+            ctx.lineTo(other.x, other.y);
+            ctx.stroke();
+          }
+        }
+
+        // Draw node with soft twinkling sine wave
+        const twinkle = 0.7 + Math.sin(t * 0.015 + i) * 0.3;
+        ctx.fillStyle = `${node.color}${node.baseAlpha * twinkle})`;
+        ctx.beginPath();
+        ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    // Cleanup helper
+    const cleanup = () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resizeCanvas);
+      window.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseleave", onMouseLeave);
+    };
+
+    (window as WindowWithGlobal).__dynamicCityBgCleanup = cleanup;
+  };
+
+  const bindDynamicCityBg = () => {
+    if ((window as any).__dynamicCityBgInitialized) {
+      const win = window as any;
+      if (typeof win.__dynamicCityBgCleanup === "function") {
+        win.__dynamicCityBgCleanup();
+      }
+    }
+    (window as any).__dynamicCityBgInitialized = true;
+    initBackground();
+  };
+
+  bindDynamicCityBg();
+  document.addEventListener("astro:page-load", bindDynamicCityBg);
+</script>
