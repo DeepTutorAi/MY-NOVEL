@@ -48,6 +48,7 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
         }
 
         function getProfileKey(key) {
+          if (typeof key !== 'string') return key;
           const prefixes = [
             "hvitveldt:reading:",
             "tsukinomi:reading:",

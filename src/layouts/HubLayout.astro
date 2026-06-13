@@ -43,6 +43,7 @@ const faviconPng = withBase("/favicon.png");
         }
 
         function getProfileKey(key) {
+          if (typeof key !== 'string') return key;
           const prefixes = [
             "hvitveldt:reading:",
             "tsukinomi:reading:",

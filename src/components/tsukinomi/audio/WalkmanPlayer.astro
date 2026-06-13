@@ -43,7 +43,7 @@
 
   <label class="walkman-switch walkman-backdrop-switch">
     <input data-backdrop-toggle type="checkbox" />
-    <span>Sakura / rain backdrop</span>
+    <span>แอนิเมชันพื้นหลัง (ซากุระ/ฝน)</span>
   </label>
 
   <div class="walkman-soundscapes" aria-label="เสียงบรรยากาศ">
@@ -173,9 +173,12 @@
     }
 
     for (const trigger of [corner, mobileTrigger]) {
-      if (trigger instanceof HTMLButtonElement) {
-        trigger.setAttribute("aria-expanded", String(open));
-        trigger.setAttribute("aria-label", open ? "ปิดแผงเสียง Walkman" : "เปิดแผงเสียง Walkman");
+      if (trigger instanceof HTMLElement) {
+        trigger.setAttribute("data-open", String(open));
+        if (trigger instanceof HTMLButtonElement) {
+          trigger.setAttribute("aria-expanded", String(open));
+          trigger.setAttribute("aria-label", open ? "ปิดการตั้งค่า Walkman" : "เปิดการตั้งค่า Walkman");
+        }
       }
     }
   };

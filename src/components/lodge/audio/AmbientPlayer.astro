@@ -1,20 +1,14 @@
 <div class="ambient-player" data-enabled="false" data-soundscape="false">
-  <button class="ambient-main" type="button" aria-label="เปิดแผงเสียง" aria-expanded="false">
-    <svg class="ambient-icon ambient-icon-off" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M16 9a5 5 0 0 1 0 6" />
-      <path d="M3 9v6h4l5 4V5L7 9H3Z" />
-      <path d="M22 2 2 22" />
-    </svg>
-    <svg class="ambient-icon ambient-icon-on" viewBox="0 0 24 24" aria-hidden="true">
-      <path d="M11 5 6 9H2v6h4l5 4V5Z" />
-      <path d="M15.5 8.5a5 5 0 0 1 0 7" />
-      <path d="M19 5a10 10 0 0 1 0 14" />
+  <button class="ambient-main" type="button" aria-label="เปิดการตั้งค่า" aria-expanded="false">
+    <svg class="ambient-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+      <circle cx="12" cy="12" r="3" />
     </svg>
   </button>
 
-  <div class="ambient-panel" role="dialog" aria-label="แผงเสียงอ่านนิยาย">
+  <div class="ambient-panel" role="dialog" aria-label="แผงตั้งค่าอ่านนิยาย">
     <div class="ambient-panel-head">
-      <strong>เสียงประกอบ</strong>
+      <strong>การตั้งค่า</strong>
       <span data-ambient-cue>เพลงช่วงที่ 1: ต้อนรับ</span>
     </div>
 
@@ -147,7 +141,7 @@
 
     if (main instanceof HTMLButtonElement) {
       main.setAttribute("aria-expanded", String(open));
-      main.setAttribute("aria-label", open ? "ปิดแผงเสียง" : "เปิดแผงเสียง");
+      main.setAttribute("aria-label", open ? "ปิดการตั้งค่า" : "เปิดการตั้งค่า");
     }
   };
 
@@ -363,7 +357,21 @@
     outline-offset: 3px;
   }
 
-  .ambient-icon,
+  .ambient-icon {
+    inline-size: 1.18rem;
+    block-size: 1.18rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 1.75;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  .ambient-player[data-open="true"] .ambient-main .ambient-icon {
+    transform: rotate(45deg);
+  }
+
   .ambient-icon-button svg {
     inline-size: 1.18rem;
     block-size: 1.18rem;
@@ -374,7 +382,6 @@
     stroke-width: 1.75;
   }
 
-  .ambient-icon-on,
   .ambient-pause-icon {
     display: none;
   }
@@ -383,12 +390,10 @@
     color: var(--ink);
   }
 
-  .ambient-player[data-enabled="true"] .ambient-icon-on,
   .ambient-player[data-enabled="true"] .ambient-pause-icon {
     display: block;
   }
 
-  .ambient-player[data-enabled="true"] .ambient-icon-off,
   .ambient-player[data-enabled="true"] .ambient-play-icon {
     display: none;
   }

@@ -75,6 +75,7 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
         }
 
         function getProfileKey(key) {
+          if (typeof key !== 'string') return key;
           const prefixes = [
             "hvitveldt:reading:",
             "tsukinomi:reading:",

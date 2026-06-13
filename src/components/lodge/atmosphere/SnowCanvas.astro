@@ -1,242 +1,272 @@
 <canvas class="snow-canvas" aria-hidden="true"></canvas>
 
 <script>
-  const canvas = document.querySelector(".snow-canvas");
+  let canvas: HTMLCanvasElement | null = null;
+  let context: CanvasRenderingContext2D | null = null;
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
   const MOTION_STORAGE_KEY = "hvitveldt:motion:snow";
   const MOTION_EVENT = "hvitveldt:motion-change";
+  const mobile = window.matchMedia("(max-width: 640px)");
 
-  if (canvas instanceof HTMLCanvasElement) {
-    const context = canvas.getContext("2d");
-    const mobile = window.matchMedia("(max-width: 640px)");
-    let width = 0;
-    let height = 0;
-    let frame = 0;
-    let resizeTimer = 0;
-    type SnowParticle = {
-      x: number;
-      y: number;
-      radius: number;
-      driftSpeed: number;
-      driftX: number;
-      opacity: number;
-    };
-    type ProtectedRect = {
-      rect: DOMRect;
-      pad: number;
-    };
-    let particles: SnowParticle[] = [];
-    let motionEnabled = true;
+  let width = 0;
+  let height = 0;
+  let frame = 0;
+  let resizeTimer = 0;
 
-    const readMotionEnabled = () => {
-      try {
-        return localStorage.getItem(MOTION_STORAGE_KEY) !== "false";
-      } catch {
-        return true;
+  type SnowParticle = {
+    x: number;
+    y: number;
+    radius: number;
+    driftSpeed: number;
+    driftX: number;
+    opacity: number;
+  };
+  type ProtectedRect = {
+    rect: DOMRect;
+    pad: number;
+  };
+  let particles: SnowParticle[] = [];
+  let motionEnabled = true;
+
+  const bindCanvas = () => {
+    canvas = document.querySelector(".snow-canvas") as HTMLCanvasElement | null;
+    context = canvas ? canvas.getContext("2d") : null;
+  };
+
+  const readMotionEnabled = () => {
+    try {
+      return localStorage.getItem(MOTION_STORAGE_KEY) !== "false";
+    } catch {
+      return true;
+    }
+  };
+
+  const clearCanvas = () => {
+    context?.clearRect(0, 0, width, height);
+  };
+
+  const isHome = () => document.body.classList.contains("home-page");
+  const isReader = () => document.body.classList.contains("chapter-page");
+  const particleCap = () => {
+    if (mobile.matches) {
+      return isHome() ? 72 : 52;
+    }
+    return isHome() ? 160 : 132;
+  };
+
+  const createParticle = (initial = false) => {
+    const angle = ((Math.random() * 10 - 5) * Math.PI) / 180;
+    const home = isHome();
+    const timeOfDay = document.body.getAttribute('data-time-of-day') || 'evening';
+
+    let speedMult = 1.0;
+    let opacityMult = 1.0;
+    if (timeOfDay === 'morning') {
+      speedMult = 0.6;
+      opacityMult = 0.75;
+    } else if (timeOfDay === 'afternoon') {
+      speedMult = 0.85;
+      opacityMult = 0.9;
+    } else if (timeOfDay === 'night') {
+      speedMult = 1.5;
+      opacityMult = 1.25;
+    }
+
+    const baseSpeed = home ? 0.55 + Math.random() * 1.2 : 0.35 + Math.random() * 0.7;
+    const baseOpacity = home ? 0.36 + Math.random() * 0.42 : 0.32 + Math.random() * 0.38;
+
+    return {
+      x: Math.random() * width,
+      y: initial ? Math.random() * height : -10,
+      radius: home ? 0.8 + Math.random() * 1.8 : 0.7 + Math.random() * 1.3,
+      driftSpeed: baseSpeed * speedMult,
+      driftX: Math.sin(angle) * (home ? 0.72 : 0.44) * speedMult,
+      opacity: Math.min(1, baseOpacity * opacityMult),
+    };
+  };
+
+  const particleInPaddedRect = (particle: SnowParticle, rect: DOMRect, pad: number) => {
+    if (rect.width <= 0 || rect.height <= 0) {
+      return false;
+    }
+
+    const left = rect.left - pad;
+    const right = rect.right + pad;
+    const top = Math.max(0, rect.top - pad);
+    const bottom = Math.min(height, rect.bottom + pad);
+
+    return (
+      particle.x + particle.radius >= left &&
+      particle.x - particle.radius <= right &&
+      particle.y + particle.radius >= top &&
+      particle.y - particle.radius <= bottom
+    );
+  };
+
+  const getReaderProtectedRects = () => {
+    if (!isReader()) {
+      return [];
+    }
+
+    const protectedRects: ProtectedRect[] = [];
+    const article = document.querySelector("article.chapter");
+    const textPad = mobile.matches ? 10 : 22;
+
+    if (article instanceof HTMLElement) {
+      protectedRects.push({ rect: article.getBoundingClientRect(), pad: textPad });
+    }
+
+    const figurePad = mobile.matches ? 8 : 16;
+
+    for (const image of document.querySelectorAll(".chapter-figure img")) {
+      if (image instanceof HTMLImageElement) {
+        protectedRects.push({ rect: image.getBoundingClientRect(), pad: figurePad });
       }
-    };
+    }
 
-    const clearCanvas = () => {
-      context?.clearRect(0, 0, width, height);
-    };
+    return protectedRects;
+  };
 
-    const isHome = () => document.body.classList.contains("home-page");
-    const isReader = () => document.body.classList.contains("chapter-page");
-    const particleCap = () => {
-      if (mobile.matches) {
-        return isHome() ? 72 : 52;
-      }
+  const particleOverReaderProtectedArea = (
+    particle: SnowParticle,
+    protectedRects: ProtectedRect[],
+  ) => {
+    return protectedRects.some(({ rect, pad }) => particleInPaddedRect(particle, rect, pad));
+  };
 
-      // Reader pages cull every flake that falls over the article column, so a
-      // larger budget is needed to keep the side margins visibly snowing.
-      return isHome() ? 160 : 132;
-    };
+  const resize = () => {
+    bindCanvas();
+    if (!canvas || !context) return;
 
-    const createParticle = (initial = false) => {
-      const angle = ((Math.random() * 10 - 5) * Math.PI) / 180;
-      const home = isHome();
-      const timeOfDay = document.body.getAttribute('data-time-of-day') || 'evening';
+    const ratio = window.devicePixelRatio || 1;
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = Math.floor(width * ratio);
+    canvas.height = Math.floor(height * ratio);
+    canvas.style.width = `${width}px`;
+    canvas.style.height = `${height}px`;
+    canvas.hidden = !motionEnabled;
+    context.setTransform(ratio, 0, 0, ratio, 0, 0);
+    particles = Array.from({ length: particleCap() }, () => createParticle(true));
+  };
 
-      let speedMult = 1.0;
-      let opacityMult = 1.0;
-      if (timeOfDay === 'morning') {
-        speedMult = 0.6;
-        opacityMult = 0.75;
-      } else if (timeOfDay === 'afternoon') {
-        speedMult = 0.85;
-        opacityMult = 0.9;
-      } else if (timeOfDay === 'night') {
-        speedMult = 1.5;
-        opacityMult = 1.25;
-      }
+  const draw = () => {
+    if (!canvas || !context) {
+      return;
+    }
 
-      const baseSpeed = home ? 0.55 + Math.random() * 1.2 : 0.35 + Math.random() * 0.7;
-      const baseOpacity = home ? 0.36 + Math.random() * 0.42 : 0.32 + Math.random() * 0.38;
+    if (!motionEnabled) {
+      clearCanvas();
+      frame = 0;
+      return;
+    }
 
-      return {
-        x: Math.random() * width,
-        y: initial ? Math.random() * height : -10,
-        radius: home ? 0.8 + Math.random() * 1.8 : 0.7 + Math.random() * 1.3,
-        driftSpeed: baseSpeed * speedMult,
-        driftX: Math.sin(angle) * (home ? 0.72 : 0.44) * speedMult,
-        opacity: Math.min(1, baseOpacity * opacityMult),
-      };
-    };
+    context.clearRect(0, 0, width, height);
+    const protectedRects = getReaderProtectedRects();
 
-    const particleInPaddedRect = (particle: SnowParticle, rect: DOMRect, pad: number) => {
-      if (rect.width <= 0 || rect.height <= 0) {
-        return false;
-      }
-
-      const left = rect.left - pad;
-      const right = rect.right + pad;
-      const top = Math.max(0, rect.top - pad);
-      const bottom = Math.min(height, rect.bottom + pad);
-
-      return (
-        particle.x + particle.radius >= left &&
-        particle.x - particle.radius <= right &&
-        particle.y + particle.radius >= top &&
-        particle.y - particle.radius <= bottom
-      );
-    };
-
-    const getReaderProtectedRects = () => {
-      if (!isReader()) {
-        return [];
-      }
-
-      const protectedRects: ProtectedRect[] = [];
-      const article = document.querySelector("article.chapter");
-      const textPad = mobile.matches ? 10 : 22;
-
-      if (article instanceof HTMLElement) {
-        protectedRects.push({ rect: article.getBoundingClientRect(), pad: textPad });
-      }
-
-      const figurePad = mobile.matches ? 8 : 16;
-
-      for (const image of document.querySelectorAll(".chapter-figure img")) {
-        if (image instanceof HTMLImageElement) {
-          protectedRects.push({ rect: image.getBoundingClientRect(), pad: figurePad });
-        }
-      }
-
-      return protectedRects;
-    };
-
-    const particleOverReaderProtectedArea = (
-      particle: SnowParticle,
-      protectedRects: ProtectedRect[],
-    ) => {
-      return protectedRects.some(({ rect, pad }) => particleInPaddedRect(particle, rect, pad));
-    };
-
-    const resize = () => {
-      const ratio = window.devicePixelRatio || 1;
-      width = window.innerWidth;
-      height = window.innerHeight;
-      canvas.width = Math.floor(width * ratio);
-      canvas.height = Math.floor(height * ratio);
-      canvas.style.width = `${width}px`;
-      canvas.style.height = `${height}px`;
-      canvas.hidden = !motionEnabled;
-      context?.setTransform(ratio, 0, 0, ratio, 0, 0);
-      particles = Array.from({ length: particleCap() }, () => createParticle(true));
-    };
-
-    const draw = () => {
-      if (!context) {
-        return;
-      }
-
-      if (!motionEnabled) {
-        clearCanvas();
-        frame = 0;
-        return;
-      }
-
-      context.clearRect(0, 0, width, height);
-      const protectedRects = getReaderProtectedRects();
-
-      for (const particle of particles) {
-        if (!reduceMotion.matches) {
-          particle.y += particle.driftSpeed;
-          particle.x += particle.driftX;
-        }
-
-        if (particle.y > height + 10) {
-          Object.assign(particle, createParticle(false));
-        }
-
-        if (particle.x < -10) {
-          particle.x = width + 10;
-        } else if (particle.x > width + 10) {
-          particle.x = -10;
-        }
-
-        if (particleOverReaderProtectedArea(particle, protectedRects)) {
-          continue;
-        }
-
-        context.beginPath();
-        context.fillStyle = `rgba(236, 231, 221, ${particle.opacity})`;
-        context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-        context.fill();
+    for (const particle of particles) {
+      if (!reduceMotion.matches) {
+        particle.y += particle.driftSpeed;
+        particle.x += particle.driftX;
       }
 
+      if (particle.y > height + 10) {
+        Object.assign(particle, createParticle(false));
+      }
+
+      if (particle.x < -10) {
+        particle.x = width + 10;
+      } else if (particle.x > width + 10) {
+        particle.x = -10;
+      }
+
+      if (particleOverReaderProtectedArea(particle, protectedRects)) {
+        continue;
+      }
+
+      context.beginPath();
+      context.fillStyle = `rgba(236, 231, 221, ${particle.opacity})`;
+      context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
+      context.fill();
+    }
+
+    frame = window.requestAnimationFrame(draw);
+  };
+
+  const pause = () => {
+    if (frame) {
+      window.cancelAnimationFrame(frame);
+      frame = 0;
+    }
+  };
+
+  const resume = () => {
+    pause();
+    bindCanvas();
+
+    if (!canvas || !context || !motionEnabled) {
+      if (canvas) {
+        canvas.hidden = true;
+      }
+      clearCanvas();
+      return;
+    }
+
+    canvas.hidden = false;
+
+    if (reduceMotion.matches) {
+      draw();
+      return;
+    }
+
+    if (!frame && document.visibilityState === "visible") {
       frame = window.requestAnimationFrame(draw);
-    };
+    }
+  };
 
-    const pause = () => {
-      if (frame) {
-        window.cancelAnimationFrame(frame);
-        frame = 0;
-      }
-    };
-
-    const resume = () => {
-      if (!motionEnabled) {
-        canvas.hidden = true;
-        clearCanvas();
-        return;
-      }
-
-      canvas.hidden = false;
-
-      if (reduceMotion.matches) {
-        draw();
-        return;
-      }
-
-      if (!frame && document.visibilityState === "visible") {
-        frame = window.requestAnimationFrame(draw);
-      }
-    };
-
-    const applyMotionPreference = () => {
-      motionEnabled = readMotionEnabled();
+  const applyMotionPreference = () => {
+    motionEnabled = readMotionEnabled();
+    if (canvas) {
       canvas.dataset.motion = motionEnabled ? "on" : "off";
+      canvas.hidden = !motionEnabled;
+    }
 
-      if (!motionEnabled) {
-        pause();
-        canvas.hidden = true;
-        clearCanvas();
-        return;
-      }
+    if (!motionEnabled) {
+      pause();
+      clearCanvas();
+      return;
+    }
 
-      resize();
-      resume();
-    };
+    resize();
+    resume();
+  };
+
+  const initializeSnow = () => {
+    bindCanvas();
+    if (!canvas) return;
 
     motionEnabled = readMotionEnabled();
     canvas.dataset.motion = motionEnabled ? "on" : "off";
     resize();
     resume();
+  };
+
+  // Bind event listeners only once globally
+  const registerGlobalListeners = () => {
+    const win = window as any;
+    if (win.__snowCanvasListenersBound) {
+      return;
+    }
+    win.__snowCanvasListenersBound = true;
 
     window.addEventListener("resize", () => {
       window.clearTimeout(resizeTimer);
-      resizeTimer = window.setTimeout(resize, 150);
+      resizeTimer = window.setTimeout(() => {
+        if (canvas) {
+          resize();
+          resume();
+        }
+      }, 150);
     });
 
     reduceMotion.addEventListener("change", () => {
@@ -247,6 +277,7 @@
 
     document.addEventListener("astro:after-swap", () => {
       pause();
+      bindCanvas();
       applyMotionPreference();
     });
 
@@ -258,8 +289,15 @@
       }
     });
 
-    window.addEventListener(MOTION_EVENT, applyMotionPreference);
-  }
+    window.addEventListener(MOTION_EVENT, () => {
+      bindCanvas();
+      applyMotionPreference();
+    });
+  };
+
+  // Run initialization
+  registerGlobalListeners();
+  initializeSnow();
 </script>
 
 <style>
