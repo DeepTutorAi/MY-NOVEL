@@ -16,6 +16,8 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
     background-size: cover;
     background-position: center;
     image-rendering: pixelated;
+    transform: scale(1.03);
+    will-change: transform;
   }
   #city-canvas {
     position: absolute;
@@ -117,11 +119,19 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
 
     let animationFrameId: number;
     let t = 0;
+    const bgContainer = document.querySelector(".dynamic-city-bg") as HTMLDivElement | null;
 
     // Drawing loop
     const draw = () => {
       t++;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      if (bgContainer) {
+        // Subtle floating / bobbing effect
+        const floatX = Math.sin(t * 0.005) * 5;
+        const floatY = Math.cos(t * 0.004) * 3;
+        bgContainer.style.transform = `translate(${floatX}px, ${floatY}px) scale(1.03)`;
+      }
 
       // 1. DRAW SUBTLE DUAL NEBULA GLOW (Crimson left, Gold right - extremely faint)
       const leftGlow = ctx.createRadialGradient(
