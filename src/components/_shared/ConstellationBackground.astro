@@ -1,6 +1,8 @@
 ---
+import { withBase } from "../../utils/base-path";
+const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
 ---
-<div class="dynamic-city-bg">
+<div class="dynamic-city-bg" style={`background-image: url('${bgImageUrl}')`}>
   <canvas id="city-canvas"></canvas>
 </div>
 
@@ -11,6 +13,9 @@
     z-index: 1; /* Sits behind text and cards (z-index 2) but above the page background */
     pointer-events: none;
     overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
   }
   #city-canvas {
     position: absolute;
