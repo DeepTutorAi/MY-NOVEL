@@ -1,0 +1,344 @@
+<div
+  id="sea-sonar-panel"
+  class="sea-sonar-player"
+  data-open="false"
+  data-playing="false"
+  role="dialog"
+  aria-label="แผงควบคุมกระแสน้ำฟ้าและเสียงบรรยากาศ"
+  inert
+>
+  <div class="sonar-player-head">
+    <span>Current Rail & Sonar</span>
+    <strong data-sonar-cue>sun-sheet</strong>
+  </div>
+
+  <div class="sonar-player-controls" aria-label="ควบคุมเสียง">
+    <button class="sonar-icon-button sonar-play" type="button" data-sonar-play aria-label="เปิดเพลง">
+      <svg class="sonar-play-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M5 3l14 9-14 9V3z" />
+      </svg>
+      <svg class="sonar-pause-icon" viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z" />
+      </svg>
+    </button>
+  </div>
+
+  <label class="sonar-field">
+    <span>Volume / แรงขับเคลื่อนเสียง</span>
+    <input data-sonar-volume aria-label="ระดับเสียงรวม" type="range" min="0" max="1" step="0.04" />
+  </label>
+
+  <div class="sonar-soundscapes" aria-label="เสียงแวดล้อม">
+    <section class="sonar-soundscape" data-soundscape="rain-drip">
+      <label class="sonar-switch">
+        <input data-soundscape-toggle="rain-drip" type="checkbox" />
+        <span>ฝนตกเคาะท่อทองแดง</span>
+      </label>
+      <input
+        data-soundscape-volume="rain-drip"
+        aria-label="ระดับเสียงฝนตก"
+        type="range"
+        min="0"
+        max="0.8"
+        step="0.04"
+      />
+    </section>
+
+    <section class="sonar-soundscape" data-soundscape="pressure-hum">
+      <label class="sonar-switch">
+        <input data-soundscape-toggle="pressure-hum" type="checkbox" />
+        <span>ความหนาแน่นอากาศความถี่ต่ำ</span>
+      </label>
+      <input
+        data-soundscape-volume="pressure-hum"
+        aria-label="ระดับเสียงความหนาแน่นอากาศ"
+        type="range"
+        min="0"
+        max="0.8"
+        step="0.04"
+      />
+    </section>
+  </div>
+</div>
+
+<style>
+  .sea-sonar-player {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 6.2rem;
+    z-index: 21;
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    width: 280px;
+    padding: 1.25rem;
+    border: 1px solid rgba(0, 243, 197, 0.2);
+    background: rgba(6, 11, 18, 0.94);
+    backdrop-filter: blur(16px);
+    box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.5);
+    color: var(--sea-ink);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(15px) scale(0.95);
+    transition:
+      opacity 200ms cubic-bezier(0.16, 1, 0.3, 1),
+      transform 200ms cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .sea-sonar-player[data-open="true"] {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+  }
+
+  .sonar-player-head {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--sea-ink-muted);
+    border-bottom: 1px solid var(--sea-line);
+    padding-bottom: 0.5rem;
+  }
+
+  .sonar-player-head strong {
+    color: var(--accent-cyan);
+    font-size: 0.85rem;
+    font-weight: normal;
+  }
+
+  .sonar-player-controls {
+    display: flex;
+    justify-content: center;
+  }
+
+  .sonar-icon-button {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    border: 1px solid var(--accent-copper);
+    color: var(--sea-ink);
+    cursor: pointer;
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .sonar-icon-button:hover {
+    background: color-mix(in srgb, var(--accent-copper) 20%, transparent);
+    border-color: var(--accent-cyan);
+  }
+
+  .sonar-icon-button svg {
+    width: 20px;
+    height: 20px;
+  }
+
+  .sea-sonar-player[data-playing="true"] .sonar-play-icon {
+    display: none;
+  }
+  .sea-sonar-player[data-playing="false"] .sonar-pause-icon {
+    display: none;
+  }
+
+  .sonar-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--sea-ink-muted);
+  }
+
+  .sonar-field input[type="range"],
+  .sonar-soundscape input[type="range"] {
+    appearance: none;
+    -webkit-appearance: none;
+    height: 3px;
+    background: var(--sea-line);
+    outline: none;
+    border-radius: 999px;
+  }
+
+  .sonar-field input[type="range"]::-webkit-slider-thumb,
+  .sonar-soundscape input[type="range"]::-webkit-slider-thumb {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 10px;
+    height: 10px;
+    border-radius: 999px;
+    background: var(--accent-cyan);
+    cursor: pointer;
+    box-shadow: 0 0 4px var(--accent-cyan);
+  }
+
+  .sonar-soundscapes {
+    border-top: 1px solid var(--sea-line);
+    padding-top: 0.75rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .sonar-soundscape {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .sonar-switch {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--sea-ink-muted);
+    cursor: pointer;
+  }
+
+  .sonar-switch input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    border: 1px solid var(--sea-line);
+    background: transparent;
+    cursor: pointer;
+    display: inline-grid;
+    place-items: center;
+  }
+
+  .sonar-switch input[type="checkbox"]:checked {
+    border-color: var(--accent-cyan);
+    background: var(--accent-cyan);
+  }
+
+  .sonar-switch input[type="checkbox"]:checked::after {
+    content: "";
+    width: 6px;
+    height: 6px;
+    background: var(--bg-sea-night);
+  }
+</style>
+
+<script>
+  import { getSeaMusicCue } from "../../../data/sea/music-cues";
+  import { seaAudio } from "../../../scripts/sea/sea-audio-state";
+
+  let panel: HTMLDivElement | null = null;
+  let trigger: HTMLButtonElement | null = null;
+
+  const initUI = () => {
+    panel = document.getElementById("sea-sonar-panel") as HTMLDivElement | null;
+    trigger = document.querySelector("[data-sonar-corner]") as HTMLButtonElement | null;
+    if (!panel || !trigger) return;
+
+    seaAudio.init();
+
+    // Elements
+    const playBtn = panel.querySelector("[data-sonar-play]") as HTMLButtonElement | null;
+    const volSlider = panel.querySelector("[data-sonar-volume]") as HTMLInputElement | null;
+    const cueLabel = panel.querySelector("[data-sonar-cue]") as HTMLElement | null;
+
+    // Open/Close toggle
+    const togglePanel = () => {
+      const isOpen = panel!.getAttribute("data-open") === "true";
+      panel!.setAttribute("data-open", String(!isOpen));
+      trigger!.setAttribute("aria-expanded", String(!isOpen));
+      if (!isOpen) {
+        panel!.removeAttribute("inert");
+        panel!.focus();
+      } else {
+        panel!.setAttribute("inert", "");
+      }
+    };
+
+    trigger.addEventListener("click", togglePanel);
+
+    // Audio State sync
+    const syncState = () => {
+      const playing = seaAudio.isEnabled();
+      const cue = getSeaMusicCue(seaAudio.getCurrentCue());
+      
+      panel!.setAttribute("data-playing", String(playing));
+      trigger!.setAttribute("data-playing", String(playing));
+      
+      if (cueLabel) {
+        cueLabel.textContent = cue.label;
+      }
+      if (volSlider) {
+        volSlider.value = String(seaAudio.getVolume());
+      }
+
+      // Sync Soundscapes
+      const soundscapes = ["rain-drip", "pressure-hum"] as const;
+      soundscapes.forEach((id) => {
+        const row = panel!.querySelector(`[data-soundscape="${id}"]`);
+        if (row) {
+          const toggle = row.querySelector(`[data-soundscape-toggle="${id}"]`) as HTMLInputElement | null;
+          const slider = row.querySelector(`[data-soundscape-volume="${id}"]`) as HTMLInputElement | null;
+          
+          if (toggle) toggle.checked = seaAudio.getSoundscapeEnabled(id);
+          if (slider) slider.value = String(seaAudio.getSoundscapeVolume(id));
+        }
+      });
+    };
+
+    // Subscriptions
+    const unsub = seaAudio.subscribe(syncState);
+    syncState();
+
+    // Event listeners
+    if (playBtn) {
+      playBtn.addEventListener("click", () => seaAudio.toggle());
+    }
+
+    if (volSlider) {
+      volSlider.addEventListener("input", (e) => {
+        seaAudio.setVolume(parseFloat((e.target as HTMLInputElement).value));
+      });
+    }
+
+    // Soundscape controls
+    const soundscapes = ["rain-drip", "pressure-hum"] as const;
+    soundscapes.forEach((id) => {
+      const row = panel!.querySelector(`[data-soundscape="${id}"]`);
+      if (row) {
+        const toggle = row.querySelector(`[data-soundscape-toggle="${id}"]`) as HTMLInputElement | null;
+        const slider = row.querySelector(`[data-soundscape-volume="${id}"]`) as HTMLInputElement | null;
+        
+        if (toggle) {
+          toggle.addEventListener("change", (e) => {
+            seaAudio.setSoundscapeEnabled(id, (e.target as HTMLInputElement).checked);
+          });
+        }
+        if (slider) {
+          slider.addEventListener("input", (e) => {
+            seaAudio.setSoundscapeVolume(id, parseFloat((e.target as HTMLInputElement).value));
+          });
+        }
+      }
+    });
+
+    // Handle clicks outside to close
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (panel!.getAttribute("data-open") === "true") {
+        if (!panel!.contains(e.target as Node) && !trigger!.contains(e.target as Node)) {
+          togglePanel();
+        }
+      }
+    };
+    window.addEventListener("click", handleOutsideClick);
+
+    // Cleanups
+    window.addEventListener("astro:before-swap", () => {
+      unsub();
+      window.removeEventListener("click", handleOutsideClick);
+    }, { once: true });
+  };
+
+  document.addEventListener("astro:page-load", () => {
+    initUI();
+  });
+</script>

@@ -26,6 +26,13 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
     height: 100%;
     display: block;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dynamic-city-bg {
+      transform: none !important;
+      will-change: auto;
+    }
+  }
 </style>
 
 <script>
@@ -46,6 +53,16 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
     color: string;
     alpha: number;
     baseAlpha: number;
+  }
+
+  interface ShootingStar {
+    x: number;
+    y: number;
+    length: number;
+    speed: number;
+    angle: number;
+    age: number;
+    life: number;
   }
 
   const initBackground = () => {
@@ -81,6 +98,40 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
     let nodes: ConstellationNode[] = [];
     const maxDistance = 110; // Max distance to draw connecting line
     const mouseRadius = 140; // Area of mouse repulsion force
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
+    let shootingStars: ShootingStar[] = [];
+    let nextShootingStarAt = 0;
+
+    const scheduleShootingStar = () => {
+      nextShootingStarAt = performance.now() + randomBetween(5_000, 9_000);
+    };
+
+    const createShootingStar = (): ShootingStar => ({
+      x: randomBetween(canvas.width * 0.2, canvas.width * 0.9),
+      y: randomBetween(canvas.height * 0.06, canvas.height * 0.34),
+      length: randomBetween(70, 130),
+      speed: randomBetween(7.5, 11),
+      angle: randomBetween(Math.PI * 0.72, Math.PI * 0.82),
+      age: 0,
+      life: randomBetween(42, 62),
+    });
+
+    const drawShootingStar = (star: ShootingStar) => {
+      const opacity = Math.sin((star.age / star.life) * Math.PI) * 0.52;
+      const tailX = star.x - Math.cos(star.angle) * star.length;
+      const tailY = star.y - Math.sin(star.angle) * star.length;
+      const gradient = ctx.createLinearGradient(star.x, star.y, tailX, tailY);
+      gradient.addColorStop(0, `rgba(238, 232, 221, ${opacity})`);
+      gradient.addColorStop(0.38, `rgba(207, 154, 94, ${opacity * 0.72})`);
+      gradient.addColorStop(1, "rgba(207, 154, 94, 0)");
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(star.x, star.y);
+      ctx.lineTo(tailX, tailY);
+      ctx.stroke();
+    };
 
     const generateNodes = () => {
       // Scale node count by screen area
@@ -116,6 +167,7 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     generateNodes();
+    scheduleShootingStar();
 
     let animationFrameId: number;
     let t = 0;
@@ -207,6 +259,20 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
         ctx.fill();
+      });
+
+      const now = performance.now();
+      if (!reduceMotion.matches && now >= nextShootingStarAt) {
+        shootingStars.push(createShootingStar());
+        scheduleShootingStar();
+      }
+
+      shootingStars = shootingStars.filter((star) => {
+        star.age += 1;
+        star.x += Math.cos(star.angle) * star.speed;
+        star.y += Math.sin(star.angle) * star.speed;
+        drawShootingStar(star);
+        return star.age < star.life;
       });
 
       animationFrameId = requestAnimationFrame(draw);

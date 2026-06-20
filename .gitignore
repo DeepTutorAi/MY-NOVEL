@@ -10,4 +10,6 @@ dist/
 .qa/
 .claude/
 repo_implementation.md
-
+.github
+.codegraph/
+.serena/

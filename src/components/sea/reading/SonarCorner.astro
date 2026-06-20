@@ -1,0 +1,191 @@
+---
+// Sonar radar corner controller for sea novel
+---
+
+<button
+  class="sonar-corner"
+  type="button"
+  data-sonar-corner
+  data-playing="false"
+  aria-label="เปิดเครื่องโซนาร์ควบคุมเสียง"
+  aria-controls="sea-sonar-panel"
+  aria-expanded="false"
+>
+  <!-- Sonar radar sweep animation -->
+  <span class="sonar-radar-pulse" aria-hidden="true"></span>
+  <span class="sonar-radar-sweep" aria-hidden="true"></span>
+  
+  <span class="sonar-corner-art" aria-hidden="true">
+    <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="50" cy="50" r="45" stroke="currentColor" stroke-width="1.5" stroke-dasharray="3 3" class="sonar-ring-outer" />
+      <circle cx="50" cy="50" r="30" stroke="currentColor" stroke-width="1" stroke-dasharray="2 2" class="sonar-ring-mid" />
+      <circle cx="50" cy="50" r="15" stroke="currentColor" stroke-width="1" class="sonar-ring-inner" />
+      <line x1="50" y1="5" x2="50" y2="95" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+      <line x1="5" y1="50" x2="95" y2="50" stroke="currentColor" stroke-width="0.5" opacity="0.3" />
+      
+      <!-- Bioluminescent target blips -->
+      <circle cx="65" cy="35" r="2.5" fill="currentColor" class="sonar-blip blip-1" />
+      <circle cx="35" cy="65" r="3" fill="currentColor" class="sonar-blip blip-2" />
+      
+      <line x1="50" y1="50" x2="50" y2="10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" class="sonar-needle" />
+      <circle cx="50" cy="50" r="3" fill="currentColor" />
+    </svg>
+  </span>
+</button>
+
+<style>
+  .sonar-corner {
+    position: fixed;
+    right: 1.5rem;
+    bottom: 1.5rem;
+    z-index: 22;
+    display: grid;
+    place-items: center;
+    width: 68px;
+    height: 68px;
+    border: 1px solid rgba(0, 243, 197, 0.45);
+    background: rgba(4, 8, 14, 0.94);
+    border-radius: 999px;
+    box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.6);
+    color: var(--sea-ink-muted);
+    cursor: pointer;
+    opacity: 0.9;
+    overflow: hidden; /* to clip the rotating sweep */
+    transition:
+      opacity 150ms ease,
+      border-color 150ms ease,
+      transform 150ms ease,
+      color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .sonar-corner:hover,
+  .sonar-corner:focus-visible,
+  .sonar-corner[data-playing="true"] {
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+    opacity: 1;
+    transform: scale(1.06);
+    box-shadow: 
+      0 0 16px rgba(0, 243, 197, 0.35),
+      0 0.5rem 2rem rgba(0, 0, 0, 0.7);
+  }
+
+  .sonar-corner:focus-visible {
+    outline: 2px solid var(--accent-cyan);
+    outline-offset: 3px;
+  }
+
+  .sonar-corner-art {
+    display: block;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .sonar-corner-art svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .sonar-radar-pulse {
+    position: absolute;
+    inset: -1px;
+    border: 1.5px solid var(--accent-cyan);
+    border-radius: 999px;
+    opacity: 0;
+    pointer-events: none;
+    z-index: 3;
+    box-shadow: inset 0 0 8px rgba(0, 243, 197, 0.3);
+  }
+
+  .sonar-radar-sweep {
+    position: absolute;
+    inset: 4px;
+    border-radius: 50%;
+    /* Rotating radar gradient sweep: trailing behind the clockwise spinning needle */
+    background: conic-gradient(from 270deg, transparent 0deg, rgba(0, 243, 197, 0.03) 180deg, rgba(0, 243, 197, 0.15) 270deg, var(--accent-cyan) 360deg);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 1;
+    mix-blend-mode: screen;
+  }
+
+  .sonar-corner[data-playing="true"] .sonar-radar-pulse {
+    animation: sonar-pulse-anim 2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  }
+
+  .sonar-corner[data-playing="true"] .sonar-radar-sweep {
+    opacity: 0.85;
+    animation: sonar-sweep-spin 4s linear infinite;
+  }
+
+  .sonar-corner[data-playing="true"] .sonar-needle {
+    transform-origin: 50px 50px;
+    animation: sonar-needle-spin 4s linear infinite;
+  }
+
+  /* Target Blips Fading Effect matched with 4s Sweep Speed */
+  .sonar-blip {
+    opacity: 0;
+    transition: opacity 100ms ease;
+  }
+
+  .sonar-corner[data-playing="true"] .blip-1 {
+    animation: sonar-blip-fade-1 4s linear infinite;
+  }
+
+  .sonar-corner[data-playing="true"] .blip-2 {
+    animation: sonar-blip-fade-2 4s linear infinite;
+  }
+
+  @keyframes sonar-needle-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes sonar-sweep-spin {
+    from {
+      transform: rotate(0deg);
+    }
+    to {
+      transform: rotate(360deg);
+    }
+  }
+
+  @keyframes sonar-pulse-anim {
+    0% {
+      transform: scale(1);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(1.45);
+      opacity: 0;
+    }
+  }
+
+  @keyframes sonar-blip-fade-1 {
+    0% { opacity: 0; }
+    12% { opacity: 0; }
+    17% { opacity: 1; filter: drop-shadow(0 0 3px var(--accent-cyan)); }
+    30% { opacity: 0.15; }
+    50% { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes sonar-blip-fade-2 {
+    0% { opacity: 0; }
+    62% { opacity: 0; }
+    67% { opacity: 1; filter: drop-shadow(0 0 3px var(--accent-cyan)); }
+    80% { opacity: 0.15; }
+    95% { opacity: 0; }
+    100% { opacity: 0; }
+  }
+</style>

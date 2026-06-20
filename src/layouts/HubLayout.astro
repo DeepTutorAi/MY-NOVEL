@@ -1,4 +1,5 @@
 ---
+import { ClientRouter } from "astro:transitions";
 import "../styles/lodge/global.css";
 import "../styles/_shared/hub.css";
 import { withBase } from "../utils/base-path";
@@ -88,6 +89,7 @@ const faviconPng = withBase("/favicon.png");
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
+    <ClientRouter />
   </head>
   <body class={bodyClass}>
     <slot />

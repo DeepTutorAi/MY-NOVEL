@@ -1,0 +1,105 @@
+:root {
+  --bg-sea-night: #13171e; /* Basalt / Slate stone grey-black */
+  --bg-sea-abyss: #010408;
+  --bg-sea-depth: #1b1e25; /* Dark wet granite */
+  --surface-sea: #23272e;  /* Dried clay / Slate grey card */
+  
+  --sea-ink: #EAEFF8;
+  --sea-ink-muted: #8D96A5;
+  --sea-paper: var(--bg-sea-night);
+  --sea-paper-2: var(--surface-sea);
+  
+  --accent-cyan: #00E5FF;
+  --accent-copper: #D06B43;
+  --sonar-pulse: #00E5FF;
+  --sea-line: color-mix(in srgb, var(--sea-ink-muted) 20%, transparent);
+  --sea-measure: 64ch;
+  --sea-topbar-height: 46px;
+
+  --font-thai: "IBM Plex Sans Thai Looped", "Noto Serif Thai", sans-serif;
+  --font-serif: "Crimson Pro", Georgia, serif;
+  --font-display-sea: "Cormorant Garamond", "Cinzel Decorative", serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  /* Dynamic backdrop mist variables - Earthy dust and stone mist */
+  --bg-mist-radial-1: rgba(0, 229, 255, 0.015); /* Softened cyan water glow */
+  --bg-mist-radial-2: rgba(208, 107, 67, 0.06);   /* Warmed copper/earth glow */
+  --bg-mist-linear-start: rgba(27, 30, 37, 0.45);  /* Slate mist */
+  --bg-mist-linear-end: rgba(19, 23, 30, 0.96);    /* Dark volcanic rock mist */
+}
+
+/* Zone 1: Ground Level & Rising (0m - 2,000m) - Elaris / Mountain / Old Seabed */
+body[data-depth-layer="1"] {
+  --bg-sea-night: #13171e;
+  --bg-sea-depth: #1b1e25;
+  --surface-sea: #23272e;
+  --accent-cyan: #00E5FF;
+  --accent-copper: #D06B43;
+  --sonar-pulse: #00E5FF;
+  
+  --bg-mist-radial-1: rgba(0, 229, 255, 0.015);
+  --bg-mist-radial-2: rgba(208, 107, 67, 0.06);
+  --bg-mist-linear-start: rgba(27, 30, 37, 0.45);
+  --bg-mist-linear-end: rgba(19, 23, 30, 0.96);
+}
+
+/* Zone 2: Shroud & Mistwood (2,000m - 4,800m) */
+body[data-depth-layer="2"] {
+  --bg-sea-night: #0B1E28;
+  --bg-sea-depth: #102633;
+  --surface-sea: #163242;
+  --accent-cyan: #00FFA3;
+  --accent-copper: #B27C60;
+  --sonar-pulse: #00FFA3;
+  
+  --bg-mist-radial-1: rgba(0, 255, 163, 0.06);
+  --bg-mist-radial-2: rgba(178, 124, 96, 0.04);
+  --bg-mist-linear-start: rgba(16, 38, 51, 0.4);
+  --bg-mist-linear-end: rgba(11, 30, 40, 0.96);
+}
+
+/* Zone 3: Seafloor / Pearl Colony (4,800m - 7,200m) */
+body[data-depth-layer="3"] {
+  --bg-sea-night: #051829;
+  --bg-sea-depth: #092138;
+  --surface-sea: #0E2E4E;
+  --accent-cyan: #00F3C5;
+  --accent-copper: #B85C38;
+  --sonar-pulse: #00F3C5;
+  
+  --bg-mist-radial-1: rgba(0, 243, 197, 0.08);
+  --bg-mist-radial-2: rgba(184, 92, 56, 0.03);
+  --bg-mist-linear-start: rgba(9, 33, 56, 0.3);
+  --bg-mist-linear-end: rgba(5, 24, 41, 0.97);
+}
+
+/* Zone 4: Drowned Quarter / Old Pressure (7,200m - 9,600m) */
+body[data-depth-layer="4"] {
+  --bg-sea-night: #030D1C;
+  --bg-sea-depth: #06142B;
+  --surface-sea: #0A1F3F;
+  --accent-cyan: #00BFFF;
+  --accent-copper: #9A5032;
+  --sonar-pulse: #00BFFF;
+  
+  --bg-mist-radial-1: rgba(0, 191, 255, 0.08);
+  --bg-mist-radial-2: rgba(154, 80, 50, 0.02);
+  --bg-mist-linear-start: rgba(6, 20, 43, 0.2);
+  --bg-mist-linear-end: rgba(3, 13, 28, 0.98);
+}
+
+/* Zone 5: Sun-Sheet / Sky-Dam / Space-Edge (9,600m - 12,000m) */
+body[data-depth-layer="5"] {
+  --bg-sea-night: #010408;
+  --bg-sea-depth: #020810;
+  --surface-sea: #051022;
+  --accent-cyan: #00FFB0;
+  --accent-copper: #854228;
+  --sonar-pulse: #00FFB0;
+  
+  --bg-mist-radial-1: rgba(0, 255, 176, 0.1);
+  --bg-mist-radial-2: rgba(133, 66, 40, 0.01);
+  --bg-mist-linear-start: rgba(2, 8, 16, 0.1);
+  --bg-mist-linear-end: rgba(1, 4, 8, 0.99);
+}
+

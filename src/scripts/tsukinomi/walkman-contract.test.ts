@@ -118,7 +118,9 @@ describe("Tsukinomi P5 Walkman audio contract", () => {
     assert.match(state, /visibilitychange/);
     assert.match(state, /wasPlayingBeforeHidden/);
     assert.match(state, /new Howl/);
+    assert.match(state, /html5:\s*false/);
     assert.match(state, /preload:\s*false/);
+    assert.match(state, /this\.enabled\s*=\s*false/);
     assert.doesNotMatch(state, /hvitveldt:audio|hvitveldt:soundscape|AmbientAudio|soundscapeAudio/);
   });
 
@@ -146,6 +148,11 @@ describe("Tsukinomi P5 Walkman audio contract", () => {
     assert.match(player, /data-soundscape="cassette-hiss"/);
     assert.match(player, /data-soundscape="distant-train"/);
     assert.match(player, /data-soundscape="mountain-wind"/);
+    assert.match(player, /data-walkman-status/);
+    assert.match(player, /data-audio-status/);
+    assert.match(player, /audioStatus/);
+    assert.match(player, /กำลังโหลดเพลง/);
+    assert.match(player, /เล่นเพลงไม่ได้/);
     assert.match(player, /astro:page-load/);
     assert.match(player, /corner\.contains\(target\)/);
     assert.match(player, /mobileTrigger\.contains\(target\)/);

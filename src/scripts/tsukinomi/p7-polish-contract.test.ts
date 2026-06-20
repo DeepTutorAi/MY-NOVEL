@@ -62,6 +62,15 @@ describe("Tsukinomi P7 polish contract", () => {
     assert.match(sectionLayout, /id="tsukinomi-main"/);
   });
 
+  it("keeps the extra route on the Tsukinomi home hub instead of the section topbar", () => {
+    const homePage = readProjectFile("src/pages/tsukinomi/index.astro");
+    const topBar = readProjectFile("src/components/tsukinomi/navigation/TopBar.astro");
+
+    assert.match(homePage, /href=\{withBase\("\/tsukinomi\/extra\/"\)\}>Extra<\/a>/);
+    assert.doesNotMatch(topBar, /\/tsukinomi\/extra\//);
+    assert.doesNotMatch(topBar, />Extra<\/a>/);
+  });
+
   it("keeps the 404 useful for a missing Tsukinomi section route", () => {
     const notFound = readProjectFile("src/components/_shared/NotFoundScene.astro");
 

@@ -86,6 +86,19 @@ describe("Tsukinomi P6 background slot contract (images live)", () => {
     assert.match(backdrop, /background-image:\s*var\(--bg-image\),\s*var\(--bg-fallback-image\)/);
   });
 
+  it("keeps Tsukinomi public image surfaces visible while section reading remains locked", () => {
+    const baseLayout = readProjectFile("src/layouts/tsukinomi/TsukinomiBaseLayout.astro");
+
+    assert.match(baseLayout, /PUBLIC_TSUKINOMI_PATHS/);
+    assert.match(baseLayout, /isPublicTsukinomiPath/);
+    assert.match(baseLayout, /requiresTsukinomiUnlock/);
+    assert.match(baseLayout, /"\/tsukinomi\/sections\/"/);
+    assert.match(baseLayout, /"\/tsukinomi\/characters\/"/);
+    assert.match(baseLayout, /"\/tsukinomi\/extra\/"/);
+    assert.match(baseLayout, /pathParts\.length\s*>=\s*3/);
+    assert.match(baseLayout, /if \(!isUnlocked && requiresTsukinomiUnlock\)/);
+  });
+
   it("documents the generated background images in the manifest", () => {
     const manifest = readProjectFile("assets-manifest.md");
 

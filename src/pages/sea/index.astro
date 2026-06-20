@@ -1,0 +1,60 @@
+---
+import { getCollection } from "astro:content";
+import SeaBaseLayout from "../../layouts/sea/SeaBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+const arcs = (await getCollection("seaArcs")).sort(
+  (a, b) => a.data.number - b.data.number,
+);
+
+const firstArc = arcs[0];
+const startHref = firstArc
+  ? withBase(`/sea/arcs/${firstArc.id}/`)
+  : withBase("/sea/");
+---
+
+<SeaBaseLayout
+  title="ทะเลเหนือโลก — The Sea That Hung Above The World"
+  description="เรื่องราวสยองขวัญทางนิเวศวิทยาเกี่ยวกับทะเลบนฟ้าและโรคปนเปื้อนน้ำเค็ม"
+  bodyClass="sea-home-page"
+  depthLayer={1}
+  musicCueId="sun-sheet"
+>
+  <main id="sea-main" class="sea-home">
+    <section class="sea-home-hero" aria-labelledby="sea-title">
+      <div class="sea-home-copy">
+        <p class="sea-kicker">THE SEA THAT HUNG ABOVE THE WORLD</p>
+        <h1 id="sea-title">ทะเลเหนือโลก</h1>
+        <p class="sea-home-subtitle">
+          เมื่อมหาสมุทรบนฟ้าร่วงหล่นลงมาทวงคืนแผ่นดิน สปอร์น้ำเค็มเริ่มกลืนกินร่างกายและความทรงจำของมนุษย์ ทางรอดเดียวคือยอมปล่อยให้ผืนน้ำกลืนกินโลกใบเก่า
+        </p>
+        
+        <div class="sea-home-actions" style="display: flex; gap: 16px; align-items: center;">
+          <a class="sea-btn" href={startHref} style="border-color: var(--accent-cyan); background: color-mix(in srgb, var(--accent-cyan) 8%, transparent);">
+            เริ่มอ่าน / บทนำ →
+          </a>
+          <a class="sea-btn" href={withBase("/")} style="border-color: var(--sea-line);">
+            กลับหน้าฮับหลัก
+          </a>
+        </div>
+
+        <div class="sea-meta-row">
+          <div class="sea-meta-item">
+            สถานะ: <strong>เตรียมจัดตั้ง</strong>
+          </div>
+          <div class="sea-meta-item">
+            กระแสน้ำฟ้า: <strong>5 ชั้นแรงดัน</strong>
+          </div>
+          <div class="sea-meta-item">
+            โครงสร้าง: <strong>7 Arcs / 35 Chapters</strong>
+          </div>
+        </div>
+      </div>
+      <div
+        class="sea-home-visual"
+        style={`--sea-home-hero-image: url("${withBase("/assets/sea/images/hero-sea-v2.png")}")`}
+        aria-hidden="true"
+      ></div>
+    </section>
+  </main>
+</SeaBaseLayout>

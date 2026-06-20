@@ -1,0 +1,583 @@
+---
+import type { CollectionEntry } from "astro:content";
+import SeaBaseLayout from "./SeaBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+interface Props {
+  arc: CollectionEntry<"seaArcs">;
+  nextArc?: CollectionEntry<"seaArcs"> | null;
+}
+
+const { arc, nextArc = null } = Astro.props;
+const baseTitle = `${arc.data.chapterRange}: ${arc.data.title}`;
+const pageTitle = baseTitle.includes("ทะเลเหนือโลก") ? baseTitle : `${baseTitle} — ทะเลเหนือโลก`;
+---
+
+<SeaBaseLayout
+  title={pageTitle}
+  description={arc.data.summary}
+  depthLayer={arc.data.depthLayer}
+  musicCueId={arc.data.musicCueId}
+  bodyClass={`sea-arc-page arc-${arc.data.number}`}
+>
+  <div class="sea-current-rail sea-voyage-rail" aria-hidden="true">
+    <span class="sea-current-label" data-current-label>กระแสน้ำฟ้า</span>
+    <span class="sea-current-orb" id="sea-current-orb">
+      <span class="sea-current-depth"></span>
+      <span class="sea-current-glass"></span>
+      <span class="sea-current-glint"></span>
+    </span>
+    <span class="sea-current-percent" id="sea-current-percent">0%</span>
+  </div>
+
+  <!-- Decompression/Airlock Overlay -->
+  <div class="sea-airlock-overlay" id="sea-airlock-overlay" aria-hidden="true">
+    <div class="sea-airlock-hatch">
+      <div class="sea-airlock-wheel"></div>
+      <div class="sea-airlock-label">RELEASING PRESSURE...</div>
+    </div>
+  </div>
+
+  <article class="sea-reader">
+    <header class="sea-reader-header">
+      <div class="sea-reader-relic" aria-hidden="true">
+        <span class="sea-reader-relic-core"></span>
+        <span class="sea-reader-relic-shadow"></span>
+      </div>
+      <div class="sea-kicker">{arc.data.chapterRange} / กระแสน้ำฟ้า {arc.data.depthLayer}</div>
+      <h1 class="sea-reader-title">{arc.data.title}</h1>
+      <p class="sea-reader-subtitle">{arc.data.englishTitle}</p>
+    </header>
+
+    <div class="sea-prose">
+      <slot />
+    </div>
+
+    <!-- Navigation footer -->
+    <footer class="sea-reader-footer" style="margin-top: 5rem; border-top: 1px solid var(--sea-line); padding-top: 2rem; display: flex; flex-direction: column; gap: 2rem; align-items: center;">
+      {nextArc ? (
+        <div class="sea-airlock-trigger-container">
+          <div class="sea-transition-relic" aria-hidden="true">
+            <span></span>
+          </div>
+          <button 
+            type="button" 
+            class="sea-airlock-btn" 
+            id="sea-next-arc-btn" 
+            data-next-url={withBase(`/sea/arcs/${nextArc.id}/`)}
+          >
+            <span class="btn-relic-icon" aria-hidden="true">
+              <span></span>
+            </span>
+            <span class="btn-text-lines">
+              <strong class="btn-action-title">เปิดประตูกระแสน้ำฟ้า</strong>
+              <span class="btn-action-sub">ออกเดินทางสู่กระแสน้ำฟ้าถัดไป ({nextArc.data.chapterRange})</span>
+            </span>
+          </button>
+        </div>
+      ) : (
+        <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--accent-cyan); text-shadow: 0 0 4px var(--accent-cyan); text-align: center; margin-bottom: 1rem;">
+          ⚓ ทะยานขึ้นสู่จุดสูงสุดที่ระดับเขื่อนฟ้าแล้ว ⚓
+        </div>
+      )}
+      
+      <div style="display: flex; justify-content: space-between; width: 100%; max-width: 600px; padding-top: 1rem;">
+        <a href={withBase("/sea/")} class="sea-btn" style="border-color: var(--sea-line);">← กลับหน้าหลัก</a>
+        
+        <button 
+          type="button" 
+          class="sea-btn" 
+          id="sea-next-cue-btn" 
+          style="border-color: var(--accent-cyan);"
+        >
+          สลับกระแสน้ำฟ้า →
+        </button>
+      </div>
+    </footer>
+  </article>
+</SeaBaseLayout>
+
+<style>
+  .sea-voyage-rail {
+    --sea-read-y: 100%;
+    position: fixed;
+    right: clamp(0.65rem, 2vw, 1.35rem);
+    top: 50%;
+    z-index: 15;
+    display: grid;
+    justify-items: center;
+    gap: 0.48rem;
+    width: 3.6rem;
+    padding: 0.75rem 0.45rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(3, 8, 14, 0.46), rgba(3, 8, 14, 0.2)),
+      color-mix(in srgb, var(--bg-sea-night) 62%, transparent);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.28), inset 0 0 18px rgba(0, 229, 255, 0.04);
+    backdrop-filter: blur(12px);
+    pointer-events: none;
+    transform: translateY(-50%);
+  }
+
+  .sea-current-label,
+  .sea-current-percent {
+    font-family: var(--font-mono);
+    font-size: 0.64rem;
+    color: var(--sea-ink-muted);
+    line-height: 1.1;
+    text-align: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .sea-current-orb {
+    position: relative;
+    display: block;
+    width: 2.45rem;
+    height: 5.7rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 42%, transparent);
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 50% 12%, rgba(238, 232, 221, 0.28), transparent 18%),
+      linear-gradient(180deg, rgba(0, 229, 255, 0.08), rgba(208, 107, 67, 0.05) 68%, rgba(0, 0, 0, 0.18));
+    box-shadow:
+      inset 0 0 18px rgba(0, 229, 255, 0.1),
+      inset -0.45rem 0 0.9rem rgba(0, 0, 0, 0.28),
+      0 0 18px rgba(0, 229, 255, 0.12);
+    transform: perspective(7rem) rotateX(9deg) rotateY(-18deg);
+  }
+
+  .sea-current-depth {
+    position: absolute;
+    inset: 0.35rem;
+    display: block;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at 48% 15%, rgba(238, 232, 221, 0.55), transparent 12%),
+      linear-gradient(180deg, rgba(0, 243, 197, 0.78), rgba(0, 124, 170, 0.56) 48%, rgba(208, 107, 67, 0.36));
+    box-shadow: 0 0 24px rgba(0, 229, 255, 0.25);
+    transform: translateY(var(--sea-read-y));
+    transition: transform 140ms ease-out;
+  }
+
+  .sea-current-glass,
+  .sea-current-glint {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .sea-current-glass {
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 24%, rgba(255, 255, 255, 0.06) 72%, transparent),
+      radial-gradient(circle at 50% 95%, rgba(0, 229, 255, 0.18), transparent 38%);
+    mix-blend-mode: screen;
+  }
+
+  .sea-current-glint {
+    inset: 0.6rem 0.55rem auto auto;
+    width: 0.42rem;
+    height: 2.6rem;
+    background: rgba(238, 232, 221, 0.42);
+    filter: blur(0.5px);
+  }
+
+  .sea-reader-relic {
+    position: relative;
+    width: 5.5rem;
+    height: 3.6rem;
+    margin: 0 0 1.45rem;
+    opacity: 0.88;
+    perspective: 9rem;
+  }
+
+  .sea-reader-relic-core,
+  .sea-reader-relic-shadow {
+    position: absolute;
+    left: 50%;
+    display: block;
+    transform: translateX(-50%);
+  }
+
+  .sea-reader-relic-core {
+    top: 0;
+    width: 1.7rem;
+    height: 3.2rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 50%, var(--accent-copper) 50%);
+    border-radius: 999px 999px 0.7rem 0.7rem;
+    background:
+      linear-gradient(135deg, rgba(238, 232, 221, 0.18), transparent 32%),
+      linear-gradient(180deg, rgba(0, 229, 255, 0.24), rgba(208, 107, 67, 0.1));
+    box-shadow: inset -0.45rem 0 0.8rem rgba(0, 0, 0, 0.26), 0 0 22px rgba(0, 229, 255, 0.16);
+    transform: translateX(-50%) rotateX(14deg) rotateY(-22deg);
+  }
+
+  .sea-reader-relic-shadow {
+    bottom: 0;
+    width: 5.4rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: radial-gradient(ellipse, rgba(0, 229, 255, 0.34), transparent 72%);
+    filter: blur(1px);
+  }
+
+  @media (max-width: 860px) {
+    .sea-voyage-rail {
+      right: 0.4rem;
+      width: 3.15rem;
+      opacity: 0.86;
+    }
+
+    .sea-current-orb {
+      width: 2.1rem;
+      height: 4.9rem;
+    }
+  }
+
+  /* Airlock Transition Button */
+  .sea-airlock-trigger-container {
+    width: 100%;
+    max-width: 600px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sea-transition-relic {
+    position: relative;
+    width: min(100%, 21rem);
+    height: 3rem;
+    opacity: 0.76;
+  }
+
+  .sea-transition-relic::before,
+  .sea-transition-relic::after {
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 2.8rem);
+    height: 1px;
+    content: "";
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-copper) 70%, transparent));
+  }
+
+  .sea-transition-relic::before {
+    left: 0;
+  }
+
+  .sea-transition-relic::after {
+    right: 0;
+    transform: scaleX(-1);
+  }
+
+  .sea-transition-relic span {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 55%, var(--accent-copper) 45%);
+    border-radius: 44% 56% 52% 48%;
+    background: linear-gradient(135deg, rgba(0, 229, 255, 0.2), rgba(208, 107, 67, 0.08));
+    box-shadow: inset -0.35rem 0 0.7rem rgba(0, 0, 0, 0.24), 0 0 18px rgba(0, 229, 255, 0.14);
+    transform: translate(-50%, -50%) rotate(45deg) skew(-7deg);
+  }
+
+  .sea-airlock-btn {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    padding: 1rem 1.75rem;
+    border: 1px solid var(--accent-copper);
+    background: rgba(208, 107, 67, 0.05);
+    border-radius: 4px;
+    color: var(--sea-ink);
+    cursor: pointer;
+    text-align: left;
+    width: 100%;
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 150ms ease;
+  }
+
+  .sea-airlock-btn:hover {
+    background: rgba(0, 229, 255, 0.08);
+    border-color: var(--accent-cyan);
+    box-shadow: 0 0 12px rgba(0, 229, 255, 0.2);
+    transform: translateY(-2px);
+  }
+
+  .btn-relic-icon {
+    position: relative;
+    width: 2.5rem;
+    height: 2.5rem;
+    flex-shrink: 0;
+    perspective: 6rem;
+  }
+
+  .btn-relic-icon span {
+    position: absolute;
+    inset: 0.22rem 0.55rem;
+    display: block;
+    border: 1px solid var(--accent-copper);
+    border-radius: 999px 999px 0.55rem 0.55rem;
+    background: linear-gradient(160deg, rgba(238, 232, 221, 0.12), rgba(208, 107, 67, 0.18));
+    box-shadow: inset -0.35rem 0 0.65rem rgba(0, 0, 0, 0.24), 0 0 10px rgba(208, 107, 67, 0.18);
+    transform: rotateX(14deg) rotateY(-21deg);
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 300ms ease;
+  }
+
+  .sea-airlock-btn:hover .btn-relic-icon span {
+    border-color: var(--accent-cyan);
+    box-shadow: inset -0.35rem 0 0.65rem rgba(0, 0, 0, 0.24), 0 0 16px rgba(0, 229, 255, 0.28);
+    transform: translateY(-1px) rotateX(14deg) rotateY(-21deg) rotateZ(8deg);
+  }
+
+  .btn-text-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .btn-action-title {
+    font-family: var(--font-thai);
+    font-size: 0.95rem;
+    font-weight: bold;
+    color: var(--sea-ink);
+  }
+
+  .btn-action-sub {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--sea-ink-muted);
+  }
+
+  .sea-airlock-btn:hover .btn-action-title {
+    color: var(--accent-cyan);
+  }
+
+  /* Airlock Overlay Screen */
+  .sea-airlock-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    background: rgba(3, 6, 10, 0.96);
+    display: grid;
+    place-items: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 300ms ease;
+  }
+
+  .sea-airlock-overlay.active {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sea-airlock-hatch {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.5rem;
+  }
+
+  .sea-airlock-wheel {
+    width: 120px;
+    height: 120px;
+    border: 4px solid var(--accent-copper);
+    border-radius: 50%;
+    position: relative;
+    box-shadow: 0 0 20px rgba(208, 107, 67, 0.3);
+  }
+
+  .sea-airlock-wheel::before,
+  .sea-airlock-wheel::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: var(--accent-copper);
+  }
+
+  .sea-airlock-wheel::before {
+    width: 6px;
+    height: 100px;
+  }
+
+  .sea-airlock-wheel::after {
+    width: 100px;
+    height: 6px;
+  }
+
+  .sea-airlock-overlay.active .sea-airlock-wheel {
+    animation: airlock-wheel-spin 1.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+  }
+
+  .sea-airlock-label {
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 6px var(--accent-cyan);
+  }
+
+  /* Decompression Screen Shaking Effect */
+  .sea-shaking {
+    animation: airlock-decompress-shake 1.5s cubic-bezier(.36,.07,.19,.97) both;
+    transform: translate3d(0, 0, 0);
+  }
+
+  @keyframes airlock-wheel-spin {
+    0% {
+      transform: rotate(0deg);
+      border-color: var(--accent-copper);
+    }
+    100% {
+      transform: rotate(270deg);
+      border-color: var(--accent-cyan);
+    }
+  }
+
+  @keyframes airlock-decompress-shake {
+    10%, 90% { transform: translate3d(-1px, 0, 0); }
+    20%, 80% { transform: translate3d(2px, 1px, 0); }
+    30%, 50%, 70% { transform: translate3d(-4px, -1px, 0); }
+    40%, 60% { transform: translate3d(4px, 2px, 0); }
+  }
+</style>
+
+<script>
+  import { seaAudio } from "../../scripts/sea/sea-audio-state";
+  import type { SeaMusicCueId } from "../../data/sea/music-cues";
+
+  const initReader = () => {
+    const currentOrb = document.getElementById("sea-current-orb");
+    const percentDisplay = document.getElementById("sea-current-percent");
+
+    const updateProgress = () => {
+      if (!currentOrb) return;
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+      if (scrollMax <= 0) {
+        currentOrb.style.setProperty("--sea-read-y", "100%");
+        if (percentDisplay) percentDisplay.textContent = "0%";
+        return;
+      }
+      const percent = Math.max(0, Math.min(100, (scrollTop / scrollMax) * 100));
+      currentOrb.style.setProperty("--sea-read-y", `${100 - percent}%`);
+      if (percentDisplay) percentDisplay.textContent = `${Math.round(percent)}%`;
+    };
+
+    window.addEventListener("scroll", updateProgress);
+    updateProgress();
+
+    // Cue cycling button
+    const nextCueBtn = document.getElementById("sea-next-cue-btn");
+    if (nextCueBtn) {
+      nextCueBtn.addEventListener("click", () => {
+        const current = seaAudio.getCurrentCue();
+        const cueIds: SeaMusicCueId[] = ["sun-sheet", "drowned-quarter", "pressure-veil", "old-pressure", "first-memory"];
+        const currentIndex = cueIds.indexOf(current);
+        const nextIndex = (currentIndex + 1) % cueIds.length;
+        const nextCueId = cueIds[nextIndex];
+        
+        seaAudio.setCue(nextCueId);
+        
+        // Dynamically update body depth-layer attributes to change background styling
+        document.body.setAttribute("data-depth-layer", String(nextIndex + 1));
+      });
+    }
+
+    // Synthesize Decompression sound with Web Audio API (Valve air/gas release hiss)
+    const playAirlockHiss = () => {
+      if (typeof window === "undefined") return;
+      const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+      if (!AudioCtx) return;
+      
+      try {
+        const ctx = new AudioCtx();
+        const bufferSize = ctx.sampleRate * 1.5; // 1.5 seconds soundscape
+        const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+        const data = buffer.getChannelData(0);
+        
+        // White Noise
+        for (let i = 0; i < bufferSize; i++) {
+          data[i] = Math.random() * 2 - 1;
+        }
+        
+        const noiseNode = ctx.createBufferSource();
+        noiseNode.buffer = buffer;
+        
+        // High-Pressure Valve simulation using Bandpass Filter
+        const filter = ctx.createBiquadFilter();
+        filter.type = "bandpass";
+        filter.frequency.value = 3200; // high frequency hiss
+        filter.Q.value = 1.2;
+        
+        // Smooth release volume envelope
+        const gain = ctx.createGain();
+        gain.gain.setValueAtTime(0.01, ctx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.2, ctx.currentTime + 0.08); // fast click/release
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.35); // smooth exhaust release
+        
+        noiseNode.connect(filter);
+        filter.connect(gain);
+        gain.connect(ctx.destination);
+        
+        noiseNode.start();
+        setTimeout(() => {
+          ctx.close();
+        }, 1600);
+      } catch (err) {
+        console.error("Failed to generate Web Audio airlock hiss:", err);
+      }
+    };
+
+    // Decompression Airlock Hatch button trigger
+    const nextArcBtn = document.getElementById("sea-next-arc-btn") as HTMLButtonElement | null;
+    const airlockOverlay = document.getElementById("sea-airlock-overlay");
+    const readerContainer = document.querySelector(".sea-reader");
+
+    if (nextArcBtn && airlockOverlay) {
+      nextArcBtn.addEventListener("click", () => {
+        const nextUrl = nextArcBtn.getAttribute("data-next-url");
+        if (!nextUrl) return;
+
+        // 1. Play synthesized valve hiss
+        playAirlockHiss();
+
+        // 2. Play spinning valve animation overlay
+        airlockOverlay.classList.add("active");
+
+        // 3. Shake the frame/reading screen to simulate pressure release
+        if (readerContainer) {
+          readerContainer.classList.add("sea-shaking");
+        }
+
+        // 4. Navigate after decompression completes
+        setTimeout(() => {
+          window.location.href = nextUrl;
+        }, 1500);
+      });
+    }
+
+    // Cleanups
+    window.addEventListener("astro:before-swap", () => {
+      window.removeEventListener("scroll", updateProgress);
+    }, { once: true });
+  };
+
+  document.addEventListener("astro:page-load", () => {
+    initReader();
+  });
+</script>

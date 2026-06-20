@@ -265,7 +265,7 @@ export class WalkmanAudio {
       const howl = new Howl({
         src: getAudioSources(cue.srcBase),
         loop: true,
-        html5: true,
+        html5: false,
         preload: false,
         volume: 0,
         onloaderror: (_, error) => this.handleLoadError(error),
@@ -285,7 +285,7 @@ export class WalkmanAudio {
     const howl = new Howl({
       src: getAudioSources(cue.srcBase),
       loop: true,
-      html5: true,
+      html5: false,
       preload: false,
       volume: 0,
       onloaderror: (_, error) => this.handleLoadError(error),
@@ -477,6 +477,9 @@ export class WalkmanAudio {
         this.playCue(cueId, FADE_IN_MS);
       }
     });
+    this.enabled = false;
+    localStorage.setItem(ENABLED_KEY, "false");
+    this.disableAllSoundscapes();
     this.emitError();
   }
 
@@ -488,6 +491,8 @@ export class WalkmanAudio {
         this.playSoundscape(id, FADE_IN_MS);
       }
     });
+    this.soundscapeEnabled.set(id, false);
+    localStorage.setItem(soundscapeEnabledKey(id), "false");
     this.emitError();
   }
 

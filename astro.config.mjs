@@ -136,6 +136,7 @@ function rehypeStoryDividers() {
   const transform = (tree, file) => {
     const sourcePath = String(file?.path || file?.history?.[0] || "").replaceAll("\\", "/");
     const isTsukinomi = sourcePath.includes("/src/content/tsukinomi/sections/");
+    const isSea = sourcePath.includes("/src/content/the-sea-that-hung-above-the-world/");
 
     visit(tree, "element", (node) => {
       if (node.tagName !== "hr") {
@@ -154,6 +155,17 @@ function rehypeStoryDividers() {
             children: [{ type: "text", value: "▶︎ ‖" }],
           },
           { type: "element", tagName: "span", properties: { className: ["tape-line"] }, children: [] },
+        ];
+        return;
+      }
+
+      if (isSea) {
+        node.tagName = "div";
+        node.properties = { className: ["current-divider"], ariaHidden: "true" };
+        node.children = [
+          { type: "element", tagName: "span", properties: { className: ["current-line"] }, children: [] },
+          { type: "element", tagName: "span", properties: { className: ["current-drop"] }, children: [] },
+          { type: "element", tagName: "span", properties: { className: ["current-line"] }, children: [] },
         ];
         return;
       }

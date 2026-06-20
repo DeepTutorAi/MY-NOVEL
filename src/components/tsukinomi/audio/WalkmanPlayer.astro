@@ -10,6 +10,9 @@
   <div class="walkman-player-head">
     <span>Walkman</span>
     <strong data-walkman-cue>Walkman & Rain</strong>
+    <p class="walkman-status" data-walkman-status data-audio-status="idle" role="status" aria-live="polite">
+      พร้อมเล่นเพลง
+    </p>
   </div>
 
   <div class="walkman-player-controls" aria-label="ควบคุมเพลง">
@@ -100,6 +103,8 @@
 
   const BACKDROP_MOTION_KEY = "tsukinomi:motion:backdrop";
   const BACKDROP_MOTION_EVENT = "tsukinomi:motion-change";
+  type AudioStatus = "idle" | "loading" | "error";
+  let audioStatus: AudioStatus = "idle";
 
   type WalkmanWindow = Window & {
     __tsukinomiWalkmanGlobalBound?: boolean;
@@ -122,6 +127,7 @@
       next: root?.querySelector("[data-walkman-next]"),
       musicSlider: root?.querySelector("[data-walkman-volume]"),
       cue: root?.querySelector("[data-walkman-cue]"),
+      status: root?.querySelector("[data-walkman-status]"),
       backdropToggle: root?.querySelector("[data-backdrop-toggle]"),
       soundscapeToggles: root?.querySelectorAll("[data-soundscape-toggle]"),
       soundscapeSliders: root?.querySelectorAll("[data-soundscape-volume]"),
@@ -162,6 +168,18 @@
     window.dispatchEvent(new CustomEvent(BACKDROP_MOTION_EVENT));
   };
 
+  const statusText = (enabled: boolean, cueLabel: string) => {
+    if (audioStatus === "loading") {
+      return `กำลังโหลดเพลง ${cueLabel}`;
+    }
+
+    if (audioStatus === "error") {
+      return "เล่นเพลงไม่ได้ ลองกดเล่นอีกครั้งหรือตรวจไฟล์เสียง";
+    }
+
+    return enabled ? `กำลังเล่น ${cueLabel}` : `พร้อมเล่น ${cueLabel}`;
+  };
+
   const setPanelOpen = (open: boolean) => {
     const { root, corner, mobileTrigger } = getElements();
 
@@ -184,13 +202,14 @@
   };
 
   const syncState = () => {
-    const { root, corner, mobileTrigger, play, cue, musicSlider, backdropToggle, soundscapeToggles, soundscapeSliders } =
+    const { root, corner, mobileTrigger, play, cue, status, musicSlider, backdropToggle, soundscapeToggles, soundscapeSliders } =
       getElements();
     const enabled = walkmanAudio.isEnabled();
     const currentCue = getMusicCue(walkmanAudio.getCurrentCue());
     const backdropMotionEnabled = readBackdropMotionEnabled();
 
     root?.setAttribute("data-playing", String(enabled));
+    root?.setAttribute("data-audio-status", audioStatus);
     root?.setAttribute("data-backdrop-motion", String(backdropMotionEnabled));
     corner?.setAttribute("data-playing", String(enabled));
     mobileTrigger?.setAttribute("data-playing", String(enabled));
@@ -202,6 +221,11 @@
 
     if (cue instanceof HTMLElement) {
       cue.textContent = currentCue.label;
+    }
+
+    if (status instanceof HTMLElement) {
+      status.textContent = statusText(enabled, currentCue.label);
+      status.dataset.audioStatus = audioStatus;
     }
 
     if (musicSlider instanceof HTMLInputElement) {
@@ -282,13 +306,17 @@
 
     play.addEventListener("click", async () => {
       if (walkmanAudio.isEnabled()) {
+        audioStatus = "idle";
         walkmanAudio.disable();
         syncState();
         return;
       }
 
       applyCueFromPage();
-      await walkmanAudio.enable();
+      audioStatus = "loading";
+      syncState();
+      const enabled = await walkmanAudio.enable();
+      audioStatus = enabled ? "idle" : "error";
       syncState();
     });
 
@@ -350,7 +378,10 @@
     });
 
     window.addEventListener("tsukinomi:audio-change", syncState);
-    window.addEventListener("tsukinomi:audio-error", syncState);
+    window.addEventListener("tsukinomi:audio-error", () => {
+      audioStatus = "error";
+      syncState();
+    });
   }
 
   if (!walkmanWindow.__tsukinomiWalkmanDismissBound) {
@@ -431,6 +462,21 @@
     font-size: 1.18rem;
     font-weight: 500;
     line-height: 1.2;
+  }
+
+  .walkman-status {
+    margin: 0.1rem 0 0;
+    color: var(--tsuki-ink-dim);
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+
+  .walkman-player[data-audio-status="loading"] .walkman-status {
+    color: var(--sakura);
+  }
+
+  .walkman-player[data-audio-status="error"] .walkman-status {
+    color: var(--sunset);
   }
 
   .walkman-player-controls {

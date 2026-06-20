@@ -39,4 +39,20 @@ const tsukinomiSections = defineCollection({
   }),
 });
 
-export const collections = { chapters, extras, tsukinomiSections };
+const seaArcs = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/the-sea-that-hung-above-the-world" }),
+  schema: z.object({
+    number: z.number().int().min(1).max(7),
+    title: z.string(),
+    englishTitle: z.string(),
+    chapterRange: z.string(),
+    summary: z.string(),
+    readingMinutes: z.number().int().positive(),
+    musicCueId: z.enum(["sun-sheet", "drowned-quarter", "pressure-veil", "old-pressure", "first-memory"]),
+    backgroundImage: z.string().optional(),
+    depthLayer: z.number().int().min(1).max(5),
+  }),
+});
+
+export const collections = { chapters, extras, tsukinomiSections, seaArcs };
+

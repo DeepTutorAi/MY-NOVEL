@@ -1,0 +1,30 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import SeaArcLayout from "../../../layouts/sea/SeaArcLayout.astro";
+
+export async function getStaticPaths() {
+  const arcs = (await getCollection("seaArcs")).sort(
+    (a, b) => a.data.number - b.data.number,
+  );
+
+  return arcs.map((arc, index) => {
+    const nextArc = arcs[index + 1] || null;
+    return {
+      params: { slug: arc.id },
+      props: { arc, nextArc },
+    };
+  });
+}
+
+interface Props {
+  arc: CollectionEntry<"seaArcs">;
+  nextArc: CollectionEntry<"seaArcs"> | null;
+}
+
+const { arc, nextArc } = Astro.props;
+const { Content } = await render(arc);
+---
+
+<SeaArcLayout arc={arc} nextArc={nextArc}>
+  <Content />
+</SeaArcLayout>

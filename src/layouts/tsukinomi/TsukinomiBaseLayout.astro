@@ -169,9 +169,15 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
         } catch(e) {}
         
         const isUnlocked = localStorage.getItem(key) === h1 || isProgressMet || isLodgeUnlocked;
-        const isExtraPage = window.location.pathname.indexOf("/tsukinomi/extra") !== -1;
+        const rawPath = window.location.pathname.replace(/\/+$/, "/");
+        const appPath = rawPath.startsWith("/MY-NOVEL/") ? rawPath.slice("/MY-NOVEL".length) : rawPath;
+        const PUBLIC_TSUKINOMI_PATHS = ["/tsukinomi/", "/tsukinomi/sections/", "/tsukinomi/characters/", "/tsukinomi/extra/"];
+        const isPublicTsukinomiPath = PUBLIC_TSUKINOMI_PATHS.includes(appPath);
+        const pathParts = appPath.split("/").filter(Boolean);
+        const requiresTsukinomiUnlock =
+          appPath.startsWith("/tsukinomi/sections/") && !isPublicTsukinomiPath && pathParts.length >= 3;
         
-        if (!isUnlocked && !isExtraPage) {
+        if (!isUnlocked && requiresTsukinomiUnlock) {
           let target = "/";
           if (window.location.pathname.startsWith("/MY-NOVEL/")) {
             target = "/MY-NOVEL/";

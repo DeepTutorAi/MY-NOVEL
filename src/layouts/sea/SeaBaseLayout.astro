@@ -1,0 +1,161 @@
+---
+import { ClientRouter } from "astro:transitions";
+import GrainOverlay from "../../components/_shared/GrainOverlay.astro";
+import SeaRainBackdrop from "../../components/sea/atmosphere/SeaRainBackdrop.astro";
+import SonarPlayer from "../../components/sea/audio/SonarPlayer.astro";
+import SonarCorner from "../../components/sea/reading/SonarCorner.astro";
+import "../../styles/sea/global.css";
+import { withBase } from "../../utils/base-path";
+
+interface Props {
+  title: string;
+  description: string;
+  bodyClass?: string;
+  depthLayer?: number;
+  musicCueId?: string;
+  showTopBar?: boolean;
+  ogImage?: string;
+}
+
+const {
+  title,
+  description,
+  bodyClass,
+  depthLayer = 1,
+  musicCueId = "sun-sheet",
+  showTopBar = true,
+  ogImage = "/assets/sea/images/hero-sea-v2.png",
+} = Astro.props;
+
+const canonical = Astro.url.href;
+const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href;
+const faviconLit = withBase("/favicon.svg");
+const faviconPng = withBase("/favicon.png");
+
+const bodyClasses = ["sea-page", "sea-shell", showTopBar ? "has-sea-topbar" : "", bodyClass]
+  .filter(Boolean)
+  .join(" ");
+---
+
+<!doctype html>
+<html lang="th">
+  <head>
+    <!-- LocalStorage Interceptor for Profile Isolation -->
+    <script is:inline>
+      (function() {
+        if (window.__localStorageIntercepted) return;
+        window.__localStorageIntercepted = true;
+
+        const originalGet = localStorage.getItem;
+        const originalSet = localStorage.setItem;
+        const originalRemove = localStorage.removeItem;
+
+        function getActiveProfileId() {
+          try {
+            return originalGet.call(localStorage, "piichan-novels:active-profile-id") || "guest";
+          } catch(e) {
+            return "guest";
+          }
+        }
+
+        function getProfileKey(key) {
+          if (typeof key !== 'string') return key;
+          const prefixes = [
+            "hvitveldt:reading:",
+            "tsukinomi:reading:",
+            "sea:reading:",
+            "hvitveldt:secret:",
+            "tsukinomi:reading:secret:",
+            "sea:reading:secret:"
+          ];
+          if (prefixes.some(p => key.startsWith(p))) {
+            const activeProfile = getActiveProfileId();
+            return `${key}:${activeProfile}`;
+          }
+          return key;
+        }
+
+        localStorage.getItem = function(key) {
+          return originalGet.call(localStorage, getProfileKey(key));
+        };
+        localStorage.setItem = function(key, value) {
+          originalSet.call(localStorage, getProfileKey(key), value);
+        };
+        localStorage.removeItem = function(key) {
+          originalRemove.call(localStorage, getProfileKey(key));
+        };
+      })();
+    </script>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#060B12" />
+    <link rel="canonical" href={canonical} />
+    <link rel="icon" href={faviconLit} type="image/svg+xml" />
+    <link rel="icon" href={faviconPng} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={faviconPng} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={resolvedOgImage} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={resolvedOgImage} />
+    <ClientRouter />
+  </head>
+  <body
+    class={bodyClasses}
+    data-depth-layer={depthLayer}
+    data-music-cue={musicCueId}
+  >
+    <script is:inline>
+      (function() {
+        function setTimeOfDay(hour) {
+          let tod = 'evening';
+          if (hour >= 6 && hour < 13) {
+            tod = 'morning';
+          } else if (hour >= 13 && hour < 19) {
+            tod = 'afternoon';
+          } else if (hour >= 19 || hour < 1) {
+            tod = 'evening';
+          } else {
+            tod = 'night';
+          }
+          document.body.setAttribute('data-time-of-day', tod);
+          window.__currentTimeOfDay = tod;
+        }
+
+        const localHour = new Date().getHours();
+        setTimeOfDay(localHour);
+
+        if (!window.__timeOfDayBound) {
+          window.__timeOfDayBound = true;
+          document.addEventListener('astro:after-swap', () => {
+            const currentTod = window.__currentTimeOfDay || 'evening';
+            document.body.setAttribute('data-time-of-day', currentTod);
+          });
+        }
+      })();
+    </script>
+    <a class="skip-to-content" href="#sea-main" style="position: fixed; top: 10px; left: 10px; z-index: 100; background: var(--surface-sea); padding: 5px 10px; color: var(--sea-ink); text-decoration: none; font-family: var(--font-mono); font-size: 0.8rem; transform: translateY(-150%);" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-150%)'">ข้ามไปยังเนื้อหา</a>
+    <SeaRainBackdrop />
+    <GrainOverlay texture="/assets/tsukinomi/textures/film-grain.png" />
+    <SonarCorner />
+    <SonarPlayer />
+    {showTopBar && (
+      <header class="sea-topbar">
+        <a href={withBase("/sea/")} class="sea-topbar-mark">THE SEA</a>
+        <nav style="display: flex; gap: 20px; align-items: center;">
+          <a href={withBase("/")} class="sea-topbar-link" data-astro-reload>HUB</a>
+          <a href={withBase("/sea/")} class="sea-topbar-link">HOME</a>
+        </nav>
+      </header>
+    )}
+    <main id="sea-main" style="position: relative; z-index: 5;">
+      <slot />
+    </main>
+  </body>
+</html>

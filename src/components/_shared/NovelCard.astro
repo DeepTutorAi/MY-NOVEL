@@ -51,29 +51,57 @@ const useImage = novel.heroState !== "placeholder";
   <article
     class="novel-card is-disabled"
     style={accentStyle + (isAvailable ? "; display: none" : "")}
-    aria-disabled="true"
+    role="button"
+    tabindex="0"
+    aria-label={`ดูคำใบ้การเปิด ${novel.titleTh}`}
     data-locked-card
   >
     <span class="novel-card-media" aria-hidden="true">
-      <span class="novel-card-placeholder">
-        <span class="station-line"></span>
-        <span class="station-moon"></span>
-        <span class="station-platform"></span>
-      </span>
+      {
+        useImage ? (
+          <img src={heroImage} alt="" loading="eager" decoding="async" />
+        ) : (
+          <span class="novel-card-placeholder">
+            <span class="station-line"></span>
+            <span class="station-moon"></span>
+            <span class="station-platform"></span>
+          </span>
+        )
+      }
     </span>
     <span class="novel-card-body">
       <span class="novel-card-kicker">{novel.titleEn}</span>
       <strong class="novel-card-title">{novel.titleTh}</strong>
       <span class="novel-card-subtitle">
-        {novel.slug === "tsukinomi" ? "นิยายจะมาเร็วๆ นี้ (เนื้อเรื่องยังไม่เสร็จ)" : novel.subtitle}
+        {novel.slug === "tsukinomi" ? "สถานีซ่อนอยู่หลังความทรงจำ อ่านให้ถึงเงื่อนไข แล้วชานชาลาจะเปิดเอง" : novel.subtitle}
       </span>
       <span class="novel-card-meta">{novel.mood} · {novel.length}</span>
       <span class="novel-card-footer">
         <span>{novel.status}</span>
-        <span class="novel-card-action">รอเปิดสถานี</span>
+        <span class="novel-card-action">ดูคำใบ้การเปิดสถานี</span>
       </span>
     </span>
   </article>
+  {
+    novel.slug === "tsukinomi" && (
+      <>
+        <button
+          type="button"
+          class="novel-card-hint-trigger"
+          data-tsuki-card-hint-trigger
+          aria-label="ดูคำใบ้ Extra ของสถานีทะเลพระจันทร์"
+        >
+          <span>Extra</span>
+          <strong>คำใบ้</strong>
+        </button>
+        <div class="novel-card-hint" data-tsuki-card-hint hidden role="status" aria-live="polite">
+          <button type="button" class="novel-card-hint-close" data-tsuki-card-hint-close aria-label="ปิดคำใบ้">×</button>
+          <strong data-tsuki-card-hint-title>คำใบ้ Extra: ทางหลักอยู่ที่ Lodge</strong>
+          <span data-tsuki-card-hint-copy>ลองอ่านเส้นทางลับของ Lodge ให้ครบ 15 ครั้ง แล้วสถานีจะเปิดประตู Extra ให้เอง</span>
+        </div>
+      </>
+    )
+  }
 </div>
 
 {
@@ -85,6 +113,17 @@ const useImage = novel.heroState !== "placeholder";
 
         const activeCard = wrapper.querySelector('[data-active-card]');
         const lockedCard = wrapper.querySelector('[data-locked-card]');
+        const hintTrigger = wrapper.querySelector('[data-tsuki-card-hint-trigger]');
+        const hint = wrapper.querySelector('[data-tsuki-card-hint]');
+        const hintTitle = wrapper.querySelector('[data-tsuki-card-hint-title]');
+        const hintCopy = wrapper.querySelector('[data-tsuki-card-hint-copy]');
+        const hintClose = wrapper.querySelector('[data-tsuki-card-hint-close]');
+        const HINT_COOLDOWN_KEY = "tsukinomi:hub-card-hint-cooldown-until";
+        const HINT_COOLDOWN_MS = 5 * 60 * 1000;
+        const TSUKINOMI_SECRET_REQUIRED = 4;
+        const LODGE_SECRET_REQUIRED = 15;
+        const shouldGateCard = wrapper.dataset.status !== "เผยแพร่";
+        let hintTimer = 0;
         
         const BYPASS_KEY = "tsukinomi:extra-bypassed";
         // Double hash verification: H2 = sha256(H1)
@@ -134,7 +173,7 @@ const useImage = novel.heroState !== "placeholder";
           }
           
           // Or unlock via reading progress
-          if (getSecretReadsCount() >= 4) {
+          if (getSecretReadsCount() >= TSUKINOMI_SECRET_REQUIRED) {
             return true;
           }
 
@@ -148,7 +187,7 @@ const useImage = novel.heroState !== "placeholder";
           }
 
           // Or unlock via Lodge reading progress (>= 15 chapters read)
-          if (getLodgeReadsCount() >= 15) {
+          if (getLodgeReadsCount() >= LODGE_SECRET_REQUIRED) {
             return true;
           }
 
@@ -156,11 +195,19 @@ const useImage = novel.heroState !== "placeholder";
         };
 
         const updateCardUI = async () => {
-          const unlocked = await checkUnlocked();
-          if (unlocked && activeCard && lockedCard) {
+          if (!activeCard || !lockedCard) return;
+
+          if (!shouldGateCard) {
             activeCard.style.display = '';
             lockedCard.style.display = 'none';
-          } else if (activeCard && lockedCard) {
+            return;
+          }
+
+          const unlocked = await checkUnlocked();
+          if (unlocked) {
+            activeCard.style.display = '';
+            lockedCard.style.display = 'none';
+          } else {
             activeCard.style.display = 'none';
             lockedCard.style.display = '';
           }
@@ -170,34 +217,99 @@ const useImage = novel.heroState !== "placeholder";
         updateCardUI();
         document.addEventListener("astro:page-load", updateCardUI);
 
-        // Developer shortcut trigger: 5 clicks on the locked card
+        const updateHintCopy = () => {
+          const tsukiReads = Math.min(getSecretReadsCount(), TSUKINOMI_SECRET_REQUIRED);
+          const lodgeReads = Math.min(getLodgeReadsCount(), LODGE_SECRET_REQUIRED);
+          const lodgeLeft = Math.max(0, LODGE_SECRET_REQUIRED - lodgeReads);
+          const tsukiLeft = Math.max(0, TSUKINOMI_SECRET_REQUIRED - tsukiReads);
+
+          if (hintTitle instanceof HTMLElement) {
+            hintTitle.textContent = lodgeLeft === 0
+              ? "คำใบ้ Extra: Lodge เปิดทางให้แล้ว"
+              : "คำใบ้ Extra: ทางหลักอยู่ที่ Lodge";
+          }
+
+          if (hintCopy instanceof HTMLElement) {
+            hintCopy.textContent = lodgeLeft === 0
+              ? `เงื่อนไข Lodge ครบแล้ว ${lodgeReads}/${LODGE_SECRET_REQUIRED} ครั้ง กลับมาที่สถานีแล้วลองเปิด Extra ได้เลย`
+              : `ลองอ่านเส้นทางลับของ Lodge ให้ครบ ${LODGE_SECRET_REQUIRED} ครั้ง ตอนนี้ ${lodgeReads}/${LODGE_SECRET_REQUIRED} เหลืออีก ${lodgeLeft} ครั้ง; อีกทางคืออ่านทางลับของ Tsukinomi ${tsukiReads}/${TSUKINOMI_SECRET_REQUIRED} เหลืออีก ${tsukiLeft} ครั้ง`;
+          }
+        };
+
+        const hideLockedHint = () => {
+          if (hint instanceof HTMLElement) {
+            hint.hidden = true;
+          }
+          window.clearTimeout(hintTimer);
+        };
+
+        const showLockedHint = () => {
+          updateHintCopy();
+
+          const now = Date.now();
+          const nextAllowed = Number(localStorage.getItem(HINT_COOLDOWN_KEY) || 0);
+          if (Number.isFinite(nextAllowed) && nextAllowed > now) {
+            return;
+          }
+
+          localStorage.setItem(HINT_COOLDOWN_KEY, String(now + HINT_COOLDOWN_MS));
+          if (hint instanceof HTMLElement) {
+            hint.hidden = false;
+            window.clearTimeout(hintTimer);
+            hintTimer = window.setTimeout(hideLockedHint, 6500);
+          }
+        };
+
+        hintTrigger?.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          showLockedHint();
+        });
+
+        hintClose?.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          hideLockedHint();
+        });
+
+        // Developer shortcut trigger: 5 quick clicks on the locked card.
         let clickCount = 0;
         let lastClickTime = 0;
-        if (lockedCard) {
-          lockedCard.addEventListener('click', async () => {
-            const now = Date.now();
-            if (now - lastClickTime > 2000) {
-              clickCount = 0; // reset if clicks are too slow
-            }
-            clickCount++;
-            lastClickTime = now;
+        const handleLockedCardIntent = async () => {
+          showLockedHint();
 
-            if (clickCount >= 5) {
-              clickCount = 0;
-              const password = prompt('กรอกรหัสผ่านผู้พัฒนาสำหรับปลดล็อคเรื่อง "สถานีทะเลพระจันทร์":');
-              if (password) {
-                const h1 = await sha256(password.trim());
-                const h2 = await sha256(h1);
-                if (h2 === EXPECTED_H2) {
-                  localStorage.setItem(BYPASS_KEY, h1);
-                  alert('ปลดล็อคผู้พัฒนาสำเร็จแล้ว!');
-                  updateCardUI();
-                  // Also refresh page to trigger ResumeCard updates
-                  window.location.reload();
-                } else {
-                  alert('รหัสผ่านไม่ถูกต้อง');
-                }
+          const now = Date.now();
+          if (now - lastClickTime > 2000) {
+            clickCount = 0; // reset if clicks are too slow
+          }
+          clickCount++;
+          lastClickTime = now;
+
+          if (clickCount >= 5) {
+            clickCount = 0;
+            const password = prompt('กรอกรหัสผ่านผู้พัฒนาสำหรับปลดล็อคเรื่อง "สถานีทะเลพระจันทร์":');
+            if (password) {
+              const h1 = await sha256(password.trim());
+              const h2 = await sha256(h1);
+              if (h2 === EXPECTED_H2) {
+                localStorage.setItem(BYPASS_KEY, h1);
+                alert('ปลดล็อคผู้พัฒนาสำเร็จแล้ว!');
+                updateCardUI();
+                // Also refresh page to trigger ResumeCard updates
+                window.location.reload();
+              } else {
+                alert('รหัสผ่านไม่ถูกต้อง');
               }
+            }
+          }
+        };
+
+        if (lockedCard) {
+          lockedCard.addEventListener('click', handleLockedCardIntent);
+          lockedCard.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleLockedCardIntent();
             }
           });
         }
