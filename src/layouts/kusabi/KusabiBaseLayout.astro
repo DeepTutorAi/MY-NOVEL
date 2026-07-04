@@ -1,11 +1,9 @@
 ---
-import "../../styles/lodge/global.css";
-import "../../styles/lodge/polish.css";
+import "../../styles/kusabi/global.css";
 import { ClientRouter } from "astro:transitions";
 import GrainOverlay from "../../components/_shared/GrainOverlay.astro";
-import BackgroundFog from "../../components/lodge/atmosphere/BackgroundFog.astro";
-import SnowCanvas from "../../components/lodge/atmosphere/SnowCanvas.astro";
-import TopBar from "../../components/lodge/navigation/TopBar.astro";
+import KusabiRainBackdrop from "../../components/kusabi/effects/KusabiRainBackdrop.astro";
+import TapePlayer from "../../components/kusabi/audio/TapePlayer.astro";
 import { withBase } from "../../utils/base-path";
 
 interface Props {
@@ -20,8 +18,8 @@ const { title, description, bodyClass, showTopBar = true, ogImage = "/og.jpg" } 
 const canonical = Astro.url.href;
 const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href;
 const faviconLit = withBase("/favicon.svg");
-const faviconOut = withBase("/favicon-out.svg");
 const faviconPng = withBase("/favicon.png");
+
 const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
   .filter(Boolean)
   .join(" ");
@@ -30,6 +28,7 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
 <!doctype html>
 <html lang="th">
   <head>
+    <!-- LocalStorage Interceptor for Profile Isolation -->
     <script is:inline>
       (function() {
         if (window.__localStorageIntercepted) return;
@@ -85,7 +84,7 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
-    <meta name="theme-color" content="#0E0D0C" />
+    <meta name="theme-color" content="#0e0a0a" />
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={faviconLit} type="image/svg+xml" />
     <link rel="icon" href={faviconPng} type="image/png" sizes="32x32" />
@@ -100,83 +99,49 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
     <ClientRouter />
-  <body class={bodyClasses}>
+    <!-- Immediate Reading Settings Restoration to prevent FOUC -->
     <script is:inline>
       (function() {
-        function setTimeOfDay(hour) {
-          let tod = 'evening';
-          if (hour >= 6 && hour < 13) {
-            tod = 'morning';
-          } else if (hour >= 13 && hour < 19) {
-            tod = 'afternoon';
-          } else if (hour >= 19 || hour < 1) {
-            tod = 'evening';
-          } else {
-            tod = 'night';
-          }
-          document.body.setAttribute('data-time-of-day', tod);
-          window.__currentTimeOfDay = tod;
-        }
-
-        const localHour = new Date().getHours();
-        setTimeOfDay(localHour);
-
-        fetch('https://worldtimeapi.org/api/ip')
-          .then(res => res.json())
-          .then(data => {
-            if (data && typeof data.datetime === 'string') {
-              const tIndex = data.datetime.indexOf('T');
-              if (tIndex !== -1) {
-                const hourStr = data.datetime.substring(tIndex + 1, tIndex + 3);
-                const hour = parseInt(hourStr, 10);
-                if (!isNaN(hour)) {
-                  setTimeOfDay(hour);
-                }
-              }
-            }
-          })
-          .catch(err => {
-            console.warn('IP-based time fetch failed, using local device time.', err);
-          });
-
-        if (!window.__timeOfDayBound) {
-          window.__timeOfDayBound = true;
-          document.addEventListener('astro:after-swap', () => {
-            const currentTod = window.__currentTimeOfDay || 'evening';
-            document.body.setAttribute('data-time-of-day', currentTod);
-          });
-        }
+        try {
+          const size = localStorage.getItem("kusabi:settings:font-size") || "normal";
+          const height = localStorage.getItem("kusabi:settings:line-height") || "normal";
+          const palette = localStorage.getItem("kusabi:settings:palette") || "abyssal";
+          
+          document.documentElement.setAttribute("data-palette", palette);
+          
+          let sizeVal = "18px";
+          if (size === "small") sizeVal = "15px";
+          else if (size === "large") sizeVal = "22px";
+          else if (size === "xl") sizeVal = "26px";
+          
+          let heightVal = "1.85";
+          if (height === "loose") heightVal = "2.25";
+          
+          document.documentElement.style.setProperty("--reading-size", sizeVal);
+          document.documentElement.style.setProperty("--line-height-body", heightVal);
+        } catch(e) {}
       })();
     </script>
-    <BackgroundFog />
-    <GrainOverlay />
-    <SnowCanvas />
-    {showTopBar && <TopBar />}
+  </head>
+  <body class={bodyClasses}>
+    <KusabiRainBackdrop />
+    <GrainOverlay texture="/assets/tsukinomi/textures/film-grain.png" />
+    <TapePlayer />
+    {showTopBar && (
+      <header class="kusabi-topbar">
+        <a href={withBase("/kusabi/")} class="kusabi-topbar-mark">KUSABI</a>
+        <nav style="display: flex; gap: 20px; align-items: center;">
+          <a href={withBase("/")} class="kusabi-topbar-link" data-astro-reload>HUB</a>
+          <a href={withBase("/kusabi/characters/")} class="kusabi-topbar-link">CHARACTER</a>
+          <button class="kusabi-topbar-link kusabi-audio-btn" type="button" data-tape-panel-trigger aria-label="ตั้งค่าการอ่านและเสียง" style="background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 4px; padding: 0;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="kusabi-settings-icon" style="width: 14px; height: 14px;">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>SETTINGS
+          </button>
+        </nav>
+      </header>
+    )}
     <slot />
-    <script is:inline define:vars={{ faviconLit, faviconOut }}>
-      (() => {
-        const media = window.matchMedia("(prefers-reduced-motion: no-preference)");
-        const icon = document.querySelector('link[rel="icon"]');
-
-        if (!media.matches || !(icon instanceof HTMLLinkElement)) {
-          return;
-        }
-
-        const lit = faviconLit;
-        const out = faviconOut;
-        const schedule = () => {
-          const delay = 20000 + Math.random() * 40000;
-          window.setTimeout(() => {
-            icon.href = out;
-            window.requestAnimationFrame(() => {
-              icon.href = lit;
-              schedule();
-            });
-          }, delay);
-        };
-
-        schedule();
-      })();
-    </script>
   </body>
 </html>

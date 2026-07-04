@@ -64,9 +64,15 @@ const bodyClasses = ["sea-page", "sea-shell", showTopBar ? "has-sea-topbar" : ""
             "hvitveldt:reading:",
             "tsukinomi:reading:",
             "sea:reading:",
+            "kusabi:reading:",
             "hvitveldt:secret:",
             "tsukinomi:reading:secret:",
-            "sea:reading:secret:"
+            "sea:reading:secret:",
+            "kusabi:secret:",
+            "hvitveldt:extra-bypassed",
+            "tsukinomi:extra-bypassed",
+            "sea:extra-bypassed",
+            "kusabi:extra-bypassed"
           ];
           if (prefixes.some(p => key.startsWith(p))) {
             const activeProfile = getActiveProfileId();

@@ -1,0 +1,235 @@
+<div class="kusabi-abyssal-mist" aria-hidden="true"></div>
+<canvas class="kusabi-rain-canvas" aria-hidden="true"></canvas>
+
+<style>
+  .kusabi-abyssal-mist {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: 
+      radial-gradient(ellipse at 50% 30%, rgba(20, 15, 15, 0.95) 0%, transparent 80%),
+      radial-gradient(circle at 10% 80%, rgba(30, 10, 10, 0.4) 0%, transparent 60%),
+      linear-gradient(180deg, #0e0a0a 0%, #050404 100%);
+    opacity: 0.95;
+    transition: opacity 1s ease, background 1s ease;
+  }
+  
+  .kusabi-rain-canvas {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    width: 100%;
+    height: 100%;
+    opacity: 0.25;
+  }
+</style>
+
+<script>
+  let canvas: HTMLCanvasElement | null = null;
+  let context: CanvasRenderingContext2D | null = null;
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const mobile = window.matchMedia("(max-width: 640px)");
+
+  let width = 0;
+  let height = 0;
+  let frame = 0;
+  let particles: RainParticle[] = [];
+  let motionEnabled = !reduceMotion.matches;
+
+  type RainParticle = {
+    x: number;
+    y: number;
+    size: number;
+    speedY: number;
+    speedX: number;
+    opacity: number;
+    length: number;
+  };
+
+  type FogParticle = {
+    x: number;
+    y: number;
+    radius: number;
+    vx: number;
+    vy: number;
+    opacity: number;
+  };
+
+  const bindCanvas = () => {
+    canvas = document.querySelector(".kusabi-rain-canvas") as HTMLCanvasElement | null;
+    context = canvas ? canvas.getContext("2d") : null;
+  };
+
+  const clearCanvas = () => {
+    context?.clearRect(0, 0, width, height);
+  };
+
+  const isHome = () => document.body.classList.contains("kusabi-home-page") || document.body.classList.contains("kusabi-shell") || document.body.classList.contains("kusabi-toc-page");
+
+  const particleCap = () => {
+    if (mobile.matches) {
+      return 25;
+    }
+    return isHome() ? 70 : 45;
+  };
+
+  const getRainColor = (opacity: number) => {
+    return `rgba(180, 180, 200, ${opacity})`;
+  };
+
+  const createRainParticle = (initial = false): RainParticle => {
+    return {
+      x: Math.random() * width,
+      y: initial ? Math.random() * height : -20,
+      size: Math.random() * 1.2 + 0.3,
+      speedY: Math.random() * 6 + 5,
+      speedX: Math.random() * 0.4 - 0.2,
+      opacity: Math.random() * 0.3 + 0.1,
+      length: Math.random() * 20 + 10,
+    };
+  };
+
+  const createFogParticle = (): FogParticle => {
+    return {
+      x: Math.random() * width,
+      y: Math.random() * height,
+      radius: Math.random() * 200 + 150,
+      vx: Math.random() * 0.15 - 0.075,
+      vy: Math.random() * 0.1 - 0.05,
+      opacity: Math.random() * 0.04 + 0.015
+    };
+  };
+
+  let fogParticles: FogParticle[] = [];
+  let lightningIntensity = 0;
+  let nextLightningFrame = Math.random() * 500 + 300;
+
+  let prevWidth = 0;
+  const resize = () => {
+    if (!canvas) return;
+    const newWidth = window.innerWidth;
+    const newHeight = window.innerHeight;
+    
+    if (newWidth === prevWidth && Math.abs(newHeight - height) < 100) {
+      canvas.width = newWidth;
+      canvas.height = newHeight;
+      width = newWidth;
+      height = newHeight;
+      return;
+    }
+    
+    prevWidth = newWidth;
+    width = canvas.width = newWidth;
+    height = canvas.height = newHeight;
+    particles = Array.from({ length: particleCap() }, () => createRainParticle(true));
+    fogParticles = Array.from({ length: mobile.matches ? 3 : 6 }, () => createFogParticle());
+  };
+
+  const draw = () => {
+    const ctx = context;
+    if (!canvas || !ctx) return;
+    ctx.clearRect(0, 0, width, height);
+
+    // Update and draw lightning (subtle flash)
+    if (frame >= nextLightningFrame) {
+      lightningIntensity = Math.random() * 0.5 + 0.3; // set flash intensity
+      nextLightningFrame = frame + Math.random() * 900 + 600; // cooldown for next flash
+    }
+    if (lightningIntensity > 0.01) {
+      ctx.fillStyle = `rgba(225, 235, 255, ${lightningIntensity * 0.06})`;
+      ctx.fillRect(0, 0, width, height);
+      lightningIntensity *= 0.88; // decay
+    }
+
+    // Draw fog particles
+    fogParticles.forEach((fog) => {
+      fog.x += fog.vx;
+      fog.y += fog.vy;
+
+      // Wrap around bounds
+      if (fog.x < -fog.radius) fog.x = width + fog.radius;
+      if (fog.x > width + fog.radius) fog.x = -fog.radius;
+      if (fog.y < -fog.radius) fog.y = height + fog.radius;
+      if (fog.y > height + fog.radius) fog.y = -fog.radius;
+
+      const grad = ctx.createRadialGradient(fog.x, fog.y, 0, fog.x, fog.y, fog.radius);
+      grad.addColorStop(0, `rgba(139, 29, 24, ${fog.opacity})`); // soft crimson-tinted fog
+      grad.addColorStop(0.5, `rgba(40, 20, 20, ${fog.opacity * 0.5})`);
+      grad.addColorStop(1, 'rgba(0, 0, 0, 0)');
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.arc(fog.x, fog.y, fog.radius, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Cull active columns to protect reading readability
+    const readerElement = document.querySelector(".kusabi-prose");
+    let cullRect: DOMRect | null = null;
+    if (readerElement) {
+      cullRect = readerElement.getBoundingClientRect();
+    }
+
+    particles.forEach((p, index) => {
+      let opacity = p.opacity;
+      if (cullRect && p.x >= cullRect.left - 20 && p.x <= cullRect.right + 20) {
+        opacity *= 0.12; // fade out rain overlaying reader text
+      }
+
+      ctx.strokeStyle = getRainColor(opacity);
+      ctx.lineWidth = p.size;
+      
+      ctx.beginPath();
+      ctx.moveTo(p.x, p.y);
+      ctx.lineTo(p.x + p.speedX, p.y + p.length);
+      ctx.stroke();
+
+      // Update position
+      p.y += p.speedY;
+      p.x += p.speedX;
+
+      // Recalculate boundary condition
+      if (p.y > height + p.length || p.x < -20 || p.x > width + 20) {
+        particles[index] = createRainParticle(false);
+      }
+    });
+  };
+
+  const loop = () => {
+    if (!motionEnabled) return;
+    draw();
+    frame = requestAnimationFrame(loop);
+  };
+
+  const handleMotionChange = (e: CustomEvent) => {
+    motionEnabled = e.detail !== false;
+    if (motionEnabled) {
+      loop();
+    } else {
+      cancelAnimationFrame(frame);
+      clearCanvas();
+    }
+  };
+
+  // Lifecycle
+  document.addEventListener("astro:page-load", () => {
+    bindCanvas();
+    if (canvas) {
+      resize();
+      window.addEventListener("resize", resize);
+      window.addEventListener("kusabi:motion-change" as any, handleMotionChange);
+      
+      if (motionEnabled) {
+        loop();
+      }
+    }
+  });
+
+  document.addEventListener("astro:before-swap", () => {
+    cancelAnimationFrame(frame);
+    window.removeEventListener("resize", resize);
+    window.removeEventListener("kusabi:motion-change" as any, handleMotionChange);
+  });
+</script>

@@ -1,0 +1,299 @@
+---
+import KusabiBaseLayout from "../../layouts/kusabi/KusabiBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+// In the future, this can be moved to src/data/kusabi/characters.ts
+const characters = [
+  {
+    id: "ryoya",
+    name: "อาราอิ เรียวยะ",
+    role: "นักวิเคราะห์กลุ่ม / สมาชิกทริป",
+    mbti: "ISTJ",
+    trait: "สังเกตพฤติกรรมคนเพื่อปกป้องตัวเอง",
+    description: "ชายหนุ่มผู้ยึดมั่นในเหตุผลและข้อมูล มักมองโลกผ่านทฤษฎีและการสังเกตพฤติกรรมเพื่อป้องกันตนเองจากการตัดสินใจผิดพลาด การวิเคราะห์ของเขามักเป็นเกราะป้องกันไม่ให้ต้องเผชิญหน้ากับความจริงอันโหดร้ายทางอารมณ์",
+    isSecret: false,
+  },
+  {
+    id: "risa",
+    name: "อาซาฮินะ ริสะ",
+    role: "ผู้ประนีประนอมกลุ่ม / สมาชิกทริป",
+    mbti: "ESFP",
+    trait: "ยิ้มแย้มเพื่อความปลอดภัยและไม่ถูกทิ้ง",
+    description: "หญิงสาวผู้พยายามสร้างเสียงหัวเราะและลดความตึงเครียดในกลุ่มเสมอ เธอทำตัวอ่อนแอและอ่อนโยนเพื่อหลีกเลี่ยงความขัดแย้ง แต่เบื้องหลังรอยยิ้มคือความกลัวอย่างรุนแรงที่จะถูกทิ้งไว้ข้างหลังคนเดียว",
+    isSecret: false,
+  },
+  {
+    id: "shion",
+    name: "ชิอง มาโดกะ",
+    role: "??? / ผู้ควบคุมบ้านคุซาบิ",
+    mbti: "INFJ (Twisted)",
+    trait: "ท้าทายศีลธรรมและความเห็นแก่ตัวของมนุษย์",
+    description: "ผู้ออกแบบและควบคุมกลไกของบ้านคุซาบิ อดีตผู้พ่ายแพ้ต่อโศกนาฏกรรมแห่งความกลัว เขาสวมหน้ากากไม้สลักที่ยิ้มอย่างเยียบเย็นเพื่อทดสอบทุกคนที่ก้าวเข้ามาว่าพร้อมจะหักหลังเพื่อนเพื่อเอาชีวิตรอดเหมือนเขาหรือไม่",
+    isSecret: true,
+    unlockThreshold: 80, // Requires 80% read or dev bypass
+  }
+];
+---
+
+<KusabiBaseLayout
+  title="ข้อมูลตัวละคร — แฟ้มลับเขาคุโระมิโซะ"
+  description="แฟ้มคดีและข้อมูลเบื้องหลังของตัวละครหลักในเรื่องบ้านคุซาบิบนเขาคุโระมิโซะ"
+  bodyClass="kusabi-characters-page"
+>
+  <main class="kusabi-toc-container">
+    <div class="kusabi-title-section">
+      <p class="kusabi-nav-label" style="color: var(--kusabi-accent); font-family: var(--font-mono); margin-bottom: 0.75rem; letter-spacing: 0.1em;">FILE DOSSIER</p>
+      <h1 class="kusabi-title" style="font-size: clamp(2rem, 5vw, 3rem); margin-bottom: 0.5rem;">แฟ้มวิเคราะห์บุคคล</h1>
+      <p class="kusabi-subtitle">บันทึกพฤติกรรมและข้อมูลเบื้องหลังของกลุ่มผู้เผชิญหน้ากับความผิดบาป</p>
+    </div>
+
+    <div class="characters-grid">
+      {characters.map((char) => (
+        <article 
+          class={`character-card-kusabi ${char.isSecret ? "secret-locked-card" : ""}`}
+          data-character-id={char.id}
+          data-is-secret={char.isSecret ? "true" : "false"}
+        >
+          <!-- Locked Overlay -->
+          {char.isSecret && (
+            <div class="locked-overlay" data-locked-overlay>
+              <div class="lock-icon">🔒</div>
+              <h3 style="color: var(--kusabi-accent); font-family: var(--font-serif); font-size: 1.25rem; margin-bottom: 8px;">ข้อมูลส่วนบุคคลที่ถูกเข้ารหัส</h3>
+              <p style="font-size: 0.8rem; color: var(--kusabi-ink-dim); text-align: center; max-width: 220px; line-height: 1.5;">
+                แฟ้มลับนี้จะปลดล็อกอัตโนมัติเมื่ออ่านเนื้อเรื่องหลักผ่านไปแล้วอย่างน้อย 80% หรือเปิดใช้คีย์ข้ามคดี
+              </p>
+            </div>
+          )}
+
+          <div class="card-header">
+            <span class="dossier-tag">DOSSIER // KUSABI</span>
+            <span class="mbti-tag">{char.mbti}</span>
+          </div>
+
+          <div class="card-body">
+            <h2 class="char-name">{char.name}</h2>
+            <p class="char-role">{char.role}</p>
+            
+            <div class="char-trait-box">
+              <span class="trait-title">ปมหลักทางจิตใจ</span>
+              <p class="trait-desc">{char.trait}</p>
+            </div>
+
+            <p class="char-desc">{char.description}</p>
+          </div>
+
+          <div class="card-footer">
+            <span class="status-indicator">STATUS: ACTIVE</span>
+          </div>
+        </article>
+      ))}
+    </div>
+
+    <div style="text-align: center; margin-top: 4rem;">
+      <a href={withBase("/kusabi/")} class="kusabi-extra-btn" style="background: none; border: 1px solid var(--kusabi-accent); color: var(--kusabi-accent); text-decoration: none; display: inline-block; padding: 10px 24px; border-radius: 4px;">กลับสู่สารบัญ</a>
+    </div>
+  </main>
+</KusabiBaseLayout>
+
+<script>
+  const initializeCharacters = () => {
+    try {
+      const SECRET_READS_KEY = "kusabi:secret:reads";
+      const BYPASS_KEY = "kusabi:extra-bypassed";
+      const EXPECTED_H2 = "9c5144f57cc6d4eb640c116097b92fd94f5a4370379d732604003d2a15fef6de";
+      const REQUIRED_CHAPTERS = 10; // 80%
+
+      // SHA-256 helper
+      async function sha256(message: string): Promise<string> {
+        const msgBuffer = new TextEncoder().encode(message);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      }
+
+      const getReadsCount = () => {
+        const raw = localStorage.getItem(SECRET_READS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(arr)) {
+          return arr.filter(id => id !== "00-introduction").length;
+        }
+        return 0;
+      };
+
+      const checkUnlocked = async () => {
+        // 1. Check Developer Bypass
+        const storedH1 = localStorage.getItem(BYPASS_KEY);
+        if (storedH1) {
+          const calculatedH2 = await sha256(storedH1);
+          if (calculatedH2 === EXPECTED_H2) return true;
+        }
+
+        // 2. Check Reading Progress
+        if (getReadsCount() >= REQUIRED_CHAPTERS) return true;
+
+        return false;
+      };
+
+      const updateUI = async () => {
+        const unlocked = await checkUnlocked();
+        const secretCard = document.querySelector('[data-character-id="shion"]');
+        if (secretCard instanceof HTMLElement) {
+          if (unlocked) {
+            secretCard.classList.remove("secret-locked-card");
+            const overlay = secretCard.querySelector('[data-locked-overlay]');
+            if (overlay instanceof HTMLElement) {
+              overlay.style.display = "none";
+            }
+          }
+        }
+      };
+
+      updateUI();
+    } catch(e) {
+      console.error("Error setting up characters unlock:", e);
+    }
+  };
+
+  document.addEventListener("astro:page-load", initializeCharacters);
+  initializeCharacters();
+</script>
+
+<style>
+  .characters-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 24px;
+    margin-top: 3rem;
+  }
+
+  .character-card-kusabi {
+    background: var(--kusabi-paper-2);
+    border: 1px solid var(--kusabi-line);
+    border-radius: 6px;
+    padding: 24px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 380px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+    overflow: hidden;
+  }
+
+  /* Secret locked overlay styling */
+  .secret-locked-card {
+    border-color: rgba(229, 57, 53, 0.1);
+  }
+
+  .locked-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 10;
+    background: rgba(14, 10, 10, 0.96);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    text-align: center;
+    backdrop-filter: blur(4px);
+  }
+
+  .lock-icon {
+    font-size: 2.5rem;
+    margin-bottom: 16px;
+    animation: lockPulse 2s infinite ease-in-out;
+  }
+
+  @keyframes lockPulse {
+    0%, 100% { opacity: 0.6; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.05); }
+  }
+
+  .dossier-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    color: var(--kusabi-accent);
+    letter-spacing: 0.05em;
+  }
+
+  .mbti-tag {
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
+    background: rgba(229, 57, 53, 0.15);
+    border: 1px solid var(--kusabi-line);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--kusabi-accent);
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    padding-bottom: 8px;
+  }
+
+  .char-name {
+    font-family: var(--font-serif);
+    font-size: 1.45rem;
+    font-weight: 600;
+    color: var(--kusabi-ink);
+    margin: 0 0 4px;
+  }
+
+  .char-role {
+    font-size: 0.8rem;
+    color: var(--kusabi-ink-dim);
+    margin: 0 0 16px;
+    font-family: var(--font-mono);
+  }
+
+  .char-trait-box {
+    background: rgba(0, 0, 0, 0.2);
+    border: 1px solid rgba(229, 57, 53, 0.1);
+    border-left: 3px solid var(--kusabi-accent);
+    padding: 10px 12px;
+    margin-bottom: 16px;
+    border-radius: 0 4px 4px 0;
+  }
+
+  .trait-title {
+    display: block;
+    font-size: 0.68rem;
+    font-family: var(--font-mono);
+    color: var(--kusabi-accent);
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+
+  .trait-desc {
+    font-size: 0.82rem;
+    margin: 0;
+    color: var(--kusabi-ink);
+  }
+
+  .char-desc {
+    font-size: 0.88rem;
+    color: var(--kusabi-ink-dim);
+    line-height: 1.6;
+    margin: 0;
+    text-align: justify;
+  }
+
+  .card-footer {
+    margin-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    padding-top: 8px;
+    display: flex;
+    justify-content: flex-end;
+  }
+
+  .status-indicator {
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    color: var(--kusabi-ink-dim);
+  }
+</style>

@@ -1,0 +1,229 @@
+---
+import type { CollectionEntry } from "astro:content";
+import KusabiBaseLayout from "./KusabiBaseLayout.astro";
+
+type ChapterLayoutData = CollectionEntry<"kusabiChapters"> | {
+  data: {
+    number: number;
+    title: string;
+    act: number;
+    summary?: string;
+  };
+};
+
+interface Props {
+  chapter: ChapterLayoutData;
+  bodyClass?: string;
+}
+
+const { chapter, bodyClass } = Astro.props;
+const chapterNumber = chapter.data.number;
+const siteTitle = "บ้านคุซาบิบนเขาคุโระมิโซะ";
+const pageTitle = `บทที่ ${chapterNumber} — ${chapter.data.title} — ${siteTitle}`;
+const description = chapter.data.summary || `บทที่ ${chapterNumber} ของ ${siteTitle}`;
+
+const EPIGRAPHS: Record<number, string> = {
+  0: "ถ้าความทรงจำของเธอถูกฝังไว้ใต้แผ่นดินนี้... เสียงระดิ่งที่เราได้ยินท่ามกลางสายฝน จะเป็นเสียงเรียกให้เรากลับไป หรือคำเตือนว่าอย่าหันหลังกลับไปมองกันแน่",
+  4: "เมื่อประตูหนาหนักปิดตายจากด้านนอก โลกใบเก่าของพวกเธอก็สูญสลายไปชั่วนิรันดร์... เหลือเพียงกรงไม้ชื้นแฉะที่คอยเงี่ยหูฟังว่า ใครในกลุ่มนี้จะถูกเรียกชื่อให้เสียสละก่อนกัน",
+  8: "ท่ามกลางเสียงหักพังของไม้และแรงกดทับของน้ำหนัก... คนที่อ่อนแอที่สุดหายไปแล้วพร้อมความมืด คำถามที่ลอยมาตามสายลมคือ พวกเธอจะยังกลับไปช่วยคนที่ไม่มีแรงแม้จะยืนด้วยตัวเองอีกหรือ",
+  11: "หน้ากากถูกถอดออกแล้ว และภายใต้คราบน้ำตาของฆาตกรคือคนที่พ่ายแพ้ต่อโศกนาฏกรรม... คำถามสุดท้ายที่เขาเสนอไม่ได้ขอร้องให้ใครตาย แต่ท้าทายว่าจะมีใครยอมทิ้งกันเพื่อแลกกับอิสรภาพของตัวเอง",
+  12: "เมื่อบ้านที่จำความผิดปิดประตูใส่ผู้สร้างของมัน... เสียงเทปคาสเซ็ตต์ที่กำลังจะหมดม้วนพึมพำถึงการกลับบ้าน ทว่ารอยยิ้มสุดท้ายของเขาบอกว่า เขารู้คำตอบแล้ว แต่สายเกินไปที่จะเอ่ยคำลา"
+};
+
+const epigraphText = typeof chapterNumber === "number" ? EPIGRAPHS[chapterNumber] : undefined;
+const hasCutscene = !!epigraphText;
+---
+
+<KusabiBaseLayout
+  title={pageTitle}
+  description={description}
+  bodyClass={bodyClass ?? `chapter-page act-${chapter.data.act}`}
+>
+  {
+    hasCutscene && epigraphText && (
+      <div class="cutscene-overlay" id="cutscene-overlay" style="display: none;">
+        <div class="cutscene-content">
+          <div class="cutscene-epigraph" id="cutscene-text"></div>
+          <button class="cutscene-continue" id="cutscene-continue">เดินทางต่อ</button>
+        </div>
+      </div>
+    )
+  }
+
+  <main class="chapter-shell">
+    <article
+      class="chapter kusabi-prose"
+      data-chapter={String(chapterNumber)}
+      data-act={chapter.data.act}
+    >
+      <slot />
+    </article>
+  </main>
+</KusabiBaseLayout>
+
+{
+  hasCutscene && epigraphText && (
+    <script is:inline define:vars={{ epigraphText, chapterNumber }}>
+      const runAnimation = () => {
+        const overlay = document.getElementById('cutscene-overlay');
+        const textEl = document.getElementById('cutscene-text');
+        const btn = document.getElementById('cutscene-continue');
+        if (!overlay || !textEl || !btn) return;
+
+        const cooldownKey = `kusabi:cutscene:played:${chapterNumber}`;
+        const lastPlayed = localStorage.getItem(cooldownKey);
+        const now = Date.now();
+        const oneDay = 24 * 60 * 60 * 1000;
+
+        if (lastPlayed && (now - Number(lastPlayed)) < oneDay) {
+          return;
+        }
+
+        if (overlay.dataset.cutsceneStarted === 'true') return;
+        overlay.dataset.cutsceneStarted = 'true';
+
+        overlay.style.display = 'flex';
+        document.body.classList.add('has-cutscene');
+        textEl.textContent = '';
+        btn.classList.remove('is-visible');
+        btn.style.display = 'none';
+
+        let index = 0;
+        const speed = 40;
+
+        const type = () => {
+          if (index < epigraphText.length) {
+            textEl.textContent += epigraphText.charAt(index);
+            index++;
+            setTimeout(type, speed);
+          } else {
+            btn.style.display = 'block';
+            setTimeout(() => {
+              btn.classList.add('is-visible');
+            }, 100);
+          }
+        };
+
+        setTimeout(type, 800);
+
+        const onDismiss = () => {
+          overlay.classList.add('fade-out');
+          document.body.classList.remove('has-cutscene');
+          try {
+            localStorage.setItem(cooldownKey, String(Date.now()));
+          } catch (e) {}
+          setTimeout(() => {
+            overlay.style.display = 'none';
+          }, 800);
+        };
+
+        btn.addEventListener('click', onDismiss, { once: true });
+      };
+
+      if (document.readyState !== 'loading') {
+        runAnimation();
+      } else {
+        document.addEventListener('DOMContentLoaded', runAnimation);
+      }
+      document.addEventListener('astro:page-load', runAnimation);
+    </script>
+  )
+}
+
+<style is:global>
+  body {
+    background-color: var(--kusabi-paper) !important;
+    color: var(--kusabi-ink) !important;
+    font-size: var(--reading-size) !important;
+    line-height: var(--line-height-body) !important;
+  }
+
+  .kusabi-prose,
+  .kusabi-prose p,
+  .kusabi-prose span,
+  .kusabi-prose strong,
+  .kusabi-prose em,
+  .kusabi-prose li {
+    color: var(--kusabi-ink) !important;
+    font-family: "IBM Plex Sans Thai Looped", sans-serif !important;
+  }
+
+  .kusabi-title {
+    color: #ff4a40 !important; /* Brighter accent red for visibility on dark background */
+    text-shadow: 0 2px 10px rgba(0,0,0,0.9) !important;
+  }
+
+  .kusabi-nav-label {
+    color: #ff4a40 !important;
+  }
+
+  .kusabi-nav-title {
+    color: var(--kusabi-ink) !important;
+  }
+
+  body.has-cutscene {
+    overflow: hidden;
+  }
+  body.has-cutscene .kusabi-rain-canvas {
+    z-index: 998 !important;
+  }
+
+  .cutscene-overlay {
+    position: fixed;
+    inset: 0;
+    background: #000000;
+    z-index: 997;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    font-family: var(--font-mono), monospace;
+    transition: opacity 800ms ease, visibility 800ms ease;
+  }
+
+  .cutscene-overlay.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+  }
+
+  .cutscene-content {
+    max-width: 38rem;
+    width: 100%;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.5rem;
+  }
+
+  .cutscene-epigraph {
+    font-size: 1.15rem;
+    line-height: 1.85;
+    color: #e0d0d0;
+    min-height: 8rem;
+    text-shadow: 0 0 10px rgba(139, 29, 24, 0.4);
+  }
+
+  .cutscene-continue {
+    background: transparent;
+    border: 1px solid #8b1d18;
+    color: #8b1d18;
+    padding: 0.6rem 1.8rem;
+    font-size: 0.9rem;
+    cursor: pointer;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 600ms ease, transform 600ms ease, background 200ms, color 200ms;
+  }
+
+  .cutscene-continue.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  .cutscene-continue:hover {
+    background: #8b1d18;
+    color: #000;
+  }
+</style>

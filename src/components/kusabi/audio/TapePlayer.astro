@@ -1,0 +1,1137 @@
+---
+import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
+---
+
+<div
+  id="kusabi-tape-panel"
+  class="tape-player-panel"
+  data-open="false"
+  data-playing="false"
+  role="dialog"
+  aria-label="เครื่องเล่นเทปและการตั้งค่า Kusabi"
+  inert
+>
+  <div class="tape-panel-header">
+    <div class="tape-title-block">
+      <span class="tape-brand">KUSABI DECK</span>
+      <span class="tape-model">TC-2026 THRILLER</span>
+    </div>
+    <button class="tape-close-btn" type="button" data-tape-close aria-label="ปิดแผงควบคุม">✕</button>
+  </div>
+
+  <!-- Cassette Tape Visualizer -->
+  <div class="cassette-container">
+    <div class="cassette-shell">
+      <div class="cassette-label">
+        <div class="cassette-label-top">
+          <span>KUSABI SIDE A</span>
+          <span class="cassette-cue-num" data-tape-cue-num>A-1</span>
+        </div>
+        <div class="cassette-window">
+          <div class="cassette-reel reel-left">
+            <div class="reel-spokes"></div>
+          </div>
+          <div class="cassette-reel reel-right">
+            <div class="reel-spokes"></div>
+          </div>
+        </div>
+        <div class="cassette-cue-title" data-tape-cue-title>สายฝนและเสียงระดิ่งลม</div>
+      </div>
+      <div class="cassette-holes">
+        <span class="hole"></span>
+        <span class="hole"></span>
+        <span class="hole"></span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audio Controls -->
+  <div class="tape-controls-section">
+    <div class="tape-status-bar">
+      <span class="tape-led-indicator"></span>
+      <span class="tape-status-text" data-tape-status>READY</span>
+    </div>
+
+    <div class="tape-deck-buttons">
+      <button class="deck-btn btn-prev" type="button" data-tape-prev aria-label="ม้วนเทปก่อนหน้า">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="11 19 2 12 11 5 11 19"></polygon>
+          <polygon points="22 19 13 12 22 5 22 19"></polygon>
+        </svg>
+      </button>
+      <button class="deck-btn btn-play" type="button" data-tape-play aria-label="เล่นเทป / หยุดเทป">
+        <div class="play-icon-group">
+          <!-- Play icon (triangle) -->
+          <svg class="icon-play" viewBox="0 0 24 24" fill="currentColor">
+            <polygon points="5 3 19 12 5 21 5 3"></polygon>
+          </svg>
+          <!-- Pause icon (bars) -->
+          <svg class="icon-pause" viewBox="0 0 24 24" fill="currentColor" style="display: none;">
+            <rect x="6" y="4" width="4" height="16"></rect>
+            <rect x="14" y="4" width="4" height="16"></rect>
+          </svg>
+        </div>
+      </button>
+      <button class="deck-btn btn-next" type="button" data-tape-next aria-label="ม้วนเทปถัดไป">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polygon points="13 19 22 12 13 5 13 19"></polygon>
+          <polygon points="2 19 11 12 2 5 2 19"></polygon>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Music Volume -->
+    <div class="tape-slider-group">
+      <div class="slider-label">
+        <span>ระดับเสียงเพลง (Music Volume)</span>
+        <span class="slider-val" data-music-volume-val>35%</span>
+      </div>
+      <input class="tape-slider" data-tape-volume type="range" min="0" max="1" step="0.05" value="0.35" aria-label="ระดับเสียงเพลง" />
+    </div>
+
+    <!-- Ambient / Soundscapes -->
+    <div class="soundscapes-header">เสียงบรรยากาศ (Ambient Soundscapes)</div>
+    <div class="soundscapes-list">
+      {SOUNDSCAPES.map((ss) => (
+        <div class="soundscape-control-row" data-soundscape-id={ss.id}>
+          <div class="ss-toggle-block">
+            <label class="tape-switch">
+              <input type="checkbox" data-soundscape-toggle={ss.id} />
+              <span class="switch-slider"></span>
+            </label>
+            <span class="ss-label">{ss.label}</span>
+          </div>
+          <input
+            class="tape-slider ss-volume-slider"
+            data-soundscape-volume={ss.id}
+            type="range"
+            min="0"
+            max="1"
+            step="0.05"
+            value={ss.defaultVolume}
+            aria-label={`ระดับเสียง ${ss.label}`}
+          />
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <!-- Visual / Reading Settings -->
+  <div class="reading-settings-section">
+    <div class="settings-header">การตั้งค่าการอ่าน (Reading Settings)</div>
+
+    <!-- Background Theme / Palette -->
+    <div class="setting-row">
+      <span class="setting-label">โทนสีการอ่าน (Reading Theme)</span>
+      <div class="palette-buttons">
+        <button class="palette-btn active" type="button" data-setting-palette="abyssal" title="ดำก้นบึ้ง (Abyssal Dark)">
+          <span class="color-preview" style="background-color: #0E0A0A; border-color: #ff4a40;"></span>
+          <span class="btn-text">ดำก้นบึ้ง</span>
+        </button>
+        <button class="palette-btn" type="button" data-setting-palette="crimson" title="เงาโลหิต (Crimson Shadows)">
+          <span class="color-preview" style="background-color: #1a0f0f; border-color: #8b1d18;"></span>
+          <span class="btn-text">เงาโลหิต</span>
+        </button>
+        <button class="palette-btn" type="button" data-setting-palette="velvet" title="หมึกนุ่ม (Ink Velvet)">
+          <span class="color-preview" style="background-color: #0c0d0e; border-color: #555;"></span>
+          <span class="btn-text">หมึกนุ่ม</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Font Size -->
+    <div class="setting-row">
+      <span class="setting-label">ขนาดตัวอักษร (Font Size)</span>
+      <div class="size-buttons">
+        <button class="size-btn" type="button" data-setting-size="small">เล็ก</button>
+        <button class="size-btn active" type="button" data-setting-size="normal">ปกติ</button>
+        <button class="size-btn" type="button" data-setting-size="large">ใหญ่</button>
+        <button class="size-btn" type="button" data-setting-size="xl">ใหญ่มาก</button>
+      </div>
+    </div>
+
+    <!-- Line Spacing -->
+    <div class="setting-row">
+      <span class="setting-label">ระยะบรรทัด (Line Spacing)</span>
+      <div class="height-buttons">
+        <button class="height-btn active" type="button" data-setting-height="normal">ปกติ</button>
+        <button class="height-btn" type="button" data-setting-height="loose">กว้าง</button>
+      </div>
+    </div>
+
+    <!-- Background Rain Effect Toggle -->
+    <div class="setting-row flex-row">
+      <span class="setting-label">เอฟเฟกต์ฝนและสายฟ้าพื้นหลัง</span>
+      <label class="tape-switch">
+        <input type="checkbox" id="kusabi-rain-effect-toggle" checked />
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+  </div>
+</div>
+
+<!-- Floating Decorative Prop: Japanese Wind Bell (ระดิ่งลมโบราณ) -->
+<div
+  class="kusabi-corner-prop"
+  data-kusabi-bell
+  aria-hidden="true"
+>
+  <svg class="kusabi-bell-svg" viewBox="0 0 100 220" width="70" height="154">
+    <!-- hanging thread -->
+    <line x1="50" y1="0" x2="50" y2="40" stroke="#8B1D18" stroke-width="2.5"></line>
+    <!-- bell body -->
+    <path d="M30,80 C30,45 70,45 70,80 L76,92 L24,92 Z" fill="#bfa37a" stroke="#8B1D18" stroke-width="2"></path>
+    <!-- bell clapper / ring loop -->
+    <circle cx="50" cy="92" r="3.5" fill="#ff4a40"></circle>
+    <!-- clapper hanger -->
+    <line x1="50" y1="92" x2="50" y2="125" stroke="#8B1D18" stroke-width="1.5"></line>
+    <!-- paper slip (tanzaku) -->
+    <rect x="42" y="125" width="16" height="55" rx="1.5" fill="#8B1D18" opacity="0.85"></rect>
+    <!-- bell design / tanzaku string details -->
+    <line x1="50" y1="135" x2="50" y2="170" stroke="#ff4a40" stroke-width="1.2" stroke-dasharray="2 4"></line>
+  </svg>
+</div>
+
+<script>
+  import { getMusicCue, type SoundscapeId } from "../../../data/kusabi/audio-cues";
+  import { kusabiAudio } from "../../../scripts/kusabi/audio-state";
+
+  type AudioStatus = "idle" | "loading" | "error";
+  let audioStatus: AudioStatus = "idle";
+
+  const FONT_SIZE_KEY = "kusabi:settings:font-size";
+  const LINE_HEIGHT_KEY = "kusabi:settings:line-height";
+  const PALETTE_KEY = "kusabi:settings:palette";
+  const MOTION_KEY = "kusabi:motion:backdrop";
+
+  const getElements = () => {
+    const root = document.getElementById("kusabi-tape-panel");
+    const corner = document.querySelector("[data-kusabi-bell]");
+    const topbarTrigger = document.querySelector("[data-tape-panel-trigger]");
+
+    return {
+      root,
+      corner,
+      topbarTrigger,
+      close: root?.querySelector("[data-tape-close]"),
+      play: root?.querySelector("[data-tape-play]"),
+      prev: root?.querySelector("[data-tape-prev]"),
+      next: root?.querySelector("[data-tape-next]"),
+      vol: root?.querySelector("[data-tape-volume]"),
+      volVal: root?.querySelector("[data-music-volume-val]"),
+      cueTitle: root?.querySelector("[data-tape-cue-title]"),
+      cueNum: root?.querySelector("[data-tape-cue-num]"),
+      status: root?.querySelector("[data-tape-status]"),
+      rainToggle: root?.querySelector("#kusabi-rain-effect-toggle"),
+      soundscapeToggles: root?.querySelectorAll("[data-soundscape-toggle]"),
+      soundscapeSliders: root?.querySelectorAll("[data-soundscape-volume]"),
+      paletteBtns: root?.querySelectorAll("[data-setting-palette]"),
+      sizeBtns: root?.querySelectorAll("[data-setting-size]"),
+      heightBtns: root?.querySelectorAll("[data-setting-height]"),
+    };
+  };
+
+  // Get current page music cue
+  const currentPageCue = () => {
+    const article = document.querySelector("article.kusabi-prose");
+    
+    // We can mapping acts or chapters to their cues:
+    // Prologue (0) -> rain-hills
+    // If not found, check dataset.audioCue
+    const dataCue = article instanceof HTMLElement ? article.getAttribute("data-audio-cue") : undefined;
+    if (dataCue) return dataCue;
+
+    const chNum = Number(article instanceof HTMLElement ? article.dataset.chapter : -1);
+    if (chNum === 0) return "rain-hills";
+    if (chNum >= 1 && chNum <= 3) return "bells-fog";
+    if (chNum >= 4 && chNum <= 7) return "audio-room";
+    if (chNum >= 8 && chNum <= 11) return "bride-wedding";
+    if (chNum === 12) return "go-home";
+
+    return "rain-hills";
+  };
+
+  const applyCueFromPage = () => {
+    kusabiAudio.setCue(currentPageCue());
+  };
+
+  const syncState = () => {
+    const els = getElements();
+    const enabled = kusabiAudio.isEnabled();
+    const currentCue = getMusicCue(kusabiAudio.getCurrentCue());
+
+    els.root?.setAttribute("data-playing", String(enabled));
+    els.root?.setAttribute("data-audio-status", audioStatus);
+    els.corner?.setAttribute("data-playing", String(enabled));
+
+    // Play/Pause icon toggling
+    if (els.play instanceof HTMLButtonElement) {
+      const playIcon = els.play.querySelector(".icon-play") as HTMLElement;
+      const pauseIcon = els.play.querySelector(".icon-pause") as HTMLElement;
+      if (playIcon && pauseIcon) {
+        if (enabled) {
+          playIcon.style.display = "none";
+          pauseIcon.style.display = "block";
+        } else {
+          playIcon.style.display = "block";
+          pauseIcon.style.display = "none";
+        }
+      }
+    }
+
+    if (els.cueTitle) {
+      els.cueTitle.textContent = currentCue.title;
+    }
+    if (els.cueNum) {
+      els.cueNum.textContent = `A-${currentCue.number}`;
+    }
+
+    if (els.status) {
+      if (audioStatus === "loading") {
+        els.status.textContent = "LOADING...";
+        els.status.parentElement?.classList.add("playing-pulse");
+      } else if (audioStatus === "error") {
+        els.status.textContent = "ERROR";
+        els.status.parentElement?.classList.remove("playing-pulse");
+      } else if (enabled) {
+        els.status.textContent = "PLAYING";
+        els.status.parentElement?.classList.add("playing-pulse");
+      } else {
+        els.status.textContent = "READY";
+        els.status.parentElement?.classList.remove("playing-pulse");
+      }
+    }
+
+    if (els.vol instanceof HTMLInputElement) {
+      const volVal = kusabiAudio.getVolume();
+      els.vol.value = String(volVal);
+      if (els.volVal) {
+        els.volVal.textContent = `${Math.round(volVal * 100)}%`;
+      }
+    }
+
+    els.soundscapeToggles?.forEach((toggle) => {
+      if (toggle instanceof HTMLInputElement) {
+        const id = toggle.dataset.soundscapeToggle;
+        if (id) {
+          toggle.checked = kusabiAudio.isSoundscapeEnabled(id as SoundscapeId);
+        }
+      }
+    });
+
+    els.soundscapeSliders?.forEach((slider) => {
+      if (slider instanceof HTMLInputElement) {
+        const id = slider.dataset.soundscapeVolume;
+        if (id) {
+          slider.value = String(kusabiAudio.getSoundscapeVolume(id as SoundscapeId));
+        }
+      }
+    });
+
+    // Sync visual toggles
+    const activePalette = localStorage.getItem(PALETTE_KEY) || "abyssal";
+    els.paletteBtns?.forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-setting-palette") === activePalette);
+    });
+
+    const activeSize = localStorage.getItem(FONT_SIZE_KEY) || "normal";
+    els.sizeBtns?.forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-setting-size") === activeSize);
+    });
+
+    const activeHeight = localStorage.getItem(LINE_HEIGHT_KEY) || "normal";
+    els.heightBtns?.forEach((btn) => {
+      btn.classList.toggle("active", btn.getAttribute("data-setting-height") === activeHeight);
+    });
+
+    if (els.rainToggle instanceof HTMLInputElement) {
+      els.rainToggle.checked = localStorage.getItem(MOTION_KEY) !== "false";
+    }
+  };
+
+  const setPanelOpen = (open: boolean) => {
+    const els = getElements();
+    els.root?.setAttribute("data-open", String(open));
+    els.root?.toggleAttribute("inert", !open);
+
+    [els.topbarTrigger].forEach((trig) => {
+      if (trig instanceof HTMLElement) {
+        trig.setAttribute("data-open", String(open));
+        trig.setAttribute("aria-expanded", String(open));
+      }
+    });
+  };
+
+  // Applying Settings to DOM
+  const applySettingsToDOM = () => {
+    const size = localStorage.getItem(FONT_SIZE_KEY) || "normal";
+    const height = localStorage.getItem(LINE_HEIGHT_KEY) || "normal";
+    const palette = localStorage.getItem(PALETTE_KEY) || "abyssal";
+
+    const body = document.body;
+
+    // Apply Palette
+    body.setAttribute("data-palette", palette);
+
+    // Apply Font Size
+    if (size === "small") {
+      body.style.setProperty("--reading-size", "15px");
+    } else if (size === "normal") {
+      body.style.setProperty("--reading-size", "18px");
+    } else if (size === "large") {
+      body.style.setProperty("--reading-size", "22px");
+    } else if (size === "xl") {
+      body.style.setProperty("--reading-size", "26px");
+    }
+
+    // Apply Line Height
+    if (height === "normal") {
+      body.style.setProperty("--line-height-body", "1.85");
+    } else if (height === "loose") {
+      body.style.setProperty("--line-height-body", "2.25");
+    }
+  };
+
+  const bindPlayer = () => {
+    const els = getElements();
+    if (!els.root) return;
+
+    kusabiAudio.init();
+    applyCueFromPage();
+    applySettingsToDOM();
+    syncState();
+
+    if (els.root.dataset.bound === "true") return;
+    els.root.dataset.bound = "true";
+
+    const toggleOpen = () => {
+      const isOpen = els.root?.getAttribute("data-open") === "true";
+      setPanelOpen(!isOpen);
+    };
+
+    els.topbarTrigger?.addEventListener("click", toggleOpen);
+    els.close?.addEventListener("click", () => setPanelOpen(false));
+
+    // Keyboard dismissal
+    window.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && els.root?.getAttribute("data-open") === "true") {
+        setPanelOpen(false);
+      }
+    });
+
+    // Play/Pause
+    els.play?.addEventListener("click", async () => {
+      if (kusabiAudio.isEnabled()) {
+        audioStatus = "idle";
+        kusabiAudio.disable();
+        syncState();
+        return;
+      }
+
+      applyCueFromPage();
+      audioStatus = "loading";
+      syncState();
+      const ok = await kusabiAudio.enable();
+      audioStatus = ok ? "idle" : "error";
+      syncState();
+    });
+
+    // Prev / Next
+    els.prev?.addEventListener("click", () => {
+      kusabiAudio.previousCue();
+      syncState();
+    });
+    els.next?.addEventListener("click", () => {
+      kusabiAudio.nextCue();
+      syncState();
+    });
+
+    // Volume Slider
+    els.vol?.addEventListener("input", (e) => {
+      const val = Number((e.target as HTMLInputElement).value);
+      kusabiAudio.setVolume(val);
+      if (els.volVal) {
+        els.volVal.textContent = `${Math.round(val * 100)}%`;
+      }
+    });
+
+    // Soundscapes Toggles
+    els.soundscapeToggles?.forEach((toggle) => {
+      toggle.addEventListener("change", (e) => {
+        const target = e.target as HTMLInputElement;
+        const id = target.dataset.soundscapeToggle;
+        if (id) {
+          kusabiAudio.setSoundscapeEnabled(id, target.checked);
+        }
+      });
+    });
+
+    // Soundscapes Sliders
+    els.soundscapeSliders?.forEach((slider) => {
+      slider.addEventListener("input", (e) => {
+        const target = e.target as HTMLInputElement;
+        const id = target.dataset.soundscapeVolume;
+        if (id) {
+          kusabiAudio.setSoundscapeVolume(id, Number(target.value));
+        }
+      });
+    });
+
+    // Reading Settings - Palette
+    els.paletteBtns?.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const pal = btn.getAttribute("data-setting-palette");
+        if (pal) {
+          localStorage.setItem(PALETTE_KEY, pal);
+          applySettingsToDOM();
+          syncState();
+        }
+      });
+    });
+
+    // Reading Settings - Font Size
+    els.sizeBtns?.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const size = btn.getAttribute("data-setting-size");
+        if (size) {
+          localStorage.setItem(FONT_SIZE_KEY, size);
+          applySettingsToDOM();
+          syncState();
+        }
+      });
+    });
+
+    // Reading Settings - Line Height
+    els.heightBtns?.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const h = btn.getAttribute("data-setting-height");
+        if (h) {
+          localStorage.setItem(LINE_HEIGHT_KEY, h);
+          applySettingsToDOM();
+          syncState();
+        }
+      });
+    });
+
+    // Rain effect toggle
+    els.rainToggle?.addEventListener("change", (e) => {
+      const enabled = (e.target as HTMLInputElement).checked;
+      localStorage.setItem(MOTION_KEY, String(enabled));
+      window.dispatchEvent(new CustomEvent("kusabi:motion-change", { detail: enabled }));
+    });
+  };
+
+  // Astro Page Transitions Lifecycle
+  document.addEventListener("astro:page-load", bindPlayer);
+  document.addEventListener("astro:after-swap", applySettingsToDOM);
+  bindPlayer();
+</script>
+
+<style>
+  /* Base settings drawer styling */
+  .tape-player-panel {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 99;
+    width: 360px;
+    max-width: 100vw;
+    background-color: #160F0F;
+    border-left: 1px solid rgba(229, 57, 53, 0.25);
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.6);
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 24px;
+    transform: translateX(100%);
+    transition: transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
+    color: #ECE6E6;
+    font-family: "IBM Plex Sans Thai Looped", sans-serif;
+  }
+
+  .tape-player-panel[data-open="true"] {
+    transform: translateX(0);
+  }
+
+  /* Header details */
+  .tape-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid rgba(229, 57, 53, 0.4);
+    padding-bottom: 12px;
+    margin-bottom: 20px;
+  }
+
+  .tape-title-block {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .tape-brand {
+    font-family: "Crimson Pro", serif;
+    font-weight: 700;
+    font-size: 1.25rem;
+    color: #ff4a40;
+    letter-spacing: 0.05em;
+  }
+
+  .tape-model {
+    font-size: 0.65rem;
+    font-family: monospace;
+    color: #A69C9C;
+    letter-spacing: 0.1em;
+  }
+
+  .tape-close-btn {
+    background: none;
+    border: none;
+    color: #A69C9C;
+    font-size: 1.25rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    transition: color 0.2s;
+  }
+
+  .tape-close-btn:hover {
+    color: #ff4a40;
+  }
+
+  /* Cassette Tape CSS Art */
+  .cassette-container {
+    background: #0E0A0A;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 8px;
+    padding: 16px;
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  .cassette-shell {
+    width: 230px;
+    height: 136px;
+    background: #2a1c1c;
+    border: 4px solid #140d0d;
+    border-radius: 6px;
+    position: relative;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    padding: 8px;
+  }
+
+  .cassette-label {
+    flex: 1;
+    background: #ECE6E6;
+    color: #0E0A0A;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 6px 10px;
+    font-size: 0.7rem;
+    font-weight: bold;
+    overflow: hidden;
+  }
+
+  .cassette-label-top {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px solid #0E0A0A;
+    padding-bottom: 2px;
+    font-family: monospace;
+  }
+
+  .cassette-window {
+    height: 40px;
+    background: #0E0A0A;
+    border-radius: 4px;
+    margin: 4px 0;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    position: relative;
+    border: 2px solid #5d4f4f;
+  }
+
+  .cassette-window::after {
+    content: "";
+    position: absolute;
+    width: 60px;
+    height: 4px;
+    background: #2b2222;
+    top: 14px;
+  }
+
+  .cassette-reel {
+    width: 22px;
+    height: 22px;
+    background: #d4cfcf;
+    border-radius: 50%;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+  }
+
+  .reel-spokes {
+    width: 8px;
+    height: 8px;
+    background: #0E0A0A;
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .reel-spokes::before,
+  .reel-spokes::after {
+    content: "";
+    position: absolute;
+    background: #d4cfcf;
+    width: 2px;
+    height: 12px;
+    left: 3px;
+    top: -2px;
+  }
+
+  .reel-spokes::after {
+    transform: rotate(90deg);
+    left: 3px;
+    top: -2px;
+  }
+
+  /* Spin reel animation when playing */
+  @keyframes spin-reel {
+    to { transform: rotate(360deg); }
+  }
+
+  .tape-player-panel[data-playing="true"] .cassette-reel {
+    animation: spin-reel 8s linear infinite;
+  }
+
+  .cassette-cue-title {
+    text-align: center;
+    font-family: "IBM Plex Sans Thai Looped", sans-serif;
+    font-size: 0.72rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: #8B1D18;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    padding-top: 2px;
+  }
+
+  .cassette-holes {
+    height: 10px;
+    display: flex;
+    justify-content: space-between;
+    padding: 0 30px;
+    margin-top: 4px;
+  }
+
+  .cassette-holes .hole {
+    width: 6px;
+    height: 6px;
+    background: #140d0d;
+    border-radius: 50%;
+  }
+
+  /* Controls Section */
+  .tape-status-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+    background: #0E0A0A;
+    padding: 6px 12px;
+    border-radius: 4px;
+    border: 1px solid rgba(229, 57, 53, 0.15);
+  }
+
+  .tape-led-indicator {
+    width: 8px;
+    height: 8px;
+    background: #331515;
+    border-radius: 50%;
+    transition: background-color 0.3s, box-shadow 0.3s;
+  }
+
+  .playing-pulse .tape-led-indicator {
+    background: #ff4a40;
+    box-shadow: 0 0 8px #ff4a40;
+  }
+
+  .tape-status-text {
+    font-family: monospace;
+    font-size: 0.8rem;
+    letter-spacing: 0.15em;
+    color: #A69C9C;
+  }
+
+  .playing-pulse .tape-status-text {
+    color: #ECE6E6;
+  }
+
+  .tape-deck-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+
+  .deck-btn {
+    background: linear-gradient(180deg, #443535, #221818);
+    border: 1px solid #5d4a4a;
+    border-radius: 4px;
+    color: #ECE6E6;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 10px;
+    box-shadow: 0 3px 5px rgba(0,0,0,0.3);
+    transition: background 0.1s, transform 0.1s, box-shadow 0.1s;
+  }
+
+  .deck-btn:active {
+    background: #221818;
+    transform: translateY(2px);
+    box-shadow: 0 1px 2px rgba(0,0,0,0.3);
+  }
+
+  .deck-btn svg {
+    width: 18px;
+    height: 18px;
+  }
+
+  .btn-play {
+    width: 60px;
+    height: 44px;
+    background: linear-gradient(180deg, #8B1D18, #4d100d);
+    border-color: #a82e29;
+  }
+
+  .btn-play:hover {
+    background: linear-gradient(180deg, #b02721, #6b1410);
+  }
+
+  .btn-play:active {
+    background: #4d100d;
+  }
+
+  /* Sliders and fields styling */
+  .tape-slider-group {
+    margin-bottom: 20px;
+  }
+
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.85rem;
+    color: #A69C9C;
+    margin-bottom: 8px;
+  }
+
+  .slider-val {
+    font-family: monospace;
+    color: #ff4a40;
+  }
+
+  .tape-slider {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 6px;
+    background: #0E0A0A;
+    border-radius: 3px;
+    outline: none;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .tape-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #ff4a40;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    transition: background 0.2s;
+  }
+
+  .tape-slider::-webkit-slider-thumb:hover {
+    background: #ff736b;
+  }
+
+  /* Ambient Soundscapes List */
+  .soundscapes-header {
+    font-family: "Crimson Pro", serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ff4a40;
+    border-bottom: 1px solid rgba(229, 57, 53, 0.15);
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+  }
+
+  .soundscapes-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+
+  .soundscape-control-row {
+    background: rgba(0,0,0,0.15);
+    padding: 10px;
+    border-radius: 6px;
+    border: 1px solid rgba(255,255,255,0.02);
+  }
+
+  .ss-toggle-block {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .ss-label {
+    font-size: 0.8rem;
+    color: #ECE6E6;
+  }
+
+  .ss-volume-slider {
+    height: 4px;
+  }
+
+  /* Reading settings section */
+  .reading-settings-section {
+    border-top: 2px dashed rgba(229, 57, 53, 0.2);
+    padding-top: 20px;
+  }
+
+  .settings-header {
+    font-family: "Crimson Pro", serif;
+    font-size: 1.05rem;
+    font-weight: 600;
+    color: #ff4a40;
+    margin-bottom: 16px;
+  }
+
+  .setting-row {
+    margin-bottom: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .setting-row.flex-row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .setting-label {
+    font-size: 0.82rem;
+    color: #A69C9C;
+  }
+
+  /* Custom switch */
+  .tape-switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+    min-width: 40px;
+  }
+
+  .tape-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .switch-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #0E0A0A;
+    border: 1px solid rgba(255,255,255,0.08);
+    transition: .3s;
+    border-radius: 10px;
+  }
+
+  .switch-slider:before {
+    position: absolute;
+    content: "";
+    height: 14px;
+    width: 14px;
+    left: 2px;
+    bottom: 2px;
+    background-color: #A69C9C;
+    transition: .3s;
+    border-radius: 50%;
+  }
+
+  input:checked + .switch-slider {
+    background-color: rgba(229, 57, 53, 0.4);
+    border-color: #ff4a40;
+  }
+
+  input:checked + .switch-slider:before {
+    transform: translateX(20px);
+    background-color: #ff4a40;
+  }
+
+  /* Palette Buttons */
+  .palette-buttons {
+    display: flex;
+    gap: 8px;
+  }
+
+  .palette-btn {
+    flex: 1;
+    background: #0E0A0A;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 4px;
+    padding: 6px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #A69C9C;
+    font-size: 0.72rem;
+    justify-content: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+
+  .palette-btn:hover {
+    border-color: rgba(229, 57, 53, 0.4);
+    color: #ECE6E6;
+  }
+
+  .palette-btn.active {
+    border-color: #ff4a40;
+    color: #ECE6E6;
+    background: rgba(229, 57, 53, 0.08);
+  }
+
+  .color-preview {
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    border: 1px solid transparent;
+  }
+
+  /* Size & Spacing Buttons */
+  .size-buttons,
+  .height-buttons {
+    display: flex;
+    background: #0E0A0A;
+    border-radius: 4px;
+    padding: 2px;
+    border: 1px solid rgba(255,255,255,0.05);
+  }
+
+  .size-btn,
+  .height-btn {
+    flex: 1;
+    background: none;
+    border: none;
+    color: #A69C9C;
+    padding: 6px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: background 0.2s, color 0.2s;
+  }
+
+  .size-btn:hover,
+  .height-btn:hover {
+    color: #ECE6E6;
+  }
+
+  .size-btn.active,
+  .height-btn.active {
+    background: #8B1D18;
+    color: #FFFFFF;
+    font-weight: bold;
+  }
+
+  /* Corner Floating Decorative Prop (Hanging Brass Bell / Wind Chime) */
+  .kusabi-corner-prop {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 90;
+    pointer-events: none;
+    width: 80px;
+    height: 160px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform-origin: top center;
+    animation: kusabi-bell-sway 6s ease-in-out infinite;
+  }
+
+  .kusabi-bell-svg {
+    display: block;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
+  }
+
+  @keyframes kusabi-bell-sway {
+    0%, 100% { transform: rotate(-5deg); }
+    50% { transform: rotate(5deg); }
+  }
+
+  /* Increase sway speed slightly when playing audio (wind/rain) */
+  .kusabi-corner-prop[data-playing="true"] {
+    animation: kusabi-bell-sway-active 3.5s ease-in-out infinite;
+  }
+
+  @keyframes kusabi-bell-sway-active {
+    0%, 100% { transform: rotate(-8deg); }
+    50% { transform: rotate(8deg); }
+  }
+
+  /* Hide floating corner trigger on small screens if needed, or when topbar is available */
+  @media (max-width: 760px) {
+    .kusabi-corner-prop {
+      bottom: 12px;
+      right: 12px;
+      width: 60px;
+      height: 120px;
+    }
+  }
+
+  /* Reading settings override styles when applied */
+  :global(body[data-palette="abyssal"]) {
+    --kusabi-paper: #0E0A0A !important;
+    --kusabi-paper-2: #141010 !important;
+    --kusabi-ink: #ECE6E6 !important;
+    --kusabi-ink-dim: #A69C9C !important;
+    --kusabi-line: rgba(229, 57, 53, 0.2) !important;
+  }
+
+  :global(body[data-palette="crimson"]) {
+    --kusabi-paper: #1a0f0f !important;
+    --kusabi-paper-2: #241414 !important;
+    --kusabi-ink: #ECE6E6 !important;
+    --kusabi-ink-dim: #cca8a8 !important;
+    --kusabi-line: rgba(229, 57, 53, 0.35) !important;
+  }
+
+  :global(body[data-palette="velvet"]) {
+    --kusabi-paper: #0c0d0e !important;
+    --kusabi-paper-2: #141618 !important;
+    --kusabi-ink: #dce1e6 !important;
+    --kusabi-ink-dim: #9aa2ab !important;
+    --kusabi-line: rgba(229, 57, 53, 0.15) !important;
+  }
+</style>

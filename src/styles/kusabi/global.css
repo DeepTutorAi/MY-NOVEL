@@ -1,0 +1,399 @@
+@import "tailwindcss";
+@config "../../../tailwind.config.ts";
+@import "@fontsource/ibm-plex-sans-thai-looped/400.css";
+@import "@fontsource/ibm-plex-sans-thai-looped/700.css";
+@import "@fontsource/crimson-pro/400.css";
+@import "@fontsource/crimson-pro/600.css";
+@import "@fontsource/jetbrains-mono/400.css";
+
+:root {
+  --kusabi-accent: #E53935;
+  --kusabi-accent-glow: rgba(229, 57, 53, 0.4);
+  --kusabi-accent-glow-bg: rgba(229, 57, 53, 0.15);
+  --kusabi-paper: #0E0A0A;
+  --kusabi-paper-2: #160F0F;
+  --kusabi-ink: #ECE6E6;
+  --kusabi-ink-dim: #A69C9C;
+  --kusabi-line: rgba(229, 57, 53, 0.2);
+
+  --font-thai: "IBM Plex Sans Thai Looped", sans-serif;
+  --font-serif: "Crimson Pro", Georgia, serif;
+  --font-mono: "JetBrains Mono", monospace;
+
+  --measure: clamp(58ch, 50vw, 68ch);
+  --reading-size: clamp(17px, calc(1.05vw + 14px), 20px);
+  --line-height-body: 1.85;
+  --line-height-heading: 1.3;
+  --kusabi-topbar-height: 48px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--kusabi-paper);
+  color-scheme: dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--kusabi-paper);
+  color: var(--kusabi-ink);
+  font-family: var(--font-thai);
+  font-size: var(--reading-size);
+  line-height: var(--line-height-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.kusabi-topbar {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: var(--kusabi-topbar-height);
+  padding: 0 20px;
+  border-bottom: 1px solid var(--kusabi-line);
+  background: rgba(14, 10, 10, 0.85);
+  backdrop-filter: blur(12px);
+}
+
+.kusabi-topbar-mark {
+  color: var(--kusabi-accent) !important;
+  font-family: var(--font-serif);
+  font-weight: 700;
+  font-size: 1.15rem;
+  letter-spacing: 0.1em;
+  text-decoration: none;
+}
+
+.kusabi-topbar-link {
+  color: var(--kusabi-ink-dim) !important;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  text-decoration: none;
+  transition: color 150ms;
+}
+
+.kusabi-topbar-link:hover {
+  color: var(--kusabi-accent) !important;
+}
+
+/* Hero Banner on TOC Page */
+.kusabi-hero-banner {
+  position: relative;
+  width: 100%;
+  height: 380px;
+  background-image: url("/assets/kusabi/images/home-hero.png");
+  background-size: cover;
+  background-position: center 35%;
+  border-bottom: 1px solid rgba(229, 57, 53, 0.25);
+  display: flex;
+  align-items: flex-end;
+  padding: 0 0 40px;
+}
+
+.kusabi-hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(14, 10, 10, 0.1) 0%, rgba(14, 10, 10, 0.7) 65%, var(--kusabi-paper) 100%);
+  z-index: 1;
+}
+
+.kusabi-hero-content {
+  position: relative;
+  z-index: 2;
+  width: min(800px, calc(100% - 32px));
+  margin: 0 auto;
+  text-align: center;
+}
+
+/* Resume reading Widget */
+.kusabi-resume-card {
+  margin: 1.5rem auto 2.5rem;
+  padding: 20px 24px;
+  background: var(--kusabi-paper-2);
+  border: 1px solid var(--kusabi-accent);
+  border-radius: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 500px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  animation: fadeIn 0.4s ease-out;
+}
+
+.kusabi-resume-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  color: var(--kusabi-accent) !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  display: block;
+}
+
+.kusabi-resume-title {
+  font-family: var(--font-serif);
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--kusabi-ink) !important;
+}
+
+.kusabi-resume-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 4px;
+}
+
+.kusabi-resume-btn {
+  display: inline-block;
+  padding: 8px 20px;
+  background: var(--kusabi-accent);
+  color: #fff !important;
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 600;
+  border-radius: 4px;
+  transition: background 200ms;
+}
+
+.kusabi-resume-btn:hover {
+  background: #a1231d;
+}
+
+.kusabi-resume-clear-btn {
+  background: transparent;
+  color: var(--kusabi-ink-dim) !important;
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+  padding: 8px 12px;
+  transition: color 200ms;
+}
+
+.kusabi-resume-clear-btn:hover {
+  color: var(--kusabi-accent) !important;
+}
+
+/* Recent Glow animation (3 seconds) */
+@keyframes recent-glow {
+  0% {
+    box-shadow: 0 0 0 2px var(--kusabi-accent), 0 0 15px var(--kusabi-accent-glow);
+    background-color: var(--kusabi-accent-glow-bg);
+  }
+  100% {
+    box-shadow: 0 0 0 0 transparent, 0 0 0 transparent;
+    background-color: transparent;
+  }
+}
+
+.recent-read-glow {
+  animation: recent-glow 3000ms ease-out 1;
+}
+
+/* TOC & Chapter Styles */
+.kusabi-toc-container,
+.kusabi-reader-container {
+  position: relative;
+  z-index: 5;
+  width: min(800px, calc(100% - 32px));
+  margin: 0 auto;
+  padding: 40px 0 80px;
+}
+
+.chapter-shell {
+  position: relative;
+  z-index: 6;
+  min-height: 100vh;
+  background: transparent;
+}
+
+.kusabi-title-section {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.kusabi-title {
+  font-family: var(--font-serif);
+  color: var(--kusabi-accent) !important;
+  font-size: clamp(2.2rem, 6vw, 3.4rem);
+  font-weight: 700;
+  margin: 0 0 0.75rem;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+}
+
+.kusabi-subtitle {
+  color: var(--kusabi-ink-dim) !important;
+  font-size: 1.05rem;
+  max-width: 55ch;
+  margin: 0 auto;
+  line-height: 1.6;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8);
+}
+
+.kusabi-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.kusabi-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  background: var(--kusabi-paper-2);
+  border: 1px solid rgba(229, 57, 53, 0.15);
+  border-radius: 6px;
+  text-decoration: none;
+  color: var(--kusabi-ink) !important;
+  transition: border-color 200ms, transform 200ms;
+}
+
+.kusabi-item:hover {
+  border-color: var(--kusabi-accent);
+  transform: translateX(4px);
+}
+
+.kusabi-item-title {
+  font-family: var(--font-serif);
+  font-size: 1.15rem;
+  color: var(--kusabi-ink) !important;
+}
+
+.kusabi-item:hover .kusabi-item-title {
+  color: #ff4a40 !important; /* Brighter red on hover */
+}
+
+.kusabi-item-meta {
+  font-size: 0.85rem;
+  color: var(--kusabi-ink-dim) !important;
+  font-family: var(--font-mono);
+}
+
+/* Reader Typography and Color Overrides */
+.kusabi-prose {
+  font-family: var(--font-thai) !important;
+  font-size: var(--reading-size) !important;
+  line-height: var(--line-height-body) !important;
+  max-width: var(--measure) !important;
+  margin: 0 auto !important;
+  color: var(--kusabi-ink) !important;
+}
+
+.kusabi-prose p {
+  margin-block: 1.5em !important;
+  text-align: justify !important;
+  color: var(--kusabi-ink) !important;
+}
+
+.kusabi-prose span,
+.kusabi-prose strong,
+.kusabi-prose em,
+.kusabi-prose li {
+  color: var(--kusabi-ink) !important;
+}
+
+/* Explicit fallback for anything inside main content */
+.kusabi-reader-container *,
+.kusabi-toc-container * {
+  color: var(--kusabi-ink);
+}
+
+.kusabi-reader-nav {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--kusabi-line);
+}
+
+.kusabi-nav-button {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+  text-decoration: none;
+  color: var(--kusabi-ink-dim) !important;
+  transition: color 200ms;
+}
+
+.kusabi-nav-button:hover {
+  color: var(--kusabi-accent) !important;
+}
+
+.kusabi-nav-button:hover * {
+  color: var(--kusabi-accent) !important;
+}
+
+.kusabi-nav-label {
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--kusabi-ink-dim) !important;
+}
+
+.kusabi-nav-title {
+  font-family: var(--font-serif);
+  font-size: 1.1rem;
+  color: var(--kusabi-ink) !important;
+}
+
+/* Extra sections portal link design */
+.kusabi-extra-card {
+  margin-top: 2.5rem;
+  padding: 24px;
+  border: 1px dashed var(--kusabi-accent);
+  border-radius: 8px;
+  background: rgba(229, 57, 53, 0.03);
+  text-align: center;
+}
+
+.kusabi-extra-card h3 {
+  font-family: var(--font-serif);
+  color: var(--kusabi-accent) !important;
+  font-size: 1.4rem;
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+.kusabi-extra-card p {
+  font-size: 0.95rem;
+  color: var(--kusabi-ink-dim) !important;
+  margin-bottom: 1.25rem;
+}
+
+.kusabi-extra-btn {
+  display: inline-block;
+  padding: 10px 24px;
+  background: var(--kusabi-accent);
+  color: #fff !important;
+  border-radius: 4px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: background 200ms;
+}
+
+.kusabi-extra-btn:hover {
+  background: #a1231d;
+}
+
+.kusabi-extra-btn.is-locked {
+  background: #2a1b1b;
+  color: rgba(255,255,255,0.3) !important;
+  cursor: not-allowed;
+  border: 1px solid rgba(255,255,255,0.05);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}

@@ -4,13 +4,27 @@ import ResumeCard from "../components/_shared/ResumeCard.astro";
 import { NOVELS } from "../data/_novels";
 import HubLayout from "../layouts/HubLayout.astro";
 import ConstellationBackground from "../components/_shared/ConstellationBackground.astro";
+import MothlightBackground from "../components/_shared/MothlightBackground.astro";
+import FireflyBackground from "../components/_shared/FireflyBackground.astro";
+import PagesStarsBackground from "../components/_shared/PagesStarsBackground.astro";
 ---
 
 <HubLayout
   title="Pii-chan Dechalert — Fiction Hub"
   description="พื้นที่รวมผลงานนิยายของ Pii-chan Dechalert"
 >
-  <ConstellationBackground />
+  <div id="constellation-bg-container" style="display: none;">
+    <ConstellationBackground />
+  </div>
+  <div id="mothlight-bg-container" style="display: none;">
+    <MothlightBackground />
+  </div>
+  <div id="firefly-bg-container" style="display: none;">
+    <FireflyBackground />
+  </div>
+  <div id="pages-stars-bg-container" style="display: none;">
+    <PagesStarsBackground />
+  </div>
   <main class="hub-shell" aria-labelledby="hub-title">
     <section class="hub-hero">
       <div class="hub-title-group">
@@ -115,6 +129,13 @@ import ConstellationBackground from "../components/_shared/ConstellationBackgrou
       </div>
     </div>
   </div>
+
+  <!-- FLOATING THEME TOGGLE BUTTON FOR TESTING
+  <button type="button" class="hub-theme-toggle-btn" data-theme-toggle-btn aria-label="สลับธีมพื้นหลัง">
+    <span class="theme-btn-icon">🌌</span>
+    <span class="theme-btn-text">สลับธีม (Test)</span>
+  </button>
+  -->
 </HubLayout>
 
 <style>
@@ -485,6 +506,60 @@ import ConstellationBackground from "../components/_shared/ConstellationBackgrou
       max-width: none;
     }
   }
+
+  /* Body color overrides matching the theme */
+  :global(.theme-constellation) {
+    --paper-deep: #0a0908 !important;
+  }
+  :global(.theme-mothlight) {
+    --paper-deep: #050409 !important;
+  }
+  :global(.theme-firefly) {
+    --paper-deep: #050906 !important;
+  }
+  :global(.theme-pages-stars) {
+    --paper-deep: #080710 !important;
+  }
+
+  /* Floating Theme Toggle Button */
+  .hub-theme-toggle-btn {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(24, 20, 17, 0.75);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--hub-line);
+    color: var(--hub-ink);
+    padding: 10px 16px;
+    border-radius: 9999px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+    transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
+  }
+  .hub-theme-toggle-btn:hover {
+    background: rgba(238, 232, 221, 0.1);
+    border-color: var(--hub-accent);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
+  }
+  .hub-theme-toggle-btn:active {
+    transform: translateY(0);
+  }
+  .theme-btn-icon {
+    font-size: 1.1rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .theme-btn-text {
+    font-weight: 500;
+    letter-spacing: 0.02em;
+  }
 </style>
 
 <script is:inline>
@@ -809,6 +884,138 @@ import ConstellationBackground from "../components/_shared/ConstellationBackgrou
 
     init();
     document.addEventListener('astro:page-load', init);
+  })();
+</script>
+
+<script is:inline>
+  (() => {
+    const OVERRIDE_KEY = "piichan-novels:theme-override";
+
+    function getActiveTheme() {
+      const override = localStorage.getItem(OVERRIDE_KEY);
+      if (override) {
+        return override;
+      }
+      try {
+        const now = new Date();
+        const referenceMonday = new Date("2026-01-05T07:00:00+07:00");
+        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+        const diffMs = now.getTime() - referenceMonday.getTime();
+        const weeksElapsed = Math.floor(diffMs / msPerWeek);
+        
+        const themes = ["constellation", "mothlight", "firefly", "pages-stars"];
+        return themes[((weeksElapsed % themes.length) + themes.length) % themes.length];
+      } catch (e) {
+        return "constellation";
+      }
+    }
+
+    function applyTheme() {
+      const theme = getActiveTheme();
+      const constellationBg = document.getElementById("constellation-bg-container");
+      const mothlightBg = document.getElementById("mothlight-bg-container");
+      const fireflyBg = document.getElementById("firefly-bg-container");
+      const pagesStarsBg = document.getElementById("pages-stars-bg-container");
+      const toggleBtnText = document.querySelector(".hub-theme-toggle-btn .theme-btn-text");
+      const toggleBtnIcon = document.querySelector(".hub-theme-toggle-btn .theme-btn-icon");
+
+      document.body.classList.remove("theme-constellation", "theme-mothlight", "theme-firefly", "theme-pages-stars");
+      document.body.classList.add(`theme-${theme}`);
+
+      const win = window;
+
+      // 1. Constellation background
+      if (theme === "constellation") {
+        if (constellationBg) constellationBg.style.display = "block";
+        if (toggleBtnText) toggleBtnText.textContent = "ธีม: กลุ่มดาว (กดสลับ)";
+        if (toggleBtnIcon) toggleBtnIcon.textContent = "🌌";
+
+        if (typeof win.__bindDynamicCityBg === "function") {
+          win.__bindDynamicCityBg();
+        }
+      } else {
+        if (constellationBg) constellationBg.style.display = "none";
+        if (typeof win.__dynamicCityBgCleanup === "function") {
+          win.__dynamicCityBgCleanup();
+        }
+        win.__dynamicCityBgInitialized = false;
+      }
+
+      // 2. Mothlight background
+      if (theme === "mothlight") {
+        if (mothlightBg) mothlightBg.style.display = "block";
+        if (toggleBtnText) toggleBtnText.textContent = "ธีม: Mothlight (กดสลับ)";
+        if (toggleBtnIcon) toggleBtnIcon.textContent = "🦋";
+
+        if (typeof win.__bindMothlightBg === "function") {
+          win.__bindMothlightBg();
+        }
+      } else {
+        if (mothlightBg) mothlightBg.style.display = "none";
+        if (typeof win.__mothlightBgCleanup === "function") {
+          win.__mothlightBgCleanup();
+        }
+        win.__mothlightBgInitialized = false;
+      }
+
+      // 3. Firefly background
+      if (theme === "firefly") {
+        if (fireflyBg) fireflyBg.style.display = "block";
+        if (toggleBtnText) toggleBtnText.textContent = "ธีม: ป่าหิ่งห้อย (กดสลับ)";
+        if (toggleBtnIcon) toggleBtnIcon.textContent = "✨";
+
+        if (typeof win.__bindFireflyBg === "function") {
+          win.__bindFireflyBg();
+        }
+      } else {
+        if (fireflyBg) fireflyBg.style.display = "none";
+        if (typeof win.__fireflyBgCleanup === "function") {
+          win.__fireflyBgCleanup();
+        }
+        win.__fireflyBgInitialized = false;
+      }
+
+      // 4. Pages into Stars background
+      if (theme === "pages-stars") {
+        if (pagesStarsBg) pagesStarsBg.style.display = "block";
+        if (toggleBtnText) toggleBtnText.textContent = "ธีม: หน้าหนังสือกลายเป็นดาว (กดสลับ)";
+        if (toggleBtnIcon) toggleBtnIcon.textContent = "📖";
+
+        if (typeof win.__bindPagesStarsBg === "function") {
+          win.__bindPagesStarsBg();
+        }
+      } else {
+        if (pagesStarsBg) pagesStarsBg.style.display = "none";
+        if (typeof win.__pagesStarsBgCleanup === "function") {
+          win.__pagesStarsBgCleanup();
+        }
+        win.__pagesStarsBgInitialized = false;
+      }
+    }
+
+    function toggleTheme() {
+      const current = getActiveTheme();
+      let next = "constellation";
+      if (current === "constellation") next = "mothlight";
+      else if (current === "mothlight") next = "firefly";
+      else if (current === "firefly") next = "pages-stars";
+      else if (current === "pages-stars") next = "constellation";
+
+      localStorage.setItem(OVERRIDE_KEY, next);
+      applyTheme();
+    }
+
+    function initBackgroundSwitcher() {
+      const toggleBtn = document.querySelector("[data-theme-toggle-btn]");
+      if (toggleBtn) {
+        toggleBtn.removeEventListener("click", toggleTheme);
+        toggleBtn.addEventListener("click", toggleTheme);
+      }
+      applyTheme();
+    }
+
+    initBackgroundSwitcher();
+    document.addEventListener("astro:page-load", initBackgroundSwitcher);
   })();
 </script>
 

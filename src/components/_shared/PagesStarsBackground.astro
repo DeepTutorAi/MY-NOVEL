@@ -1,0 +1,435 @@
+---
+// PagesStarsBackground.astro
+import { withBase } from "../../utils/base-path";
+const bgImageUrl = withBase("/assets/_shared/images/pages_into_stars.jpg");
+---
+<div class="dynamic-pages-stars-bg" style={`background-image: url('${bgImageUrl}')`}>
+  <canvas id="pages-stars-canvas"></canvas>
+</div>
+
+<style>
+  .dynamic-pages-stars-bg {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    image-rendering: pixelated;
+    transform: scale(1.03);
+    will-change: transform;
+  }
+  #pages-stars-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dynamic-pages-stars-bg {
+      transform: none !important;
+      will-change: auto;
+    }
+  }
+</style>
+
+<script>
+  interface StardustParticle {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    size: number;
+    color: number[]; // [r, g, b]
+    alpha: number;
+    baseAlpha: number;
+    phase: number;
+    twinkleSpeed: number;
+    life: number;
+    maxLife: number;
+    update: (t: number, mouseX: number, mouseY: number) => boolean;
+    draw: (ctx: CanvasRenderingContext2D) => void;
+  }
+
+  interface FloatingPage {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    width: number;
+    height: number;
+    angle: number;
+    rotationSpeed: number;
+    phase: number;
+    swaySpeed: number;
+    swayAmount: number;
+    life: number;
+    maxLife: number;
+    opacity: number;
+    update: (t: number, mouseX: number, mouseY: number, onShed: (x: number, y: number) => void) => boolean;
+    draw: (ctx: CanvasRenderingContext2D) => void;
+  }
+
+  const initPagesStarsBackground = () => {
+    const canvas = document.getElementById("pages-stars-canvas") as HTMLCanvasElement | null;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let W = window.innerWidth;
+    let H = window.innerHeight;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    const resize = () => {
+      W = window.innerWidth;
+      H = window.innerHeight;
+      canvas.width = W * dpr;
+      canvas.height = H * dpr;
+      canvas.style.width = W + "px";
+      canvas.style.height = H + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    };
+    window.addEventListener("resize", resize);
+    resize();
+
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+    // Helper functions
+    const randomBetween = (min: number, max: number) => min + Math.random() * (max - min);
+
+    const colors = {
+      gold: [238, 201, 128],    // Warm cream-gold
+      cream: [251, 247, 255],   // White cream
+      indigo: [124, 90, 200],   // Soft violet/indigo
+      amber: [214, 154, 86]     // Warm amber
+    };
+
+    const colorsList = [colors.gold, colors.cream, colors.indigo, colors.amber];
+
+    /* ---------- Stardust Particle Implementation ---------- */
+    class Stardust implements StardustParticle {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      baseVx: number;
+      baseVy: number;
+      size: number;
+      color: number[];
+      alpha: number;
+      baseAlpha: number;
+      phase: number;
+      twinkleSpeed: number;
+      life: number;
+      maxLife: number;
+
+      constructor(x: number, y: number, presetColor?: number[]) {
+        this.x = x;
+        this.y = y;
+        // Float diagonally from bottom-left to top-right (flatter angle)
+        this.baseVx = randomBetween(1.0, 2.4);
+        this.baseVy = randomBetween(-0.8, -0.4);
+        this.vx = 0;
+        this.vy = 0;
+        this.size = randomBetween(0.8, 2.5);
+        this.color = presetColor || colorsList[Math.floor(Math.random() * colorsList.length)];
+        this.baseAlpha = randomBetween(0.4, 0.85);
+        this.alpha = this.baseAlpha;
+        this.phase = randomBetween(0, Math.PI * 2);
+        this.twinkleSpeed = randomBetween(0.02, 0.08);
+        this.life = 0;
+        this.maxLife = Math.floor(randomBetween(450, 750));
+      }
+
+      update(t: number, mX: number, mY: number): boolean {
+        this.life++;
+
+        // Scatter slightly if mouse is nearby
+        if (mX !== -1000 && mY !== -1000) {
+          const dx = this.x - mX;
+          const dy = this.y - mY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 55 && dist > 0.01) {
+            const force = (55 - dist) / 55;
+            this.vx += (dx / dist) * force * 0.7;
+            this.vy += (dy / dist) * force * 0.7;
+          }
+        }
+
+        // Friction to decay extra mouse velocity
+        this.vx *= 0.9;
+        this.vy *= 0.9;
+
+        // Diagonal drift + mouse scatter displacement
+        this.x += this.baseVx + this.vx + Math.sin(t * 0.015 + this.phase) * 0.2;
+        this.y += this.baseVy + this.vy;
+
+        // Twinkling alpha wave
+        const wave = Math.sin(t * this.twinkleSpeed + this.phase) * 0.4 + 0.6;
+        this.alpha = this.baseAlpha * wave;
+
+        // Fade out near the end of life
+        if (this.life > this.maxLife - 50) {
+          const fade = (this.maxLife - this.life) / 50;
+          this.alpha *= Math.max(0, fade);
+        }
+
+        return this.life < this.maxLife && this.y > -20 && this.x < W + 20;
+      }
+
+      draw(c: CanvasRenderingContext2D) {
+        c.fillStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.alpha})`;
+        c.beginPath();
+        c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+        c.fill();
+
+        // Extra soft glow for larger particles
+        if (this.size > 1.8) {
+          c.fillStyle = `rgba(${this.color[0]}, ${this.color[1]}, ${this.color[2]}, ${this.alpha * 0.3})`;
+          c.beginPath();
+          c.arc(this.x, this.y, this.size * 3, 0, Math.PI * 2);
+          c.fill();
+        }
+      }
+    }
+
+    /* ---------- Floating Page Implementation ---------- */
+    class Page implements FloatingPage {
+      x: number;
+      y: number;
+      vx: number;
+      vy: number;
+      baseVx: number;
+      baseVy: number;
+      width: number;
+      height: number;
+      angle: number;
+      rotationSpeed: number;
+      phase: number;
+      swaySpeed: number;
+      swayAmount: number;
+      life: number;
+      maxLife: number;
+      opacity: number;
+
+      constructor() {
+        // Spawn near the magical book in the bottom-left corner
+        this.x = randomBetween(W * 0.04, W * 0.18);
+        this.y = H * 0.82 + randomBetween(0, H * 0.12);
+        
+        // Float diagonally from bottom-left to top-right (flatter angle)
+        this.baseVx = randomBetween(0.8, 1.6);
+        this.baseVy = randomBetween(-0.7, -0.3);
+        this.vx = 0;
+        this.vy = 0;
+        
+        this.width = randomBetween(12, 19);
+        this.height = this.width * randomBetween(1.2, 1.4);
+        this.angle = randomBetween(-Math.PI, Math.PI);
+        this.rotationSpeed = randomBetween(-0.015, 0.015);
+        
+        this.phase = randomBetween(0, Math.PI * 2);
+        this.swaySpeed = randomBetween(0.01, 0.03);
+        this.swayAmount = randomBetween(0.2, 0.65);
+        this.life = 0;
+        this.maxLife = Math.floor(randomBetween(350, 550));
+        this.opacity = 0;
+      }
+
+      update(t: number, mX: number, mY: number, onShed: (x: number, y: number) => void): boolean {
+        this.life++;
+
+        // Shatter if mouse collides/touches the page
+        if (mX !== -1000 && mY !== -1000) {
+          const dx = this.x - mX;
+          const dy = this.y - mY;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 42) {
+            // Shatter immediately
+            this.life = this.maxLife;
+          }
+        }
+
+        // Apply motion: diagonal drift + horizontal sway
+        this.x += this.baseVx + Math.sin(t * this.swaySpeed + this.phase) * this.swayAmount;
+        this.y += this.baseVy;
+        this.angle += this.rotationSpeed;
+
+        // Soft fade in on spawn, fade out on death
+        if (this.life < 30) {
+          this.opacity = this.life / 30;
+        } else if (this.life > this.maxLife - 50) {
+          this.opacity = (this.maxLife - this.life) / 50;
+        } else {
+          this.opacity = 1.0;
+        }
+
+        // Shed stardust particles as the page floats up (representing pages disintegrating)
+        if (Math.random() < 0.22 && this.opacity > 0.1) {
+          onShed(this.x, this.y);
+        }
+
+        return this.life < this.maxLife && this.y > -30 && this.x < W + 30;
+      }
+
+      draw(c: CanvasRenderingContext2D) {
+        c.save();
+        c.translate(this.x, this.y);
+        c.rotate(this.angle);
+
+        // Draw pixel-style paper card/sheet
+        // Fill color: glowing warm cream white
+        c.fillStyle = `rgba(238, 232, 221, ${this.opacity * 0.88})`;
+        // Stroke color: soft warm gold edge
+        c.strokeStyle = `rgba(214, 154, 86, ${this.opacity * 0.72})`;
+        c.lineWidth = 1.0;
+
+        c.beginPath();
+        c.rect(-this.width / 2, -this.height / 2, this.width, this.height);
+        c.fill();
+        c.stroke();
+
+        // Subtle lines on the paper representing text lines
+        c.strokeStyle = `rgba(124, 90, 200, ${this.opacity * 0.28})`;
+        c.lineWidth = 1.0;
+        c.beginPath();
+        c.moveTo(-this.width * 0.28, -this.height * 0.15);
+        c.lineTo(this.width * 0.28, -this.height * 0.15);
+        c.moveTo(-this.width * 0.28, 0);
+        c.lineTo(this.width * 0.15, 0);
+        c.moveTo(-this.width * 0.28, this.height * 0.15);
+        c.lineTo(this.width * 0.28, this.height * 0.15);
+        c.stroke();
+
+        c.restore();
+      }
+    }
+
+    // Collections
+    let stardustList: Stardust[] = [];
+    let pagesList: Page[] = [];
+
+    // Mouse coordinates tracking for interaction
+    let mouseX = -1000;
+    let mouseY = -1000;
+
+    const onMouseMove = (e: MouseEvent) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+
+    const onMouseLeave = () => {
+      mouseX = -1000;
+      mouseY = -1000;
+    };
+
+    window.addEventListener("mousemove", onMouseMove);
+    document.addEventListener("mouseleave", onMouseLeave);
+
+    // Animation variables
+    let animationFrameId: number;
+    let t = 0;
+    const bgContainer = document.querySelector(".dynamic-pages-stars-bg") as HTMLDivElement | null;
+
+    const draw = () => {
+      t++;
+
+      // 1. Gentle idle float of the background image container (no mouse interaction)
+      if (bgContainer && !reduced) {
+        const floatX = Math.sin(t * 0.004) * 4;
+        const floatY = Math.cos(t * 0.0035) * 2.5;
+        bgContainer.style.transform = `translate(${floatX}px, ${floatY}px) scale(1.03)`;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+
+      // 2. Spawning (Spaced out to prevent clumping)
+      // Limit to 5 pages max, low spawn chance
+      if (pagesList.length < 5 && Math.random() < 0.005) {
+        pagesList.push(new Page());
+      }
+      // Natural stardust near the book source
+      if (stardustList.length < 80 && Math.random() < 0.12) {
+        const sx = randomBetween(W * 0.02, W * 0.15);
+        const sy = H * 0.84 + randomBetween(0, H * 0.1);
+        stardustList.push(new Stardust(sx, sy));
+      }
+
+      // 3. Update and Draw Pages
+      pagesList = pagesList.filter((page) => {
+        const keep = page.update(t, mouseX, mouseY, (sx, sy) => {
+          // Shed stardust particles
+          stardustList.push(new Stardust(sx, sy));
+        });
+        
+        if (keep) {
+          page.draw(ctx);
+        } else {
+          // Dissolve page into a small number of spread-out particles
+          const particleExplosionCount = Math.floor(randomBetween(3, 5));
+          for (let p = 0; p < particleExplosionCount; p++) {
+            const particle = new Stardust(page.x, page.y);
+            // Give them a slight deviation speed to disperse
+            particle.vx = randomBetween(-0.5, 0.5);
+            particle.vy = randomBetween(-0.5, 0.5);
+            stardustList.push(particle);
+          }
+        }
+        return keep;
+      });
+
+      // 4. Update and Draw Stardust
+      stardustList = stardustList.filter((particle) => {
+        const keep = particle.update(t, mouseX, mouseY);
+        if (keep) {
+          particle.draw(ctx);
+        }
+        return keep;
+      });
+
+      animationFrameId = requestAnimationFrame(draw);
+    };
+
+    draw();
+
+    // Cleanup helper
+    const cleanup = () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener("resize", resize);
+      window.removeEventListener("mousemove", onMouseMove);
+      document.removeEventListener("mouseleave", onMouseLeave);
+    };
+
+    (window as any).__pagesStarsBgCleanup = cleanup;
+  };
+
+  const bindPagesStarsBg = () => {
+    const bgContainer = document.getElementById("pages-stars-bg-container");
+    // Only initialize if the container is visible
+    if (bgContainer && bgContainer.style.display === "none") {
+      const win = window as any;
+      if (typeof win.__pagesStarsBgCleanup === "function") {
+        win.__pagesStarsBgCleanup();
+      }
+      win.__pagesStarsBgInitialized = false;
+      return;
+    }
+
+    const win = window as any;
+    if (win.__pagesStarsBgInitialized) {
+      if (typeof win.__pagesStarsBgCleanup === "function") {
+        win.__pagesStarsBgCleanup();
+      }
+    }
+    win.__pagesStarsBgInitialized = true;
+    initPagesStarsBackground();
+  };
+
+  (window as any).__bindPagesStarsBg = bindPagesStarsBg;
+  bindPagesStarsBg();
+  document.addEventListener("astro:page-load", bindPagesStarsBg);
+</script>

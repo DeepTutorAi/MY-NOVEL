@@ -54,5 +54,31 @@ const seaArcs = defineCollection({
   }),
 });
 
-export const collections = { chapters, extras, tsukinomiSections, seaArcs };
+const kusabiChapters = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/kusabi/chapters" }),
+  schema: z.object({
+    number: z.number().int().min(0).max(12),
+    title: z.string(),
+    thaiTitle: z.string().optional(),
+    act: z.number().int().min(1).max(3),
+    actTitle: z.string(),
+    summary: z.string().optional(),
+    wordsThai: z.number().int().optional(),
+    readingMinutes: z.number().int().optional(),
+    musicCueId: z.enum(["rain-hills", "bells-fog", "audio-room", "bride-wedding", "go-home"]),
+  }),
+});
+
+const kusabiExtras = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/kusabi/extras" }),
+  schema: z.object({
+    number: z.number().int().min(1).max(5),
+    title: z.string(),
+    slug: z.string(),
+    summary: z.string().optional(),
+    readingMinutes: z.number().int().optional(),
+  }),
+});
+
+export const collections = { chapters, extras, tsukinomiSections, seaArcs, kusabiChapters, kusabiExtras };
 

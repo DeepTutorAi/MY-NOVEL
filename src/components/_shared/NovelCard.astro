@@ -84,22 +84,20 @@ const useImage = novel.heroState !== "placeholder";
   </article>
   {
     novel.slug === "tsukinomi" && (
-      <>
-        <button
-          type="button"
-          class="novel-card-hint-trigger"
-          data-tsuki-card-hint-trigger
-          aria-label="ดูคำใบ้ Extra ของสถานีทะเลพระจันทร์"
-        >
-          <span>Extra</span>
-          <strong>คำใบ้</strong>
-        </button>
-        <div class="novel-card-hint" data-tsuki-card-hint hidden role="status" aria-live="polite">
-          <button type="button" class="novel-card-hint-close" data-tsuki-card-hint-close aria-label="ปิดคำใบ้">×</button>
-          <strong data-tsuki-card-hint-title>คำใบ้ Extra: ทางหลักอยู่ที่ Lodge</strong>
-          <span data-tsuki-card-hint-copy>ลองอ่านเส้นทางลับของ Lodge ให้ครบ 15 ครั้ง แล้วสถานีจะเปิดประตู Extra ให้เอง</span>
-        </div>
-      </>
+      <div class="novel-card-hint" data-tsuki-card-hint hidden role="status" aria-live="polite">
+        <button type="button" class="novel-card-hint-close" data-tsuki-card-hint-close aria-label="ปิดคำใบ้">×</button>
+        <strong data-tsuki-card-hint-title>คำใบ้ Extra: ทางหลักอยู่ที่ Lodge</strong>
+        <span data-tsuki-card-hint-copy>ลองอ่านเส้นทางลับของ Lodge ให้ครบ 15 ครั้ง แล้วสถานีจะเปิดประตู Extra ให้เอง</span>
+      </div>
+    )
+  }
+  {
+    novel.slug === "kusabi" && (
+      <div class="novel-card-hint" data-kusabi-card-hint hidden role="status" aria-live="polite">
+        <button type="button" class="novel-card-hint-close" data-kusabi-card-hint-close aria-label="ปิดคำใบ้">×</button>
+        <strong data-kusabi-card-hint-title>คำใบ้ปลดล็อก: เผชิญความจริงบนเขาคุโระมิโซะ</strong>
+        <span data-kusabi-card-hint-copy>ทางหลักถูกล็อกไว้ชั่วคราว ลองอ่านบทนำหรือปลดล็อกด้วยรหัสผ่านผู้พัฒนา (kusabi-pass)</span>
+      </div>
     )
   }
 </div>
@@ -113,7 +111,6 @@ const useImage = novel.heroState !== "placeholder";
 
         const activeCard = wrapper.querySelector('[data-active-card]');
         const lockedCard = wrapper.querySelector('[data-locked-card]');
-        const hintTrigger = wrapper.querySelector('[data-tsuki-card-hint-trigger]');
         const hint = wrapper.querySelector('[data-tsuki-card-hint]');
         const hintTitle = wrapper.querySelector('[data-tsuki-card-hint-title]');
         const hintCopy = wrapper.querySelector('[data-tsuki-card-hint-copy]');
@@ -260,12 +257,6 @@ const useImage = novel.heroState !== "placeholder";
           }
         };
 
-        hintTrigger?.addEventListener('click', (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          showLockedHint();
-        });
-
         hintClose?.addEventListener('click', (event) => {
           event.preventDefault();
           event.stopPropagation();
@@ -318,3 +309,137 @@ const useImage = novel.heroState !== "placeholder";
   )
 }
 
+{
+  novel.slug === "kusabi" && (
+    <script is:inline>
+      (() => {
+        const wrapper = document.querySelector('[data-novel-slug="kusabi"]');
+        if (!wrapper) return;
+
+        const activeCard = wrapper.querySelector('[data-active-card]');
+        const lockedCard = wrapper.querySelector('[data-locked-card]');
+        const hint = wrapper.querySelector('[data-kusabi-card-hint]');
+        const hintClose = wrapper.querySelector('[data-kusabi-card-hint-close]');
+        const HINT_COOLDOWN_KEY = "kusabi:hub-card-hint-cooldown-until";
+        const HINT_COOLDOWN_MS = 5 * 60 * 1000;
+        const shouldGateCard = wrapper.dataset.status !== "เผยแพร่";
+        let hintTimer = 0;
+        
+        const BYPASS_KEY = "kusabi:extra-bypassed";
+        // Double hash verification: H2 = sha256(H1)
+        const EXPECTED_H2 = "9c5144f57cc6d4eb640c116097b92fd94f5a4370379d732604003d2a15fef6de";
+        
+        // SHA-256 helper
+        async function sha256(message) {
+          const msgBuffer = new TextEncoder().encode(message);
+          const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+          const hashArray = Array.from(new Uint8Array(hashBuffer));
+          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+        }
+
+        const checkUnlocked = async () => {
+          const storedH1 = localStorage.getItem(BYPASS_KEY);
+          if (storedH1) {
+            const calculatedH2 = await sha256(storedH1);
+            if (calculatedH2 === EXPECTED_H2) {
+              return true;
+            }
+          }
+          return false;
+        };
+
+        const updateCardUI = async () => {
+          if (!activeCard || !lockedCard) return;
+
+          if (!shouldGateCard) {
+            activeCard.style.display = '';
+            lockedCard.style.display = 'none';
+            return;
+          }
+
+          const unlocked = await checkUnlocked();
+          if (unlocked) {
+            activeCard.style.display = '';
+            lockedCard.style.display = 'none';
+          } else {
+            activeCard.style.display = 'none';
+            lockedCard.style.display = '';
+          }
+        };
+
+        // Initialize
+        updateCardUI();
+        document.addEventListener("astro:page-load", updateCardUI);
+
+        const hideLockedHint = () => {
+          if (hint instanceof HTMLElement) {
+            hint.hidden = true;
+          }
+          window.clearTimeout(hintTimer);
+        };
+
+        const showLockedHint = () => {
+          const now = Date.now();
+          const nextAllowed = Number(localStorage.getItem(HINT_COOLDOWN_KEY) || 0);
+          if (Number.isFinite(nextAllowed) && nextAllowed > now) {
+            return;
+          }
+
+          localStorage.setItem(HINT_COOLDOWN_KEY, String(now + HINT_COOLDOWN_MS));
+          if (hint instanceof HTMLElement) {
+            hint.hidden = false;
+            window.clearTimeout(hintTimer);
+            hintTimer = window.setTimeout(hideLockedHint, 6500);
+          }
+        };
+
+        hintClose?.addEventListener('click', (event) => {
+          event.preventDefault();
+          event.stopPropagation();
+          hideLockedHint();
+        });
+
+        // Developer shortcut trigger: 5 quick clicks on the locked card.
+        let clickCount = 0;
+        let lastClickTime = 0;
+        const handleLockedCardIntent = async () => {
+          showLockedHint();
+
+          const now = Date.now();
+          if (now - lastClickTime > 2000) {
+            clickCount = 0; // reset if clicks are too slow
+          }
+          clickCount++;
+          lastClickTime = now;
+
+          if (clickCount >= 5) {
+            clickCount = 0;
+            const password = prompt('กรอกรหัสผ่านผู้พัฒนาสำหรับปลดล็อคเรื่อง "บ้านคุซาบิบนเขาคุโระมิโซะ":');
+            if (password) {
+              const h1 = await sha256(password.trim());
+              const h2 = await sha256(h1);
+              if (h2 === EXPECTED_H2) {
+                localStorage.setItem(BYPASS_KEY, h1);
+                alert('ปลดล็อคผู้พัฒนาสำเร็จแล้ว!');
+                updateCardUI();
+                window.location.reload();
+              } else {
+                alert('รหัสผ่านไม่ถูกต้อง');
+              }
+            }
+          }
+        };
+
+        if (lockedCard) {
+          lockedCard.addEventListener('click', handleLockedCardIntent);
+          lockedCard.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+              event.preventDefault();
+              handleLockedCardIntent();
+            }
+          });
+        }
+      })();
+    </script>
+  )
+}

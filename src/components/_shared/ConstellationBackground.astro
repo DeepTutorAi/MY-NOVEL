@@ -292,6 +292,17 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
   };
 
   const bindDynamicCityBg = () => {
+    const bgContainer = document.getElementById("constellation-bg-container");
+    // Only initialize if the container is visible
+    if (bgContainer && bgContainer.style.display === "none") {
+      const win = window as any;
+      if (typeof win.__dynamicCityBgCleanup === "function") {
+        win.__dynamicCityBgCleanup();
+      }
+      win.__dynamicCityBgInitialized = false;
+      return;
+    }
+
     if ((window as any).__dynamicCityBgInitialized) {
       const win = window as any;
       if (typeof win.__dynamicCityBgCleanup === "function") {
@@ -302,6 +313,7 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
     initBackground();
   };
 
+  (window as any).__bindDynamicCityBg = bindDynamicCityBg;
   bindDynamicCityBg();
   document.addEventListener("astro:page-load", bindDynamicCityBg);
 </script>

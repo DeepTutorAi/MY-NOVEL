@@ -1,0 +1,241 @@
+---
+import { getCollection } from "astro:content";
+import KusabiBaseLayout from "../../layouts/kusabi/KusabiBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+// Get collection entries for Kusabi
+const chapters = await getCollection("kusabiChapters");
+const prologue = chapters.find(c => c.data.number === 0);
+
+// Static list of other chapters for display purposes since they are locked/postponed
+const plannedChapters = [
+  { number: 1, title: "เรียวกังฮิโนะโมริ", englishTitle: "Hinomori Ryokan", summary: "กลุ่มนักเดินทางเดินทางมาถึงเรียวกังท่ามกลางสายฝน และได้ยินข่าวลือเรื่องบ้านร้างบนเขาเป็นครั้งแรก" },
+  { number: 2, title: "ข่าวลือเจ้าสาวบนเขา", englishTitle: "Mountain Bride Rumors", summary: "เรื่องเล่าพื้นบ้านที่แต่ละคนได้ยินในเวอร์ชันที่ขัดแย้งกัน และเงาปริศนาสีขาวริมป่า" },
+  { number: 3, title: "ของที่หาย", englishTitle: "Lost Item", summary: "ของสำคัญของริสะหายไป ก่อนจะถูกพบใกล้ทางขึ้นเขา เป็นแรงผลักดันให้ทุกคนต้องก้าวเข้าไปสำรวจ" },
+  { number: 4, title: "บ้านคุซาบิ", englishTitle: "Kusabi House", summary: "การก้าวข้ามธรณีประตูของบ้านร้างชื้นแฉะ และวินาทีที่ประตูหน้าถูกปิดตายจากด้านนอก" },
+  { number: 5, title: "ห้องแรก", englishTitle: "The Audio Room", summary: "กับดักแรกของระบบควบคุมที่บีบบังคับให้พวกเขาเลือกระหว่างเสียงจริงกับเสียงบันทึก" },
+  { number: 6, title: "ประตูสองทาง", englishTitle: "The Double Door", summary: "ทางแยกที่บีบให้เลือกระหว่างความปลอดภัยของตนเองกับการย้อนกลับไปช่วยคนอื่น" },
+  { number: 7, title: "ศพที่บอกคำตอบ", englishTitle: "The Witness of Guilt", summary: "การเผชิญหน้ากับร่องรอยของเหยื่อกลุ่มเก่า และความลับเบื้องหลังผู้ควบคุมระบบ" },
+  { number: 8, title: "ริสะหาย", englishTitle: "The Weight Room", summary: "แรงกดทับและความวุ่นวายของแผนประคองน้ำหนัก นาโอะบาดเจ็บหนัก และความสูญเสียใหญ่" },
+  { number: 9, title: "หลังริสะหาย", englishTitle: "Recovery Sequence", summary: "ช่วงเวลาที่หัวใจสลาย เรียวยะต้องดึงสติของกลุ่มกลับมาจากขอบเหวของความพังทลาย" },
+  { number: 10, title: "เสียงของริสะ", englishTitle: "Risa's Voice", summary: "ริสะถูกคุมขังในห้องพิธีการ คำถามสั้น ๆ ของเธอที่สั่นสะเทือนปมลึกในใจของชิอง" },
+  { number: 11, title: "ชิอง มาโดกะ", englishTitle: "The Final Gambit", summary: "การเผชิญหน้ากับข้อเสนอสุดท้ายของฆาตกรที่เปิดประตูให้หนี แต่เรียกร้องชีวิตคนหนึ่งทดแทน" },
+  { number: 12, title: "บ้านปิดประตูใส่เจ้าของ", englishTitle: "The Climax", summary: "วินาทีล่มสลายของบ้านคุซาบิในคืนพายุคลั่ง จุดจบของปีศาจ และรอยแผลที่ไม่มีวันลบเลือน" }
+];
+
+const plannedExtras = [
+  { number: 1, title: "คนที่ยังกลับบ้านได้", summary: "เรื่องราวสามปีก่อนเกิดเหตุ ชิองผู้ยังมีความหวังและเทปเสียงบันทึกคำสัญญา" },
+  { number: 2, title: "การทดลองครั้งแรก", summary: "คืนแห่งโศกนาฏกรรมเมื่อระบบกลไกล้มเหลว และเสียงเคาะประตูที่เงียบหายไป" },
+  { number: 3, title: "คนที่กลับมาทำลายหลักฐาน", summary: "การปกปิดร่องรอย ความโกรธแค้นที่ปะทุ และศพแรกที่ถูกฝังไว้ใต้โครงสร้างบ้าน" },
+  { number: 4, title: "กลุ่มสอง", summary: "การทดสอบบทถัดไปของชิอง และเสียงหวีดร้องที่เปลี่ยนใจคนให้กลายเป็นปีศาจ" },
+  { number: 5, title: "บ้านที่เรียนรู้คำตอบ", summary: "ระบบจำลองบาปที่สมบูรณ์แบบ และการพบรายชื่อกลุ่มเป้าหมายกลุ่มสุดท้าย" }
+];
+---
+
+<KusabiBaseLayout
+  title="บ้านคุซาบิบนเขาคุโระมิโซะ — สารบัญ"
+  description="สารบัญเรื่องราวสยองขวัญจิตวิทยา บ้านคุซาบิบนเขาคุโระมิโซะ"
+  bodyClass="kusabi-toc-page"
+>
+  <header class="kusabi-hero-banner" aria-label="ภาพหน้าปกนิยาย">
+    <div class="kusabi-hero-overlay"></div>
+    <div class="kusabi-hero-content">
+      <h1 class="kusabi-title">บ้านคุซาบิบนเขาคุโระมิโซะ</h1>
+      <p class="kusabi-subtitle">
+        ทริปพักร้อนบนเขาร้างที่มีข่าวลือเรื่องเจ้าสาวภูเขา แต่แท้จริงคือลานทดลองของฆาตกรผู้บิดเบี้ยว
+      </p>
+    </div>
+  </header>
+
+  <main class="kusabi-toc-container">
+    {/* Resume Card Widget */}
+    <div class="kusabi-resume-card" data-kusabi-resume style="display: none;">
+      <span class="kusabi-resume-label">อ่านค้างไว้</span>
+      <strong data-kusabi-resume-title class="kusabi-resume-title"></strong>
+      <div class="kusabi-resume-actions">
+        <a data-kusabi-resume-link href="#" class="kusabi-resume-btn">อ่านต่อ</a>
+        <button type="button" data-kusabi-resume-clear class="kusabi-resume-clear-btn">ล้างตำแหน่ง</button>
+      </div>
+    </div>
+
+    <section aria-labelledby="main-story-heading">
+      <h2 id="main-story-heading" style="font-family: var(--font-serif); color: var(--kusabi-accent); margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 600;">เนื้อเรื่องหลัก</h2>
+      <div class="kusabi-list">
+        {/* Dynamic Prologue Link */}
+        {prologue ? (
+          <a
+            class="kusabi-item"
+            data-chapter-id={prologue.id}
+            href={withBase(`/kusabi/chapters/${prologue.id}/`)}
+          >
+            <span class="kusabi-item-title">
+              บทนำ — {prologue.data.thaiTitle || prologue.data.title}
+            </span>
+            <span class="kusabi-item-meta">
+              เปิดอ่านแล้ว · 3 นาที
+            </span>
+          </a>
+        ) : (
+          <div class="kusabi-item" style="opacity: 0.5;">
+            <span class="kusabi-item-title">บทนำ — กำลังโหลดข้อมูล...</span>
+            <span class="kusabi-item-meta">Coming Soon</span>
+          </div>
+        )}
+
+        {/* Planned Chapters Placeholder */}
+        {plannedChapters.map((ch) => (
+          <div class="kusabi-item" style="opacity: 0.5; cursor: not-allowed;" aria-disabled="true">
+            <span class="kusabi-item-title">
+              บทที่ {ch.number} — {ch.title}
+            </span>
+            <span class="kusabi-item-meta">เร็วๆ นี้</span>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <section aria-labelledby="extra-story-heading" style="margin-top: 3.5rem;">
+      <h2 id="extra-story-heading" style="font-family: var(--font-serif); color: var(--kusabi-accent); margin-bottom: 1.5rem; font-size: 1.5rem; font-weight: 600;">เรื่องเสริมพิเศษ (Extra Arc)</h2>
+      <div class="kusabi-list">
+        {plannedExtras.map((extra) => (
+          <div class="kusabi-item" style="opacity: 0.4; cursor: not-allowed;" aria-disabled="true">
+            <span class="kusabi-item-title">
+              Extra {extra.number} — {extra.title}
+            </span>
+            <span class="kusabi-item-meta">ล็อกไว้</span>
+          </div>
+        ))}
+      </div>
+
+      <div class="kusabi-extra-card">
+        <h3>ปลดล็อกเนื้อหาพิเศษ</h3>
+        <p>เรื่องเสริมประวัติของชิองจะปลดล็อกอัตโนมัติเมื่ออ่านเนื้อเรื่องหลักครบ 80% (อ่านแล้วอย่างน้อย 10 บท)</p>
+        <a href={withBase("/kusabi/extra/")} class="kusabi-extra-btn" data-extra-btn>ไปที่หน้าพิเศษ</a>
+      </div>
+    </section>
+  </main>
+
+  <script is:inline define:vars={{ prologueId: prologue?.id, resumeBase: withBase("/kusabi/chapters/") }}>
+    const updateReadsAndGlow = () => {
+      try {
+        // Glow last read chapter
+        const lastRead = localStorage.getItem("kusabi:reading:last-read");
+        if (lastRead) {
+          const targetLink = document.querySelector(`a[data-chapter-id="${lastRead}"]`);
+          if (targetLink) {
+            targetLink.classList.add("recent-read-glow");
+            // Remove the glow class after 3 seconds
+            setTimeout(() => {
+              targetLink.classList.remove("recent-read-glow");
+            }, 3000);
+          }
+        }
+
+        // Show checkmarks for read chapters
+        const rawReads = localStorage.getItem("kusabi:secret:reads");
+        const reads = rawReads ? JSON.parse(rawReads) : [];
+        if (Array.isArray(reads)) {
+          reads.forEach((id) => {
+            const link = document.querySelector(`a[data-chapter-id="${id}"]`);
+            if (link) {
+              const meta = link.querySelector(".kusabi-item-meta");
+              if (meta) {
+                meta.textContent = "✓ อ่านแล้ว · 3 นาที";
+                meta.style.color = "var(--kusabi-accent)";
+              }
+            }
+          });
+        }
+
+        // Resume reading logic
+        const resumeCard = document.querySelector("[data-kusabi-resume]");
+        const resumeTitle = document.querySelector("[data-kusabi-resume-title]");
+        const resumeLink = document.querySelector("[data-kusabi-resume-link]");
+        const resumeClear = document.querySelector("[data-kusabi-resume-clear]");
+        const LAST_READ_KEY = "kusabi:reading:last-read";
+
+        if (resumeCard instanceof HTMLElement && resumeTitle && resumeLink instanceof HTMLAnchorElement) {
+          const lastReadId = localStorage.getItem(LAST_READ_KEY);
+          if (lastReadId === prologueId) {
+            resumeTitle.textContent = "บทนำ: เสียงก้องบนเขาคุโระมิโซะ";
+            resumeLink.href = `${resumeBase}${prologueId}/`;
+            resumeCard.style.display = "flex";
+          } else {
+            resumeCard.style.display = "none";
+          }
+
+          resumeClear?.addEventListener("click", () => {
+            try {
+              localStorage.removeItem(LAST_READ_KEY);
+              resumeCard.style.display = "none";
+            } catch(e) {}
+          });
+        }
+      } catch (e) {
+        console.error("Error updating TOC states:", e);
+      }
+    };
+
+    // Run on immediate page load and on Astro transitions
+    updateReadsAndGlow();
+    document.addEventListener("astro:page-load", updateReadsAndGlow);
+  </script>
+
+  <style is:global>
+    body {
+      background-color: #0E0A0A !important;
+      color: #ECE6E6 !important;
+    }
+
+    .kusabi-title {
+      color: #ff4a40 !important; /* Brighter accent red for visibility */
+      text-shadow: 0 2px 10px rgba(0,0,0,0.9) !important;
+    }
+
+    .kusabi-subtitle {
+      color: #A69C9C !important;
+      text-shadow: 0 1px 5px rgba(0,0,0,0.9) !important;
+    }
+
+    .kusabi-item-title {
+      color: #ECE6E6 !important;
+    }
+
+    .kusabi-item:hover .kusabi-item-title {
+      color: #ff4a40 !important;
+    }
+
+    .kusabi-item-meta {
+      color: #A69C9C !important;
+    }
+
+    .kusabi-resume-title {
+      color: #ECE6E6 !important;
+    }
+
+    .kusabi-resume-label {
+      color: #ff4a40 !important;
+    }
+
+    .kusabi-toc-container h2 {
+      color: #ff4a40 !important;
+    }
+
+    /* Override any leaked dark links or items */
+    .kusabi-list a, 
+    .kusabi-list a *,
+    .kusabi-extra-card * {
+      color: #ECE6E6 !important;
+    }
+
+    .kusabi-extra-btn {
+      color: #FFFFFF !important;
+      background-color: #8B1D18 !important;
+    }
+
+    .kusabi-extra-btn.is-locked {
+      color: rgba(255, 255, 255, 0.3) !important;
+      background-color: #2a1b1b !important;
+    }
+  </style>
+</KusabiBaseLayout>

@@ -1,0 +1,99 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import KusabiChapterLayout from "../../../layouts/kusabi/KusabiChapterLayout.astro";
+import { withBase } from "../../../utils/base-path";
+
+export async function getStaticPaths() {
+  const chapters = (await getCollection("kusabiChapters")).sort(
+    (a, b) => a.data.number - b.data.number,
+  );
+
+  return chapters.map((chapter) => ({
+    params: { slug: chapter.id },
+    props: { chapter, chapters },
+  }));
+}
+
+interface Props {
+  chapter: CollectionEntry<"kusabiChapters">;
+  chapters: CollectionEntry<"kusabiChapters">[];
+}
+
+const { chapter, chapters } = Astro.props;
+const { Content } = await render(chapter);
+const currentIndex = chapters.findIndex((item) => item.id === chapter.id);
+const previous = currentIndex > 0 ? chapters[currentIndex - 1] : undefined;
+const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : undefined;
+---
+
+<KusabiChapterLayout chapter={chapter}>
+  <div class="kusabi-reader-container">
+    <div class="kusabi-title-section" style="margin-bottom: 4rem;">
+      <p class="kusabi-nav-label" style="color: var(--kusabi-accent); font-family: var(--font-mono); margin-bottom: 0.75rem;">
+        {chapter.data.number === 0 ? "บทนำ" : `บทที่ ${chapter.data.number} — ${chapter.data.actTitle}`}
+      </p>
+      <h1 class="kusabi-title" style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1.5rem;">
+        {chapter.data.thaiTitle || chapter.data.title}
+      </h1>
+      <div style="width: 60px; height: 1px; background: var(--kusabi-accent); margin: 0 auto;"></div>
+    </div>
+
+    <div class="kusabi-prose">
+      <Content />
+    </div>
+
+    <nav class="kusabi-reader-nav" aria-label="นำทางเนื้อเรื่อง">
+      {previous ? (
+        <a href={withBase(`/kusabi/chapters/${previous.id}/`)} class="kusabi-nav-button">
+          <span class="kusabi-nav-label">← ย้อนกลับ</span>
+          <span class="kusabi-nav-title">{previous.data.number === 0 ? "บทนำ" : `บทที่ ${previous.data.number}`}</span>
+        </a>
+      ) : (
+        <a href={withBase("/kusabi/")} class="kusabi-nav-button">
+          <span class="kusabi-nav-label">← เมนูหลัก</span>
+          <span class="kusabi-nav-title">สารบัญ</span>
+        </a>
+      )}
+
+      {next ? (
+        <a href={withBase(`/kusabi/chapters/${next.id}/`)} class="kusabi-nav-button" style="text-align: right;">
+          <span class="kusabi-nav-label">บทต่อไป →</span>
+          <span class="kusabi-nav-title">{next.data.number === 0 ? "บทนำ" : `บทที่ ${next.data.number}`}</span>
+        </a>
+      ) : (
+        <a href={withBase("/kusabi/")} class="kusabi-nav-button" style="text-align: right;">
+          <span class="kusabi-nav-label">สิ้นสุดบทนำ →</span>
+          <span class="kusabi-nav-title">กลับสารบัญ</span>
+        </a>
+      )}
+    </nav>
+  </div>
+
+  <script is:inline define:vars={{ chapterId: chapter.id }}>
+    const markAsRead = () => {
+      try {
+        // Record last read position
+        localStorage.setItem("kusabi:reading:last-read", chapterId);
+
+        // Record to secret read list
+        const rawReads = localStorage.getItem("kusabi:secret:reads");
+        const reads = rawReads ? JSON.parse(rawReads) : [];
+        if (Array.isArray(reads)) {
+          if (!reads.includes(chapterId)) {
+            reads.push(chapterId);
+            localStorage.setItem("kusabi:secret:reads", JSON.stringify(reads));
+          }
+        }
+      } catch (e) {
+        console.error("Error setting localStorage flags:", e);
+      }
+    };
+
+    if (document.readyState !== "loading") {
+      markAsRead();
+    } else {
+      document.addEventListener("DOMContentLoaded", markAsRead);
+    }
+    document.addEventListener("astro:page-load", markAsRead);
+  </script>
+</KusabiChapterLayout>

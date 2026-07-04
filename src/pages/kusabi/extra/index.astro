@@ -1,0 +1,253 @@
+---
+import KusabiBaseLayout from "../../../layouts/kusabi/KusabiBaseLayout.astro";
+import { withBase } from "../../../utils/base-path";
+---
+
+<KusabiBaseLayout
+  title="ส่วนเสริมพิเศษ — บ้านคุซาบิบนเขาคุโระมิโซะ"
+  description="เบื้องหลัง ข้อมูลวิจัย และเรื่องราวพิเศษของบ้านคุซาบิบนเขาคุโระมิโซะ"
+  bodyClass="kusabi-extra-page"
+>
+  <main class="kusabi-toc-container">
+    {/* LOCKED GATE */}
+    <section class="kusabi-extra-card" data-extra-gate style="max-width: 600px; margin: 4rem auto 0; padding: 40px 24px;">
+      <div style="font-size: 3rem; margin-bottom: 1.5rem; text-align: center;">🗝️</div>
+      <h2 style="font-family: var(--font-serif); color: var(--kusabi-accent); font-size: 1.75rem; margin-bottom: 1rem; text-align: center;">ความบาปที่ยังไม่ถูกสะสาง</h2>
+      <p style="font-size: 0.95rem; color: var(--kusabi-ink-dim); margin-bottom: 2rem; text-align: center; line-height: 1.6;">
+        ส่วนเสริมพิเศษนี้สงวนไว้สำหรับผู้ที่ผ่านการเรียนรู้ความหลังของบ้านคุซาบิแล้วอย่างน้อย 80% (อ่านจบแล้วอย่างน้อย 10 จาก 12 บทหลัก ไม่รวมบทนำ) หรือกรอกรหัสผ่านผู้พัฒนา
+      </p>
+
+      <div style="margin-bottom: 2rem; background: rgba(0,0,0,0.2); padding: 16px; border-radius: 6px; border: 1px solid rgba(139, 29, 24, 0.15);">
+        <div style="font-size: 0.85rem; font-family: var(--font-mono); color: var(--kusabi-accent); margin-bottom: 8px; text-transform: uppercase;">ความคืบหน้าการสำรวจทางจิตของคุณ</div>
+        <div style="height: 6px; background: #221a1a; border-radius: 3px; overflow: hidden; margin-bottom: 8px;">
+          <div data-progress-fill style="height: 100%; width: 0%; background: var(--kusabi-accent); transition: width 0.3s;"></div>
+        </div>
+        <div data-progress-status style="font-size: 0.85rem; color: var(--kusabi-ink-dim); text-align: right;">0 / 12 บท (0%)</div>
+      </div>
+
+      <div style="border-top: 1px solid rgba(139, 29, 24, 0.1); padding-top: 1.5rem;">
+        <label for="bypass-password" style="display: block; font-size: 0.85rem; color: var(--kusabi-ink-dim); margin-bottom: 8px; font-family: var(--font-mono);">DEVELOPER BYPASS KEY</label>
+        <div style="display: flex; gap: 8px;">
+          <input
+            type="password"
+            id="bypass-password"
+            placeholder="กรอกรหัสรหัสผ่านเพื่อสืบค้นแฟ้มคดี..."
+            data-bypass-input
+            style="flex: 1; padding: 10px 14px; background: rgba(0,0,0,0.3); border: 1px solid var(--kusabi-line); border-radius: 4px; color: #fff; font-size: 0.9rem;"
+          />
+          <button
+            type="button"
+            data-bypass-btn
+            style="padding: 10px 20px; background: var(--kusabi-accent); color: #fff; border-radius: 4px; font-weight: 600; cursor: pointer; font-size: 0.9rem;"
+          >
+            ปลดล็อก
+          </button>
+        </div>
+        <p data-bypass-error style="color: var(--kusabi-accent); font-size: 0.85rem; margin-top: 8px; text-align: left;" hidden>รหัสผ่านไม่ถูกต้อง</p>
+      </div>
+    </section>
+
+    {/* UNLOCKED CONTENT */}
+    <article data-extra-content hidden style="animation: fadeIn 0.5s ease-out;">
+      <div class="kusabi-title-section">
+        <p class="kusabi-nav-label" style="color: var(--kusabi-accent); font-family: var(--font-mono); margin-bottom: 0.75rem;">Premium Extra</p>
+        <h1 class="kusabi-title" style="font-size: clamp(2rem, 5vw, 3rem);">แฟ้มข้อมูลสืบสวนคดีเขาคุโระมิโซะ</h1>
+        <p class="kusabi-subtitle">บันทึกเบื้องหลัง ตัวละคร และแนวคิดของบ้านที่จดจำบาป</p>
+      </div>
+
+      <div class="kusabi-prose" style="max-width: 720px; margin: 0 auto;">
+        <section style="margin-bottom: 3.5rem;">
+          <h2 style="font-family: var(--font-serif); color: var(--kusabi-accent); font-size: 1.5rem; border-bottom: 1px solid var(--kusabi-line); padding-bottom: 0.5rem; margin-bottom: 1.25rem;">
+            📂 บันทึกความลับของผู้กำกับบท
+          </h2>
+          <p>
+            บ้านคุซาบิได้รับการออกแบบให้เป็นสถานทีทดลองที่สะท้อนจากสภาวะจิตใจของชิอง มาโดกะ 
+            ต่างจาก Lodge ที่เป็นระบบเอาชีวิตรอดจากพายุและปริศนาภายนอก บ้านคุซาบิมุ่งเน้นการปอกลอกตัวตนที่แย่ที่สุดของมนุษย์ออกมา 
+            ทว่าความหวังที่ซ่อนอยู่คือการที่กลุ่มพระเอกได้ก้าวข้ามขีดจำกัดความกลัวและปฏิเสธเงื่อนไขทิ้งเพื่อนของชิอง
+          </p>
+        </section>
+
+        <section style="margin-bottom: 3.5rem;">
+          <h2 style="font-family: var(--font-serif); color: var(--kusabi-accent); font-size: 1.5rem; border-bottom: 1px solid var(--kusabi-line); padding-bottom: 0.5rem; margin-bottom: 1.25rem;">
+            🔍 ข้อมูลเบื้องหลังตัวละครหลัก
+          </h2>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--kusabi-accent); text-align: left;">
+                <th style="padding: 10px 8px; font-family: var(--font-mono);">ตัวละคร</th>
+                <th style="padding: 10px 8px; font-family: var(--font-mono);">MBTI</th>
+                <th style="padding: 10px 8px; font-family: var(--font-mono);">แก่นแท้ของปมจิตวิทยา</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px 8px; font-weight: bold; color: var(--kusabi-accent);">อาราอิ เรียวยะ</td>
+                <td style="padding: 12px 8px; font-family: var(--font-mono);">ISTJ</td>
+                <td style="padding: 12px 8px; color: var(--kusabi-ink-dim);">สังเกตพฤติกรรมคนเพื่อปกป้องตัวเองจากการตัดสินใจพลาด มักอ้างข้อมูลเพื่อเลี่ยงการยอมรับความจริง</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px 8px; font-weight: bold; color: var(--kusabi-accent);">อาซาฮินะ ริสะ</td>
+                <td style="padding: 12px 8px; font-family: var(--font-mono);">ESFP</td>
+                <td style="padding: 12px 8px; color: var(--kusabi-ink-dim);">ทำตัวอ่อนแอและยิ้มเพื่อลดความขัดแย้ง พยายามเป็นคนโปรดของทุกคนเพื่อเลี่ยงการถูกทิ้งไว้ข้างหลัง</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px 8px; font-weight: bold; color: var(--kusabi-accent);">ชิอง มาโดกะ</td>
+                <td style="padding: 12px 8px; font-family: var(--font-mono);">INFJ (Twisted)</td>
+                <td style="padding: 12px 8px; color: var(--kusabi-ink-dim);">ฆ่าคนอื่นเพื่อทดสอบและยืนยันว่ามนุษย์ทุกคนต้องเห็นแก่ตัว เพื่อให้ความรู้สึกผิดของเขากลายเป็นเรื่องธรรมดา</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section style="margin-bottom: 3.5rem;">
+          <h2 style="font-family: var(--font-serif); color: var(--kusabi-accent); font-size: 1.5rem; border-bottom: 1px solid var(--kusabi-line); padding-bottom: 0.5rem; margin-bottom: 1.25rem;">
+            🎧 บันทึกรายการม้วนเทปประกอบฉาก
+          </h2>
+          <table style="width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.9rem;">
+            <thead>
+              <tr style="border-bottom: 2px solid var(--kusabi-accent); text-align: left;">
+                <th style="padding: 10px 8px; font-family: var(--font-mono);">ไอดีเพลง</th>
+                <th style="padding: 10px 8px; font-family: var(--font-mono);">บรรยากาศและเสียงสะท้อน</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px 8px; font-family: var(--font-mono); font-weight: bold; color: var(--kusabi-accent);">rain-hills</td>
+                <td style="padding: 12px 8px; color: var(--kusabi-ink-dim);">เสียงเม็ดฝนปรอยกระทบแผ่นกระจกและเสียงระดิ่งลมทองเหลืองเบาบาง</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px 8px; font-family: var(--font-mono); font-weight: bold; color: var(--kusabi-accent);">bells-fog</td>
+                <td style="padding: 12px 8px; color: var(--kusabi-ink-dim);">เสียงกระดิ่งเตือนภัยแบบดั้งเดิมของวัดห่างไกล แฝงเสียงลมหวีดหวิว</td>
+              </tr>
+              <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                <td style="padding: 12px 8px; font-family: var(--font-mono); font-weight: bold; color: var(--kusabi-accent);">audio-room</td>
+                <td style="padding: 12px 8px; color: var(--kusabi-ink-dim);">เสียงสัญญาณคลื่นกวน ความเงียบของห้องล็อก และคลิกปุ่มเทปเสียงหมุนลึก</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+      </div>
+
+      <div style="text-align: center; margin-top: 4rem;">
+        <a href={withBase("/kusabi/")} class="kusabi-extra-btn" style="background: none; border: 1px solid var(--kusabi-accent); color: var(--kusabi-accent);">กลับสู่สารบัญ</a>
+      </div>
+    </article>
+  </main>
+
+  <script>
+    const gate = document.querySelector("[data-extra-gate]");
+    const content = document.querySelector("[data-extra-content]");
+    const fill = document.querySelector("[data-progress-fill]");
+    const statusText = document.querySelector("[data-progress-status]");
+    const bypassInput = document.querySelector("[data-bypass-input]");
+    const bypassBtn = document.querySelector("[data-bypass-btn]");
+    const bypassError = document.querySelector("[data-bypass-error]");
+
+    const SECRET_READS_KEY = "kusabi:secret:reads";
+    const BYPASS_KEY = "kusabi:extra-bypassed";
+    // Double hash verification: H2 = sha256(H1)
+    const EXPECTED_H2 = "9c5144f57cc6d4eb640c116097b92fd94f5a4370379d732604003d2a15fef6de";
+    const TOTAL_CHAPTERS = 12; // Chapters 1-12
+    const REQUIRED_CHAPTERS = 10; // 80% threshold
+
+    // SHA-256 helper
+    async function sha256(message: string): Promise<string> {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    const getSecretReadsCount = (): number => {
+      try {
+        const raw = localStorage.getItem(SECRET_READS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(arr)) {
+          // Exclude Chapter 0 (00-introduction) as per specification
+          return arr.filter(id => id !== "00-introduction").length;
+        }
+        return 0;
+      } catch {
+        return 0;
+      }
+    };
+
+    const checkUnlocked = async (): Promise<boolean> => {
+      // 1. Check Developer Bypass
+      const storedH1 = localStorage.getItem(BYPASS_KEY);
+      if (storedH1) {
+        const calculatedH2 = await sha256(storedH1);
+        if (calculatedH2 === EXPECTED_H2) {
+          return true;
+        }
+      }
+
+      // 2. Check Reading Progress
+      if (getSecretReadsCount() >= REQUIRED_CHAPTERS) {
+        return true;
+      }
+
+      return false;
+    };
+
+    const initializeUI = async () => {
+      if (!gate || !content) return;
+
+      const readsCount = Math.min(getSecretReadsCount(), TOTAL_CHAPTERS);
+      const percent = Math.min(100, Math.round((readsCount / TOTAL_CHAPTERS) * 100));
+
+      if (fill) {
+        (fill as HTMLElement).style.width = `${percent}%`;
+      }
+      if (statusText) {
+        statusText.textContent = `${readsCount} / ${TOTAL_CHAPTERS} บท (${percent}%)`;
+      }
+
+      const unlocked = await checkUnlocked();
+      if (unlocked) {
+        (gate as HTMLElement).style.display = "none";
+        content.removeAttribute("hidden");
+      } else {
+        (gate as HTMLElement).style.display = "block";
+        content.setAttribute("hidden", "true");
+      }
+    };
+
+    const handleBypassSubmit = async () => {
+      if (!bypassInput || !bypassError || !content || !gate) return;
+      bypassError.setAttribute("hidden", "true");
+
+      const password = (bypassInput as HTMLInputElement).value.trim();
+      if (!password) return;
+
+      const h1 = await sha256(password);
+      const h2 = await sha256(h1);
+
+      if (h2 === EXPECTED_H2) {
+        localStorage.setItem(BYPASS_KEY, h1);
+        await initializeUI();
+      } else {
+        bypassError.removeAttribute("hidden");
+      }
+    };
+
+    // Attach listeners
+    bypassBtn?.addEventListener("click", handleBypassSubmit);
+    bypassInput?.addEventListener("keydown", (e) => {
+      if ((e as KeyboardEvent).key === "Enter") {
+        handleBypassSubmit();
+      }
+    });
+
+    // Run setup
+    initializeUI();
+    document.addEventListener("astro:page-load", initializeUI);
+  </script>
+
+  <style>
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</KusabiBaseLayout>
