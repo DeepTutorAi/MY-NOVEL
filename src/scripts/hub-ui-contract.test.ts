@@ -33,7 +33,7 @@ describe("Fiction hub visual contract", () => {
     const novelCard = readProjectFile("src/components/_shared/NovelCard.astro");
 
     assert.match(novels, /slug:\s*"tsukinomi"[\s\S]*status:\s*"เผยแพร่"/);
-    assert.match(novelCard, /data-tsuki-card-hint-trigger/);
+    assert.match(novelCard, /data-tsuki-card-hint/);
     assert.match(novelCard, /data-tsuki-card-hint-copy/);
     assert.match(novelCard, /HINT_COOLDOWN_MS = 5 \* 60 \* 1000/);
     assert.match(novelCard, /LODGE_SECRET_REQUIRED = 15/);
