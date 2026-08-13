@@ -11,14 +11,19 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 ### 1. Isolde Vane — Mother of Cael and Nio
 - **Age**: 47
 - **Appearance**: Thin frame, prematurely grey hair, hands scarred from boiling water. Always wears a salt-stained apron. Never makes eye contact.
-- **Personality**: Silent from grief, not silence from peace. She has not spoken a full sentence since Nio was taken. She cooks for Cael every day but does not eat with him. When she does speak, words fall like broken glass — "Eat." "Rain's coming." "Don't go out."
+- **Personality**: Silent from guilt and grief, not silence from peace. After Nio was taken, she speaks less and less while the latent infection takes hold. When she does speak, words fall like broken glass — "Eat." "Rain's coming." "Don't go out."
 - **Faction**: Neutral — does not believe the Ministry, but too broken to fight.
-- **Role**: Appears in Cael's memory (Arc 1 Ch 2), present at departure (Arc 1 Ch 5), evacuated in Arc 6 Ch 26. She never says goodbye — only raises one hand at the window.
-- **Appears**: Arc 1 (Ch 1, 2 flashback, 5), Arc 6 (Ch 26)
-- **Fate**: Survives. Lives in the coastal settlement. Never stops waiting for Nio to come home.
+- **Role**: Appears alive in the Arc 1 Ch 2 flashback. In Ch 1 and Ch 5 she exists through the empty house, objects, recipes, and Cael's memory. She is not present in the later evacuation.
+- **Appears**: Arc 1 (Ch 1 traces, Ch 2 flashback, Ch 5 memory)
+- **Fate**: Dies in Year -1, roughly six months before the story, from chronic damage and a secondary illness caused by her latent Brine-Spore infection.
 - **Relationship to Main Cast**: Mother of Cael and Nio. Her silence is the template for Cael's silence. Her grief is the wound he carries.
-- **Memorable Moment**: Arc 6 Ch 26 — the last evacuation ship leaves Elaris. Isolde looks back at the mountain. Raises one hand. No words. The same gesture she used when Nio was taken.
-- **Why She Exists**: Shows that Cael's family are victims of the system from the beginning. Her silence explains why Cael learned not to speak. Her survival proves that even those who do not fight can endure.
+- **Memorable Moment**: Arc 1 Ch 2 — she cuts at Nio's transformed finger, and saltwater from his wound enters the cut in her own hand before the Ministry takes him.
+- **Why She Exists**: Shows that Cael's family are victims of the system from the beginning. Her silence explains why Cael learned not to speak. Her death is the final loss that leaves him physically alone before the story begins.
+
+### 1a. Rovan Arvane — Father of Cael and Nio
+- **Role**: Elaris drainage and pressure-gate maintenance worker. He taught Cael to read water pressure, grates, and service conduits.
+- **Fate**: Dies in Year -8 while tracing Nio's sealed transfer route. The Ministry records the gate collapse as a maintenance accident.
+- **Narrative function**: His ledger becomes the first physical clue that Nio was transferred, not killed in the way the Ministry claimed.
 
 ---
 
@@ -330,7 +335,8 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 | # | Name | Age | Faction | Appears | Fate |
 |---|---|---|---|---|---|
-| 1 | Isolde Vane | 47 | Neutral (Elaris) | Arc 1, 6 | Survives |
+| 1 | Isolde Vane | 47 | Neutral (Elaris) | Arc 1 (traces/flashback) | Dies before story |
+| 1a | Rovan Arvane | — | Neutral (Elaris) | Backstory, Arc 1 traces | Dies in Year -8 |
 | 2 | Elder Soll | 71 | Quiet Resistance | Arc 1 | Dies in Elaris |
 | 3 | Henrick "Rust-Nail" | 41† | Ilyra's Mentor | Arc 5 (memory) | Dead before story |
 | 4 | Pip | 15 | Neutral (Bone Harbor) | Arc 4, 7 | Survives — becomes captain |
@@ -433,15 +439,26 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 ---
 
+## Rovan Arvane — The Man Who Read the Gates
+
+- **Role**: Cael and Nio's biological father; an Elaris drainage and pressure-gate maintenance worker.
+- **Status**: Died in Year -8, two years after Nio's removal. The official cause was a pressure-gate collapse during a maintenance shift. The actual cause was the Ministry sealing the service gate while Rovan was tracing Nio's transfer route, then burying the report.
+- **Character function**: Rovan gives Cael his practical knowledge of grates, pressure, and hidden conduits. His death shows how the Ministry turns a search for truth into an "accident" without making him a secret hero or a high-ranking rebel.
+- **Last trace**: Rovan's maintenance ledger contains a route number that later contradicts Nio's sealed death notice. Cael keeps the ledger but does not yet understand what it proves.
+
 ## Isolde Vane — The Mother Who Stopped Speaking
 
-**The contradiction she doesn't name**: Isolde did not stop speaking because of grief. She stopped speaking because the last thing she said to Nio was *"Don't go out."* He went out. He touched the rain. He was taken. Isolde believes that her words caused this — not that the words had power, but that if she had said something different, something better, something that would have kept him inside, he would have been safe. She stopped speaking because she no longer trusts her own words. Every sentence she might say feels like a potential *"Don't go out"* — a command that could cause the opposite of its intent. Her silence is not grief. It is a quarantine. She has quarantined her own voice because she believes it is dangerous.
+- **Status**: Dead before Chapter 1, roughly six months before the story begins.
+- **Exposure**: During Nio's removal, saltwater-tainted fluid entered a cut in Isolde's hand while she tried to stop the transformation. The low-dose Brine-Spore infection stayed latent for years.
+- **Death**: The infection did not kill her immediately. It caused chronic organ damage and a fatal secondary illness. Isolde refused Ministry treatment because the Ministry had already taken Nio.
 
-**Expanded role**: Isolde should have one scene in Arc 6 Ch 26 — the evacuation — where she almost speaks. She opens her mouth. Cael, watching, waits. The reader waits. Isolde closes her mouth. She raises her hand instead. Cael understands: she was going to say *"Don't go out,"* and she could not say it, because saying it might make him leave and not come back. This is the closest she comes to speech in the entire story. The reader should feel the weight of the word she did not say.
+**The contradiction she doesn't name**: Isolde did not stop speaking because of grief. She stopped speaking because the last thing she said to Nio was *"Don't go out."* He went out. He touched the rain. He was taken. Isolde believed that her words caused this — not that the words had power, but that if she had said something different, something better, something that would have kept him inside, he would have been safe. She stopped speaking because she no longer trusted her own words. Every sentence felt like a potential *"Don't go out"* — a command that could cause the opposite of its intent. Her silence was a quarantine.
 
-**Small detail**: Isolde cooks for Cael every day but does not eat with him. This is not a refusal of his company. It is the opposite. She cooks because cooking is the one thing she can do that does not require words. The food is her speech. It is the only language she trusts. Cael understands this. He eats everything she makes, even when it is burnt, even when it is terrible, because the eating is the conversation. They have been having this conversation for ten years.
+**Expanded role**: Isolde is alive only in the Chapter 2 flashback. In Chapter 1 she appears through the empty house, her apron, medicine bottle, recipes, and the phrases Cael still hears in memory. Her final narrative function is not a late evacuation scene; it is the choice she leaves Cael: remain inside the house of the dead, or leave to find the truth about Nio.
 
-**What she is afraid to admit**: She is afraid that Nio is dead. She has been afraid of this for ten years. She has arranged her entire life around not confirming it — not asking, not searching, not speaking his name. If she speaks his name, she will have to acknowledge that he might be gone, and she cannot survive that acknowledgment. Her silence is not grief. It is a fortress. She is afraid that if she opens her mouth, the fortress will fall, and the grief will kill her the way the rain killed Nio.
+**Small detail**: Isolde cooked for Cael every day but did not eat with him. Cooking was the one thing she could do that did not require words. Cael still repeats the routine after her death, even when the food tastes wrong, because eating was the conversation they had for ten years.
+
+**What she was afraid to admit**: She was afraid that Nio was dead. She and Cael had a sealed Ministry notice but no body. She arranged her life around not confirming the death — not asking, not searching, not speaking his name. Her silence was a fortress, and she died inside it without ever knowing that Nio had survived.
 
 ---
 

@@ -25,6 +25,11 @@ He wants to save everyone, but fundamentally does not believe he deserves to be 
 ### 3. The Wound (บาดแผลในอดีต)
 Losing his younger brother Nio. Cael blames himself because he was the one who led Nio outside to watch the forbidden rain.
 
+### 3.1 Family State at the Opening
+- **Rovan Arvane**, Cael's biological father, was an Elaris drainage and pressure-gate worker. He died in Year -8 while tracing Nio's sealed transfer route; the Ministry recorded the gate collapse as an ordinary maintenance accident.
+- **Isolde Vane**, Cael's mother, was exposed to Nio's saltwater-tainted blood while trying to save him. The low-dose infection stayed latent, then caused chronic organ damage and a fatal secondary illness. She died roughly six months before Chapter 1 after refusing Ministry treatment.
+- Cael and Isolde believed Nio died during transfer because the Ministry returned a sealed death notice and no body. At the opening, Cael is literally alone, but the house still contains the routines and objects of all three losses.
+
 ### 4. The Want (ความต้องการภายนอก)
 Stop the rain, protect Elaris, and find out if Nio is still alive.
 

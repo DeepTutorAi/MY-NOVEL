@@ -28,7 +28,7 @@ This document outlines the high-level roadmap, thematic goals, and structural mo
 ## 🎭 Major Narrative Arcs (7 Arcs / 35 Chapters)
 
 ### Arc 1: The Rain That Spoke (Ch 1-5)
-- **Focus**: World introduction, the mystery of the rain, Cael's past, and the erasure of the first margin village. Ilyra, Maera, Tovin, and Odran join the crew.
+- **Focus**: World introduction, the mystery of the rain, Cael's past as the last remaining member of his household, and the erasure of the first margin village. Ilyra, Maera, Tovin, and Odran join the crew.
 - **Inciting Incident**: Cael hears the voice of his brother Nio (who should be dead/taken) singing in the rain.
 - **Plot Point 1**: The Ministry burns the contaminated village and erases it from maps. Cael finds a bottled miniature house with fingers tapping from inside. Inquisitor Kell Marr oversees the purge.
 
@@ -45,15 +45,15 @@ This document outlines the high-level roadmap, thematic goals, and structural mo
 - **Stakes**: Discovering that Cael's home city Elaris sits directly at the "wound of the world" and will be destroyed first if the sea falls.
 - **Loran's Departure**: Loran Thorne calculates a 99% fatality vector for the Sky-Dam mission. He refuses to join the suicide mission, hands Ilyra his charts, confronts Cassian about macro-strategy vs. family, and departs at Bone Harbor to save his daughter.
 
-### Arc 5: The Dead Parliament (Ch 21-25)
+### Arc 5: The Dead Parliament (Ch 21-27)
 - **Focus**: Entering the Sky-Dam Engine, revealing the past Ascendant Engineers' consciousness archive. Marrow Saint confronts Cael. Reven — a child Cassian once saved — attacks him.
 - **Temptation**: The Dead Parliament offers to cure Nio if Cael repairs the dam to keep the sea aloft. Nio rejects the offer by stabbing his mutated chest, refusing to let the sea be bound again. Cael accepts Nio's autonomy. Cael chooses to become the Tide-Key.
 
-### Arc 6: The Moving of Cities (Ch 26-30)
+### Arc 6: The Moving of Cities (Ch 28-31)
 - **Focus**: Convincing three cities (Elaris, Nacre-Vault, Hallowmere) to migrate as the Sky-Dam breaks. Nacre-Vault's pearl industry resists. Bishop Corvein leads half of Hallowmere to drown in religious ecstasy.
 - **Odran's Penance**: Father Odran locks himself in Hallowmere's gate mechanism room, hand-cranking the rusted wheel until his finger bones crack. He drowns reciting the names of the 73 victims he sent to the Salt Ward — the final name he speaks is Nio Arvane's.
 
-### Arc 7: When the Sea Fell (Ch 31-35)
+### Arc 7: When the Sea Fell (Ch 32-35)
 - **Focus**: Final sacrifices. Epilogue +300 years.
 - **Climax**:
   - **Cassian's Stand**: Stands on the crumbling tower peak. Shoots the rope bridge to force Ilyra's ship to escape. Kills Inquisitor Kell Marr. Faces the rising tide alone.

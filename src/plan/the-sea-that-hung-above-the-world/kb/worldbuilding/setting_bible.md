@@ -28,7 +28,9 @@ The *Albatross* never descends below Layer 2 under normal operation. The emergen
 ## 🦠 Parasites & Mutated Wildlife
 
 ### The Core Parasite: Brine-Spores
-Rain from the Sky Ocean carries **Brine-Spores** — microscopic parasitic organisms. On skin contact, they burrow into the bloodstream within minutes and begin migrating toward the central nervous system. The parasite does not kill. It transforms the host into a hybrid organism capable of surviving in the sea — gills, coral-reinforced bones, webbing, whale-frequency speech. The host's consciousness is preserved. **Nio is still Nio** — he just experiences reality through biology that is no longer exclusively human. The Ministry calls the infected "brine-touched." The Chorus calls it "being chosen by the sea."
+Rain from the Sky Ocean carries **Brine-Spores** — microscopic parasitic organisms. On direct skin contact, they burrow into the bloodstream within minutes and begin migrating toward the central nervous system. The parasite is not a fast killer: a high exposure transforms the host into a hybrid organism capable of surviving in the sea — gills, coral-reinforced bones, webbing, whale-frequency speech. The host's consciousness is preserved. **Nio is still Nio** — he just experiences reality through biology that is no longer exclusively human.
+
+Exposure through infected blood or tissue fluid can deliver a smaller dose. That dose may remain latent for years, especially when it enters through a cut rather than direct rain. Brine-Spores are not airborne and are not spread by ordinary cohabitation. A latent infection can still cause chronic organ damage and a fatal secondary illness if untreated. The Ministry calls the infected "brine-touched." The Chorus calls it "being chosen by the sea."
 
 ### Other Parasites
 - **Coral-Spores**: Parasitic coral that replaces the host's skeleton with living coral. The host remains conscious. Cultivated by the Warden of Pearl.
@@ -50,9 +52,9 @@ Rain from the Sky Ocean carries **Brine-Spores** — microscopic parasitic organ
 ## 🏛️ Major Cities & Infrastructure
 
 - **The Sky-Dam Engine**: A colossal structure of bone, shell, and copper built by the Ascendant Engineers. It holds the ocean aloft. Inside, pipes beat like blood vessels, and the consciousness of the Dead Parliament speaks through metal grates.
-- **Elaris**: Cael's hometown. A mountain city built on steep cliffs, sitting directly above the geological fault line where the sea was torn from the earth.
-- **The Salt Ward**: A heavily guarded detention laboratory beneath the Sky-Dam where the Ministry holds Brine-Spore-infected children — studying the parasite's life cycle, attempting to weaponize it.
-- **Hallowmere**: A religious city governed by the Ministry, where citizens believe the rising flood is a holy baptism and refuse to evacuate.
+- **Elaris**: Cael's hometown. A mountain city built on steep cliffs, sitting directly above the geological fault line where the sea was torn from the earth. Key trading zone: **ตลาดคราบสมุทร** (Ocean-Crust Market).
+- **The White-Silt Bastion (ปราการผลึกขาว / เดิม Salt Ward)**: A heavily guarded detention laboratory beneath the Sky-Dam where the **สภาศิลาไร้ฝน** (Order of Rainless Stone / Ministry) holds Brine-Spore-infected children — studying the parasite's life cycle, attempting to weaponize it.
+- **Hallowmere**: A religious city governed by the Order of Rainless Stone, where citizens believe the rising flood is a holy baptism and refuse to evacuate.
 - **Nacre-Vault**: A wealthy city that harvests "pearls" from the bones of brine-touched corpses, profiting off the mutation and actively resisting the dam's destruction.
 
 ---

@@ -2,6 +2,8 @@
 
 This document maps out the complete **7-Arc / 35-Chapter** narrative structure with POV characters, locations, goals, obstacles, turns, exit hooks, dark comedy beats, mystery seeds, and character join/leave events.
 
+> **📌 โครงสร้างบทล็อกใหม่ (2026-08-01):** ยังเป็น 35 บท แต่ Arc 5 = Ch 21-27 (ขยาย 7 บท), Arc 6 = Ch 28-31 (รวม Nacre-Vault เข้ากับ Hallowmere), Arc 7 = Ch 32-35. ส่วนบท Arc 5-7 ในเอกสารนี้จะถูก renumber/เขียนใหม่เมื่อวางแผนถึง arc นั้น — รายละเอียด: `work/outline/arcs/arc1/arc1_design.md`
+
 ---
 
 ## 🌊 ARC 1: THE RAIN THAT SPOKE (Chapters 1-5)
@@ -13,7 +15,7 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 
 ### Chapter 1: The Call in the Pipes
 - **POV Character**: Cael Arvane (Present Active POV)
-- **Characters in Chapter**: Cael, Tovin Rusk, Isolde Vane (brief), Elder Soll (brief)
+- **Characters in Chapter**: Cael, Tovin Rusk, Elder Soll (brief); Rovan and Isolde appear only through the empty house, objects, and memory.
 - **Location**: Elaris mountain slopes, drainage access.
 - **Immediate Goal**: Clean the drainage grates before the oncoming storm.
 - **Obstacle**: The persistent, heavy dampness and a strange, metallic frequency in the water.
@@ -23,7 +25,7 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 
 ### Chapter 2: The Night of the Rain (Past Flashback)
 - **POV Character**: Nio Arvane (Past Flashback POV — age 4)
-- **Characters in Chapter**: Nio (POV), Cael (age 9), Inquisitor Odran Vale (first appearance), Isolde Vane (brief)
+- **Characters in Chapter**: Nio (POV), Cael (age 9), Inquisitor Odran Vale (first appearance), Isolde Vane (brief), Rovan Arvane (memory only)
 - **Location**: Elaris border cottage (10 years ago).
 - **Immediate Goal**: Watch the forbidden storm from the window.
 - **Obstacle**: The warnings of his older brother, Cael, and the strict curfew of the town.
@@ -53,11 +55,11 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 
 ### Chapter 5: Leaving Elaris
 - **POV Character**: Cael Arvane / Ilyra Venn (split chapter)
-- **Characters in Chapter**: Cael, Ilyra, Tovin, Maera, Odran, Elder Soll (final appearance — dies later in Elaris), Isolde Vane (silent farewell), Garrick & Lisse (temporary — board ship as refugees)
+- **Characters in Chapter**: Cael, Ilyra, Tovin, Maera, Odran, Elder Soll (final appearance — dies later in Elaris), Garrick & Lisse (temporary — board ship as refugees); Rovan and Isolde appear through Cael's family objects.
 - **Location**: Elaris → *Albatross* departs.
 - **Immediate Goal**: Leave Elaris before Ministry locks it down. Cael seeks Elder Soll's guidance.
-- **Obstacle**: Ministry patrols. Cael's reluctance to leave his mother.
-- **Turn**: Elder Soll tells Cael: *"Your eyes… they're like the Rain Listener before you. The one who chose not to return."* Cael chooses not to say goodbye to Isolde — she watches from the window, silent, raising one hand.
+- **Obstacle**: Ministry patrols. Cael's reluctance to leave his mother's house and the last evidence of his family.
+- **Turn**: Elder Soll tells Cael: *"Your eyes… they're like the Rain Listener before you. The one who chose not to return."* Cael takes Rovan's maintenance ledger and leaves Isolde's apron behind, choosing the living mystery of Nio over the house of the dead.
 - **Exit Hook**: The *Albatross* ascends into the Shroud, leaving the mountain city behind.
 - **Dark Comedy Beat #2**: Ilyra: "Watch closely… this is how a real Sky-Sailor breaches the Shroud—" *The ship slams into turbulence. Ilyra nearly falls overboard. Tovin grabs her ankle.* Cael: "…Magnificent."
 - **Mystery Seed**: First faint sensation of Leviathan — Cael feels a "silence that isn't silence."
@@ -342,18 +344,18 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 **~600 lines | Focus**: Evacuating Elaris, Nacre-Vault, Hallowmere. Odran's sacrifice. First wave of permanent deaths.
 **Timeline**: Month 4, Weeks 2-4
 **CHARACTER DEATH**: Odran Vale (Chapter 30)
-**Temporary Characters**: Bishop Corvein, Master Harrow, Garrick & Lisse (return), Isolde Vane (final)
+**Temporary Characters**: Bishop Corvein, Master Harrow, Garrick & Lisse (return)
 
 ---
 
 ### Chapter 26: Elaris — The First City
 - **POV Character**: Ilyra Venn (Present Active POV)
-- **Characters in Chapter**: Ilyra, Tovin, Cassian, Sera, Nio, Varek, Garrick & Lisse (return — Lisse gives birth on the evacuation ship), Isolde Vane (final appearance — survives, evacuated)
+- **Characters in Chapter**: Ilyra, Tovin, Cassian, Sera, Nio, Varek, Garrick & Lisse (return — Lisse gives birth on the evacuation ship)
 - **Location**: Elaris — flooding from the Descent Zone.
 - **Immediate Goal**: Evacuate Elaris. Convince people the sea is really falling.
 - **Obstacle**: People don't believe it. *"The sea can't fall. It's been there a thousand years."* Time is short.
 - **Turn**: Elder Soll's house — he is already dead. Left a letter for Cael: *"The rain isn't falling. It's remembering. And you are the one it remembers."*
-- **Exit Hook**: Elaris begins evacuation. Isolde boards the last ship — looks back at the mountain — raises one hand. Silent. Again.
+- **Exit Hook**: Elaris begins evacuation. Floodwater enters the empty Arvane house; no one remains to raise a hand from its window.
 - **Dark Comedy Beat**: —
 - **Cael's Presence**: Cael is not physically present, but everyone feels him — in the rain, in the wind. Ilyra: *"He's still here… in the water… in the wind…"*
 
@@ -510,7 +512,8 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 | Varek | Arc 2 Ch 7 (enemy)→Arc 4 Ch 18 (join) | Arc 7 Ch 33 | → Coral Beast (Mistwood) |
 
 ### Temporary Character Appearances (≤3 chapters):
-- Isolde Vane: Ch 1,2(FB),5,26 — survives
+- Rovan Arvane: Ch 1 (ledger/memory), Ch 2 (memory) — died in Year -8
+- Isolde Vane: Ch 1 (empty-house traces), Ch 2 (FB) — died in Year -1
 - Elder Soll: Ch 1,5 — dies in Elaris before evacuation
 - Kell Marr: Ch 4,13,15,21,24,31 — killed by Cassian
 - Lienn: Ch 7,11,13 — sent to Salt Ward, dies

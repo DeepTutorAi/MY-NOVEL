@@ -137,7 +137,7 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Need**: Have the autonomy to choose his own path.
 - **Route**:
   - *Early (Past Flashbacks)*: Serves as the POV for the historical events 10 years ago, documenting the night he touched the forbidden rain, the onset of his mutation, and the horror of the Salt Ward containment cells.
-  - *Middle (Present Active)*: Rescued in Arc 3. Serves as the active POV capturing his sensory shift into non-human frequencies and his silent communication with Veyra.
+  - *Middle (Present Active)*: Rescued in Arc 3. Serves as the active POV capturing his sensory shift into non-human frequencies and his silent communication with Varek.
   - *Late*: Bridges with the Leviathan, forgetting human names and words one by one. During the finale, he completely forgets the word "brother," but sings the whale frequency of the melody Cael sang to him in childhood.
   - *Final/Epilogue*: Merges fully with the sea. He does not die like a human, surviving as a voice and a whale song heard in the bay on rainy nights.
 
@@ -170,7 +170,7 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Need**: Accept that defecting to protect his daughter is his true path of duty, and that he does not need to copy Cassian's path of martyrdom to pay his debts.
 - **Route**:
   - *Early*: Hired by Ilyra in Arc 2 because of his deep knowledge of the Sky Ocean's Ministry patrol routes. His rigid military background is immediately spotted by Cassian.
-  - *Middle*: Coordinates the flight paths of the *Albatross* alongside Cassian, using their shared training to outmaneuver Veyra's forces.
+  - *Middle*: Coordinates the flight paths of the *Albatross* alongside Cassian, using their shared training to outmaneuver Varek's forces.
   - *Late*: At the end of Arc 4 (The Drowned Roads), upon analyzing the flight, wind shear, and structural data of the Sky-Dam Engine, he calculates a near-100% fatality rate for the mission. Recognizing it as a certain death sentence, he refuses to proceed. He directly confronts Cassian, hands Ilyra his flight charts, and departs at Bone Harbor to return south and evacuate his family. (This logical premonition is tragically validated when almost the entire remaining team is killed or permanently transformed).
   - *Aftermath*: Successfully moves his family to the southern mountains before the flood. He survives the disaster, settling as a respected elder in a new southern coastal village.
   - *Epilogue*: Dies of old age. He is remembered by his descendants as a smart man who chose life and family over the military lies of the Ministry.
