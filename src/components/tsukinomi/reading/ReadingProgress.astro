@@ -44,7 +44,7 @@
     const enteredAt = Date.now();
     const timers = new Set<number>();
     let loadStart: (() => void) | null = null;
-    const ANCHOR_SELECTOR = "h2, h3, p, blockquote, ul, ol";
+    const ANCHOR_SELECTOR = "h2, h3, p, blockquote, figure, ul, ol";
     const blocks = Array.from(article.querySelectorAll<HTMLElement>(`:scope > ${ANCHOR_SELECTOR}`));
 
     const setTimer = (callback: () => void, ms: number) => {
@@ -245,10 +245,13 @@
     // --- SECRET READING TRACKING SYSTEM ---
     const secretTimersKey = "tsukinomi:reading:secret:timers";
     const secretReadsKey = "tsukinomi:reading:secret:reads";
+    const secretDepthsKey = "tsukinomi:reading:secret:depths";
     const SECRET_THRESHOLD_SEC = 1080; // 18 minutes
+    const SECRET_DEPTH_THRESHOLD = 0.8;
 
     let activeSeconds = 0;
-    let lastInteraction = Date.now();
+    let maxSecretProgress = 0;
+    let lastInteraction = 0;
 
     const loadSecretTimers = (): Record<string, number> => {
       try {
@@ -265,10 +268,27 @@
       } catch {}
     };
 
+    const loadSecretDepths = (): Record<string, number> => {
+      try {
+        const raw = localStorage.getItem(secretDepthsKey);
+        const parsed = raw ? JSON.parse(raw) : {};
+        return parsed && typeof parsed === "object" ? parsed : {};
+      } catch {
+        return {};
+      }
+    };
+
+    const saveSecretDepths = (depths: Record<string, number>) => {
+      try {
+        localStorage.setItem(secretDepthsKey, JSON.stringify(depths));
+      } catch {}
+    };
+
     const getSecretReads = (): string[] => {
       try {
         const raw = localStorage.getItem(secretReadsKey);
-        return Array.isArray(raw ? JSON.parse(raw) : null) ? JSON.parse(raw!) : [];
+        const parsed = raw ? JSON.parse(raw) : [];
+        return Array.isArray(parsed) ? parsed.filter((id): id is string => typeof id === "string") : [];
       } catch {
         return [];
       }
@@ -282,11 +302,49 @@
 
     if (sectionId) {
       const currentTimers = loadSecretTimers();
-      activeSeconds = currentTimers[sectionId] || 0;
+      const currentDepths = loadSecretDepths();
+      activeSeconds = Number.isFinite(currentTimers[sectionId]) ? currentTimers[sectionId] : 0;
+      maxSecretProgress = Number.isFinite(currentDepths[sectionId])
+        ? Math.max(0, Math.min(1, currentDepths[sectionId]))
+        : 0;
     }
 
     const recordInteraction = () => {
       lastInteraction = Date.now();
+    };
+
+    const qualifySecretRead = () => {
+      if (!sectionId || activeSeconds < SECRET_THRESHOLD_SEC || maxSecretProgress < SECRET_DEPTH_THRESHOLD) {
+        return;
+      }
+
+      const currentReads = getSecretReads();
+      if (!currentReads.includes(sectionId)) {
+        currentReads.push(sectionId);
+        saveSecretReads(currentReads);
+      }
+    };
+
+    const trackSecretDepth = () => {
+      if (!sectionId) return;
+      const progress = Math.max(0, Math.min(1, getRatio()));
+      if (progress <= maxSecretProgress) {
+        qualifySecretRead();
+        return;
+      }
+
+      const previousProgress = maxSecretProgress;
+      maxSecretProgress = progress;
+      const crossedPercent = Math.floor(progress * 100) > Math.floor(previousProgress * 100);
+      const crossedThreshold =
+        previousProgress < SECRET_DEPTH_THRESHOLD && progress >= SECRET_DEPTH_THRESHOLD;
+
+      if (crossedPercent || crossedThreshold) {
+        const currentDepths = loadSecretDepths();
+        currentDepths[sectionId] = Number(maxSecretProgress.toFixed(4));
+        saveSecretDepths(currentDepths);
+      }
+      qualifySecretRead();
     };
 
     const updateSecretTimer = () => {
@@ -295,6 +353,7 @@
       // User is active if there was interaction in the last 60 seconds
       if (now - lastInteraction < 60000) {
         activeSeconds += 1;
+        trackSecretDepth();
 
         if (activeSeconds % 10 === 0 || activeSeconds >= SECRET_THRESHOLD_SEC) {
           const currentTimers = loadSecretTimers();
@@ -302,12 +361,8 @@
           saveSecretTimers(currentTimers);
         }
 
-        if (activeSeconds >= SECRET_THRESHOLD_SEC) {
-          const currentReads = getSecretReads();
-          if (!currentReads.includes(sectionId)) {
-            currentReads.push(sectionId);
-            saveSecretReads(currentReads);
-          }
+        if (activeSeconds >= SECRET_THRESHOLD_SEC && maxSecretProgress >= SECRET_DEPTH_THRESHOLD) {
+          qualifySecretRead();
         }
       }
     };
@@ -320,6 +375,9 @@
         const currentTimers = loadSecretTimers();
         currentTimers[sectionId] = activeSeconds;
         saveSecretTimers(currentTimers);
+        const currentDepths = loadSecretDepths();
+        currentDepths[sectionId] = Number(maxSecretProgress.toFixed(4));
+        saveSecretDepths(currentDepths);
       }
     };
 
@@ -329,6 +387,7 @@
 
     // Interaction listeners for secret tracking
     window.addEventListener("mousemove", recordInteraction, { passive: true });
+    window.addEventListener("scroll", recordInteraction, { passive: true });
     window.addEventListener("keydown", recordInteraction, { passive: true });
     window.addEventListener("touchstart", recordInteraction, { passive: true });
     window.addEventListener("click", recordInteraction, { passive: true });
@@ -342,6 +401,7 @@
         window.removeEventListener("resize", requestUpdate);
         window.removeEventListener("pagehide", handlePageHide);
         window.removeEventListener("mousemove", recordInteraction);
+        window.removeEventListener("scroll", recordInteraction);
         window.removeEventListener("keydown", recordInteraction);
         window.removeEventListener("touchstart", recordInteraction);
         window.removeEventListener("click", recordInteraction);

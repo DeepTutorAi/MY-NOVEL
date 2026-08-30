@@ -1,5 +1,9 @@
 ---
 import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
+import { withBase } from "../../../utils/base-path";
+
+const thankYouImage = withBase("/assets/tsukinomi/images/extra/thank-you-haruto-hina-kaori.png");
+const alternateFutureImage = withBase("/assets/tsukinomi/images/extra/alternate-future-haruto-kaori.png");
 ---
 
 <TsukinomiBaseLayout
@@ -16,7 +20,7 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
         <div class="lock-icon">🌸</div>
         <h2>ความทรงจำที่ยังไม่พร้อมเปิดเผย</h2>
         <p class="gate-desc">
-          พื้นที่พิเศษนี้เปิดให้เฉพาะผู้อ่านที่ใช้เวลาซึมซับเนื้อเรื่องอย่างลึกซึ้ง (อย่างน้อย 80% หรือ 4 ภาคจากทั้งหมด 5 ภาค โดยใช้เวลารับฟังและอ่านอย่างน้อยภาคละ 18 นาที)
+          พื้นที่พิเศษนี้เปิดเมื่ออ่านอย่างน้อย 4 จาก 5 ภาค โดยแต่ละภาคต้องใช้เวลาอ่านจริงอย่างน้อย 18 นาทีและผ่านเนื้อหาอย่างน้อย 80% รวมทั้งต้องอ่านภาค 5 ให้ผ่านเงื่อนไขด้วย
         </p>
         
         <div class="progress-bar-container">
@@ -105,6 +109,37 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
             "บางครั้งการรอคอยที่ยาวนาน ไม่ใช่เพื่อรอให้ใครบางคนกลับมา แต่เพื่อรอให้ตัวเราเองเข้าใจความหมายของการจากลา... ขอบคุณที่ร่วมเดินทางมากับพวกเราที่สถานีรถไฟแห่งนี้"
           </blockquote>
         </section>
+
+        <section class="extra-card extra-gallery" aria-labelledby="extra-gallery-heading">
+          <h2 id="extra-gallery-heading">🖼️ ภาพส่งท้ายหลังอ่านจบ</h2>
+          <p>
+            ภาพสองชิ้นนี้เป็นงานพิเศษนอกเนื้อเรื่องหลัก ภาพที่สองคือฉากสมมติแบบ alternate future ไม่ใช่ตอนจบหลักของเรื่อง
+          </p>
+          <div class="extra-gallery-grid">
+            <figure>
+              <img
+                src={thankYouImage}
+                width="1122"
+                height="1402"
+                alt="ฮารุโตะ ฮินะ และคาโอริในภาพขอบคุณผู้อ่าน"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>Thank you for reading — ความทรงจำของทั้งสามคน</figcaption>
+            </figure>
+            <figure>
+              <img
+                src={alternateFutureImage}
+                width="1122"
+                height="1402"
+                alt="ภาพสมมติของฮารุโตะและคาโอริในชุดพิธีแต่งงานแบบญี่ปุ่น"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>Alternate future / what-if — ไม่ใช่ตอนจบหลัก</figcaption>
+            </figure>
+          </div>
+        </section>
       </div>
     </article>
   </main>
@@ -124,6 +159,14 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
     const EXPECTED_H2 = "ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18";
     const TOTAL_SECTIONS = 5;
     const UNLOCK_THRESHOLD = 4; // 80% of 5 is 4 sections
+    const REQUIRED_FINAL_SECTION_ID = "05-ten-years";
+    const VALID_SECTION_IDS = new Set([
+      "01-discovery",
+      "02-reveal",
+      "03-decision",
+      "04-mountain",
+      REQUIRED_FINAL_SECTION_ID,
+    ]);
 
     // SHA-256 helper
     async function sha256(message: string): Promise<string> {
@@ -133,18 +176,27 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
       return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-    const getSecretReadsCount = (): number => {
+    const getSecretReads = (): string[] => {
       try {
         const raw = localStorage.getItem(SECRET_READS_KEY);
         const arr = raw ? JSON.parse(raw) : [];
         if (Array.isArray(arr)) {
-          return arr.filter(id => id !== "00-introduction").length;
+          return [
+            ...new Set(
+              arr.filter(
+                (id): id is string =>
+                  typeof id === "string" && id !== "00-introduction" && VALID_SECTION_IDS.has(id),
+              ),
+            ),
+          ];
         }
-        return 0;
+        return [];
       } catch {
-        return 0;
+        return [];
       }
     };
+
+    const getSecretReadsCount = (): number => getSecretReads().length;
 
     const checkUnlocked = async (): Promise<boolean> => {
       const storedH1 = localStorage.getItem(BYPASS_KEY);
@@ -154,7 +206,8 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
           return true;
         }
       }
-      return getSecretReadsCount() >= UNLOCK_THRESHOLD;
+      const reads = getSecretReads();
+      return reads.length >= UNLOCK_THRESHOLD && reads.includes(REQUIRED_FINAL_SECTION_ID);
     };
 
     const updateUI = async () => {
@@ -397,6 +450,44 @@ import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.
     .extra-card p {
       color: var(--tsuki-ink-dim);
       line-height: 1.7;
+    }
+
+    .extra-gallery {
+      grid-column: 1 / -1;
+    }
+
+    .extra-gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    .extra-gallery figure {
+      margin: 0;
+    }
+
+    .extra-gallery img {
+      display: block;
+      width: 100%;
+      height: auto;
+      border: 1px solid var(--tsuki-line);
+      border-radius: 6px;
+      background: #f7f5f0;
+    }
+
+    .extra-gallery figcaption {
+      margin-top: 0.65rem;
+      color: var(--tsuki-ink-dim);
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 640px) {
+      .extra-gallery-grid {
+        grid-template-columns: 1fr;
+      }
     }
 
     blockquote.tsuki-quote {

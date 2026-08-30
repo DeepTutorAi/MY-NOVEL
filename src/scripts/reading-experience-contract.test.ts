@@ -136,8 +136,14 @@ describe("shared reading experience contract", () => {
 
     assert.match(tsukiProgress, /tsukinomi:reading:secret:timers/);
     assert.match(tsukiProgress, /tsukinomi:reading:secret:reads/);
+    assert.match(tsukiProgress, /tsukinomi:reading:secret:depths/);
     assert.match(tsukiProgress, /SECRET_THRESHOLD_SEC = 1080/); // 18 minutes
+    assert.match(tsukiProgress, /SECRET_DEPTH_THRESHOLD = 0\.8/);
     assert.match(tsukiProgress, /lastInteraction < 60000/);
+    assert.match(
+      tsukiProgress,
+      /activeSeconds >= SECRET_THRESHOLD_SEC && maxSecretProgress >= SECRET_DEPTH_THRESHOLD/,
+    );
 
     // Extra page requirements: bypass passwords (securely hashed) and 80% threshold checks
     assert.match(lodgeExtra, /6d4829eebb416434779797994fa3b4324fcf1b3eb2392c99b0c6599313b8dad7/);
@@ -146,7 +152,25 @@ describe("shared reading experience contract", () => {
 
     assert.match(tsukiExtra, /ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18/);
     assert.match(tsukiExtra, /UNLOCK_THRESHOLD = 4/);
+    assert.match(tsukiExtra, /REQUIRED_FINAL_SECTION_ID = "05-ten-years"/);
+    assert.match(tsukiExtra, /reads\.includes\(REQUIRED_FINAL_SECTION_ID\)/);
     assert.match(tsukiExtra, /tsukinomi:extra-bypassed/);
+  });
+
+  it("places the farewell illustration at the canonical goodbye and keeps the two ending extras behind the gate", () => {
+    const mountain = readProjectFile("src/content/tsukinomi/sections/04-mountain.md");
+    const tsukiExtra = readProjectFile("src/pages/tsukinomi/extra/index.astro");
+
+    assert.match(
+      mountain,
+      /ลาก่อนนะครับ คุณคาโอริ[\s\S]{0,600}farewell-haruto-kaori\.png/,
+    );
+    assert.match(tsukiExtra, /thank-you-haruto-hina-kaori\.png/);
+    assert.match(tsukiExtra, /alternate-future-haruto-kaori\.png/);
+    assert.match(
+      tsukiExtra,
+      /data-extra-content[\s\S]*src=\{thankYouImage\}[\s\S]*src=\{alternateFutureImage\}/,
+    );
   });
 
   it("implements TOC read indicators and accurate IP timezone tracking", () => {

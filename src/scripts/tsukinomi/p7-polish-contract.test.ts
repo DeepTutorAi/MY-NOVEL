@@ -78,7 +78,7 @@ describe("Tsukinomi P7 polish contract", () => {
     assert.match(notFound, /กลับสถานีทะเลพระจันทร์/);
   });
 
-  it("documents the Tsukinomi asset subtree and pending P6 image slots", () => {
+  it("documents the Tsukinomi asset subtree and ready P6 image slots", () => {
     const readmePath = "public/assets/tsukinomi/README.md";
 
     assert.equal(existsSync(projectPath(readmePath)), true, `${readmePath} should exist`);
@@ -91,7 +91,9 @@ describe("Tsukinomi P7 polish contract", () => {
     assert.match(readme, /audio\/sfx/);
     assert.match(readme, /icons/);
     assert.match(readme, /textures/);
-    assert.match(readme, /pending-user-image/);
+    assert.doesNotMatch(readme, /pending-user-image/);
+    assert.match(readme, /Authored Image Slots/);
+    assert.match(readme, /images\/extra/);
     assert.match(readme, /hero-station/);
     assert.match(readme, /section-05/);
   });
