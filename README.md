@@ -1,60 +1,203 @@
-# Pii-chan Dechalert — Fiction Hub
+<div align="center">
 
-A single-author Thai fiction site hosting two long-form works under one reading shell. Each novel
-keeps its own identity — layout, atmosphere, audio, and reading state are separate — built on a
-shared Astro stack.
+<img src="public/assets/_shared/images/fictionhub.jpg" alt="ประตูไม้เก่าที่เปิดออกสู่แสงอุ่นกลางความมืด" width="100%"/>
 
-- **`/`** — hub listing both novels
-- **`/lodge/`** — *Hvitveldt Lodge* (ฮวิตเวลต์ ลอดจ์) · สยอง · หนาว · 18 บท
-- **`/tsukinomi/`** — *Tsukinomi no Eki* (สถานีทะเลพระจันทร์) · สงบ · เหงา · 5 ภาค
+# 🕯️ Pii-chan Dechalert — Fiction Hub
 
-Documentation lives in [`docs/`](docs/README.md). Phased build plans:
-[`docs/lodge/codex_handoff.md`](docs/lodge/codex_handoff.md) and
-[`docs/tsukinomi/codex_tsukinomi_handoff.md`](docs/tsukinomi/codex_tsukinomi_handoff.md).
+**พื้นที่รวมนิยายไทยของนักเขียนคนเดียว — หลายเรื่อง หลายอากาศ ในเปลือกอ่านเดียวกัน**
 
-## Requirements
+แต่ละเรื่องมีเอกลักษณ์เป็นของตัวเอง ทั้งเลย์เอาต์ บรรยากาศ เสียงประกอบ ภาพประกอบ และสถานะการอ่าน
+สร้างบนสแตก Astro เดียวกัน พร้อมโปรไฟล์ผู้อ่าน (Guest) ที่จำความคืบหน้าของแต่ละเรื่องแยกกัน
 
-- Node.js 20 LTS or newer (deploy on Node 20 or 22 LTS).
-- pnpm 10 or newer.
+![Astro](https://img.shields.io/badge/Astro-5-BC52EE?logo=astro&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-4-06B6D4?logo=tailwindcss&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?logo=typescript&logoColor=white)
+![Node.js](https://img.shields.io/badge/Node.js-20%2B-339933?logo=nodedotjs&logoColor=white)
+![pnpm](https://img.shields.io/badge/pnpm-10-F69220?logo=pnpm&logoColor=white)
 
-## Development
+**`/`** ฮับกลาง · **`/lodge/`** · **`/tsukinomi/`** · **`/sea/`** · **`/kusabi/`**
+
+</div>
+
+---
+
+## 📚 เรื่องในคอลเลกชัน
+
+| # | เรื่อง | แนว | ความยาว | สถานะ |
+|---|--------|-----|---------|--------|
+| ๑ | ❄️ [ฮวิตเวลต์ ลอดจ์](#-ฮวิตเวลต์-ลอดจ์--hvitveldt-lodge) | สยองขวัญ · หนาวเย็น | 18 บท + ปฐมบท | ✅ อ่านได้แล้ว |
+| ๒ | 🚉 [สถานีทะเลพระจันทร์](#-สถานีทะเลพระจันทร์--tsukinomi-no-eki) | สงบ · เหงา · โรแมนซ์ข้ามเวลา | 5 ภาค + บทนำ | ✅ อ่านได้แล้ว |
+| ๓ | 🌊 [ทะเลเหนือโลก](#-ทะเลเหนือโลก--the-sea-that-hung-above-the-world) | แฟนตาซีมืด · สยองขวัญเชิงนิเวศ | 7 อาร์ก (วางแผน) | 🚧 เตรียมจัดตั้ง — อ่านบทนำได้ |
+| ๔ | 🎐 [บ้านคุซาบิบนเขาคุโระมิโซะ](#-บ้านคุซาบิบนเขาคุโระมิโซะ--kusabi) | สยองขวัญจิตวิทยา | กำลังเขียน | ⏳ เร็วๆ นี้ |
+
+---
+
+## ❄️ ฮวิตเวลต์ ลอดจ์ — Hvitveldt Lodge
+
+<div align="center">
+<img src="public/assets/lodge/images/hero-forest.jpg" alt="ป่าสนใต้ท้องฟ้าฤดูหนาวอันมืดสนิท" width="100%"/>
+</div>
+
+> ลอดจ์หรูกลางป่าสนฟินมาร์กทางเหนือของนอร์เวย์ ขายตัวเองให้เป็นความเงียบที่มีราคา
+> แขกทั้งแปดส่งมอบอุปกรณ์สื่อสารทั้งหมดก่อนเข้าพัก — แล้วพายุหิมะก็เริ่มล้อมป่า
+> ไม่มีสัญญาณ ไม่มีทางออก และคืนหนึ่งในลอดจ์ยาวนานกว่าที่นาฬิกาบอก
+> สิ่งที่น่ากลัวที่สุดอาจไม่ใช่เสียงในพายุ แต่เป็นช่วงเวลาที่คุณหันไปมองคนข้างตัว
+> แล้วพบว่ารอยยิ้มของเขา…ช้าไปครึ่งจังหวะ
+
+**เล่าผ่านบันทึกของ "เอเลน่า วาสเกซ"** นักข่าวอิสระจากนิวยอร์ก — ผู้เตือนผู้อ่านตั้งแต่หน้าแรกว่า
+*อย่าเชื่อทุกครั้งที่เธอเขียนคำว่า "ฉัน"*
+
+- **18 บท 4 องก์** จบสมบูรณ์ พร้อมปฐมบท "ถ้อยคำของผู้บันทึก"
+- **ภาพประกอบประจำบท** สไตล์ภาพวาดถ่าน/ดินสอโทนมืด คู่ทุกบท (35 ภาพ)
+- **ชีตตัวละคร 13 ตัว** แขกทั้งแปด เจ้าของบ้าน และคนที่ไม่ควรยังอยู่
+- **เสียงประกอบจริง 7 เพลงคิว** บรรยากาศตั้งแต่ป่าหิมะยันกระจกเงา (Pixabay Content License)
+- **หน้าปริศนาลอตเตอรี่ของลอดจ์** สำหรับผู้อ่านที่อยากไล่รอยความจริงเพิ่ม
+
+| | |
+|---|---|
+| <img src="public/assets/lodge/images/chapters/01A.png" alt="เอเลน่าขับรถผ่านป่าหิมะในค่ำคืนที่ท้องฟ้าเต็มด้วยหิมะ" width="100%"/> | <img src="public/assets/lodge/images/characters/Elena%20Vasquez.png" alt="ชีตตัวละครเอเลน่า วาสเกซ มุมมองหน้า กลาง และข้าง พร้อมบทสนทนาท่าทาง" width="100%"/> |
+| *บทที่ 1 — การเดินทางเข้าป่า* | *ชีตตัวละคร: เอเลน่า วาสเกซ* |
+
+🔗 **อ่านได้ที่ `/lodge/`** — สถานะ: ✅ จบแล้วทั้ง 18 บท
+
+---
+
+## 🚉 สถานีทะเลพระจันทร์ — Tsukinomi no Eki
+
+<div align="center">
+<img src="public/assets/tsukinomi/images/hero-station.jpg" alt="สถานีรถไฟไม้ร้างบนภูเขายามพลบค่ำ หิมะโปรยปราย" width="100%"/>
+</div>
+
+> สถานีสึคิโนมิ สถานีรถไฟท้องถิ่นบนเขาฮาคุบะ จังหวัดนางาโนะ — วันนี้เหลือเพียงอาคารไม้ร้าง
+> เก้าอี้ยาวสามแถว และนาฬิกาที่หยุดเดิน คืนฝนตกหนักฤดูใบไม้ร่วง ฮารุโตะ ทากาฮาชิ วัยสิบเจ็ด
+> ขึ้นไปหลบฝน แล้วพบเด็กผู้หญิงนั่งรออยู่บนเก้าอี้แถวกลาง เธอขอฟังเพลงจากวอล์กแมนของเขา
+> ผ่านสายหูฟังเส้นเดียวกัน — เพลงนั้นไม่ได้ยาวนาน ฝนก็ไม่ได้หยุดตก
+> แต่บางครั้งชีวิตคนเราก็เปลี่ยนไปจากสิ่งเล็กเท่านั้นเอง
+
+**นิยายโรแมนซ์ข้ามกาลเวลาที่เล่าด้วยเสียงเพลง** — เรื่องราวย้อนไปมาข้ามหนึ่งทศวรรษ
+จากชานชาลาร้างในปี 2008 สู่การกลับมาพบกันอีกครั้ง
+
+- **5 ภาค**: Discovery · Reveal · Decision · Mountain · Ten Years (จบสมบูรณ์)
+- **ภาพประกอบขาวดำสไตล์ไลต์โนเวล** คัดเฉพาะซีนสำคัญของแต่ละภาค
+- **ธีม Walkman แบบคาเซ็ต** เปิด/ปิดเสียงประกอบพร้อมเอฟเฟกต์เสียงเทปจริง
+- **เพลงประจำภาค 5 เพลง** คัดสรรจาก Pixabay Music พร้อมเครดิตครบถ้วน
+- **ฟิล์มเกรนและพื้นหลังประจำภาค** สร้างด้วยสคริปต์ sharp ในรีโปเอง
+- **ฉากพิเศษหลังจบเรื่อง** (Locked Extras) สำหรับผู้อ่านที่ไปถึงวันสุดท้าย
+
+| | |
+|---|---|
+| <img src="public/assets/tsukinomi/images/illustrations/section-01-first-meeting.png" alt="เด็กผู้หญิงเส้นผมยาวนั่งรอบนเก้าอี้ชานชาลาร้างในคืนฝนตก" width="100%"/> | <img src="public/assets/tsukinomi/images/illustrations/section-05-ten-years-reunion-hina-long-hair.png" alt="ชายหนุ่มแบะหญิงสาวเดินคู่กันบนชานชาลาที่หิมะตก" width="100%"/> |
+| *การพบกันครั้งแรก ใต้หลังคาสังกะสี* | *สิบปีต่อมา — การกลับมาพบกัน* |
+
+🔗 **อ่านได้ที่ `/tsukinomi/`** — สถานะ: ✅ จบแล้วทั้ง 5 ภาค
+
+---
+
+## 🌊 ทะเลเหนือโลก — The Sea That Hung Above The World
+
+<div align="center">
+<img src="public/assets/sea/images/hero-sea-v2.png" alt="มหาสมุทรผืนยักษ์ลอยอยู่บนท้องฟ้าเหนือเมืองบนภูเขา เงาวาฬว่ายอยู่ใต้ผืนน้ำ เด็กหนุ่มคุกเข่าอยู่ข้างท่อระบายน้ำ" width="100%"/>
+</div>
+
+> เมื่อทะเลยกตัวขึ้น ไม่มีใครเรียกมันว่าภัยพิบัติ — สามชั่วโมงต่อมา ทะเลหายไปจากเส้นขอบฟ้า
+> เบื้องหน้าผู้คนคือผิวน้ำขนาดมหึมาที่ลอยสูงขึ้นไปในอากาศ เงาปลาขนาดเท่าเรือบรรทุกแหวกว่าย
+> ใต้ผืนน้ำที่กลายเป็นท้องฟ้าใหม่ และฝนที่ตกลงมาไม่ได้มาจากเมฆ แต่มาจากมหาสมุทร
+>
+> หนึ่งร้อยปีผ่านไป คืนที่ฝนซาที่สุดในรอบหลายปี ที่เมืองเอลาริส เด็กหนุ่มคนหนึ่ง
+> คุกเข่าอยู่ข้างตะแกรงท่อระบายน้ำในตรอกมืด — เสียงในท่อไม่ใช่เสียงน้ำ
+> เป็นเสียงของเด็กอีกคน กำลังร้องเพลง และเรียกเขาด้วยคำที่ไม่ใช่ชื่อของเขา: *"พี่"*
+
+**เรื่องใหญ่ลำดับถัดไปของคอลเลกชัน** — แฟนตาซีมืดผสมสยองขวัญเชิงนิเวศ
+ในโลกที่ "ฝนจากทะเล" เปลี่ยนแปลงทั้งร่างกายและความทรงจำของผู้คน
+
+- **โครงเรื่อง 7 อาร์ก** วางแผนไว้ครบใน `src/plan/`
+- **บทนำ (Prologue) เปิดอ่านแล้ว** ที่ `/sea/` พร้อมหน้าแนะนำตัวละคร
+- สถานะ: 🚧 **เตรียมจัดตั้ง** — อาร์ก 1 กำลังเขียน
+
+🔗 **ติดตามได้ที่ `/sea/`** — อ่านบทนำได้แล้ววันนี้
+
+---
+
+## 🎐 บ้านคุซาบิบนเขาคุโระมิโซะ — Kusabi
+
+<div align="center">
+<img src="public/assets/kusabi/images/home-hero.png" alt="บ้านไม้เก่าร้างบนภูเขาในคืนฝนตกหนัก มีหญิงสาวในชุดขาวยืนอยู่กลางหมอก" width="100%"/>
+</div>
+
+> ตำนานพื้นบ้านบอกว่าบนยอดเขาคุโระมิโซะมี "เจ้าสาวภูเขา" รอคอยคนหลงทาง
+> ในชุดแต่งงานสีขาวหม่นและหน้ากากไม้ที่ยิ้มอย่างเยียบเย็น ทว่าความจริงไม่มีวิญญาณดวงใดสิงสู่
+> มีเพียงชายคนหนึ่งที่เคยเป็นมนุษย์ — คนที่ปิดล็อกประตูบานหนึ่งด้วยความกลัวในคืนที่เขาควรเปิดมัน
+>
+> มนุษย์ไม่ได้กลายเป็นปีศาจเพราะเสียงกระซิบของปีศาจตัวอื่น
+> แต่กลายเป็นปีศาจเพราะประตูบานหนึ่งที่เขาปิดล็อกด้วยความกลัว
+
+**สยองขวัญจิตวิทยาเรื่องใหม่** — ห้าเพื่อนในทริปพักร้อนขึ้นเขาร้างโดยไม่รู้ว่า
+ชื่อของทุกคนถูกจดไว้ในสมุดปกหนังเก่าแล้ว และเจ้าบ้านกำลังภาวนา
+*ขอให้พวกเขาเลือกทิ้งกัน…เหมือนที่เขาเคยทำ*
+
+- สถานะ: ⏳ **เร็วๆ นี้** — บทนำ "เสียงก้องบนเขาคุโระมิโซะ" เขียนเสร็จแล้ว
+- สารบัญเปิดให้ดูล่วงหน้าที่ `/kusabi/`
+
+---
+
+## ✨ ประสบการณ์อ่านของไซต์นี้
+
+- **หนึ่งเปลือกอ่าน หลายเอกลักษณ์** — แต่ละเรื่องมีเลย์เอาต์ พาเลตสี ฟอนต์ และบรรยากาศของตัวเอง
+- **โปรไฟล์ Guest** — สร้าง/สลับโปรไฟล์ได้บนเครื่อง บันทึกความคืบหน้าการอ่านแยกตามเรื่อง
+- **เสียงประกอบคุณภาพจริง** — เพลงคิวและแอมเบียนซ์ทุกเส้นเป็นเสียงลิขสิทธิ์จริงจาก Pixabay (เครดิตครบใน [`assets-manifest.md`](assets-manifest.md))
+- **ภาพประกอบทั้งหมดเป็นงานของโปรเจกต์** — สร้าง/กำกับเองทุกภาพ ดูรายการครบใน [`assets-manifest.md`](assets-manifest.md)
+
+## 🛠️ เทคโนโลยี
+
+| ชั้น | ใช้ |
+|---|---|
+| เฟรมเวิร์ก | [Astro 5](https://astro.build) (static output) |
+| สไตล์ | Tailwind CSS 4 + scoped styles |
+| อินเทอแอกทีฟ | GSAP (โมชัน), Howler (เสียง) |
+| คอนเทนต์ | Markdown collections + remark-directive |
+| ฟอนต์เซลฟ์โฮสต์ | IBM Plex Sans Thai Looped, Cormorant Garamond, Crimson Pro, Shippori Mincho B1, Noto Serif JP, JetBrains Mono (`@fontsource`) |
+| เครื่องมือ | sharp (ประมวลผลภาพ), tsx + Puppeteer (ทดสอบ) |
+
+## 🚀 เริ่มต้นใช้งาน
+
+**ต้องการ:** Node.js 20 LTS+ และ pnpm 10+
 
 ```bash
 pnpm install
-pnpm dev
+pnpm dev        # รันเซิร์ฟเวอร์พัฒนา
 ```
 
-## Verification
+**ตรวจสอบก่อนส่ง:**
 
 ```bash
-pnpm check
-pnpm build
+pnpm check      # astro check
+pnpm build      # build สู่ dist/
 pnpm exec tsx --test src/scripts/tsukinomi/*.test.ts   # Tsukinomi contract suite
 ```
 
-## Deploy
+## 📦 ดีพลอย
 
-Recommended target: GitHub Pages.
+เป้าหมายหลักคือ **GitHub Pages** — หลังดีพลอยสำเร็จครั้งแรก ไซต์จะอยู่ที่
+`https://deeptutorai.github.io/MY-NOVEL/` (ตั้ง `base: "/MY-NOVEL"` ไว้ใน `astro.config.mjs` แล้ว)
 
-Live URL after the first successful Pages deployment:
+1. พุชรีโปนี้ไปที่ `DeepTutorAi/MY-NOVEL`
+2. เปิด `Settings` → `Pages` → ตั้ง `Source` เป็น `GitHub Actions`
+3. ทุกครั้งที่ `git push origin main` เวิร์กโฟลว์จะรัน `pnpm check` → build → ดีพลอยอัตโนมัติ
 
-```text
-https://deeptutorai.github.io/MY-NOVEL/
-```
+## 📂 เอกสารและแผนงาน
 
-One-time setup:
+- เอกสารรวม: [`docs/`](docs/README.md)
+- แผนสร้าง Lodge: [`docs/lodge/codex_handoff.md`](docs/lodge/codex_handoff.md)
+- แผนสร้าง Tsukinomi: [`docs/tsukinomi/codex_tsukinomi_handoff.md`](docs/tsukinomi/codex_tsukinomi_handoff.md)
+- ทะเบียน asset ทั้งหมด (ภาพ/เสียง/ลิขสิทธิ์): [`assets-manifest.md`](assets-manifest.md)
+- คลังพรอมปต์ภาพ Lodge: [`public/assets/lodge/prompts/hvitveldt-image-prompts.md`](public/assets/lodge/prompts/hvitveldt-image-prompts.md)
 
-1. Push this repository to `DeepTutorAi/MY-NOVEL`.
-2. In GitHub, open `Settings` -> `Pages`.
-3. Set `Source` to `GitHub Actions`.
+---
 
-Deploy:
+<div align="center">
 
-```bash
-git push origin main
-```
+*ทุกเรื่อง ทุกภาพ และทุกเสียงในรีโปนี้ เป็นงานของโปรเจกต์หรือใช้ภายใต้ลิขสิทธิ์ที่บันทึกไว้*
 
-The GitHub Actions workflow runs `pnpm check`, builds the Astro site, uploads `dist`, and deploys it
-through GitHub Pages. The project is configured with `base: "/MY-NOVEL"` so links and assets work
-under the repository path. (The repo slug stays `MY-NOVEL`; only the internal package name changed
-to `piichan-novels`.)
+**🕯️ Pii-chan Dechalert — Fiction Hub**
+
+</div>
