@@ -76,6 +76,8 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
 
         function getProfileKey(key) {
           if (typeof key !== 'string') return key;
+          const activeProfile = getActiveProfileId();
+          if (key.endsWith(`:${activeProfile}`)) return key;
           const prefixes = [
             "hvitveldt:reading:",
             "tsukinomi:reading:",
@@ -91,7 +93,6 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
             "kusabi:extra-bypassed"
           ];
           if (prefixes.some(p => key.startsWith(p))) {
-            const activeProfile = getActiveProfileId();
             return `${key}:${activeProfile}`;
           }
           return key;

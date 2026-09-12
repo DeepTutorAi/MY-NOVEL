@@ -155,21 +155,46 @@ const plannedExtras = [
         const LAST_READ_KEY = "kusabi:reading:last-read";
 
         if (resumeCard instanceof HTMLElement && resumeTitle && resumeLink instanceof HTMLAnchorElement) {
-          const lastReadId = localStorage.getItem(LAST_READ_KEY);
-          if (lastReadId === prologueId) {
+          let saved = null;
+          try {
+            const raw = localStorage.getItem("kusabi:reading:last");
+            saved = raw ? JSON.parse(raw) : null;
+          } catch(e) {}
+
+          const lastReadId = saved?.chapterId || localStorage.getItem(LAST_READ_KEY);
+          if (saved && typeof saved.chapterId === "string" && typeof saved.chapterTitle === "string") {
+            const num = `${saved.chapterNumber ?? ""}`.trim();
+            resumeTitle.textContent = num === "0" ? `บทนำ: ${saved.chapterTitle}` : `บทที่ ${num}: ${saved.chapterTitle}`;
+            if (saved.progress >= 0.995) {
+              resumeLink.textContent = "อ่านอีกครั้ง";
+              resumeLink.href = `${resumeBase}${saved.chapterId}/`;
+            } else {
+              const percent = Math.round((saved.progress || 0) * 100);
+              resumeLink.textContent = `อ่านต่อ (${percent}%)`;
+              resumeLink.href = `${resumeBase}${saved.chapterId}/?resume=1`;
+            }
+            resumeCard.style.display = "flex";
+          } else if (lastReadId === prologueId) {
             resumeTitle.textContent = "บทนำ: เสียงก้องบนเขาคุโระมิโซะ";
             resumeLink.href = `${resumeBase}${prologueId}/`;
+            resumeLink.textContent = "อ่านต่อ";
             resumeCard.style.display = "flex";
           } else {
             resumeCard.style.display = "none";
           }
 
-          resumeClear?.addEventListener("click", () => {
-            try {
-              localStorage.removeItem(LAST_READ_KEY);
-              resumeCard.style.display = "none";
-            } catch(e) {}
-          });
+          if (resumeClear instanceof HTMLButtonElement) {
+            resumeClear.onclick = () => {
+              try {
+                localStorage.removeItem(LAST_READ_KEY);
+                localStorage.removeItem("kusabi:reading:last");
+                if (saved?.chapterId) {
+                  localStorage.removeItem(`kusabi:reading:chapter:${saved.chapterId}`);
+                }
+                resumeCard.style.display = "none";
+              } catch(e) {}
+            };
+          }
         }
       } catch (e) {
         console.error("Error updating TOC states:", e);

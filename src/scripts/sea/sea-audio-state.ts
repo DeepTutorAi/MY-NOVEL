@@ -99,6 +99,13 @@ export class SeaAudio {
         }
       }
     });
+
+    document.addEventListener("astro:before-swap", (e: any) => {
+      const toPath = e?.to?.pathname || "";
+      if (toPath && !toPath.includes("/sea/")) {
+        this.pauseAll();
+      }
+    });
   }
 
   isEnabled() {
@@ -298,13 +305,18 @@ export class SeaAudio {
     }
   }
 
-  private pauseAll() {
+  pauseAll() {
+    this.enabled = false;
+    try {
+      localStorage.setItem(ENABLED_KEY, "false");
+    } catch {}
     for (const state of this.musicTracks.values()) {
       if (state.soundId !== undefined) state.howl.pause(state.soundId);
     }
     for (const state of this.soundscapeTracks.values()) {
       if (state.soundId !== undefined) state.howl.pause(state.soundId);
     }
+    this.emit("change");
   }
 
   private readVolume() {

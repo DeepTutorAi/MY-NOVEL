@@ -51,7 +51,7 @@ This document outlines the high-level roadmap, thematic goals, and structural mo
 
 ### Arc 6: The Moving of Cities (Ch 28-31)
 - **Focus**: Convincing three cities (Elaris, Nacre-Vault, Hallowmere) to migrate as the Sky-Dam breaks. Nacre-Vault's pearl industry resists. Bishop Corvein leads half of Hallowmere to drown in religious ecstasy.
-- **Odran's Penance**: Father Odran locks himself in Hallowmere's gate mechanism room, hand-cranking the rusted wheel until his finger bones crack. He drowns reciting the names of the 73 victims he sent to the Salt Ward — the final name he speaks is Nio Arvane's.
+- **Odran's Penance**: Father Odran locks himself in Hallowmere's gate mechanism room, hand-cranking the rusted wheel until his finger bones crack. He drowns reciting all 74 names of the people he sent to the Salt Ward: 73 who died, then Nio Arvane, the one survivor.
 
 ### Arc 7: When the Sea Fell (Ch 32-35)
 - **Focus**: Final sacrifices. Epilogue +300 years.

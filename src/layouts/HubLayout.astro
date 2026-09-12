@@ -45,6 +45,8 @@ const faviconPng = withBase("/favicon.png");
 
         function getProfileKey(key) {
           if (typeof key !== 'string') return key;
+          const activeProfile = getActiveProfileId();
+          if (key.endsWith(`:${activeProfile}`)) return key;
           const prefixes = [
             "hvitveldt:reading:",
             "tsukinomi:reading:",
@@ -60,7 +62,6 @@ const faviconPng = withBase("/favicon.png");
             "kusabi:extra-bypassed"
           ];
           if (prefixes.some(p => key.startsWith(p))) {
-            const activeProfile = getActiveProfileId();
             return `${key}:${activeProfile}`;
           }
           return key;

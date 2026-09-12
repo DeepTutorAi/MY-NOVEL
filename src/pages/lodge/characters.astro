@@ -67,7 +67,6 @@ import { withBase } from "../../utils/base-path";
   </main>
 
   <script>
-    const spoilerCards = Array.from(document.querySelectorAll("[data-character-spoiler]"));
     const spoilerUnlockKey = "hvitveldt:characters:subject8-visible";
     const puzzleUnlockKey = "hvitveldt:puzzle-unlocked";
     const lastReadingKey = "hvitveldt:reading:last";
@@ -81,13 +80,26 @@ import { withBase } from "../../utils/base-path";
       }
     };
 
+    const getActiveProfileId = () => {
+      try {
+        return localStorage.getItem("piichan-novels:active-profile-id") || "guest";
+      } catch {
+        return "guest";
+      }
+    };
+
     const getMaxChapterRead = () => {
       const last = parseStored(lastReadingKey);
       let maxChapter = Number(last?.maxChapterNumber ?? last?.chapterNumber ?? 0);
+      const activeProfile = getActiveProfileId();
 
       for (let index = 0; index < localStorage.length; index += 1) {
         const key = localStorage.key(index);
         if (!key || !key.startsWith("hvitveldt:reading:chapter:")) {
+          continue;
+        }
+        // Only read keys belonging to the active profile (or legacy unsuffixed keys)
+        if (key.includes(":p_") && !key.endsWith(`:${activeProfile}`)) {
           continue;
         }
 
@@ -109,6 +121,7 @@ import { withBase } from "../../utils/base-path";
     };
 
     const revealUnlockedCards = () => {
+      const spoilerCards = Array.from(document.querySelectorAll("[data-character-spoiler]"));
       if (spoilerCards.length === 0) {
         return;
       }
@@ -137,5 +150,11 @@ import { withBase } from "../../utils/base-path";
     } catch {
       // Restricted browser storage should leave spoiler cards hidden.
     }
+
+    document.addEventListener("astro:page-load", () => {
+      try {
+        revealUnlockedCards();
+      } catch {}
+    });
   </script>
 </LodgeBaseLayout>

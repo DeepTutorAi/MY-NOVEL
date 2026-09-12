@@ -75,6 +75,13 @@ export class KusabiAudio {
         this.playEnabledSoundscapes(0);
       }
     });
+
+    document.addEventListener("astro:before-swap", (e: any) => {
+      const toPath = e?.to?.pathname || "";
+      if (toPath && !toPath.includes("/kusabi/")) {
+        this.disable();
+      }
+    });
   }
 
   isEnabled() {

@@ -121,7 +121,7 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 
 ### Chapter 10: The Course to Capital
 - **POV Character**: Cael Arvane (Present Active POV)
-- **Characters in Chapter**: Cael, Ilyra, Tovin, Maera, Odran, Cassian, Loran (all 7 — split into subgroups: Cael/Cassian, Ilyra/Loran, Tovin/Maera)
+- **Characters in Chapter**: Cael, Ilyra, Tovin, Maera, Odran, Cassian, Loran, Garrick, Lisse (all 9, plus Lisse's unborn child — the seven active principals split into subgroups: Cael/Cassian, Ilyra/Loran, Tovin/Maera)
 - **Location**: Aboard the *Albatross* — course set for the Capital.
 - **Immediate Goal**: Establish trust among the new crew. Learn what Cassian and Loran know.
 - **Obstacle**: Mutual suspicion — Cassian and Loran are ex-Ministry. The crew doesn't trust them.
@@ -375,7 +375,7 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 - **Location**: Route between Nacre-Vault and Hallowmere.
 - **Immediate Goal**: Rest before the final city. Odran prepares for death. Sera writes history.
 - **Obstacle**: Exhaustion. Everyone knows this is "before the storm."
-- **Turn**: Odran gives his victim list to Sera. *"If I don't survive… you'll know what to write."* Sera: *"This is… 73 names."* Odran: *"Yes. My handwriting."* Sera: *"It's nearly illegible."* Odran: *"…I wrote it while my hands were shaking. Most of the time."*
+- **Turn**: Odran gives his victim list to Sera. *"If I don't survive… you'll know what to write."* Sera: *"This is… 74 names."* Odran: *"Seventy-three dead. Nio survived."* Sera: *"Your handwriting is nearly illegible."* Odran: *"…I wrote it while my hands were shaking. Most of the time."*
 - **Exit Hook**: Hallowmere appears. Bishop Corvein is preaching: *"The sea is God! Don't run from God!"*
 - **Dark Comedy Beat #13**: Sera's deadpan about Odran's handwriting.
 - **Background Threat**: Refugees report **Ash-Turned** drifting toward evacuation camps from the Mistwood. Their synchronized moaning — the Leviathan's frequency — is audible from kilometers away. The Ministry has been using them as biological deterrents, driving them toward population centers to disrupt evacuation efforts. Odran hears this and says nothing — some of the Ash-Turned wear uniforms of children he sent to the Salt Ward.
@@ -464,7 +464,7 @@ This document maps out the complete **7-Arc / 35-Chapter** narrative structure w
 - **Obstacle**: —
 - **Turn**: A young cartographer visits the museum. What they see:
   - Maera's tools + Tovin's crude prosthetic — labeled: *"Barn Door — Made with Love — circa Year 2 After the Fall"*
-  - Odran's list — 73 names under glass — memorial.
+  - Odran's list — 74 names under glass; 73 dead, Nio marked as survivor — memorial.
   - Cassian's sword — stuck on a small island that was once the tower peak.
   - Loran's lineage — 7 generations of the Thorne family.
   - "The Red-Eyed Terror" exhibit — children leave red cloths at the forest edge.

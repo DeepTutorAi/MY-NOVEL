@@ -38,7 +38,12 @@ const pageTitle = baseTitle.includes("ทะเลเหนือโลก") ? b
     </div>
   </div>
 
-  <article class="sea-reader">
+  <article
+    class="sea-reader"
+    data-arc-id={arc.id}
+    data-arc-number={arc.data.number}
+    data-arc-title={arc.data.title}
+  >
     <header class="sea-reader-header">
       <div class="sea-reader-relic" aria-hidden="true">
         <span class="sea-reader-relic-core"></span>
@@ -463,6 +468,32 @@ const pageTitle = baseTitle.includes("ทะเลเหนือโลก") ? b
   const initReader = () => {
     const currentOrb = document.getElementById("sea-current-orb");
     const percentDisplay = document.getElementById("sea-current-percent");
+    const reader = document.querySelector(".sea-reader");
+    const arcId = reader instanceof HTMLElement ? reader.dataset.arcId : "";
+    const arcNumber = reader instanceof HTMLElement ? reader.dataset.arcNumber : "";
+    const arcTitle = reader instanceof HTMLElement ? reader.dataset.arcTitle : "";
+
+    let lastSavedAt = 0;
+    const saveReadingProgress = (ratio: number) => {
+      if (!arcId || !Number.isFinite(ratio) || ratio < 0.005) return;
+      const now = Date.now();
+      if (now - lastSavedAt < 800 && ratio < 0.995) return;
+      lastSavedAt = now;
+
+      const saved = {
+        arcId,
+        arcNumber,
+        arcTitle,
+        path: window.location.pathname,
+        progress: Number(ratio.toFixed(4)),
+        updatedAt: now,
+      };
+
+      try {
+        localStorage.setItem("sea:reading:last", JSON.stringify(saved));
+        localStorage.setItem(`sea:reading:arc:${arcId}`, JSON.stringify(saved));
+      } catch {}
+    };
 
     const updateProgress = () => {
       if (!currentOrb) return;
@@ -476,7 +507,22 @@ const pageTitle = baseTitle.includes("ทะเลเหนือโลก") ? b
       const percent = Math.max(0, Math.min(100, (scrollTop / scrollMax) * 100));
       currentOrb.style.setProperty("--sea-read-y", `${100 - percent}%`);
       if (percentDisplay) percentDisplay.textContent = `${Math.round(percent)}%`;
+
+      const ratio = scrollMax > 0 ? Math.min(1, Math.max(0, scrollTop / scrollMax)) : 0;
+      saveReadingProgress(ratio);
     };
+
+    const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
+    if (resumeRequested && arcId) {
+      try {
+        const raw = localStorage.getItem(`sea:reading:arc:${arcId}`);
+        const saved = raw ? JSON.parse(raw) : null;
+        if (saved && Number.isFinite(saved.progress) && saved.progress > 0.01 && saved.progress < 0.995) {
+          const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+          window.scrollTo({ top: scrollMax * saved.progress, behavior: "auto" });
+        }
+      } catch {}
+    }
 
     window.addEventListener("scroll", updateProgress);
     updateProgress();

@@ -4,6 +4,8 @@ import { withBase } from "../../utils/base-path";
 
 const lodgeChapterBase = withBase("/lodge/chapters/");
 const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
+const seaArcBase = withBase("/sea/arcs/");
+const kusabiChapterBase = withBase("/kusabi/chapters/");
 
 const lodgeUnits = (await getCollection("chapters"))
   .sort((a, b) => a.data.number - b.data.number)
@@ -11,6 +13,12 @@ const lodgeUnits = (await getCollection("chapters"))
 const tsukinomiUnits = (await getCollection("tsukinomiSections"))
   .sort((a, b) => a.data.number - b.data.number)
   .map((section) => ({ id: section.id, number: section.data.number, title: section.data.title }));
+const seaUnits = (await getCollection("seaArcs"))
+  .sort((a, b) => a.data.number - b.data.number)
+  .map((arc) => ({ id: arc.id, number: arc.data.number, title: arc.data.title }));
+const kusabiUnits = (await getCollection("kusabiChapters"))
+  .sort((a, b) => a.data.number - b.data.number)
+  .map((chapter) => ({ id: chapter.id, number: chapter.data.number, title: chapter.data.thaiTitle || chapter.data.title }));
 ---
 
 <section class="resume-card" data-hub-resume hidden aria-live="polite">
@@ -28,9 +36,18 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
 
 <script
   is:inline
-  define:vars={{ lodgeChapterBase, tsukinomiSectionBase, lodgeUnits, tsukinomiUnits }}
+  define:vars={{
+    lodgeChapterBase,
+    tsukinomiSectionBase,
+    seaArcBase,
+    kusabiChapterBase,
+    lodgeUnits,
+    tsukinomiUnits,
+    seaUnits,
+    kusabiUnits,
+  }}
 >
-  (async () => {
+  const initResumeCard = async () => {
     const card = document.querySelector("[data-hub-resume]");
     const novelLabel = document.querySelector("[data-resume-novel]");
     const title = document.querySelector("[data-resume-title]");
@@ -69,24 +86,35 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
       const chapterTitle = config.getTitle(saved);
       const updatedAt = Number(saved?.updatedAt);
 
-      if (!id || !number || !chapterTitle || !Number.isFinite(progress) || progress < 0.005) {
+      if (!id || number === "" || !chapterTitle || !Number.isFinite(progress) || progress < 0.005) {
         return null;
       }
 
       const index = config.units.findIndex((unit) => String(unit.id) === String(id));
       const next = index >= 0 ? config.units[index + 1] : null;
 
+      const formattedTitle =
+        number === "0" && config.novelTitle.includes("คุซาบิ")
+          ? `บทนำ: ${chapterTitle}`
+          : `${config.unitLabel} ${number}: ${chapterTitle}`;
+
+      const formattedNextLabel = next
+        ? next.number === 0 && config.novelTitle.includes("คุซาบิ")
+          ? `บทนำ: ${next.title}`
+          : `${config.unitLabel} ${next.number}: ${next.title}`
+        : "";
+
       return {
         storageKey: config.storageKey,
         detailKey: `${config.detailPrefix}${id}`,
         novelTitle: config.novelTitle,
         unitLabel: config.unitLabel,
-        title: `${config.unitLabel} ${number}: ${chapterTitle}`,
+        title: formattedTitle,
         progress,
         completed: progress >= COMPLETED_PROGRESS,
         resumeHref: `${config.baseHref}${id}/?resume=1`,
         nextHref: next ? `${config.baseHref}${next.id}/` : "",
-        nextLabel: next ? `${config.unitLabel} ${next.number}: ${next.title}` : "",
+        nextLabel: formattedNextLabel,
         tocHref: config.baseHref,
         updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
       };
@@ -95,9 +123,9 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
     // SHA-256 helper
     async function sha256(message) {
       const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     }
 
     const getSecretReadsCount = () => {
@@ -105,7 +133,7 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
         const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
         const arr = raw ? JSON.parse(raw) : [];
         if (Array.isArray(arr)) {
-          return arr.filter(id => id !== "00-introduction").length;
+          return arr.filter((id) => id !== "00-introduction").length;
         }
         return 0;
       } catch {
@@ -118,7 +146,7 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
         const raw = localStorage.getItem("hvitveldt:secret:reads");
         const arr = raw ? JSON.parse(raw) : [];
         if (Array.isArray(arr)) {
-          return arr.filter(id => id !== "00-introduction").length;
+          return arr.filter((id) => id !== "00-introduction").length;
         }
         return 0;
       } catch {
@@ -183,12 +211,46 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
               ? saved.chapterTitle.trim()
               : "",
       }),
-    ].filter(Boolean).filter((candidate) => {
-      if (candidate.novelTitle === "สถานีทะเลพระจันทร์") {
-        return isUnlocked;
-      }
-      return true;
-    });
+      normalize({
+        storageKey: "sea:reading:last",
+        detailPrefix: "sea:reading:arc:",
+        baseHref: seaArcBase,
+        novelTitle: "ทะเลเหนือโลก",
+        unitLabel: "Arc",
+        units: seaUnits,
+        getId: (saved) =>
+          typeof saved?.arcId === "string"
+            ? saved.arcId
+            : typeof saved?.chapterId === "string"
+              ? saved.chapterId
+              : "",
+        getNumber: (saved) => `${saved?.arcNumber ?? saved?.chapterNumber ?? ""}`.trim(),
+        getTitle: (saved) =>
+          typeof saved?.arcTitle === "string"
+            ? saved.arcTitle.trim()
+            : typeof saved?.chapterTitle === "string"
+              ? saved.chapterTitle.trim()
+              : "",
+      }),
+      normalize({
+        storageKey: "kusabi:reading:last",
+        detailPrefix: "kusabi:reading:chapter:",
+        baseHref: kusabiChapterBase,
+        novelTitle: "บ้านคุซาบิบนเขาคุโระมิโซะ",
+        unitLabel: "บทที่",
+        units: kusabiUnits,
+        getId: (saved) => (typeof saved?.chapterId === "string" ? saved.chapterId : ""),
+        getNumber: (saved) => `${saved?.chapterNumber ?? ""}`.trim(),
+        getTitle: (saved) => (typeof saved?.chapterTitle === "string" ? saved.chapterTitle.trim() : ""),
+      }),
+    ]
+      .filter(Boolean)
+      .filter((candidate) => {
+        if (candidate.novelTitle === "สถานีทะเลพระจันทร์") {
+          return isUnlocked;
+        }
+        return true;
+      });
 
     const saved = candidates.sort((a, b) => b.updatedAt - a.updatedAt)[0];
 
@@ -201,8 +263,6 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
     title.textContent = saved.title;
 
     if (saved.completed) {
-      // A finished chapter/section keeps its place at 100% and points the
-      // reader at the next unit instead of disappearing.
       if (saved.nextHref) {
         detail.textContent = `อ่านจบ 100% · ไปต่อ ${saved.nextLabel}`;
         link.href = saved.nextHref;
@@ -219,13 +279,16 @@ const tsukinomiUnits = (await getCollection("tsukinomiSections"))
     }
     card.hidden = false;
 
-    clear.addEventListener("click", () => {
+    clear.onclick = () => {
       try {
         localStorage.removeItem(saved.detailKey);
         localStorage.removeItem(saved.storageKey);
       } finally {
         card.hidden = true;
       }
-    });
-  })();
+    };
+  };
+
+  initResumeCard();
+  document.addEventListener("astro:page-load", initResumeCard);
 </script>

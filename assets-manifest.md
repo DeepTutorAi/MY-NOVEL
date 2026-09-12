@@ -29,7 +29,7 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/lodge/prompts/claude-hvitveldt-quality-guard.md` | Hand-authored Claude guardrail prompt | Project-owned text | None | Content QA and workflow prompt |
 | `public/assets/sea/images/hub-sea-dark-adventure.png` | Generated locally by author | Project-owned generated asset | None | hub cover (no author name or in-image text) |
 | `public/assets/sea/images/hero-sea.png` | Generated locally by author | Project-owned generated asset | None | alternative hero cover |
-| `public/assets/sea/images/hero-sea-v2.png` | Generated locally by author | Project-owned generated asset | None | final hero cover |
+| `public/assets/sea/images/hero-sea-v2.png` | Generated locally by author | Project-owned generated asset | None | final hero cover (sky-ocean above Elaris) |
 | `public/assets/kusabi/images/home-hero.png` | Generated locally by author | Project-owned generated asset | None | kusabi hero cover |
 | `public/assets/_shared/images/pages_into_stars.jpg` | Generated locally by author | Project-owned generated asset | None | background stars texture |
 

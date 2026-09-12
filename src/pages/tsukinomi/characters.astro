@@ -61,7 +61,6 @@ import { withBase } from "../../utils/base-path";
   </main>
 
   <script>
-    const spoilerCards = Array.from(document.querySelectorAll<HTMLElement>("[data-character-spoiler]"));
     const lastReadingKey = "tsukinomi:reading:last";
     const revealedKey = "tsukinomi:characters:revealed";
 
@@ -74,13 +73,25 @@ import { withBase } from "../../utils/base-path";
       }
     };
 
+    const getActiveProfileId = () => {
+      try {
+        return localStorage.getItem("piichan-novels:active-profile-id") || "guest";
+      } catch {
+        return "guest";
+      }
+    };
+
     const getMaxSectionRead = (): number => {
       const last = parseStored(lastReadingKey);
       let maxSection = Number(last?.sectionNumber ?? 0);
+      const activeProfile = getActiveProfileId();
 
       for (let index = 0; index < localStorage.length; index += 1) {
         const key = localStorage.key(index);
         if (!key || !key.startsWith("tsukinomi:reading:section:")) {
+          continue;
+        }
+        if (key.includes(":p_") && !key.endsWith(`:${activeProfile}`)) {
           continue;
         }
 
@@ -97,6 +108,7 @@ import { withBase } from "../../utils/base-path";
     };
 
     const revealUnlockedCards = () => {
+      const spoilerCards = Array.from(document.querySelectorAll<HTMLElement>("[data-character-spoiler]"));
       if (spoilerCards.length === 0) {
         return;
       }
@@ -118,6 +130,12 @@ import { withBase } from "../../utils/base-path";
     } catch {
       // Restricted browser storage leaves spoiler cards hidden — that is fine.
     }
+
+    document.addEventListener("astro:page-load", () => {
+      try {
+        revealUnlockedCards();
+      } catch {}
+    });
   </script>
 
   <style>

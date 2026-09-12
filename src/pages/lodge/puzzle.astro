@@ -23,6 +23,7 @@ const items = itemBlocks.map((block) => {
   return {
     title: titleLine.replace(/^★\s*/, ""),
     bullets,
+
     paragraphs,
   };
 });
@@ -95,91 +96,95 @@ const items = itemBlocks.map((block) => {
   </main>
 
   <script>
-    const gate = document.querySelector("[data-puzzle-gate]");
-    const content = document.querySelector("[data-puzzle-content]");
-    const panel = document.querySelector("[data-puzzle-panel]");
-    const confirm = document.querySelector("[data-puzzle-confirm]");
-    const tease = document.querySelector("[data-puzzle-tease]");
-    const challenge = document.querySelector("[data-puzzle-challenge]");
-    const passphrase = document.querySelector("[data-puzzle-passphrase]");
-    const error = document.querySelector("[data-puzzle-error]");
-    const open = document.querySelector("[data-puzzle-open]");
-    const key = "hvitveldt:puzzle-unlocked";
-    const accepted = new Set(["karasjok"]);
+    const initPuzzle = () => {
+      const gate = document.querySelector("[data-puzzle-gate]");
+      const content = document.querySelector("[data-puzzle-content]");
+      const panel = document.querySelector("[data-puzzle-panel]");
+      const confirm = document.querySelector("[data-puzzle-confirm]");
+      const tease = document.querySelector("[data-puzzle-tease]");
+      const challenge = document.querySelector("[data-puzzle-challenge]");
+      const passphrase = document.querySelector("[data-puzzle-passphrase]");
+      const error = document.querySelector("[data-puzzle-error]");
+      const open = document.querySelector("[data-puzzle-open]");
+      const key = "hvitveldt:puzzle-unlocked";
+      const accepted = new Set(["karasjok"]);
 
-    const reveal = () => {
-      gate?.setAttribute("hidden", "");
-      content?.removeAttribute("hidden");
-      localStorage.setItem(key, "karasjok");
-    };
-
-    const normalize = (value: string) => value.trim().toLowerCase().replace(/[^a-z]/g, "");
-    const isUnlocked = () => {
-      const value = localStorage.getItem(key);
-      return value === "true" || value === "karasjok";
-    };
-
-    if (isUnlocked()) {
-      reveal();
-    }
-
-    if (
-      confirm instanceof HTMLInputElement &&
-      tease instanceof HTMLButtonElement &&
-      challenge instanceof HTMLElement &&
-      passphrase instanceof HTMLInputElement &&
-      open instanceof HTMLButtonElement
-    ) {
-      const hideChallenge = () => {
-        challenge.hidden = true;
-        passphrase.value = "";
-        open.disabled = true;
-        error?.setAttribute("hidden", "");
-        panel?.removeAttribute("data-stage");
+      const reveal = () => {
+        gate?.setAttribute("hidden", "");
+        content?.removeAttribute("hidden");
+        localStorage.setItem(key, "karasjok");
       };
 
-      const updateButton = () => {
-        tease.hidden = !confirm.checked || !challenge.hidden;
-        open.disabled = !confirm.checked || passphrase.value.trim().length === 0;
-        error?.setAttribute("hidden", "");
+      const normalize = (value: string) => value.trim().toLowerCase().replace(/[^a-z]/g, "");
+      const isUnlocked = () => {
+        const value = localStorage.getItem(key);
+        return value === "true" || value === "karasjok";
       };
 
-      confirm.addEventListener("change", () => {
-        if (!confirm.checked) {
-          hideChallenge();
-        }
+      if (isUnlocked()) {
+        reveal();
+      }
 
-        updateButton();
-      });
+      if (
+        confirm instanceof HTMLInputElement &&
+        tease instanceof HTMLButtonElement &&
+        challenge instanceof HTMLElement &&
+        passphrase instanceof HTMLInputElement &&
+        open instanceof HTMLButtonElement
+      ) {
+        const hideChallenge = () => {
+          challenge.hidden = true;
+          passphrase.value = "";
+          open.disabled = true;
+          error?.setAttribute("hidden", "");
+          panel?.removeAttribute("data-stage");
+        };
 
-      tease.addEventListener("click", () => {
-        if (!confirm.checked) {
-          return;
-        }
+        const updateButton = () => {
+          tease.hidden = !confirm.checked || !challenge.hidden;
+          open.disabled = !confirm.checked || passphrase.value.trim().length === 0;
+          error?.setAttribute("hidden", "");
+        };
 
-        challenge.hidden = false;
-        tease.hidden = true;
-        panel?.setAttribute("data-stage", "challenge");
-        updateButton();
-        passphrase.focus();
-      });
+        confirm.addEventListener("change", () => {
+          if (!confirm.checked) {
+            hideChallenge();
+          }
 
-      passphrase.addEventListener("input", updateButton);
-      passphrase.addEventListener("keydown", (event) => {
-        if (event.key === "Enter" && !open.disabled) {
-          open.click();
-        }
-      });
+          updateButton();
+        });
 
-      open.addEventListener("click", () => {
-        if (confirm.checked && accepted.has(normalize(passphrase.value))) {
-          reveal();
-          return;
-        }
+        tease.addEventListener("click", () => {
+          if (!confirm.checked) {
+            return;
+          }
 
-        error?.removeAttribute("hidden");
-        passphrase.focus();
-      });
-    }
+          challenge.hidden = false;
+          tease.hidden = true;
+          panel?.setAttribute("data-stage", "challenge");
+          updateButton();
+          passphrase.focus();
+        });
+
+        passphrase.addEventListener("input", updateButton);
+        passphrase.addEventListener("keydown", (event) => {
+          if (event.key === "Enter" && !open.disabled) {
+            open.click();
+          }
+        });
+
+        open.addEventListener("click", () => {
+          if (confirm.checked && accepted.has(normalize(passphrase.value))) {
+            reveal();
+            return;
+          }
+
+          error?.removeAttribute("hidden");
+          passphrase.focus();
+        });
+      }
+    };
+
+    document.addEventListener("astro:page-load", initPuzzle);
   </script>
 </LodgeBaseLayout>

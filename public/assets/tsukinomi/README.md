@@ -38,7 +38,7 @@ scene carry its own composition and emotional focus.
 | `first-meeting` | `images/illustrations/section-01-first-meeting.png` | Haruto first sees Kaori seated normally on the middle of the station's canonical three bench rows. | ready |
 | `rooftop-research` | `images/illustrations/section-02-rooftop-research.png` | Akira gives Haruto the 1991 research note on the school rooftop. | ready |
 | `family-table` | `images/illustrations/section-03-family-table.png` | Haruto, Naomi, and Hina share the truth beside the family table. | ready |
-| `mountain-exchange` | `images/illustrations/section-04-mountain-exchange.png` | Haruto offers the father's cassette to Yamaba on the mountain. | ready |
+| `mountain-exchange` | `images/illustrations/section-04-mountain-exchange.png` | Haruto and Kaori face the grief of the mountain exchange in a tearful split close-up. | ready |
 | `ten-years-reunion` | `images/illustrations/section-05-ten-years-reunion-hina-long-hair.png` | Adult Haruto returns to Hakuba and meets Hina at the station; Hina's hair length is corrected to the approved character direction. | ready |
 
 The expanded narrative illustration set is wired to specific chapter beats in the section
@@ -47,7 +47,7 @@ referenced by the draft or this table.
 
 | Slot | File | Story beat | Status |
 |---|---|---|---|
-| `shared-earphone` | `images/illustrations/section-01-shared-earphone.png` | Haruto and Kaori share one earbud on the middle bench of the canonical station layout. | ready |
+| `shared-earphone` | `images/illustrations/section-01-shared-earphone.png` | Haruto and Kaori share one earbud on a station bench while rain falls outside. | ready |
 | `empty-station` | `images/illustrations/chapter-03-empty-station.png` | The same three station benches stand empty while wet footprints stop before them. | ready |
 | `microfilm-research` | `images/illustrations/chapter-06-microfilm-research-akira-screen.png` | Akira stops the reel while both boys read a display hidden from the illustration viewer. | ready |
 | `shared-song` | `images/illustrations/chapter-08-shared-song-akira-canonical.png` | Kaori and Haruto listen on the middle bench while Akira supports them from the back row. | ready |

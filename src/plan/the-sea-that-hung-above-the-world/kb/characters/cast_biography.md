@@ -130,7 +130,7 @@ This document details the supporting cast, secondary POV figures, and key charac
 
 ## 🐋 Nio Arvane (The Brine-Touched / Past Flashbacks & Present Active POV)
 
-- **Age**: 14 (at disappearance)
+- **Age**: 14 (current); 4 at the time of disappearance
 - **Appearance**: Extremely thin, skin translucent in parts, bones showing coral structures. pale blue eyes.
 - **Personality**: INFP (before). Now gentle but thinks beyond human terms, speaking in whale frequencies.
 - **Want**: Stop Cael from trying to force him back into a human form.
@@ -284,7 +284,7 @@ This document details the supporting cast, secondary POV figures, and key charac
 **The contradiction he doesn't name**: Odran does not want forgiveness. He wants *punishment*. He has confused the two for so long that he cannot tell the difference. Forgiveness would mean the debt is paid. Punishment means the debt continues — and if the debt continues, Odran has a reason to keep living. His penance is not a path to redemption. It is a reason to get up in the morning. If he were forgiven, he would have to find a new reason to exist, and he does not believe he deserves one.
 
 **Small habits**:
-- Writes names in his booklet every night before sleeping. Not new names — the same 73 names, in the same order. He has filled four booklets this way. He keeps the filled ones in a locked box. He does not know what he will do when the fifth is full.
+- Writes names in his booklet every night before sleeping. Not new names — the same 74 names, in the same order: 73 dead, with Nio Arvane last as the one survivor. He has filled four booklets this way. He keeps the filled ones in a locked box. He does not know what he will do when the fifth is full.
 - Cannot eat fish. Has not eaten fish since he saw a child's lungs full of them in the Salt Ward. The smell of fish makes him physically ill. He has told no one this. He simply refuses fish and lets people assume it is a preference.
 - Prays standing, not kneeling. Kneeling is for people who believe they will be heard. Odran prays because the act of praying is the only thing he can do that feels like work. He does not expect an answer.
 - Counts steps. Has counted steps since his Inquisitor days — a habit from tracking suspects. He cannot turn it off. He knows the exact number of steps between every room on the *Albatross*.

@@ -60,70 +60,79 @@ const sectionUnits = sections.map((section) => ({
   </main>
 
   <script is:inline define:vars={{ resumeBase: withBase("/tsukinomi/sections/"), tocHref: withBase("/tsukinomi/sections/"), units: sectionUnits }}>
-    const card = document.querySelector("[data-tsuki-resume]");
-    const label = document.querySelector("[data-tsuki-resume-label]");
-    const title = document.querySelector("[data-tsuki-resume-title]");
-    const detail = document.querySelector("[data-tsuki-resume-detail]");
-    const link = document.querySelector("[data-tsuki-resume-link]");
-    const clearBtn = document.querySelector("[data-tsuki-resume-clear]");
-    const KEY = "tsukinomi:reading:last";
-    const COMPLETED_PROGRESS = 0.995;
+    const initTsukinomiHome = () => {
+      const card = document.querySelector("[data-tsuki-resume]");
+      const label = document.querySelector("[data-tsuki-resume-label]");
+      const title = document.querySelector("[data-tsuki-resume-title]");
+      const detail = document.querySelector("[data-tsuki-resume-detail]");
+      const link = document.querySelector("[data-tsuki-resume-link]");
+      const clearBtn = document.querySelector("[data-tsuki-resume-clear]");
+      const KEY = "tsukinomi:reading:last";
+      const COMPLETED_PROGRESS = 0.995;
 
-    if (card && title && detail && link instanceof HTMLAnchorElement) {
-      try {
-        const raw = localStorage.getItem(KEY);
-        const saved = raw ? JSON.parse(raw) : null;
-        const progress = Number(saved?.progress);
-
-        if (
-          saved &&
-          typeof saved.sectionId === "string" &&
-          Number.isFinite(progress) &&
-          progress >= 0.005
-        ) {
-          title.textContent = `ภาค ${saved.sectionNumber}: ${saved.sectionTitle}`;
-
-          if (progress >= COMPLETED_PROGRESS) {
-            // Finished this section: hold at "done" and hand the reader the
-            // next section, rather than dropping the marker entirely.
-            const index = units.findIndex((unit) => unit.id === saved.sectionId);
-            const next = index >= 0 ? units[index + 1] : null;
-            if (label) label.textContent = "อ่านจบแล้ว";
-            if (next) {
-              detail.textContent = `อ่านจบ 100% · ไปต่อภาค ${next.number}: ${next.title}`;
-              link.href = `${resumeBase}${next.id}/`;
-              link.textContent = "อ่านภาคต่อไป →";
-            } else {
-              detail.textContent = "อ่านจบเรื่องแล้ว · ครบทุกภาค";
-              link.href = tocHref;
-              link.textContent = "กลับสารบัญ";
-            }
-          } else {
-            const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
-            if (label) label.textContent = "อ่านค้างไว้";
-            detail.textContent = `ค้างไว้ประมาณ ${percent}%`;
-            link.href = `${resumeBase}${saved.sectionId}/?resume=1`;
-            link.textContent = "อ่านต่อ";
-          }
-          card.hidden = false;
-        }
-      } catch (error) {
-        card.hidden = true;
-      }
-
-      clearBtn?.addEventListener("click", () => {
+      if (card && title && detail && link instanceof HTMLAnchorElement) {
         try {
           const raw = localStorage.getItem(KEY);
           const saved = raw ? JSON.parse(raw) : null;
-          if (saved && typeof saved.sectionId === "string") {
-            localStorage.removeItem(`tsukinomi:reading:section:${saved.sectionId}`);
+          const progress = Number(saved?.progress);
+
+          if (
+            saved &&
+            typeof saved.sectionId === "string" &&
+            Number.isFinite(progress) &&
+            progress >= 0.005
+          ) {
+            title.textContent = `ภาค ${saved.sectionNumber}: ${saved.sectionTitle}`;
+
+            if (progress >= COMPLETED_PROGRESS) {
+              // Finished this section: hold at "done" and hand the reader the
+              // next section, rather than dropping the marker entirely.
+              const index = units.findIndex((unit) => unit.id === saved.sectionId);
+              const next = index >= 0 ? units[index + 1] : null;
+              if (label) label.textContent = "อ่านจบแล้ว";
+              if (next) {
+                detail.textContent = `อ่านจบ 100% · ไปต่อภาค ${next.number}: ${next.title}`;
+                link.href = `${resumeBase}${next.id}/`;
+                link.textContent = "อ่านภาคต่อไป →";
+              } else {
+                detail.textContent = "อ่านจบเรื่องแล้ว · ครบทุกภาค";
+                link.href = tocHref;
+                link.textContent = "กลับสารบัญ";
+              }
+            } else {
+              const percent = Math.max(1, Math.min(99, Math.round(progress * 100)));
+              if (label) label.textContent = "อ่านค้างไว้";
+              detail.textContent = `ค้างไว้ประมาณ ${percent}%`;
+              link.href = `${resumeBase}${saved.sectionId}/?resume=1`;
+              link.textContent = "อ่านต่อ";
+            }
+            card.hidden = false;
+          } else {
+            card.hidden = true;
           }
-          localStorage.removeItem(KEY);
-        } finally {
+        } catch (error) {
           card.hidden = true;
         }
-      });
-    }
+
+        if (clearBtn instanceof HTMLButtonElement) {
+          clearBtn.onclick = () => {
+            try {
+              const raw = localStorage.getItem(KEY);
+              const saved = raw ? JSON.parse(raw) : null;
+              if (saved && typeof saved.sectionId === "string") {
+                localStorage.removeItem(`tsukinomi:reading:section:${saved.sectionId}`);
+              }
+              localStorage.removeItem(KEY);
+            } finally {
+              card.hidden = true;
+            }
+          };
+        }
+      }
+    };
+
+    initTsukinomiHome();
+    document.addEventListener("astro:page-load", initTsukinomiHome);
   </script>
 
   <style>

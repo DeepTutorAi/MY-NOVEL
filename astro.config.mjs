@@ -137,6 +137,7 @@ function rehypeStoryDividers() {
     const sourcePath = String(file?.path || file?.history?.[0] || "").replaceAll("\\", "/");
     const isTsukinomi = sourcePath.includes("/src/content/tsukinomi/sections/");
     const isSea = sourcePath.includes("/src/content/the-sea-that-hung-above-the-world/");
+    const isKusabi = sourcePath.includes("/src/content/kusabi/");
 
     visit(tree, "element", (node) => {
       if (node.tagName !== "hr") {
@@ -166,6 +167,22 @@ function rehypeStoryDividers() {
           { type: "element", tagName: "span", properties: { className: ["current-line"] }, children: [] },
           { type: "element", tagName: "span", properties: { className: ["current-drop"] }, children: [] },
           { type: "element", tagName: "span", properties: { className: ["current-line"] }, children: [] },
+        ];
+        return;
+      }
+
+      if (isKusabi) {
+        node.tagName = "div";
+        node.properties = { className: ["kusabi-divider"], ariaHidden: "true" };
+        node.children = [
+          { type: "element", tagName: "span", properties: { className: ["kusabi-line"] }, children: [] },
+          {
+            type: "element",
+            tagName: "span",
+            properties: { className: ["kusabi-mark"] },
+            children: [{ type: "text", value: "✦" }],
+          },
+          { type: "element", tagName: "span", properties: { className: ["kusabi-line"] }, children: [] },
         ];
         return;
       }

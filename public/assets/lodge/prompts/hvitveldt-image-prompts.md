@@ -9,7 +9,7 @@
 - ถ้าภาพมีตัวละครที่มี ref แล้ว ให้แนบ ref ภาพจาก `public/assets/lodge/images/characters/`
 - ถ้าตัวละครยังไม่มี ref ให้ใช้มุมหลัง เงา มือ หรือใบหน้าด้านข้างเล็ก ๆ เพื่อลดปัญหาหน้าไม่คงที่
 - ถ้าฉากเป็นเอกสาร ป้าย หรือแฟ้ม ให้ใช้รอยเขียนที่อ่านไม่ออกแทนข้อความจริง เพื่อไม่ให้ AI สร้างตัวอักษรเพี้ยน
-- ภาพ imposter ควรใช้ไม่เยอะ แนะนำแค่ `10A` และ `18B` เพื่อให้ยังลึกลับและไม่ทำให้เรื่องดูเป็น monster story เกินไป
+- ภาพ imposter ควรใช้ไม่เยอะ แนะนำแค่ `09C` และ `18B` เพื่อให้ยังลึกลับและไม่ทำให้เรื่องดูเป็น monster story เกินไป
 - หลายฉากใช้ POV ของ Elena (มือ ไหล่ ผ่านสายตา) แทนการแสดง Elena ทั้งร่าง เพื่อรักษาความรู้สึก first-person ของนิยาย
 
 ## Prompt Style หลัก
@@ -51,7 +51,7 @@ Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-Character reference sheet for Sarah Kovac, 41, Canadian-Croatian therapist, tall slim build, dark brown shoulder-length hair, thin metal-frame glasses, calm tired face with soft but guarded eyes, dark turtleneck sweater under a heavy winter cardigan, careful empathetic posture, hands often held close to her chest, believable adult face with quiet grief and self-control, no glamorous styling.
+Character reference sheet for Sarah Kovac, 41, Canadian-Croatian therapist, tall slim build. She has a long narrow angular face, high cheekbones, a narrow aquiline nose, pointed chin, heavy-lidded tired eyes, straight dark brown hair in a side-parted bob ending just below the jaw with one subtle gray streak, and thin oval metal-frame glasses. Her silhouette is a dark turtleneck sweater under a long heavy winter cardigan; her careful empathetic posture keeps her hands close to her chest. Believable adult face with quiet grief and self-control, no glamorous styling. Her facial structure, straight bob, glasses, and long cardigan must remain clearly distinct from Elena Vasquez's softer oval face, wavy shoulder-length hair, and shorter winter jacket.
 
 Composition: 3:4 character sheet, front view, three-quarter view, side profile, neutral expression, frightened expression, simple blank background, sweater and notebook details, consistent facial structure.
 ```
@@ -512,11 +512,9 @@ A first-person point-of-view standing just outside the open doorway of a lodge b
 Composition: 4:3 portrait of a doorway, Tom-shape on the bed center-right, narrator's shoulder framing left, gun-arm intruding from the right edge, no clear second figure, no gore, no creature, no readable text.
 ```
 
-### Chapter 10 - Escape Attempt
+#### 09C - Fake Tom หลังเสียงปืน
 
-#### 10A - Fake Tom หลังเสียงปืน
-
-ไฟล์แนะนำ: `public/assets/lodge/images/chapters/10a-gunshot-fake-tom.png`
+ไฟล์แนะนำ: `public/assets/lodge/images/chapters/09c-gunshot-fake-tom.png`
 
 อัตราส่วน: `16:9`
 
@@ -531,6 +529,8 @@ Lodge upstairs hallway just after a single pistol shot. Diana Webb in dark long-
 
 Composition: 16:9, Fake Tom in doorway shadow center-right, Diana foreground left, the real Tom's covered body implied through the far doorway, Sarah small in the background, no blood focus, no monster anatomy, restrained identity-horror shock.
 ```
+
+### Chapter 10 - Escape Attempt
 
 #### 10B - ประตูหนีออกไปใน whiteout
 
@@ -684,24 +684,6 @@ The ancient stone cell deep below the lodge during Marcus's confession. Elena Va
 Composition: 16:9 view, Elena in three-quarter profile on the left side of the frame, Marcus against the back wall as the focus of the group, Diana and Sarah in the mid-ground, high contrast graphite shading, serious psychological mood.
 ```
 
-#### 14B - ห้องเก็บของของเหยื่อในถ้ำ
-
-ไฟล์แนะนำ: `public/assets/lodge/images/chapters/14b-subject-eight-board.png`
-
-อัตราส่วน: `4:3`
-
-ตำแหน่งใช้: object clue
-
-ใช้ ref: Vincent Leroux, Elena Vasquez
-
-```text
-Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
-
-A wide stone subterranean chamber below the lodge, serving as a hoarded collection point. On the floor, dozens of personal items from past guests are piled together in a careful, unsettling mound. Vincent Leroux, in a white shirt and dark trousers, stands on the right, seen in three-quarter profile as he lifts a soft light-blue knitted winter sweater out of an open suitcase. Elena Vasquez stands on the left in three-quarter profile, her face visible and expressionless as she turns a faded luggage tag on a suitcase to read it. The scene has a quiet, haunting atmosphere. Cold graphite shading.
-
-Composition: 4:3 view, the mound of personal belongings filling the background, Vincent on the right and Elena on the left in three-quarter profile looking down at the items, focus on their faces and actions, no readable handwriting, soft pencil shadows.
-```
-
 ### Chapter 15 - What Vincent Knows
 
 #### 15A - ถ้ำโดมใต้บ้านพักและหลุมลึก
@@ -735,16 +717,34 @@ Composition: 21:9 wide cavern, black pit in the lower center, three distinct fig
 ```text
 Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
 
-The bottomless cave pit at the climax. Marcus Hale's thin emaciated silhouette is caught mid-fall just below the rim, arms loose at his sides in surrender as he drops into perfect black. Along the upper rim, Diana Webb and Elena Vasquez stand frozen in shock, their profiles visible against the rising glow, beside two other silhouetted survivors. From the depths of the pit, a faint pale blue graphite haze rises like glow and breath, with the suggestion of dozens of overlapping human face-shapes blurring into smoke without ever resolving. No monsters, no gore, no creatures.
+The bottomless cave pit at the climax. The opening is a precise circle about three meters in diameter, large enough for several people to stand around but not a room-sized crater. Marcus Hale's thin emaciated body is caught in a physically dynamic fall just below the rim: torso pitched downward, knees bent unevenly, coat and hair lifted by motion, one arm thrown out for balance and the other reaching instinctively toward the edge. Around the rim, every survivor reacts in the same split second: Diana Webb lunges forward with one hand reaching for him, Elena Vasquez recoils with her flashlight arm raised, Sarah Kovac jerks back with one hand over her mouth, and Vincent Leroux runs in from the side. From the depths, a faint pale blue graphite haze rises like glow and breath, with the suggestion of dozens of overlapping human face-shapes blurring into smoke without ever resolving. No monsters, no gore, no creatures.
 
-Composition: 16:9, pit dominating the lower two-thirds, Marcus falling small, Diana and Elena visible along the upper rim with their profiles clear in the rising glow beside two silhouetted figures, faint rising pale glow at the bottom, no readable marks, sacred dread.
+Composition: 16:9, eye-level three-quarter view that preserves the three-meter scale of the pit and enough surrounding stone floor for four distinct reactions. Marcus is large enough to read as a falling human body rather than a stiff floating figure. Diana, Elena, Sarah, and Vincent form an active arc around the rim without duplicated poses; faint pale glow rises from below, no readable marks, sacred dread.
 ```
 
 ### Chapter 16 - The Way Up
 
-#### 16A - ปีนกลับผ่านฝา bench
+#### 16A - ห้องเก็บของของเหยื่อในถ้ำ
 
-ไฟล์แนะนำ: `public/assets/lodge/images/chapters/16a-climb-back-sauna-bench.png`
+ไฟล์แนะนำ: `public/assets/lodge/images/chapters/16a-subject-eight-board.png`
+
+อัตราส่วน: `4:3`
+
+ตำแหน่งใช้: object clue
+
+ใช้ ref: Vincent Leroux, Elena Vasquez
+
+```text
+Prompt Style หลัก: monochrome pencil hand drawing, graphite on cold off-white paper, no color, no watercolor, no digital painting, visible human pencil strokes, uneven hand pressure, fine cross-hatching, soft smudged shadows, cinematic but quiet, natural imperfect linework, realistic adult proportions, restrained psychological horror, not glossy, not AI-looking, no readable text, no logo, no signature.
+
+A wide stone subterranean chamber below the lodge, serving as a hoarded collection point. On the floor, dozens of personal items from past guests are piled together in a careful, unsettling mound. Vincent Leroux, in a white shirt and dark trousers, stands on the right, seen in three-quarter profile as he lifts a soft light-blue knitted winter sweater out of an open suitcase. Elena Vasquez stands on the left in three-quarter profile, her face visible and expressionless as she turns a faded luggage tag on a suitcase to read it. The scene has a quiet, haunting atmosphere. Cold graphite shading.
+
+Composition: 4:3 view, the mound of personal belongings filling the background, Vincent on the right and Elena on the left in three-quarter profile looking down at the items, focus on their faces and actions, no readable handwriting, soft pencil shadows.
+```
+
+#### 16B - ปีนกลับผ่านฝา bench
+
+ไฟล์แนะนำ: `public/assets/lodge/images/chapters/16b-climb-back-sauna-bench.png`
 
 อัตราส่วน: `16:9`
 
@@ -760,9 +760,9 @@ A low-angle view from inside the dark vertical shaft beneath the sauna, looking 
 Composition: 16:9 view looking up the ladder shaft, daylight at the top, Diana at the hatch, Sarah on the rungs, Elena at the bottom looking up with her face visible, heavy pencil shadows, dusty atmosphere.
 ```
 
-#### 16B - วิทยุฉุกเฉิน
+#### 16C - วิทยุฉุกเฉิน
 
-ไฟล์แนะนำ: `public/assets/lodge/images/chapters/16b-radio-call-fireplace.png`
+ไฟล์แนะนำ: `public/assets/lodge/images/chapters/16c-radio-call-fireplace.png`
 
 อัตราส่วน: `4:3`
 
@@ -800,7 +800,7 @@ Composition: 21:9, helicopter side window framing the village lights below, thre
 
 #### 17B - ห้องโรงพยาบาลของผู้รอดชีวิต
 
-ไฟล์แนะนำ: `public/assets/lodge/images/chapters/17b-hotel-survivors-toast.png`
+ไฟล์แนะนำ: `public/assets/lodge/images/chapters/17b-hospital-survivors-toast.png`
 
 อัตราส่วน: `16:9`
 
@@ -856,7 +856,7 @@ Composition: 4:5 intimate mirror portrait or 16:9 final illustration, real Elena
 
 ## สรุปจังหวะ imposter
 
-- ใช้ `10A - Fake Tom หลังเสียงปืน` เป็นภาพ imposter แบบชัดที่สุดในเนื้อเรื่องหลัก
+- ใช้ `09C - Fake Tom หลังเสียงปืน` เป็นภาพ imposter แบบชัดที่สุดในเนื้อเรื่องหลัก
 - ใช้ `18B - กระจก: Elena ที่ไม่ใช่ Elena` เป็นภาพบอกใบ้ตอนจบว่า Elena ถูกกลืน/แทนที่ ไม่ใช่ตายแบบมีศพ
 - ภาพอื่น ๆ ที่อาจสะกิดการเปลี่ยนตัวตน เช่น `09B`, `11B`, `12B` ใช้สัญญาณเล็ก ๆ (เงา รอยยิ้มค้าง การกระพริบไม่ sync) แทนการโชว์ imposter แบบเปิดเผย
 - ไม่ควรมีภาพ imposter เยอะกว่านี้ในรอบแรก เพราะจะลดความคลุมเครือของเรื่องและทำให้คนอ่านจับทางเร็วเกินไป
@@ -868,5 +868,5 @@ Composition: 4:5 intimate mirror portrait or 16:9 final illustration, real Elena
 - **POV (มุมมองบุคคลที่หนึ่ง)**: `02B`, `09B` ใช้สำหรับฉากที่ Elena เป็นผู้สังเกตและความรู้สึกของเธอคือหัวใจของฉาก
 - **Over-the-shoulder (เหนือไหล่ Elena)**: ใช้ในภาพครึ่งแรกของนิยายเมื่อต้องการจำกัดมุมมองไม่ให้เห็นใบหน้าเพื่อลดความซ้ำของลูกเล่น "มือโผล่ขอบล่าง"
 - **Object close-up (ของเล่ารายละเอียด)**: `04B`, `05B`, `07B` ใช้เพื่อให้หลักฐานพูดเอง โดย Elena ปรากฏแค่มือหรือไหล่
-- **Scenery / ensemble / Character Profile (ภาพหมู่ บรรยากาศ หรือใบหน้าตัวละคร)**: `01A`, `01B`, `02A`, `03A`, `04A`, `08A`, `10B`, `11B`, `12A`, `13A`, `13B`, `14A`, `14B`, `15A`, `15B`, `16A`, `16B`, `17A`, `17B`, `18A`, `18B` ใช้เมื่อมีตัวละครหลายคนสำคัญพร้อมกัน หรือเมื่อต้องการแสดงใบหน้าของ Elena
+- **Scenery / ensemble / Character Profile (ภาพหมู่ บรรยากาศ หรือใบหน้าตัวละคร)**: `01A`, `01B`, `02A`, `03A`, `04A`, `08A`, `10B`, `11B`, `12A`, `13A`, `13B`, `14A`, `15A`, `15B`, `16A`, `16B`, `16C`, `17A`, `17B`, `18A`, `18B` ใช้เมื่อมีตัวละครหลายคนสำคัญพร้อมกัน หรือเมื่อต้องการแสดงใบหน้าของ Elena
 - **การเปิดเผยใบหน้าของ Elena ตั้งแต่บทที่ 11B เป็นต้นไป**: เพื่อไม่ให้ Elena หายไปจากสายตาของผู้อ่านในจังหวะสำคัญที่เธอกำลังจะถูก Subject 8 ยึดร่าง ภาพประกอบตั้งแต่ 11B เป็นต้นไปจะค่อยๆ เผยใบหน้าหรือเสี้ยวหน้าของ Elena (Three-quarter profile) ที่มีสีหน้าว่างเปล่า เย็นชา หรือไร้อารมณ์ความรู้สึกมากขึ้นเรื่อยๆ แทนการบังใบหน้า เพื่อสร้างความกดดันทางจิตวิทยาก่อนถึงบทสรุปในกระจกเงา `18B`

@@ -78,14 +78,14 @@ This document defines every location in the world — their geography, political
 
 ### 2. The Sky Ocean (ทะเลฟ้า)
 - **Type**: Ecosystem — Suspended ocean
-- **Geography**: The entire ancient ocean, lifted to ~8,000-12,000 meters altitude. Not just water — a complete marine ecosystem: fish, whales, coral, currents, weather systems. The surface is navigable by airship. The depths are unknown — no one has gone deep and returned.
+- **Geography**: The entire ancient ocean, lifted to ~8,000-12,000 meters altitude. Not just water — a complete marine ecosystem: fish, whales, coral, currents, weather systems. Ordinary airships navigate the **Underside Air Shelf**, the open air between the Shroud and the suspended lower surface; they see water as a ceiling overhead. Wrecks, reefs, roots, and drowned buildings protrude downward through that lower skin. Entering the water requires a specially sealed hull. The depths are unknown — no ordinary human expedition has gone deep and returned.
 - **Relative Position**: Above everything. Separated from the earth by the Shroud (mist barrier). Covers approximately the same area as the original ocean — most of the visible sky.
 - **Who Controls**: No one. The Dead Parliament controls the Sky-Dam that holds it up. The Sky Ocean itself is uncontrollable.
 - **Importance to Plot**: The setting of all travel between locations. Contains drowned ruins (upside-down cities from before the lift). The Leviathan resides in its deepest parts.
-- **First Appearance**: Arc 2 Ch 6 — Cael surfaces through the Shroud for the first time.
+- **First Appearance**: Arc 1 Ch 5 — Cael crosses the Shroud into the Underside Air Shelf for the first time.
 - **Last Appearance**: Arc 7 Ch 33 — Falling. The ocean descends to earth.
 - **Key Events**:
-  - Cael's first sight: *"It's like… the sky turned upside down."* (Ch 6)
+  - Cael's first sight of the water ceiling above the Underside Air Shelf (Ch 5)
   - Discovery of drowned ruins and whale-bone inscription (Ch 7)
   - Varek's pursuit across the surface (Ch 8-9)
   - Return journey toward Sky-Dam (Ch 20)
@@ -95,20 +95,20 @@ This document defines every location in the world — their geography, political
 
 ## THE SKY OCEAN DEPTH LAYERS (ชั้นความลึกของทะเลฟ้า)
 
-The Sky Ocean is not a uniform body of water. It has five distinct depth layers, each with its own ecosystem, pressure conditions, and danger level. The deeper you descend, the closer you come to the Leviathan's core frequency — and the more the ocean remembers what it was before it was lifted.
+The Sky Ocean is not a uniform body of water. It has five distinct internal depth layers, each with its own ecosystem, pressure conditions, and danger level. These layers begin only after a vessel crosses from the Underside Air Shelf through the lower water boundary. The deeper you travel inside the water, the closer you come to the Leviathan's core frequency — and the more the ocean remembers what it was before it was lifted.
 
-The layers are known by what sailors and explorers who survived each one reported. Most airships never descend below Layer 2. No one has reached Layer 5 and returned as themselves.
+The labels retain the Ascendant Engineers' legacy measurement from the ocean's upper surface. Ordinary airships never enter Layer 1 at all; the *Albatross* remains in open air throughout Arc 2 and performs its first sealed dive in Arc 5. No one has reached Layer 5 and returned as themselves.
 
 ---
 
 ### LAYER 1: The Sun-Sheet (แผ่นตะวัน) — 0 to 500m depth
 - **Altitute Range**: ~12,000m → 11,500m (from the Sky Ocean surface)
-- **Description**: The sunlit surface of the Sky Ocean. Warm. Bright. Navigable by any airship with a sealed hull. This is where the *Albatross* operates for most of the story. Fish are small — silver-scaled and fast. Cloud Whales surface here to breathe. Ash-Blooms form on calm days.
+- **Description**: The sunlit upper band of the Sky Ocean. Warm. Bright. Reachable only after a sealed vessel enters the water; the *Albatross* does not operate here during ordinary Arc 2 travel. Fish are small — silver-scaled and fast. Cloud Whales surface here to breathe. Ash-Blooms form on calm days.
 - **Visibility**: Clear — 30-50 meters on good days.
 - **Fauna**: Normal-seeming fish (Silver Drifters, Pale-Skimmers), Cloud Whales (surface), Pale-Moths (surface swarms), Shade-Flame (at dusk).
 - **Danger Level**: Low. The surface is the safest part of the Sky Ocean. Storms and Ash-Blooms are the primary hazards.
-- **Human Presence**: Frequent — airship trade routes cross Layer 1. The Ministry patrols here.
-- **Arc Appearances**: Arc 2 (entire arc), Arc 3 (Team Cael's flight path), Arc 4 (travel routes)
+- **Human Presence**: Rare inside the water. Airship trade routes and Ministry patrols pass through the Underside Air Shelf outside the ocean, not Layer 1.
+- **Arc Appearances**: Arc 5 sealed-dive sequence; visible indirectly from the Underside Air Shelf earlier.
 - **Narrative Use**: The "normal" baseline. The beauty of the Sky Ocean. The reader's comfort zone before the descent.
 
 ---
@@ -119,7 +119,7 @@ The layers are known by what sailors and explorers who survived each one reporte
 - **Fauna**: Reef-Hounds (nest in abandoned buildings), Lure-Lanterns (first appearance), Husk-Takers (nest in doorways), Ghost-Coral formations, Glass Eels (migrating).
 - **Danger Level**: Medium. Creatures here are predators, not scavengers. The ruins provide ambush terrain. The Lure-Lanterns use light to draw prey into buildings.
 - **Human Presence**: Rare — only salvage crews (like Ilyra's family) and desperate explorers. The Ministry claims to patrol here but rarely does. The Corpse Fields drift at this depth.
-- **Arc Appearances**: Arc 2 Ch 7 (the whale-bone inscription is in a Layer 2 ruin), Arc 5 (Ilyra's detour to the Sunken Archive)
+- **Arc Appearances**: Arc 2 Ch 7 reaches the air-exposed underside of a ruin whose upper mass remains in Layer 2; Arc 5 enters the water for Ilyra's detour to the Sunken Archive.
 - **Key Locations within Layer 2**:
   - **The Sunken Quarter**: An entire district of the Engineers' old city. Streets are vertical — explorers rappel between balconies. The whale bone with the inscription "The ocean was not lifted. It was butchered upward" is embedded in the central plaza.
   - **The Corpse Fields**: A drifting mass of preserved bodies — some ancient, some recent. The Drowned Choir originates here. Pale-Moths breed here.
@@ -165,8 +165,8 @@ The layers are known by what sailors and explorers who survived each one reporte
 
 | Layer | Depth | Light | Danger | Accessible By | Arc Appearances |
 |---|---|---|---|---|---|
-| 1: Sun-Sheet | 0–500m | Full sun | Low | Any airship | Arc 2,3,4 |
-| 2: Drowned Quarter | 500m–2,000m | Dim | Medium | Reinforced airship | Arc 2 Ch 7, Arc 5 |
+| 1: Sun-Sheet | 0–500m | Full sun | Low | Sealed dive hull | Arc 5; viewed indirectly earlier |
+| 2: Drowned Quarter | 500m–2,000m | Dim | Medium | Reinforced sealed hull | Ch 7 reaches an air-exposed underside; water entry in Arc 5 |
 | 3: Pressure Veil | 2,000m–5,000m | Twilight | HIGH | Emergency descent only | Arc 5 Ch 21-22 |
 | 4: Old Pressure | 5,000m–9,000m | Dark | EXTREME | Brine-touched perception only | Arc 5 Ch 25 |
 | 5: First Memory | 9,000m+ | None (sensory) | BEYOND | Tide-Key / Leviathan merge | Arc 5 Ch 25, Arc 7 Ch 32,34 |
@@ -216,7 +216,7 @@ The layers are known by what sailors and explorers who survived each one reporte
 - **Who Controls**: Ministry of Dry Earth — Marrow Saint's seat of power. Inquisitor headquarters. Military command center (Commander Voss).
 - **Local Features**: The Grand Library (Sera's workplace), the Archive Wing (where Sera and Lienn work), the Steam Pipeline network (Team Cassian's escape route), the broadcast tower (where Sera transmits the truth).
 - **Importance to Plot**: Sera's storyline hub. Team Cassian's escape route. The truth is broadcast from here.
-- **First Appearance**: Arc 2 Ch 7 (Sera subplot) / Arc 3 Ch 11 (Sera POV — first direct appearance).
+- **First Appearance**: Arc 2 Ch 7 (Sera subplot and first direct POV appearance) / Arc 3 Ch 11 (Sera's first full-chapter POV).
 - **Last Appearance**: Arc 3 Ch 15 — After the broadcast, the Capital is in chaos. Ministry control fractures.
 - **Key Events**:
   - Sera discovers Nio's file (Arc 2 Ch 7 — subplot)
@@ -347,7 +347,7 @@ The layers are known by what sailors and explorers who survived each one reporte
   - Bishop Corvein's sermon: *"The sea is God! Don't run from God!"* (Ch 29)
   - Half the city follows Corvein into the lake — they drown (Ch 29)
   - Odran locks himself in the gate room (Ch 30)
-  - Odran cranks the wheel — fingers crack — recites 73 names — drowns (Ch 30)
+  - Odran cranks the wheel — fingers crack — recites all 74 names (73 dead, Nio the survivor last) — drowns (Ch 30)
   - Children escape through the gap (Ch 30)
 - **Final State**: Flooded. The gate Odran opened remains open — an underwater monument. His victim list is recovered and kept in the Coastal Museum.
 
@@ -429,7 +429,7 @@ The layers are known by what sailors and explorers who survived each one reporte
 - **First Appearance**: Arc 7 Ch 35
 - **Exhibits**:
   - Maera's tools and Tovin's crude prosthetic arm — labeled: *"Barn Door — Made with Love — circa Year 2 After the Fall"*
-  - Odran's victim list — 73 names under glass — memorial
+  - Odran's victim list — 74 names under glass (73 dead, Nio marked as survivor) — memorial
   - Cassian's sword — recovered from the island peak
   - Loran Thorne's lineage records — 7 generations
   - "The Red-Eyed Terror" exhibit — folklore and red cloth offerings

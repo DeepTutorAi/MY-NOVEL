@@ -103,14 +103,6 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
   </main>
 
   <script>
-    const gate = document.querySelector("[data-extra-gate]");
-    const content = document.querySelector("[data-extra-content]");
-    const fill = document.querySelector("[data-progress-fill]");
-    const status = document.querySelector("[data-progress-status]");
-    const passwordInput = document.querySelector("[data-bypass-input]");
-    const bypassBtn = document.querySelector("[data-bypass-btn]");
-    const bypassError = document.querySelector("[data-bypass-error]");
-
     const SECRET_READS_KEY = "hvitveldt:secret:reads";
     const BYPASS_KEY = "hvitveldt:extra-bypassed";
     // Double hash verification: H2 = sha256(H1)
@@ -121,9 +113,9 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
     // SHA-256 helper
     async function sha256(message: string): Promise<string> {
       const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
       const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
     }
 
     const getSecretReadsCount = (): number => {
@@ -131,7 +123,7 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
         const raw = localStorage.getItem(SECRET_READS_KEY);
         const arr = raw ? JSON.parse(raw) : [];
         if (Array.isArray(arr)) {
-          return arr.filter(id => id !== "00-introduction").length;
+          return arr.filter((id) => id !== "00-introduction").length;
         }
         return 0;
       } catch {
@@ -150,57 +142,70 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
       return getSecretReadsCount() >= UNLOCK_THRESHOLD;
     };
 
-    const updateUI = async () => {
-      const readCount = getSecretReadsCount();
-      const percent = Math.round((readCount / TOTAL_CHAPTERS) * 100);
+    const initExtra = async () => {
+      const gate = document.querySelector("[data-extra-gate]");
+      const content = document.querySelector("[data-extra-content]");
+      const fill = document.querySelector("[data-progress-fill]");
+      const status = document.querySelector("[data-progress-status]");
+      const passwordInput = document.querySelector("[data-bypass-input]");
+      const bypassBtn = document.querySelector("[data-bypass-btn]");
+      const bypassError = document.querySelector("[data-bypass-error]");
 
-      if (fill instanceof HTMLElement) {
-        fill.style.width = `${percent}%`;
-      }
-      if (status) {
-        status.textContent = `${readCount} / ${TOTAL_CHAPTERS} บท (${percent}%)`;
-      }
+      if (!gate && !content) return;
 
-      const unlocked = await checkUnlocked();
-      if (unlocked) {
-        gate?.setAttribute("hidden", "");
-        content?.removeAttribute("hidden");
-      } else {
-        gate?.removeAttribute("hidden");
-        content?.setAttribute("hidden", "");
-      }
-    };
+      const updateUI = async () => {
+        const readCount = getSecretReadsCount();
+        const percent = Math.round((readCount / TOTAL_CHAPTERS) * 100);
 
-    const attemptBypass = async () => {
-      if (passwordInput instanceof HTMLInputElement) {
-        const password = passwordInput.value.trim();
-        const h1 = await sha256(password);
-        const h2 = await sha256(h1);
-        if (h2 === EXPECTED_H2) {
-          localStorage.setItem(BYPASS_KEY, h1);
-          bypassError?.setAttribute("hidden", "");
-          await updateUI();
+        if (fill instanceof HTMLElement) {
+          fill.style.width = `${percent}%`;
+        }
+        if (status) {
+          status.textContent = `${readCount} / ${TOTAL_CHAPTERS} บท (${percent}%)`;
+        }
+
+        const unlocked = await checkUnlocked();
+        if (unlocked) {
+          gate?.setAttribute("hidden", "");
+          content?.removeAttribute("hidden");
         } else {
-          bypassError?.removeAttribute("hidden");
+          gate?.removeAttribute("hidden");
+          content?.setAttribute("hidden", "");
         }
+      };
+
+      const attemptBypass = async () => {
+        if (passwordInput instanceof HTMLInputElement) {
+          const password = passwordInput.value.trim();
+          const h1 = await sha256(password);
+          const h2 = await sha256(h1);
+          if (h2 === EXPECTED_H2) {
+            localStorage.setItem(BYPASS_KEY, h1);
+            bypassError?.setAttribute("hidden", "");
+            await updateUI();
+          } else {
+            bypassError?.removeAttribute("hidden");
+          }
+        }
+      };
+
+      if (bypassBtn instanceof HTMLButtonElement) {
+        bypassBtn.onclick = attemptBypass;
       }
+
+      if (passwordInput instanceof HTMLInputElement) {
+        passwordInput.onkeydown = (e) => {
+          if (e.key === "Enter") {
+            attemptBypass();
+          }
+        };
+      }
+
+      await updateUI();
     };
 
-    if (bypassBtn) {
-      bypassBtn.addEventListener("click", attemptBypass);
-    }
-
-    if (passwordInput instanceof HTMLInputElement) {
-      passwordInput.addEventListener("keydown", (e) => {
-        if (e.key === "Enter") {
-          attemptBypass();
-        }
-      });
-    }
-
-    // Initialize UI on load
-    updateUI();
-    document.addEventListener("astro:page-load", updateUI);
+    initExtra();
+    document.addEventListener("astro:page-load", initExtra);
   </script>
 
   <style>

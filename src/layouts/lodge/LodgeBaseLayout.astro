@@ -49,6 +49,8 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
 
         function getProfileKey(key) {
           if (typeof key !== 'string') return key;
+          const activeProfile = getActiveProfileId();
+          if (key.endsWith(`:${activeProfile}`)) return key;
           const prefixes = [
             "hvitveldt:reading:",
             "tsukinomi:reading:",
@@ -64,7 +66,6 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
             "kusabi:extra-bypassed"
           ];
           if (prefixes.some(p => key.startsWith(p))) {
-            const activeProfile = getActiveProfileId();
             return `${key}:${activeProfile}`;
           }
           return key;

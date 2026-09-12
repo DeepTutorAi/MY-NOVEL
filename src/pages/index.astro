@@ -29,7 +29,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     <section class="hub-hero">
       <div class="hub-title-group">
         <h1 id="hub-title">Pii-chan Dechalert</h1>
-        <p>สองเรื่อง สองอากาศ และพื้นที่อ่านเดียวกันสำหรับกลับไปยังโลกที่ยังค้างอยู่</p>
+        <p>สี่เรื่อง สี่บรรยากาศ และพื้นที่อ่านเดียวกันสำหรับกลับไปยังโลกที่ยังค้างอยู่</p>
       </div>
       
       <div class="hub-side-col">
@@ -835,18 +835,15 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
           deleteBtn.textContent = 'ลบ';
           deleteBtn.addEventListener('click', () => {
             if (confirm(`คุณแน่ใจหรือไม่ที่จะลบโปรไฟล์ "${p.name}"?`)) {
-              // Remove reading state prefixes
-              const prefixes = [
-                "hvitveldt:reading:",
-                "tsukinomi:reading:",
-                "hvitveldt:secret:",
-                "tsukinomi:reading:secret:",
-                "hvitveldt:extra-bypassed",
-                "tsukinomi:extra-bypassed"
-              ];
-              prefixes.forEach(prefix => {
-                localStorage.removeItem(`${prefix}:${p.id}`);
-              });
+              // Purge all localStorage keys belonging to this profile
+              const keysToRemove = [];
+              for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (k && k.endsWith(`:${p.id}`)) {
+                  keysToRemove.push(k);
+                }
+              }
+              keysToRemove.forEach(k => localStorage.removeItem(k));
               
               const updated = getProfiles().filter(profile => profile.id !== p.id);
               saveProfiles(updated);
@@ -1016,6 +1013,14 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
 
     initBackgroundSwitcher();
     document.addEventListener("astro:page-load", initBackgroundSwitcher);
+
+    document.addEventListener("astro:before-swap", () => {
+      const win = window;
+      if (typeof win.__dynamicCityBgCleanup === "function") win.__dynamicCityBgCleanup();
+      if (typeof win.__mothlightBgCleanup === "function") win.__mothlightBgCleanup();
+      if (typeof win.__fireflyBgCleanup === "function") win.__fireflyBgCleanup();
+      if (typeof win.__pagesStarsBgCleanup === "function") win.__pagesStarsBgCleanup();
+    });
   })();
 </script>
 

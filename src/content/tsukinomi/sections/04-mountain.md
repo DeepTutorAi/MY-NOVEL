@@ -2261,8 +2261,8 @@ Haruto: "ผมขอส่งมอบมันเพื่อแลกกั�
 ผมลืมตาขึ้นช้าๆ แล้วก้าวเข้าไปวางตลับเทปลงบนฝ่ามือเหี่ยวย่นของท่านยามาบะ
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--mountain-exchange">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-04-mountain-exchange.png" width="1024" height="1536" alt="ฮารุโตะคุกเข่ายื่นตลับเทปให้ยามาบะบนลานหินใต้แสงจันทร์ โดยมีคาโอริยืนอยู่ข้างหินศักดิ์สิทธิ์" loading="lazy" decoding="async" />
-  <figcaption>ของแลกเปลี่ยนถูกส่งผ่านมือ ก่อนเสียงเพลงจะเริ่มขึ้น</figcaption>
+  <img src="../../../assets/tsukinomi/images/illustrations/section-04-mountain-exchange.png" width="1122" height="1402" alt="ภาพแบ่งครึ่งใบหน้าฮารุโตะและคาโอริที่มองตรงมาทั้งน้ำตา ระหว่างยอมรับราคาของการแลกเปลี่ยนบนภูเขา" loading="lazy" decoding="async" />
+  <figcaption>น้ำตาของคนสองคน เมื่อของสำคัญถูกมอบให้ภูเขา</figcaption>
 </figure>
 
 ทันทีที่เธอหุบมือ แสงสีฟ้ารอบโขดหินศักดิ์สิทธิ์ก็สว่างจ้าขึ้น มันไม่ร้อน ไม่แสบตา มีเพียงความสว่างที่เหมือนน้ำเย็นล้อมตัวอยู่เงียบๆ

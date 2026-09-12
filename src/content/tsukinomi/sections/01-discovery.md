@@ -1008,7 +1008,7 @@ Kaori: "รู้น่า หูฟังแบบนี้ก็เคยใ�
 ดวงตาของคาโอริเริ่มมีน้ำใสๆ เอ่อขึ้นมา ผมเห็น แล้วก้มลงมองปุ่มเล่นที่นิ้วยังค้างอยู่บนนั้นแทน
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--shared-earphone">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-01-shared-earphone.png" width="1024" height="1536" alt="ฮารุโตะกับคาโอรินั่งแบ่งหูฟังกันบนม้านั่งสถานีสึคิโนมิหลังฝนหยุด" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-01-shared-earphone.png" width="941" height="1672" alt="ฮารุโตะกับคาโอรินั่งแบ่งหูฟังกันบนม้านั่งสถานีสึคิโนมิหลังฝนหยุด" loading="lazy" decoding="async" />
   <figcaption>หูฟังข้างเดียวกันที่ทำให้คนแปลกหน้าสองคนเริ่มแบ่งปันความเงียบ</figcaption>
 </figure>
 

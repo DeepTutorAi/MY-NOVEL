@@ -285,7 +285,7 @@
       let queued = false;
 
       const requestCueSync = () => {
-        if (queued) {
+        if (queued || !window.location.pathname.includes("/lodge/")) {
           return;
         }
 
@@ -307,6 +307,13 @@
     ambientWindow.__hvitveldtAmbientPlayerGlobalBound = true;
 
     document.addEventListener("astro:page-load", bindPlayer);
+    document.addEventListener("astro:before-swap", (e: any) => {
+      const toPath = e?.to?.pathname || "";
+      if (toPath && !toPath.includes("/lodge/")) {
+        ambientAudio.disable();
+        soundscapeAudio.disable();
+      }
+    });
     window.addEventListener("hvitveldt:audio-error", () => {
       syncState();
     });

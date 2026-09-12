@@ -57,3 +57,13 @@ This document defines the stylistic rules and voice guidelines for the project. 
 - **Tovin**: Simple, warm, and self-deprecating. Uses ordinary language, focuses on human needs (*soup, sleep, heat*). Acts as a conversational contrast to the grand, poetic vocabulary of the mythic characters.
 - **Cassian**: ENTJ Analyst. Decisive, strategic, and authoritative. Speaks in terms of large-scale logistics, tactical advantages, and macro-objectives. He avoids emotional pleading, speaking with calm, quiet authority. His actions define him. His humor is deadpan and unintentional, stemming from extreme literalism. He treats civilian banter, sarcasm, and Tovin's blockheaded attempts at romance/mechanics with serious tactical analysis, creating natural situational comedy.
 - **Loran**: ESTJ Sentinel. Authoritative, direct, and highly organized. Speaks using precise aviation and military navigation terminology (*"vector," "bearing," "payload," "descent"*). He views duty as a concrete responsibility to his dependents rather than an abstract ideal; his speech pattern is blunt, demanding order, and rejecting Cassian's ENTJ strategic martyrdom as an illogical waste of leadership.
+
+---
+
+## 🧭 Language, Names & Register
+
+- **Narrative language**: Thai prose; established proper names remain in English/Latin script (`Cael`, `Nio`, `Albatross`, `Sera`). Thai transliterations may appear only as deliberate in-world nicknames or quoted local usage, not as random alternates.
+- **Industrial-fantasy register**: Metric units, gauges, pressure, screens, nylon, and other established technologies are allowed because this is a post-engineering world, not a medieval one. Prefer the Thai functional term when it is equally precise; retain English only for proper nouns or technical terms whose foreignness matters in-world.
+- **Pronouns**: Cael and Tovin default to `ผม`; Ilyra and Maera to `ฉัน`; Sera uses `ฉัน` in private and feminine polite endings in formal speech. Cassian and Loran default to `ผม`; any switch to `ฉัน` must mark a clearly motivated loss of formal distance.
+- **Government terms**: `สภาศิลาไร้ฝน` is the ruling council, `กระทรวง` its executive bureaucracy, and `หมู่หินไร้หยดน้ำ` its emblem/seal.
+- **Salt Ward terms**: `Salt Ward`, `White-Silt Bastion`, `ปราการผลึกขาว`, and `ปราการขาว` name the same complex in different registers. `สถานบำบัดและฟื้นฟูสภาวะเปียก` is its archival euphemism.
