@@ -89,7 +89,7 @@ Hina: "โธ่ จำได้สิคะ! แค่สมองส่วน�
 Haruto: "เดี๋ยวสิ ฮินะ พี่ยังถือข้าวอยู่นะ"
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--family-breakfast">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-01-family-breakfast-hina-headlock.png" width="1024" height="1536" alt="ฮินะหยอกฮารุโตะด้วยการคล้องแขนรอบไหล่จากด้านหลังระหว่างมื้อเช้า ขณะที่นาโอมิยืนอยู่ข้างโต๊ะ" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-01-family-breakfast-hina-headlock.webp" width="1024" height="1536" alt="ฮินะหยอกฮารุโตะด้วยการคล้องแขนรอบไหล่จากด้านหลังระหว่างมื้อเช้า ขณะที่นาโอมิยืนอยู่ข้างโต๊ะ" loading="lazy" decoding="async" />
   <figcaption>เสียงหยอกกันในมื้อเช้าที่ทำให้บ้านตื่นก่อนสมองของฮินะ</figcaption>
 </figure>
 
@@ -263,7 +263,7 @@ Tanaka: "ซูซูกิ มองทางข้างหน้า"
 เขาเข้าเส้นชัยก่อนผมหลายช่วงตัว แล้วหยุดก้มใช้สองมือยันเข่า หอบจนพูดไม่เป็นคำ แต่ยังหัวเราะอยู่ ผมกัดฟันวิ่งผ่านเส้นตามมาเป็นคนสุดท้าย ครูทานากะกดนาฬิกาจับเวลา จดตัวเลขลงบนคลิปบอร์ดเงียบๆ แล้วมองตรงมาที่ผม
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--pe-race">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-01-pe-race-akira-akihiro.png" width="1024" height="1536" alt="ครูทานากะเป่านกหวีดและจับเวลาอยู่ใกล้กล้อง ขณะที่อากิระวิ่งนำอย่างเหนื่อยแต่มีความสุข และฮารุโตะรั้งท้ายอยู่ด้านหลัง" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-01-pe-race-akira-akihiro.webp" width="1024" height="1536" alt="ครูทานากะเป่านกหวีดและจับเวลาอยู่ใกล้กล้อง ขณะที่อากิระวิ่งนำอย่างเหนื่อยแต่มีความสุข และฮารุโตะรั้งท้ายอยู่ด้านหลัง" loading="lazy" decoding="async" />
   <figcaption>อากิระยังยิ้มได้แม้เหนื่อยหอบ ส่วนผมมีแค่แรงพาตัวเองให้ถึงเส้น</figcaption>
 </figure>
 
@@ -349,7 +349,7 @@ Kaori: "ฝนตกเหรอคะ?"
 Kaori: "นั่งก่อนสิคะ ฝนน่าจะหยุดในอีกไม่นาน"
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--first-meeting">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-01-first-meeting.png" width="1024" height="1536" alt="ฮารุโตะเปียกฝนยืนอยู่ในสถานีร้าง ขณะที่คาโอรินั่งรออยู่บนม้านั่งแถวกลาง" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-01-first-meeting.webp" width="1024" height="1536" alt="ฮารุโตะเปียกฝนยืนอยู่ในสถานีร้าง ขณะที่คาโอรินั่งรออยู่บนม้านั่งแถวกลาง" loading="lazy" decoding="async" />
   <figcaption>การพบกันครั้งแรกใต้ฝนที่สถานีสึคิโนมิ</figcaption>
 </figure>
 
@@ -1008,7 +1008,7 @@ Kaori: "รู้น่า หูฟังแบบนี้ก็เคยใ�
 ดวงตาของคาโอริเริ่มมีน้ำใสๆ เอ่อขึ้นมา ผมเห็น แล้วก้มลงมองปุ่มเล่นที่นิ้วยังค้างอยู่บนนั้นแทน
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--shared-earphone">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-01-shared-earphone.png" width="941" height="1672" alt="ฮารุโตะกับคาโอรินั่งแบ่งหูฟังกันบนม้านั่งสถานีสึคิโนมิหลังฝนหยุด" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-01-shared-earphone.webp" width="941" height="1672" alt="ฮารุโตะกับคาโอรินั่งแบ่งหูฟังกันบนม้านั่งสถานีสึคิโนมิหลังฝนหยุด" loading="lazy" decoding="async" />
   <figcaption>หูฟังข้างเดียวกันที่ทำให้คนแปลกหน้าสองคนเริ่มแบ่งปันความเงียบ</figcaption>
 </figure>
 
@@ -1203,7 +1203,7 @@ Naomi: "ในตู้เย็นยังมีครัวซองต์เ
 ตรงกับใบหน้าของเด็กผู้หญิงที่ผมนั่งฟังเพลงด้วยเมื่อวาน
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--empty-station">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-03-empty-station.png" width="1024" height="1536" alt="ม้านั่งสามตัวในสถานีสึคิโนมิที่ว่างเปล่า มีพื้นแห้งและรอยเท้าที่หยุดลงกลางชานชาลา" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-03-empty-station.webp" width="1024" height="1536" alt="ม้านั่งสามตัวในสถานีสึคิโนมิที่ว่างเปล่า มีพื้นแห้งและรอยเท้าที่หยุดลงกลางชานชาลา" loading="lazy" decoding="async" />
   <figcaption>สถานีที่ยังเก็บร่องรอยของคนที่ไม่อยู่แล้ว</figcaption>
 </figure>
 

@@ -163,10 +163,10 @@ describe("shared reading experience contract", () => {
 
     assert.match(
       mountain,
-      /ลาก่อนนะครับ คุณคาโอริ[\s\S]{0,600}farewell-haruto-kaori\.png/,
+      /ลาก่อนนะครับ คุณคาโอริ[\s\S]{0,600}farewell-haruto-kaori\.(png|webp)/,
     );
-    assert.match(tsukiExtra, /thank-you-haruto-hina-kaori\.png/);
-    assert.match(tsukiExtra, /alternate-future-haruto-kaori\.png/);
+    assert.match(tsukiExtra, /thank-you-haruto-hina-kaori\.(png|webp)/);
+    assert.match(tsukiExtra, /alternate-future-haruto-kaori\.(png|webp)/);
     assert.match(
       tsukiExtra,
       /data-extra-content[\s\S]*src=\{thankYouImage\}[\s\S]*src=\{alternateFutureImage\}/,

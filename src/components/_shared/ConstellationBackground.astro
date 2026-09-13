@@ -1,6 +1,6 @@
 ---
 import { withBase } from "../../utils/base-path";
-const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
+const bgImageUrl = withBase("/assets/_shared/images/pixel_background.webp");
 ---
 <div class="dynamic-city-bg" style={`background-image: url('${bgImageUrl}')`}>
   <canvas id="city-canvas"></canvas>
@@ -178,7 +178,7 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
       t++;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      if (bgContainer) {
+      if (bgContainer && !reduceMotion.matches) {
         // Subtle floating / bobbing effect
         const floatX = Math.sin(t * 0.005) * 5;
         const floatY = Math.cos(t * 0.004) * 3;
@@ -206,15 +206,18 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
 
       // 2. UPDATE NODES AND DRAW LINES
       nodes.forEach((node, i) => {
-        // Move node
-        node.x += node.vx;
-        node.y += node.vy;
+        // Under reduced motion, keep stars at their initial positions.
+        if (!reduceMotion.matches) {
+          // Move node
+          node.x += node.vx;
+          node.y += node.vy;
 
-        // Bounce or wrap edges
-        if (node.x < 0) node.x = canvas.width;
-        if (node.x > canvas.width) node.x = 0;
-        if (node.y < 0) node.y = canvas.height;
-        if (node.y > canvas.height) node.y = 0;
+          // Bounce or wrap edges
+          if (node.x < 0) node.x = canvas.width;
+          if (node.x > canvas.width) node.x = 0;
+          if (node.y < 0) node.y = canvas.height;
+          if (node.y > canvas.height) node.y = 0;
+        }
 
         // Mouse Repulsion Force
         if (mouseX !== -1000 && mouseY !== -1000) {
@@ -253,8 +256,8 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
           }
         }
 
-        // Draw node with soft twinkling sine wave
-        const twinkle = 0.7 + Math.sin(t * 0.015 + i) * 0.3;
+        // Draw node (static brightness under reduced motion)
+        const twinkle = reduceMotion.matches ? 1 : 0.7 + Math.sin(t * 0.015 + i) * 0.3;
         ctx.fillStyle = `${node.color}${node.baseAlpha * twinkle})`;
         ctx.beginPath();
         ctx.arc(node.x, node.y, node.size, 0, Math.PI * 2);
@@ -275,7 +278,10 @@ const bgImageUrl = withBase("/assets/_shared/images/pixel_background.png");
         return star.age < star.life;
       });
 
-      animationFrameId = requestAnimationFrame(draw);
+      // Under reduced motion, render a single static frame and stop the loop.
+      if (!reduceMotion.matches) {
+        animationFrameId = requestAnimationFrame(draw);
+      }
     };
 
     draw();

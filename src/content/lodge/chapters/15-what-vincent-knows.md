@@ -240,7 +240,7 @@ Diana: "ทุกคนตั้งสติไว้ให้ดี"
 ภายในหลุมมืดมิด
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/15A.png" width="1915" height="821" alt="15A: ถ้ำโดมโบราณกว้างใหญ่มีหลุมทรงกลมเส้นผ่านศูนย์กลางสามเมตรอยู่กลางพื้น มาร์คัส ไดอาน่า เอเลน่า และผู้รอดชีวิตคนอื่นยืนล้อมอยู่ใต้ลำแสงไฟฉาย" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/15A.webp" width="1915" height="821" alt="15A: ถ้ำโดมโบราณกว้างใหญ่มีหลุมทรงกลมเส้นผ่านศูนย์กลางสามเมตรอยู่กลางพื้น มาร์คัส ไดอาน่า เอเลน่า และผู้รอดชีวิตคนอื่นยืนล้อมอยู่ใต้ลำแสงไฟฉาย" loading="lazy" decoding="async" />
   <figcaption>15A: หลุมกลางถ้ำโบราณ</figcaption>
 </figure>
 
@@ -541,7 +541,7 @@ Diana: "มาร์คัส..." ไดอาน่าเอ่ยขึ้น
 ร่างของเขาดิ่งหายวับลงไป
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/15B.png" width="1672" height="941" alt="15B: มาร์คัสเสียหลักดิ่งลงหลุมกว้างราวสามเมตรในท่าที่ร่างกายเคลื่อนไหว ขณะไดอาน่าพุ่งคว้า เอเลน่าผงะ ซาร่าปิดปาก และวินเซนต์วิ่งเข้าหาขอบหลุม" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/15B.webp" width="1672" height="941" alt="15B: มาร์คัสเสียหลักดิ่งลงหลุมกว้างราวสามเมตรในท่าที่ร่างกายเคลื่อนไหว ขณะไดอาน่าพุ่งคว้า เอเลน่าผงะ ซาร่าปิดปาก และวินเซนต์วิ่งเข้าหาขอบหลุม" loading="lazy" decoding="async" />
   <figcaption>15B: วินาทีที่มาร์คัสกระโดดลงหลุม</figcaption>
 </figure>
 

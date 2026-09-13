@@ -338,7 +338,7 @@ Hina: "ค่ะ หนูไม่ได้อยากเอาไปอวด
 ผมทอดสายตามองสมุดวาดภาพบนตักของเธอด้วยความตื้นตัน
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--sketchbook">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-17-sketchbook.png" width="1024" height="1536" alt="ฮินะวัยสิบสองปีเปิดสมุดวาดภาพให้ฮารุโตะดูในห้องนอน ก่อนเขาเดินทางไปโตเกียว" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-17-sketchbook.webp" width="1024" height="1536" alt="ฮินะวัยสิบสองปีเปิดสมุดวาดภาพให้ฮารุโตะดูในห้องนอน ก่อนเขาเดินทางไปโตเกียว" loading="lazy" decoding="async" />
   <figcaption>ภาพวาดที่ช่วยพูดแทนความทรงจำของคนทั้งสอง</figcaption>
 </figure>
 
@@ -475,7 +475,7 @@ Watanabe: "แต่จดที่อยู่นี้เก็บติดต
 ผมยื่นสองมือไปรับกระดาษแผ่นนั้นมาเก็บรักษาไว้ในกระเป๋าเสื้อด้านในตรงตำแหน่งที่ใกล้หัวใจที่สุดโดยไม่ได้เปิดอ่านทันที
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--watanabe-farewell">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-17-watanabe-farewell-pov.png" width="1024" height="1536" alt="วาตานาเบะยื่นกระดาษพับให้ฮารุโตะจากอีกฝั่งของโต๊ะชาในศาลเจ้าท่ามกลางหิมะ" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-17-watanabe-farewell-pov.webp" width="1024" height="1536" alt="วาตานาเบะยื่นกระดาษพับให้ฮารุโตะจากอีกฝั่งของโต๊ะชาในศาลเจ้าท่ามกลางหิมะ" loading="lazy" decoding="async" />
   <figcaption>กระดาษแผ่นเล็กที่ส่งต่อจากมือของคนเฝ้ารอถึงคนซึ่งต้องเดินทางต่อ</figcaption>
 </figure>
 
@@ -740,7 +740,7 @@ Haruto: "ยินดีที่ได้เจอเหมือนกัน�
 เธอเอื้อมมือมาบีบตรงต้นแขนเสื้อโค้ทของผมเบาๆ อยู่ชั่วหนึ่งลมหายใจ คล้ายกับอยากจะรับรู้ไออุ่นและความเป็นจริงตรงหน้า ก่อนจะยอมปล่อยมือออก
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--ten-years-reunion">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-05-ten-years-reunion-hina-long-hair.png" width="1024" height="1536" alt="ฮารุโตะในวัยผู้ใหญ่กลับถึงสถานีฮาคุบะและฮินะยื่นมือแตะแขนเสื้อของเขาท่ามกลางหิมะ" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-05-ten-years-reunion-hina-long-hair.webp" width="1024" height="1536" alt="ฮารุโตะในวัยผู้ใหญ่กลับถึงสถานีฮาคุบะและฮินะยื่นมือแตะแขนเสื้อของเขาท่ามกลางหิมะ" loading="lazy" decoding="async" />
   <figcaption>การกลับบ้านที่ยืนยันว่าบางสิ่งยังรอเราอยู่</figcaption>
 </figure>
 

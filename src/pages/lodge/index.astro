@@ -5,7 +5,7 @@ import { withBase } from "../../utils/base-path";
 
 const resumeChapterBase = withBase("/lodge/chapters/");
 const tocHref = withBase("/lodge/chapters/");
-const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.png");
+const homeHeroImage = withBase("/assets/lodge/images/backgrounds/Homebackground.webp");
 const chapterUnits = (await getCollection("chapters"))
   .sort((a, b) => a.data.number - b.data.number)
   .map((chapter) => ({ id: chapter.id, number: chapter.data.number, title: chapter.data.title }));

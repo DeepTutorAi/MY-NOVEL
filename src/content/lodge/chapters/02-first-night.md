@@ -22,7 +22,7 @@ readingMinutes: 64
 ส่วนวินเซนต์นั่งอยู่ฝั่งตรงข้ามสบตากับฉันพอดี
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/02A.png" width="1672" height="941" alt="02A: มื้อค่ำคืนแรก แขกทั้งเจ็ดนั่งล้อมโต๊ะไม้โอ๊คยาว มี มาร์คัส อยู่หัวโต๊ะใต้แสงเทียนและแชนเดอเลียร์ทองเหลือง" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/02A.webp" width="1672" height="941" alt="02A: มื้อค่ำคืนแรก แขกทั้งเจ็ดนั่งล้อมโต๊ะไม้โอ๊คยาว มี มาร์คัส อยู่หัวโต๊ะใต้แสงเทียนและแชนเดอเลียร์ทองเหลือง" loading="lazy" decoding="async" />
   <figcaption>02A: โต๊ะอาหารคืนแรก</figcaption>
 </figure>
 
@@ -527,7 +527,7 @@ Elena: "ราตรีสวัสดิ์ทุกคน"
 M — มาร์คัส ห้องนี้ต้องเป็นห้องของเขา ฉันเดาเองจากตัวอักษรนั่น
 
 <figure class="chapter-figure chapter-figure--portrait">
-  <img src="../../../assets/lodge/images/chapters/02B.png" width="1085" height="1449" alt="02B: มือเอื้อมแตะประตูไม้บานหนึ่งในทางเดินชั้นสองยามดึก ข้างโคมติดผนังดวงเดียว" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/02B.webp" width="1085" height="1449" alt="02B: มือเอื้อมแตะประตูไม้บานหนึ่งในทางเดินชั้นสองยามดึก ข้างโคมติดผนังดวงเดียว" loading="lazy" decoding="async" />
   <figcaption>02B: ประตูห้อง “M” ในทางเดินยามดึก</figcaption>
 </figure>
 

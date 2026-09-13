@@ -118,7 +118,7 @@ Later ordering will follow prose reveal order while preserving cosmic entities f
 5. **Half-State victim** — `half-state-victim-draft-v1.png` generated; pending author review
 6. **Bone-Silt Borer host** — `bone-silt-borer-host-draft-v1.png` generated; pending author review
 7. **Nio Arvane — late Silence / Choir-Warden merge** — `nio-late-silence-choir-warden-merge-draft-v1.png` generated; pending author review
-8. **Varek — final Coral Beast** — not generated
+8. **Varek — final Coral Beast** — `varek-coral-beast-draft-v1.png` retained as the first conservative final-form candidate; `varek-coral-beast-draft-v2.png` supplied by the author as the preferred visual-direction candidate; pending final author/canon review
 
 ## Threat escalation campaign — V2 direction
 
@@ -669,3 +669,11 @@ Threat question: when does a trusted light become an inescapable stomach?
 Main image: an anonymous vessel enters a warm false harbor inside a huge translucent bell canopy; four near-invisible tentacles already form a closing geometry in Layer 4.
 Supporting views: living light node, false-dawn horizon, and top-down tentacle enclosure. No face, teeth, battle, or gore.
 ```
+
+## Supplemental visual review — Varek final Coral Beast v1/v2
+
+**Review status:** `varek-coral-beast-draft-v1.png` is a pending author-review candidate. The portrait preserves the locked Varek cues: a large, lean hunter-like posture translated into a nonhuman body; dark salt-scaled tissue; a reflective red eye; wet Mistwood roots and fog; and a small red cloth tied to a branch as the Red-Eyed Terror folklore cue. Coral-salt growth is fused into the jaw, spine, shoulder, and limb-joint tissue rather than rendered as a complete suit of armor. The candidate deliberately keeps the beast watching and guarding instead of roaring or charging, with no extra creature, weapon, text, or watermark.
+
+Retain four caveats: the image chooses a long-limbed quadrupedal silhouette even though the final morphology is not fully locked in canon; the high-contrast dorsal growth can still read as a low crown-like ridge at first glance; the red eye and cloth communicate folklore more strongly than Varek's former red gauntlets or jaw-to-collar scar; and a still image cannot prove the patient predator behavior or its role as a guardian that hunts sea predators. Canon boundary retained: Varek is a former human hunter who mutates completely into a giant coral-salt beast and vanishes into the Mistwood; this is a versioned visual candidate, not a final biological specification.
+
+The author-supplied `varek-coral-beast-draft-v2.png` is the preferred visual direction for review. Its multi-view contact sheet makes the morphology, dorsal coral distribution, single red eye, limb joints, claws, and Mistwood scale easier to inspect than v1. It better supports the Red-Eyed Terror reading while keeping the creature grounded in wet tissue, calcified coral, and coastal ruin rather than a clean fantasy boss silhouette. Treat the sheet as a reference asset: if a production frame is later needed, extract and review one panel or regenerate a single-frame composition without panel borders. Retain the remaining caveats: the four-limbed morphology is still an explicit visual inference, the dorsal coral can still read as armor/crown in the main panel, the red cloth is a folklore cue rather than confirmed biological continuity from the gauntlets, and the still does not prove patient guardian behavior. Keep both versions until the author locks the final morphology.

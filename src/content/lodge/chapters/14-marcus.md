@@ -120,7 +120,7 @@ Sarah: "มาร์คัส — เล่าเรื่องทั้งห�
 แล้วเขาก็เริ่มเล่า
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/14A.png" width="1672" height="941" alt="14A: มาร์คัสตัวจริงสภาพซูบผอมและมีหนวดเครายาวปะปนพร่ำเล่าความจริงให้เอเลน่าจดบันทึกเคียงข้างไดอาน่าและซาร่าในคุกหินใต้ดิน" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/14A.webp" width="1672" height="941" alt="14A: มาร์คัสตัวจริงสภาพซูบผอมและมีหนวดเครายาวปะปนพร่ำเล่าความจริงให้เอเลน่าจดบันทึกเคียงข้างไดอาน่าและซาร่าในคุกหินใต้ดิน" loading="lazy" decoding="async" />
   <figcaption>14A: คำสารภาพของมาร์คัสภายในห้องขังหิน</figcaption>
 </figure>
 

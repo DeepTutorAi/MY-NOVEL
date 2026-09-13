@@ -66,45 +66,18 @@ const chapters = (await getCollection("chapters")).sort(
 </details>
 
 <script>
-  const menus = Array.from(document.querySelectorAll("[data-toc-menu]"));
+  let menus: Element[] = [];
 
-  for (const menu of menus) {
-    if (!(menu instanceof HTMLDetailsElement) || menu.dataset.bound === "true") {
-      continue;
-    }
-
-    menu.dataset.bound = "true";
-
-    menu.addEventListener("toggle", () => {
-      if (!menu.open) {
-        return;
-      }
-
-      for (const other of menus) {
-        if (other !== menu && other instanceof HTMLDetailsElement) {
-          other.open = false;
-        }
-      }
-    });
-
-    menu.addEventListener("click", (event) => {
-      const target = event.target;
-      if (target instanceof HTMLAnchorElement) {
-        menu.open = false;
-      }
-    });
-  }
-
-  document.addEventListener("click", (event) => {
+  const handleOutsideClick = (event: MouseEvent) => {
     const target = event.target;
     for (const menu of menus) {
       if (menu instanceof HTMLDetailsElement && menu.open && target instanceof Node && !menu.contains(target)) {
         menu.open = false;
       }
     }
-  });
+  };
 
-  document.addEventListener("keydown", (event) => {
+  const handleEscape = (event: KeyboardEvent) => {
     if (event.key !== "Escape") {
       return;
     }
@@ -114,7 +87,46 @@ const chapters = (await getCollection("chapters")).sort(
         menu.open = false;
       }
     }
-  });
+  };
+
+  const bindMenus = () => {
+    menus = Array.from(document.querySelectorAll("[data-toc-menu]"));
+
+    for (const menu of menus) {
+      if (!(menu instanceof HTMLDetailsElement) || menu.dataset.bound === "true") {
+        continue;
+      }
+
+      menu.dataset.bound = "true";
+
+      menu.addEventListener("toggle", () => {
+        if (!menu.open) {
+          return;
+        }
+
+        for (const other of menus) {
+          if (other !== menu && other instanceof HTMLDetailsElement) {
+            other.open = false;
+          }
+        }
+      });
+
+      menu.addEventListener("click", (event) => {
+        const target = event.target;
+        if (target instanceof HTMLAnchorElement) {
+          menu.open = false;
+        }
+      });
+    }
+
+    document.removeEventListener("click", handleOutsideClick);
+    document.removeEventListener("keydown", handleEscape);
+    document.addEventListener("click", handleOutsideClick);
+    document.addEventListener("keydown", handleEscape);
+  };
+
+  bindMenus();
+  document.addEventListener("astro:page-load", bindMenus);
 
   const updateMenuReads = () => {
     try {

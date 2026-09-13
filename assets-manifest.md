@@ -27,11 +27,11 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/lodge/prompts/hvitveldt-image-prompts.md` | Hand-authored prompt bank | Project-owned text | None | Copy-ready image prompts |
 | `public/assets/lodge/prompts/hvitveldt-music-cue-plan.md` | Hand-authored cue plan | Project-owned text | None | Copy-ready music prompts |
 | `public/assets/lodge/prompts/claude-hvitveldt-quality-guard.md` | Hand-authored Claude guardrail prompt | Project-owned text | None | Content QA and workflow prompt |
-| `public/assets/sea/images/hub-sea-dark-adventure.png` | Generated locally by author | Project-owned generated asset | None | hub cover (no author name or in-image text) |
-| `public/assets/sea/images/hero-sea.png` | Generated locally by author | Project-owned generated asset | None | alternative hero cover |
-| `public/assets/sea/images/hero-sea-v2.png` | Generated locally by author | Project-owned generated asset | None | final hero cover (sky-ocean above Elaris) |
-| `public/assets/kusabi/images/home-hero.png` | Generated locally by author | Project-owned generated asset | None | kusabi hero cover |
-| `public/assets/_shared/images/pages_into_stars.jpg` | Generated locally by author | Project-owned generated asset | None | background stars texture |
+| `public/assets/sea/images/hub-sea-dark-adventure.webp` | Generated locally by author | Project-owned generated asset | None | hub cover (no author name or in-image text) |
+| `public/assets/sea/images/hero-sea.webp` | Generated locally by author | Project-owned generated asset | None | alternative hero cover |
+| `public/assets/sea/images/hero-sea-v2.webp` | Generated locally by author | Project-owned generated asset | None | final hero cover (sky-ocean above Elaris) |
+| `public/assets/kusabi/images/home-hero.webp` | Generated locally by author | Project-owned generated asset | None | kusabi hero cover |
+| `public/assets/_shared/images/pages_into_stars.webp` | Generated locally by author | Project-owned generated asset | None | background stars texture |
 
 
 ## Tsukinomi P6 Image Slots

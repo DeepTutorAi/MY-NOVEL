@@ -113,7 +113,7 @@ Akira: "ใช่ เปลี่ยนรองเท้าเถอะนะ �
 ผมจำรายละเอียดเหล่านั้นไว้
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--abandoned-village">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-11-abandoned-village.png" width="1024" height="1536" alt="ภาพถ่ายครอบครัวมิซุชิมะปี 1979 จากมุมมองของฮารุโตะ คาโอริวัยสี่ขวบอุ้มทาเคชิไว้บนตัก โดยใบหน้าของพ่อแม่ถูกเงาบดบังและมียามาบะยืนอยู่ไกลในแนวป่า" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-11-abandoned-village.webp" width="1024" height="1536" alt="ภาพถ่ายครอบครัวมิซุชิมะปี 1979 จากมุมมองของฮารุโตะ คาโอริวัยสี่ขวบอุ้มทาเคชิไว้บนตัก โดยใบหน้าของพ่อแม่ถูกเงาบดบังและมียามาบะยืนอยู่ไกลในแนวป่า" loading="lazy" decoding="async" />
   <figcaption>ภาพเก่าที่ทำให้คาโอริกลับมาเป็นลูกสาวและพี่สาวของครอบครัวหนึ่ง</figcaption>
 </figure>
 
@@ -2261,7 +2261,7 @@ Haruto: "ผมขอส่งมอบมันเพื่อแลกกั�
 ผมลืมตาขึ้นช้าๆ แล้วก้าวเข้าไปวางตลับเทปลงบนฝ่ามือเหี่ยวย่นของท่านยามาบะ
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--mountain-exchange">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-04-mountain-exchange.png" width="1122" height="1402" alt="ภาพแบ่งครึ่งใบหน้าฮารุโตะและคาโอริที่มองตรงมาทั้งน้ำตา ระหว่างยอมรับราคาของการแลกเปลี่ยนบนภูเขา" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-04-mountain-exchange.webp" width="1122" height="1402" alt="ภาพแบ่งครึ่งใบหน้าฮารุโตะและคาโอริที่มองตรงมาทั้งน้ำตา ระหว่างยอมรับราคาของการแลกเปลี่ยนบนภูเขา" loading="lazy" decoding="async" />
   <figcaption>น้ำตาของคนสองคน เมื่อของสำคัญถูกมอบให้ภูเขา</figcaption>
 </figure>
 
@@ -2400,7 +2400,7 @@ Kaori: "ดูแลตัวเองด้วยนะคะ คุณฮา�
 Haruto: "ครับ... ลาก่อนนะครับ คุณคาโอริ"
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--farewell">
-  <img src="../../../assets/tsukinomi/images/extra/farewell-haruto-kaori.png" width="1003" height="1569" alt="ฮารุโตะและคาโอริมองกันทั้งน้ำตาในวินาทีแห่งการจากลา" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/extra/farewell-haruto-kaori.webp" width="1003" height="1569" alt="ฮารุโตะและคาโอริมองกันทั้งน้ำตาในวินาทีแห่งการจากลา" loading="lazy" decoding="async" />
   <figcaption>คำลาที่ไม่มีมือข้างใดเอื้อมไปแตะกัน</figcaption>
 </figure>
 
@@ -3281,7 +3281,7 @@ Tanaka: "ฮารุโตะ"
 แต่ผมกอดกลับ
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--akihiro-embrace">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-04-akihiro-embrace-haruto.png" width="1024" height="1536" alt="ลุงอากิฮิโระกอดฮารุโตะด้วยความโล่งใจในห้องนั่งเล่น หลังฮารุโตะกลับจากพิธีบนภูเขาอย่างปลอดภัย" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-04-akihiro-embrace-haruto.webp" width="1024" height="1536" alt="ลุงอากิฮิโระกอดฮารุโตะด้วยความโล่งใจในห้องนั่งเล่น หลังฮารุโตะกลับจากพิธีบนภูเขาอย่างปลอดภัย" loading="lazy" decoding="async" />
   <figcaption>อ้อมกอดที่ผิดจากนิสัยของลุง จึงบอกความกลัวที่เขาเก็บไว้ได้ชัดกว่าคำพูด</figcaption>
 </figure>
 
@@ -4802,7 +4802,7 @@ Hina: "ฝากได้ค่ะ"
 ผมพียงแค่ประคองถือเครื่องเล่นไว้ในฝ่ามือและสัมผัสได้ถึงพื้นผิวโลหะสีเงินที่เย็นเฉียบ ก่อนจะตัดสินใจเก็บมันเข้าที่ไว้ตามเดิม
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--first-frost">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-16-first-frost-no-reflection.png" width="1024" height="1536" alt="ฮารุโตะถือวอล์กแมนหน้าหน้าต่างที่มีน้ำค้างแข็ง โดยไม่มีเงาสะท้อนของมนุษย์ในกระจก" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-16-first-frost-no-reflection.webp" width="1024" height="1536" alt="ฮารุโตะถือวอล์กแมนหน้าหน้าต่างที่มีน้ำค้างแข็ง โดยไม่มีเงาสะท้อนของมนุษย์ในกระจก" loading="lazy" decoding="async" />
   <figcaption>น้ำค้างแข็งแรกกับสิ่งที่เหลืออยู่เมื่อความทรงจำไม่กลับมา</figcaption>
 </figure>
 
@@ -5299,7 +5299,7 @@ Haruto: "ครับแม่ กลิ่นหอมฟุ้งน่าท�
 แสงหลังเที่ยงพาดผ่านหน้ากระดาษ ฮินะก้มลงเติมเส้นผมสีขาวทีละเส้นอย่างตั้งใจ ราวกับกลัวว่าถ้าละสายตาไป รายละเอียดจะเลือนหาย
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--hina-drawing-yamaba">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-04-hina-drawing-yamaba-alone.png" width="1024" height="1536" alt="ฮินะนั่งวาดภาพยามาบะลงในสมุดเพียงลำพังที่โต๊ะอาหารหลังมื้อกลางวัน" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-04-hina-drawing-yamaba-alone.webp" width="1024" height="1536" alt="ฮินะนั่งวาดภาพยามาบะลงในสมุดเพียงลำพังที่โต๊ะอาหารหลังมื้อกลางวัน" loading="lazy" decoding="async" />
   <figcaption>ฮินะเก็บรูปลักษณ์ของยามาบะไว้ด้วยดินสอ ก่อนความทรงจำจะเปลี่ยนรูปไป</figcaption>
 </figure>
 

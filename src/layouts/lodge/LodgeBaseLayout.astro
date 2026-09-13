@@ -63,7 +63,15 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
             "hvitveldt:extra-bypassed",
             "tsukinomi:extra-bypassed",
             "sea:extra-bypassed",
-            "kusabi:extra-bypassed"
+            "kusabi:extra-bypassed",
+            "hvitveldt:characters:subject8-visible",
+            "hvitveldt:characters:toast-shown",
+            "hvitveldt:puzzle-unlocked",
+            "hvitveldt:cutscene:played:",
+            "tsukinomi:characters:revealed",
+            "tsukinomi:characters:toast-shown",
+            "tsukinomi:cutscene:played:",
+            "kusabi:cutscene:played:"
           ];
           if (prefixes.some(p => key.startsWith(p))) {
             return `${key}:${activeProfile}`;

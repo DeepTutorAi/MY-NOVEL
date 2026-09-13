@@ -64,10 +64,10 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
   </main>
 
   <!-- EDIT PROFILE MODAL -->
-  <div class="hub-modal-overlay" data-edit-profile-modal style="display: none;">
+  <div class="hub-modal-overlay" data-edit-profile-modal role="dialog" aria-modal="true" aria-labelledby="edit-profile-modal-title" style="display: none;">
     <div class="hub-modal-card">
       <div class="modal-header">
-        <h2>แก้ไขโปรไฟล์ Guest</h2>
+        <h2 id="edit-profile-modal-title">แก้ไขโปรไฟล์ Guest</h2>
         <button type="button" class="modal-close-btn" data-edit-profile-close-btn>×</button>
       </div>
       <div class="modal-body">
@@ -109,10 +109,10 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
   </div>
 
   <!-- SWITCH PROFILE MODAL -->
-  <div class="hub-modal-overlay" data-settings-modal style="display: none;">
+  <div class="hub-modal-overlay" data-settings-modal role="dialog" aria-modal="true" aria-labelledby="settings-modal-title" style="display: none;">
     <div class="hub-modal-card">
       <div class="modal-header">
-        <h2>สลับโปรไฟล์ Guest</h2>
+        <h2 id="settings-modal-title">สลับโปรไฟล์ Guest</h2>
         <button type="button" class="modal-close-btn" data-settings-close-btn>×</button>
       </div>
       <div class="modal-body">
@@ -592,6 +592,23 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     const PROFILES_KEY = "piichan-novels:profiles";
     const ACTIVE_KEY = "piichan-novels:active-profile-id";
 
+    let lastFocusedElement = null;
+
+    const openModal = (modal) => {
+      if (!modal) return;
+      lastFocusedElement = document.activeElement;
+      modal.style.display = 'flex';
+      const firstField = modal.querySelector('input, button');
+      if (firstField) firstField.focus();
+    };
+
+    const closeModal = (modal) => {
+      if (!modal) return;
+      modal.style.display = 'none';
+      if (lastFocusedElement instanceof HTMLElement) lastFocusedElement.focus();
+      lastFocusedElement = null;
+    };
+
     const TROLL_NAMES = [
       "ดูดหีน้ำแตก", "ขี้ทะลวงดาก", "อมไข่สั่นสู้ชีวิต", "กูชื่อไรวะ?", "ตดเปียกในลิฟต์",
       "ขี้เล็ดกลางห้าง", "จิ๋มกระพือฮือฮา", "หีบินได้", "ควยเหล็กเจ็ดสี", "ดากดำช้ำรัก",
@@ -661,20 +678,21 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
       let activeId = getActiveProfileId();
       let profiles = getProfiles();
 
-      // Check if we need to auto-initialize guest profile
+      // Check if we need to auto-initialize guest profile.
+      // Use a deterministic "guest" id so existing "*:guest" storage keys stay visible.
       if (!activeId || !profiles.some(p => p.id === activeId)) {
-        const newGuestId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
-        const name = getRandomTrollName(profiles);
-        profiles.push({
-          id: newGuestId,
-          name: name,
-          avatar: "👤",
-          type: 'guest',
-          createdAt: Date.now()
-        });
-        saveProfiles(profiles);
-        setActiveProfileId(newGuestId);
-        activeId = newGuestId;
+        if (!profiles.some(p => p.id === 'guest')) {
+          profiles.push({
+            id: 'guest',
+            name: getRandomTrollName(profiles),
+            avatar: "👤",
+            type: 'guest',
+            createdAt: Date.now()
+          });
+          saveProfiles(profiles);
+        }
+        setActiveProfileId('guest');
+        activeId = 'guest';
       }
 
       // Show profile bar
@@ -714,7 +732,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
           });
           
           if (editProfileModal) {
-            editProfileModal.style.display = 'flex';
+            openModal(editProfileModal);
           }
         }
       });
@@ -722,7 +740,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
 
     if (editProfileCloseBtn) {
       editProfileCloseBtn.addEventListener('click', () => {
-        if (editProfileModal) editProfileModal.style.display = 'none';
+        closeModal(editProfileModal);
       });
     }
 
@@ -766,7 +784,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     if (settingsBtn) {
       settingsBtn.addEventListener('click', () => {
         if (settingsModal) {
-          settingsModal.style.display = 'flex';
+          openModal(settingsModal);
           renderSettingsProfiles();
         }
       });
@@ -774,7 +792,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
 
     if (settingsCloseBtn) {
       settingsCloseBtn.addEventListener('click', () => {
-        if (settingsModal) settingsModal.style.display = 'none';
+        closeModal(settingsModal);
       });
     }
 
@@ -783,9 +801,18 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
       if (modal) {
         modal.addEventListener('click', (e) => {
           if (e.target === modal) {
-            modal.style.display = 'none';
+            closeModal(modal);
           }
         });
+      }
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      if (editProfileModal && editProfileModal.style.display !== 'none') {
+        closeModal(editProfileModal);
+      } else if (settingsModal && settingsModal.style.display !== 'none') {
+        closeModal(settingsModal);
       }
     });
 

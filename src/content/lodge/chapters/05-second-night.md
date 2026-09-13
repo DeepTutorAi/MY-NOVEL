@@ -134,7 +134,7 @@ Diana: "Tom" เธอว่า "เราไม่รู้ว่าตอน�
 Tom: "เข้าใจแล้วครับ ตกลงตามนั้น"
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/05A.png" width="1672" height="941" alt="05A: ไดอาน่ายืนจัดเวรเฝ้ายามข้างเตาผิง โดยมีไฟฉาย วิทยุ ปืนและสมุดตารางเวรวางอยู่บนโต๊ะ ขณะที่คนอื่นนั่งฟังอยู่ในเงามืด" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/05A.webp" width="1672" height="941" alt="05A: ไดอาน่ายืนจัดเวรเฝ้ายามข้างเตาผิง โดยมีไฟฉาย วิทยุ ปืนและสมุดตารางเวรวางอยู่บนโต๊ะ ขณะที่คนอื่นนั่งฟังอยู่ในเงามืด" loading="lazy" decoding="async" />
   <figcaption>05A: แผนเฝ้ายามคืนที่สอง</figcaption>
 </figure>
 
@@ -917,7 +917,7 @@ Tom: "ครับ... และผมอยากให้แก้วใบน�
 หรือว่า... ไดอาน่าคนปัจจุบันจะไม่ใช่ไดอาน่าเสนารักษ์กองทัพคนเดิม และเธอจำปริมาณการใส่น้ำตาลปกติสำหรับชงกาแฟไม่ได้กันแน่?
 
 <figure class="chapter-figure chapter-figure--portrait">
-  <img src="../../../assets/lodge/images/chapters/05B.png" width="1448" height="1086" alt="05B: แก้วกาแฟสีเข้มบนโต๊ะไม้มีเม็ดน้ำตาลหกมากผิดปกติ มือของเอเลน่าชะงักอยู่ข้างแก้ว ขณะที่ไดอาน่าเป็นเงาเบลออยู่ด้านหลัง" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/05B.webp" width="1448" height="1086" alt="05B: แก้วกาแฟสีเข้มบนโต๊ะไม้มีเม็ดน้ำตาลหกมากผิดปกติ มือของเอเลน่าชะงักอยู่ข้างแก้ว ขณะที่ไดอาน่าเป็นเงาเบลออยู่ด้านหลัง" loading="lazy" decoding="async" />
   <figcaption>05B: กาแฟที่หวานผิดปกติ</figcaption>
 </figure>
 

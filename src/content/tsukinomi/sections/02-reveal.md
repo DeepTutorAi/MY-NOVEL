@@ -202,7 +202,7 @@ Akira: "แต่ห้ามเอาเรื่องนี้ไปบอก
 ผมอ่านข้อความแผ่นกระดาษในมือจนหมดจด
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--rooftop-research">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-02-rooftop-research.png" width="1024" height="1536" alt="ฮารุโตะอ่านหลักฐานบนกระดาษบนดาดฟ้า ขณะที่อากิระยืนถือขนมปังและนมอยู่ข้างราว" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-02-rooftop-research.webp" width="1024" height="1536" alt="ฮารุโตะอ่านหลักฐานบนกระดาษบนดาดฟ้า ขณะที่อากิระยืนถือขนมปังและนมอยู่ข้างราว" loading="lazy" decoding="async" />
   <figcaption>หลักฐานเก่าที่ทำให้เรื่องของคาโอริเปลี่ยนความหมาย</figcaption>
 </figure>
 
@@ -1986,7 +1986,7 @@ Haruto: "เข้าใจแล้ว ฝากด้วยนะ"
 พอถึงฉบับวันที่ 12 ตุลาคม บทความพิเศษชิ้นหนึ่งก็ปรากฏบนจอ อากิระกดหยุดทันทีดัง *ปึก*
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--microfilm-research">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-06-microfilm-research-akira-screen.png" width="1024" height="1536" alt="อากิระควบคุมเครื่องอ่านไมโครฟิล์มขณะที่ฮารุโตะอ่านหลักฐานในห้องสมุด" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-06-microfilm-research-akira-screen.webp" width="1024" height="1536" alt="อากิระควบคุมเครื่องอ่านไมโครฟิล์มขณะที่ฮารุโตะอ่านหลักฐานในห้องสมุด" loading="lazy" decoding="async" />
   <figcaption>เมื่อหลักฐานบนจอทำให้อดีตเริ่มมีรูปร่าง</figcaption>
 </figure>
 

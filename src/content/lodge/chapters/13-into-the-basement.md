@@ -94,7 +94,7 @@ Diana: "อืม..."
 ภายใต้ฝานั้นคือโพรงมืดทึบที่ทอดลึกดิ่งลงไปเบื้องล่าง มีบันไดไม้เก่าคร่ำคร่าทอดตัวนำลงสู่ความมืด
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/13A.png" width="1672" height="941" alt="13A: กลุ่มผู้รอดชีวิตเปิดฝาม้านั่งในห้องซาวน่าไม้ เผยให้เห็นช่องบันไดลงสู่ห้องใต้ดินที่ดำมืดไม่มีที่สิ้นสุด" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/13A.webp" width="1672" height="941" alt="13A: กลุ่มผู้รอดชีวิตเปิดฝาม้านั่งในห้องซาวน่าไม้ เผยให้เห็นช่องบันไดลงสู่ห้องใต้ดินที่ดำมืดไม่มีที่สิ้นสุด" loading="lazy" decoding="async" />
   <figcaption>13A: เปิดฝาช่องลับใต้ที่นั่งในห้องซาวน่า</figcaption>
 </figure>
 
@@ -510,7 +510,7 @@ Marcus: "ผม... ขอโทษ"
 มาร์คัสค่อย ๆ ก้มใบหน้าลงร่ำไห้อย่างเงียบงัน
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/13B.png" width="1672" height="941" alt="13B: เอเลน่าถือไฟฉายส่องเข้าไปในห้องขังศิลาใต้ดินเผยให้เห็นมาร์คัสตัวจริงสภาพซูบซีดนอนขดตัวบนพื้นโดยมีไดอาน่าเข้าไปปฐมพยาบาล" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/13B.webp" width="1672" height="941" alt="13B: เอเลน่าถือไฟฉายส่องเข้าไปในห้องขังศิลาใต้ดินเผยให้เห็นมาร์คัสตัวจริงสภาพซูบซีดนอนขดตัวบนพื้นโดยมีไดอาน่าเข้าไปปฐมพยาบาล" loading="lazy" decoding="async" />
   <figcaption>13B: การพบตัวมาร์คัสตัวจริงในคุกใต้ดิน</figcaption>
 </figure>
 

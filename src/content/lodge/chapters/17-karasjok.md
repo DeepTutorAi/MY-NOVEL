@@ -26,7 +26,7 @@ readingMinutes: 12
 แต่พวกเราก็ผ่านมันมาได้แล้ว
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/17A.png" width="1915" height="821" alt="17A: เอเลน่า ไดอาน่า และซาร่านั่งอ่อนล้าในเฮลิคอปเตอร์กู้ภัย มองแสงไฟของคาราช็อกผ่านหน้าต่างเหนือภูมิประเทศที่ปกคลุมด้วยหิมะ" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/17A.webp" width="1915" height="821" alt="17A: เอเลน่า ไดอาน่า และซาร่านั่งอ่อนล้าในเฮลิคอปเตอร์กู้ภัย มองแสงไฟของคาราช็อกผ่านหน้าต่างเหนือภูมิประเทศที่ปกคลุมด้วยหิมะ" loading="lazy" decoding="async" />
   <figcaption>17A: แสงไฟของคาราช็อก</figcaption>
 </figure>
 
@@ -263,7 +263,7 @@ Vincent: "ติดต่อกันไว้"
 Diana: "แด่ มาร์คัส"
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/17B.png" width="1672" height="941" alt="17B: เอเลน่า ไดอาน่า และซาร่ายกแก้วพลาสติกขึ้นอย่างเงียบงันในห้องพักผู้ป่วยที่คาราช็อก โดยซาร่ายังมีสายน้ำเกลือติดอยู่ที่มือ" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/17B.webp" width="1672" height="941" alt="17B: เอเลน่า ไดอาน่า และซาร่ายกแก้วพลาสติกขึ้นอย่างเงียบงันในห้องพักผู้ป่วยที่คาราช็อก โดยซาร่ายังมีสายน้ำเกลือติดอยู่ที่มือ" loading="lazy" decoding="async" />
   <figcaption>17B: แด่มาร์คัสและผู้ที่ไม่ได้กลับมา</figcaption>
 </figure>
 

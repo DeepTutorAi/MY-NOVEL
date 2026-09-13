@@ -21,7 +21,7 @@ export const characterGroups: CharacterGroup[] = [
     characters: [
       {
         name: "Elena Vasquez",
-        image: "/assets/lodge/images/characters/Elena Vasquez.png",
+        image: "/assets/lodge/images/characters/Elena Vasquez.webp",
         role: "นักเขียนอิสระจากนิวยอร์ก ผู้เล่าเรื่องหลักของบันทึก",
         personality: "ช่างสังเกต ระวังตัว และมีนิสัยนักข่าวที่ไม่ยอมปล่อยรายละเอียดแปลก ๆ ให้ผ่านไปง่าย ๆ",
         story:
@@ -29,7 +29,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Marcus Hale",
-        image: "/assets/lodge/images/characters/Marcus Hale.png",
+        image: "/assets/lodge/images/characters/Marcus Hale.webp",
         role: "เจ้าบ้านของฮวิตเวลต์ ลอดจ์",
         personality: "สุภาพ คุมจังหวะเก่ง เย็นนิ่งเกินกว่าจะอ่านออก และทำให้ทุกกฎฟังดูเหมือนเรื่องปกติ",
         story:
@@ -37,7 +37,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Diana Webb",
-        image: "/assets/lodge/images/characters/Diana Webb.png",
+        image: "/assets/lodge/images/characters/Diana Webb.webp",
         role: "อดีตแพทย์สนามจากออสเตรเลีย",
         personality: "แข็ง ตรง ใช้เหตุผลก่อนอารมณ์ และรับบทคนตัดสินใจเมื่อสถานการณ์เริ่มเสียรูป",
         story:
@@ -45,7 +45,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Vincent Leroux",
-        image: "/assets/lodge/images/characters/Vincent Leroux.png",
+        image: "/assets/lodge/images/characters/Vincent Leroux.webp",
         role: "นักเขียนชาวฝรั่งเศสที่มีข้อมูลมากกว่าที่ควร",
         personality: "ฉลาด คลุมเครือ พูดไม่หมด และดูเหมือนกำลังประเมินทุกคนอยู่ตลอดเวลา",
         story:
@@ -59,7 +59,7 @@ export const characterGroups: CharacterGroup[] = [
     characters: [
       {
         name: "Lillian Hale",
-        image: "/assets/lodge/images/characters/Lillian Hale.png",
+        image: "/assets/lodge/images/characters/Lillian Hale.webp",
         role: "นักวิจัยที่ผูกอยู่กับอดีตของฮวิตเวลต์",
         personality: "ละเอียด มุ่งมั่น และเหมือนคนที่เข้าใกล้คำตอบช้าเกินไป",
         story:
@@ -67,7 +67,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Sophie Hale",
-        image: "/assets/lodge/images/characters/Sophie Hale.png",
+        image: "/assets/lodge/images/characters/Sophie Hale.webp",
         role: "คนในความทรงจำและภาพถ่ายเก่า",
         personality: "นุ่ม เงียบ และดูเหมือนถูกเล่าผ่านสิ่งที่คนอื่นยังปล่อยไม่ได้",
         story:
@@ -75,8 +75,8 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Subject 8",
-        image: "/assets/lodge/images/characters/Subject 8 v1.png",
-        extraImages: ["/assets/lodge/images/characters/Subject 8 v2.png"],
+        image: "/assets/lodge/images/characters/Subject 8 v1.webp",
+        extraImages: ["/assets/lodge/images/characters/Subject 8 v2.webp"],
         role: "คำเรียกในแฟ้มเก่าของฮวิตเวลต์",
         personality: "ยังไม่ควรถูกอธิบายตรง ๆ ก่อนอ่านจบ",
         story:
@@ -85,7 +85,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Detective Karlsen",
-        image: "/assets/lodge/images/characters/Detective Karlsen.png",
+        image: "/assets/lodge/images/characters/Detective Karlsen.webp",
         role: "เจ้าหน้าที่สืบสวนจากนอร์เวย์",
         personality: "สุขุม เป็นทางการ และเลือกเชื่อเฉพาะสิ่งที่ถือเป็นหลักฐานได้ก่อน",
         story:
@@ -99,7 +99,7 @@ export const characterGroups: CharacterGroup[] = [
     characters: [
       {
         name: "Sarah Kovac",
-        image: "/assets/lodge/images/characters/Sarah Kovac.png",
+        image: "/assets/lodge/images/characters/Sarah Kovac.webp",
         role: "นักจิตบำบัดชาวแคนาดา-โครเอเชีย",
         personality: "นิ่ง อ่อนโยนแบบมีขอบเขต อ่านคนเก่ง และเก็บความกลัวไว้หลังท่าทีใจเย็น",
         story:
@@ -107,7 +107,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Jake Whitmore",
-        image: "/assets/lodge/images/characters/Jake Whitmore.png",
+        image: "/assets/lodge/images/characters/Jake Whitmore.webp",
         role: "ช่างภาพชาวอังกฤษ",
         personality: "พูดเก่ง เสียดสีเก่ง ใช้อารมณ์ขันบังความกลัว และพยายามทำให้ทุกอย่างดูเบากว่าที่เป็น",
         story:
@@ -115,7 +115,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Ben Ross",
-        image: "/assets/lodge/images/characters/Ben Ross.png",
+        image: "/assets/lodge/images/characters/Ben Ross.webp",
         role: "คอนเทนต์ครีเอเตอร์สายท่องเที่ยว",
         personality: "เสียงดัง กระตือรือร้น กลัวง่ายกว่าที่อยากยอมรับ และเริ่มเงียบลงเมื่อสถานการณ์จริงเกินคอนเทนต์",
         story:
@@ -123,7 +123,7 @@ export const characterGroups: CharacterGroup[] = [
       },
       {
         name: "Tom Janssen",
-        image: "/assets/lodge/images/characters/Tom Janssen.png",
+        image: "/assets/lodge/images/characters/Tom Janssen.webp",
         role: "พ่อม่ายชาวอเมริกันจาก Minnesota",
         personality: "สุภาพ อ่อนล้า มีศรัทธา และแบกความสูญเสียไว้เงียบ ๆ",
         story:

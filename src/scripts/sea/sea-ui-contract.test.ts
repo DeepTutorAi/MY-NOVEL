@@ -15,19 +15,19 @@ function readProjectFile(path: string): string {
 
 describe("Sea initial UI rework contract", () => {
   it("uses a story-scene hero image instead of the old cover-style image", () => {
-    const heroPath = "public/assets/sea/images/hero-sea-v2.png";
+    const heroPath = "public/assets/sea/images/hero-sea-v2.webp";
     const homePage = readProjectFile("src/pages/sea/index.astro");
     const globalStyles = readProjectFile("src/styles/sea/global.css");
     const baseLayout = readProjectFile("src/layouts/sea/SeaBaseLayout.astro");
     const assetManifest = readProjectFile("assets-manifest.md");
 
     assert.equal(existsSync(projectPath(heroPath)), true, `${heroPath} should exist`);
-    assert.ok(statSync(projectPath(heroPath)).size > 100_000, `${heroPath} should be a real generated image`);
-    assert.match(homePage, /hero-sea-v2\.png/);
+    assert.ok(statSync(projectPath(heroPath)).size > 50_000, `${heroPath} should be a real generated image`);
+    assert.match(homePage, /hero-sea-v2\.(png|webp)/);
     assert.match(globalStyles, /sea-home-visual/);
     assert.match(globalStyles, /background-image:\s*linear-gradient/);
-    assert.match(baseLayout, /hero-sea-v2\.png/);
-    assert.match(assetManifest, /hero-sea-v2\.png/);
+    assert.match(baseLayout, /hero-sea-v2\.(png|webp)/);
+    assert.match(assetManifest, /hero-sea-v2\.(png|webp)/);
     assert.match(assetManifest, /sky-ocean above Elaris/);
   });
 

@@ -17,14 +17,14 @@ describe("Fiction hub visual contract", () => {
   it("uses a safe Sea hub image and labels the story as dark fantasy adventure", () => {
     const novels = readProjectFile("src/data/_novels.ts");
     const manifest = readProjectFile("assets-manifest.md");
-    const imagePath = "public/assets/sea/images/hub-sea-dark-adventure.png";
+    const imagePath = "public/assets/sea/images/hub-sea-dark-adventure.webp";
 
     assert.equal(existsSync(projectPath(imagePath)), true, `${imagePath} should exist`);
-    assert.ok(statSync(projectPath(imagePath)).size > 100_000, `${imagePath} should be a real generated image`);
-    assert.match(novels, /hub-sea-dark-adventure\.png/);
+    assert.ok(statSync(projectPath(imagePath)).size > 50_000, `${imagePath} should be a real generated image`);
+    assert.match(novels, /hub-sea-dark-adventure\.(png|webp)/);
     assert.match(novels, /ดาร์กแฟนตาซี · ผจญภัย/);
-    assert.doesNotMatch(novels, /hero-sea\.png/);
-    assert.match(manifest, /hub-sea-dark-adventure\.png/);
+    assert.doesNotMatch(novels, /hero-sea\.(png|webp)/);
+    assert.match(manifest, /hub-sea-dark-adventure\.(png|webp)/);
     assert.match(manifest, /no author name or in-image text/);
   });
 

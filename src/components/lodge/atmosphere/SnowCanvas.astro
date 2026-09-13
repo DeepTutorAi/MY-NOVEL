@@ -190,6 +190,12 @@
       context.fill();
     }
 
+    // Under reduced motion, particles are static — render one frame and stop.
+    if (reduceMotion.matches) {
+      frame = 0;
+      return;
+    }
+
     frame = window.requestAnimationFrame(draw);
   };
 

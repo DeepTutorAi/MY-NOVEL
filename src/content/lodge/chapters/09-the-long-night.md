@@ -24,7 +24,7 @@ readingMinutes: 41
 วินเซนต์ปฏิบัติหน้าที่ลาดตระเวนเฝ้าระวังภัยอยู่ตามแนวทางเดินโถงรอบบ้าน เขาออกเดินลาดตระเวนรอบลอดจ์อย่างเคร่งครัดตามกฎปฏิบัติควบคุมความปลอดภัยที่คุณไดอาน่ามอบหมาย
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/09A.png" width="1916" height="821" alt="09A: วินเซนต์ในเสื้อกันหนาวทับเสื้อเชิ้ตขาว เดินถือไฟฉายตรวจความเรียบร้อยรอบทางเดินลอดจ์ยามดึก" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/09A.webp" width="1916" height="821" alt="09A: วินเซนต์ในเสื้อกันหนาวทับเสื้อเชิ้ตขาว เดินถือไฟฉายตรวจความเรียบร้อยรอบทางเดินลอดจ์ยามดึก" loading="lazy" decoding="async" />
   <figcaption>09A: วินเซนต์เดินตรวจยามในทางเดิน</figcaption>
 </figure>
 
@@ -299,7 +299,7 @@ Jake: "พวกคุณย้อนกลับมาดูนี่สิค�
 Diana: "ใครนั่งอยู่บนเตียงนั้น" ไดอาน่าก้าวเท้าประชิด กวาดปากกระบอกปืนเล็งจ่อไปที่เตียง
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/09B.png" width="1448" height="1086" alt="09B: มุมมองจากประตูห้องนอนเห็นเงาร่างของทอมนั่งหันหลังอยู่บนเตียง โดยมีมือของไดอาน่าถือปืนเล็งเข้ามาจากขอบภาพ" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/09B.webp" width="1448" height="1086" alt="09B: มุมมองจากประตูห้องนอนเห็นเงาร่างของทอมนั่งหันหลังอยู่บนเตียง โดยมีมือของไดอาน่าถือปืนเล็งเข้ามาจากขอบภาพ" loading="lazy" decoding="async" />
   <figcaption>09B: ทอมที่อยู่บนเตียง</figcaption>
 </figure>
 
@@ -452,7 +452,7 @@ Tom (ตัวปลอม): "พวกแกมันฉลาดกันจ�
 เสียงปืนกระสุนปืนนัดที่สองจากปืน Glock ของไดอาน่าระเบิดยิงปะทะเจาะทะลวงกึ่งกลางหน้าผากของมันทันทีอย่างจัง!
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/09C.png" width="1672" height="941" alt="09C: ทอมตัวปลอมที่แฝงตัวเข้ามาในลอดจ์ยืนนิ่งหลังจากถูกยิงที่หน้าผากโดยมีไดอาน่าจ้องมองด้วยความตื่นตระหนก" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/09C.webp" width="1672" height="941" alt="09C: ทอมตัวปลอมที่แฝงตัวเข้ามาในลอดจ์ยืนนิ่งหลังจากถูกยิงที่หน้าผากโดยมีไดอาน่าจ้องมองด้วยความตื่นตระหนก" loading="lazy" decoding="async" />
   <figcaption>09C: ทอมตัวปลอมหลังเสียงปืน</figcaption>
 </figure>
 

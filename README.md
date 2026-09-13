@@ -1,6 +1,6 @@
 <div align="center">
 
-<img src="public/assets/_shared/images/fictionhub.jpg" alt="ประตูไม้เก่าที่เปิดออกสู่แสงอุ่นกลางความมืด" width="100%"/>
+<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/_shared/images/fictionhub.webp" alt="ประตูไม้เก่าที่เปิดออกสู่แสงอุ่นกลางความมืด" width="100%"/>
 
 # 🕯️ Pii-chan Dechalert — Fiction Hub
 
@@ -35,7 +35,7 @@
 ## ❄️ ฮวิตเวลต์ ลอดจ์ — Hvitveldt Lodge
 
 <div align="center">
-<img src="public/assets/lodge/images/hero-forest.jpg" alt="ป่าสนใต้ท้องฟ้าฤดูหนาวอันมืดสนิท" width="100%"/>
+<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/lodge/images/hero-forest.webp" alt="ป่าสนใต้ท้องฟ้าฤดูหนาวอันมืดสนิท" width="100%"/>
 </div>
 
 > ลอดจ์หรูกลางป่าสนฟินมาร์กทางเหนือของนอร์เวย์ ขายตัวเองให้เป็นความเงียบที่มีราคา
@@ -55,7 +55,7 @@
 
 | | |
 |---|---|
-| <img src="public/assets/lodge/images/chapters/01A.png" alt="เอเลน่าขับรถผ่านป่าหิมะในค่ำคืนที่ท้องฟ้าเต็มด้วยหิมะ" width="100%"/> | <img src="public/assets/lodge/images/characters/Elena%20Vasquez.png" alt="ชีตตัวละครเอเลน่า วาสเกซ มุมมองหน้า กลาง และข้าง พร้อมบทสนทนาท่าทาง" width="100%"/> |
+| <img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/lodge/images/chapters/01A.webp" alt="เอเลน่าขับรถผ่านป่าหิมะในค่ำคืนที่ท้องฟ้าเต็มด้วยหิมะ" width="100%"/> | <img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/lodge/images/characters/Elena%20Vasquez.webp" alt="ชีตตัวละครเอเลน่า วาสเกซ มุมมองหน้า กลาง และข้าง พร้อมบทสนทนาท่าทาง" width="100%"/> |
 | *บทที่ 1 — การเดินทางเข้าป่า* | *ชีตตัวละคร: เอเลน่า วาสเกซ* |
 
 🔗 **อ่านได้ที่ `/lodge/`** — สถานะ: ✅ จบแล้วทั้ง 18 บท
@@ -65,7 +65,7 @@
 ## 🚉 สถานีทะเลพระจันทร์ — Tsukinomi no Eki
 
 <div align="center">
-<img src="public/assets/tsukinomi/images/hero-station.jpg" alt="สถานีรถไฟไม้ร้างบนภูเขายามพลบค่ำ หิมะโปรยปราย" width="100%"/>
+<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/tsukinomi/images/hero-station.webp" alt="สถานีรถไฟไม้ร้างบนภูเขายามพลบค่ำ หิมะโปรยปราย" width="100%"/>
 </div>
 
 > สถานีสึคิโนมิ สถานีรถไฟท้องถิ่นบนเขาฮาคุบะ จังหวัดนางาโนะ — วันนี้เหลือเพียงอาคารไม้ร้าง
@@ -86,7 +86,7 @@
 
 | | |
 |---|---|
-| <img src="public/assets/tsukinomi/images/illustrations/section-01-first-meeting.png" alt="เด็กผู้หญิงเส้นผมยาวนั่งรอบนเก้าอี้ชานชาลาร้างในคืนฝนตก" width="100%"/> | <img src="public/assets/tsukinomi/images/illustrations/section-05-ten-years-reunion-hina-long-hair.png" alt="ชายหนุ่มแบะหญิงสาวเดินคู่กันบนชานชาลาที่หิมะตก" width="100%"/> |
+| <img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/tsukinomi/images/illustrations/section-01-first-meeting.webp" alt="เด็กผู้หญิงเส้นผมยาวนั่งรอบนเก้าอี้ชานชาลาร้างในคืนฝนตก" width="100%"/> | <img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/tsukinomi/images/illustrations/section-05-ten-years-reunion-hina-long-hair.webp" alt="ชายหนุ่มแบะหญิงสาวเดินคู่กันบนชานชาลาที่หิมะตก" width="100%"/> |
 | *การพบกันครั้งแรก ใต้หลังคาสังกะสี* | *สิบปีต่อมา — การกลับมาพบกัน* |
 
 🔗 **อ่านได้ที่ `/tsukinomi/`** — สถานะ: ✅ จบแล้วทั้ง 5 ภาค
@@ -96,7 +96,7 @@
 ## 🌊 ทะเลเหนือโลก — The Sea That Hung Above The World
 
 <div align="center">
-<img src="public/assets/sea/images/hero-sea-v2.png" alt="มหาสมุทรผืนยักษ์ลอยอยู่บนท้องฟ้าเหนือเมืองบนภูเขา เงาวาฬว่ายอยู่ใต้ผืนน้ำ เด็กหนุ่มคุกเข่าอยู่ข้างท่อระบายน้ำ" width="100%"/>
+<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/sea/images/hero-sea-v2.webp" alt="มหาสมุทรผืนยักษ์ลอยอยู่บนท้องฟ้าเหนือเมืองบนภูเขา เงาวาฬว่ายอยู่ใต้ผืนน้ำ เด็กหนุ่มคุกเข่าอยู่ข้างท่อระบายน้ำ" width="100%"/>
 </div>
 
 > เมื่อทะเลยกตัวขึ้น ไม่มีใครเรียกมันว่าภัยพิบัติ — สามชั่วโมงต่อมา ทะเลหายไปจากเส้นขอบฟ้า
@@ -121,7 +121,7 @@
 ## 🎐 บ้านคุซาบิบนเขาคุโระมิโซะ — Kusabi
 
 <div align="center">
-<img src="public/assets/kusabi/images/home-hero.png" alt="บ้านไม้เก่าร้างบนภูเขาในคืนฝนตกหนัก มีหญิงสาวในชุดขาวยืนอยู่กลางหมอก" width="100%"/>
+<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/kusabi/images/home-hero.webp" alt="บ้านไม้เก่าร้างบนภูเขาในคืนฝนตกหนัก มีหญิงสาวในชุดขาวยืนอยู่กลางหมอก" width="100%"/>
 </div>
 
 > ตำนานพื้นบ้านบอกว่าบนยอดเขาคุโระมิโซะมี "เจ้าสาวภูเขา" รอคอยคนหลงทาง

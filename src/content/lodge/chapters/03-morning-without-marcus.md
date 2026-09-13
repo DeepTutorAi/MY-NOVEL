@@ -84,7 +84,7 @@ Elena: "สวัสดี — มีใครอยู่ไหม" ฉัน�
 ฉันเริ่มตักรับประทานอาหารเช้าอย่างเชื่องช้าแช่มช้า
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/03A.png" width="1672" height="941" alt="03A: ห้องอาหารยามเช้า อาหารเช้าถูกจัดวางเต็มโต๊ะยาวแต่เก้าอี้หัวโต๊ะของ มาร์คัส ว่างเปล่า มองเห็นป่าหิมะนอกหน้าต่าง" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/03A.webp" width="1672" height="941" alt="03A: ห้องอาหารยามเช้า อาหารเช้าถูกจัดวางเต็มโต๊ะยาวแต่เก้าอี้หัวโต๊ะของ มาร์คัส ว่างเปล่า มองเห็นป่าหิมะนอกหน้าต่าง" loading="lazy" decoding="async" />
   <figcaption>03A: เช้าที่โต๊ะอาหาร ไม่มีเจ้าบ้าน</figcaption>
 </figure>
 
@@ -895,7 +895,7 @@ Diana: "ดีค่ะ งั้นทุกทีมเริ่มปฏิ�
 ทอมกับตัวฉันสองคนคอยลุยงานปฏิบัติหน้าที่อยู่ในห้องทำงานส่วนตัวสลัวของมาร์คัสเงียบ ๆ
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/03B.png" width="1448" height="1086" alt="03B: ห้องทำงานของ มาร์คัส มีรูปคู่ของ มาร์คัส กับ ลิเลียน แขวนเหนือโต๊ะ ตู้เซฟเหล็กดำมีแผงกดรหัสที่มุมห้อง และสมุดแฟ้มแขกเปิดอยู่บนโต๊ะ" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/03B.webp" width="1448" height="1086" alt="03B: ห้องทำงานของ มาร์คัส มีรูปคู่ของ มาร์คัส กับ ลิเลียน แขวนเหนือโต๊ะ ตู้เซฟเหล็กดำมีแผงกดรหัสที่มุมห้อง และสมุดแฟ้มแขกเปิดอยู่บนโต๊ะ" loading="lazy" decoding="async" />
   <figcaption>03B: ห้องทำงานของ มาร์คัส</figcaption>
 </figure>
 

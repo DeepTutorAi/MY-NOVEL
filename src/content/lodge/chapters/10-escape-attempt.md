@@ -158,7 +158,7 @@ Diana: "หนาวจัด แต่ยังพอเดินไหว" เ
 พวกเราช่วยกันประคองรถเข็นลากเลื่อนไม้ออกไปยังชานระเบียงบ้านอย่างทุลักทุเล
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/10B.png" width="1916" height="821" alt="10B: กลุ่มผู้รอดชีวิตพยายามลากรถเข็นสัมภาระเสบียงอาหารฝ่าลมพายุหิมะขาวโพลนออกไปจากประตูหน้าของฮวิตเวลต์ลอดจ์ที่เปิดอ้าออก" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/10B.webp" width="1916" height="821" alt="10B: กลุ่มผู้รอดชีวิตพยายามลากรถเข็นสัมภาระเสบียงอาหารฝ่าลมพายุหิมะขาวโพลนออกไปจากประตูหน้าของฮวิตเวลต์ลอดจ์ที่เปิดอ้าออก" loading="lazy" decoding="async" />
   <figcaption>10B: ประตูหนีออกไปใน whiteout</figcaption>
 </figure>
 

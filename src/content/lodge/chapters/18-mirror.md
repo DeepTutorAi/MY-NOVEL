@@ -198,7 +198,7 @@ Karlsen หยิบรูปถ่ายใบหนึ่งออกมาจ
 ใบหน้าของ Elena Vasquez
 
 <figure class="chapter-figure chapter-figure--portrait">
-  <img src="../../../assets/lodge/images/chapters/18A.png" width="1448" height="1086" alt="18A: เอเลน่าและนักสืบคาร์ลเซนนั่งตรงข้ามกันในคาเฟ่บรูคลิน โดยมีแฟ้มและรูปถ่ายเก่าที่เป็นใบหน้าของเอเลน่าวางอยู่ระหว่างถ้วยสองใบ" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/18A.webp" width="1448" height="1086" alt="18A: เอเลน่าและนักสืบคาร์ลเซนนั่งตรงข้ามกันในคาเฟ่บรูคลิน โดยมีแฟ้มและรูปถ่ายเก่าที่เป็นใบหน้าของเอเลน่าวางอยู่ระหว่างถ้วยสองใบ" loading="lazy" decoding="async" />
   <figcaption>18A: รูปถ่ายที่มีอยู่ก่อนเอเลน่าจะมาถึงฮวิตเวลต์</figcaption>
 </figure>
 
@@ -705,7 +705,7 @@ Karlsen: "ผมจะจดมันไว้ในบันทึก"
 เราสองคนเป็นหนึ่งเดียว
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/18B.png" width="1672" height="941" alt="18B: เอเลน่ายืนหน้ากระจกห้องน้ำในบรูคลิน ภาพสะท้อนยิ้มอย่างสงบนิ่งต่างจากร่างจริง และสมุดบันทึกเปิดค้างอยู่ใต้กระจก" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/18B.webp" width="1672" height="941" alt="18B: เอเลน่ายืนหน้ากระจกห้องน้ำในบรูคลิน ภาพสะท้อนยิ้มอย่างสงบนิ่งต่างจากร่างจริง และสมุดบันทึกเปิดค้างอยู่ใต้กระจก" loading="lazy" decoding="async" />
   <figcaption>18B: ภาพสะท้อนที่กลายเป็นหนึ่งเดียว</figcaption>
 </figure>
 

@@ -56,6 +56,7 @@ export class WalkmanAudio {
   private soundscapeEnabled = new Map<SoundscapeId, boolean>();
   private soundscapeVolumes = new Map<SoundscapeId, number>();
   private currentCue: MusicCueId = DEFAULT_MUSIC_CUE_ID;
+  private recoveringCue: MusicCueId | null = null;
   private enabled = false;
   private volume = DEFAULT_VOLUME;
   private wasPlayingBeforeHidden = false;
@@ -472,14 +473,25 @@ export class WalkmanAudio {
   private handlePlayError(cueId: MusicCueId, error: unknown) {
     console.warn("Tsukinomi music cue failed to play.", error);
     const track = this.musicTracks.get(cueId);
+
+    // The unlock retry failed again — give up and disable for real.
+    if (this.recoveringCue === cueId) {
+      this.recoveringCue = null;
+      this.enabled = false;
+      localStorage.setItem(ENABLED_KEY, "false");
+      this.disableAllSoundscapes();
+      this.emitError();
+      return;
+    }
+
+    // Keep `enabled` until the unlock retry settles so auto-resume stays viable.
+    this.recoveringCue = cueId;
     track?.howl.once("unlock", () => {
+      this.recoveringCue = null;
       if (this.enabled) {
         this.playCue(cueId, FADE_IN_MS);
       }
     });
-    this.enabled = false;
-    localStorage.setItem(ENABLED_KEY, "false");
-    this.disableAllSoundscapes();
     this.emitError();
   }
 

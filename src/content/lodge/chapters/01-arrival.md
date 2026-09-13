@@ -22,7 +22,7 @@ GPS หยุดทำงานสามสิบนาทีก่อนแล�
 เขาไม่ได้บอกว่าทำไม
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/01A.png" width="1916" height="821" alt="01A: Elena ขับรถผ่านถนนหิมะและกางแผนที่กระดาษในคืนก่อนถึงฮวิตเวลต์" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/01A.webp" width="1916" height="821" alt="01A: Elena ขับรถผ่านถนนหิมะและกางแผนที่กระดาษในคืนก่อนถึงฮวิตเวลต์" loading="lazy" decoding="async" />
   <figcaption>01A: ถนนหิมะก่อนถึงบ้านพัก</figcaption>
 </figure>
 
@@ -134,7 +134,7 @@ Marcus: "คุณจะได้คืนในวันที่สิบเ�
 มาร์คัส ผายมือเปิดประตูบานใหญ่ต้อนรับฉัน "ยินดีต้อนรับสู่ฮวิตเวลต์ลอดจ์ครับ Ms. Vasquez"
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/01B.png" width="1672" height="941" alt="01B: Elena ลากกระเป๋าเข้าหาแสงประตูบ้านพักที่ มาร์คัส ยืนรออยู่" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/01B.webp" width="1672" height="941" alt="01B: Elena ลากกระเป๋าเข้าหาแสงประตูบ้านพักที่ มาร์คัส ยืนรออยู่" loading="lazy" decoding="async" />
   <figcaption>01B: ประตูบ้านพักและ มาร์คัส</figcaption>
 </figure>
 

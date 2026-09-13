@@ -32,7 +32,7 @@ readingMinutes: 15
 เขาเอื้อมมือไปแตะมันเบา ๆ
 
 <figure class="chapter-figure chapter-figure--portrait">
-  <img src="../../../assets/lodge/images/chapters/16A.png" width="1448" height="1086" alt="16A: วินเซนต์ยกเสื้อไหมพรมของโซฟีขึ้นจากกระเป๋าเดินทางในห้องใต้ดินที่กองเต็มไปด้วยข้าวของของเหยื่อ ขณะเอเลน่าตรวจป้ายกระเป๋าอยู่ข้าง ๆ" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/16A.webp" width="1448" height="1086" alt="16A: วินเซนต์ยกเสื้อไหมพรมของโซฟีขึ้นจากกระเป๋าเดินทางในห้องใต้ดินที่กองเต็มไปด้วยข้าวของของเหยื่อ ขณะเอเลน่าตรวจป้ายกระเป๋าอยู่ข้าง ๆ" loading="lazy" decoding="async" />
   <figcaption>16A: ข้าวของที่ผู้สูญหายทิ้งไว้</figcaption>
 </figure>
 
@@ -49,7 +49,7 @@ Vincent: "Sophie... ผมเสียใจด้วยจริง ๆ"
 พวกเราปีนขึ้นมาในห้องซาวน่า
 
 <figure class="chapter-figure">
-  <img src="../../../assets/lodge/images/chapters/16B.png" width="1672" height="941" alt="16B: มุมเงยจากปล่องมืดเห็นไดอาน่าเปิดฝาม้านั่งซาวน่า ซาร่าปีนบันไดพร้อมห่อสมุด และเอเลน่าตามขึ้นมาจากด้านล่าง" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/16B.webp" width="1672" height="941" alt="16B: มุมเงยจากปล่องมืดเห็นไดอาน่าเปิดฝาม้านั่งซาวน่า ซาร่าปีนบันไดพร้อมห่อสมุด และเอเลน่าตามขึ้นมาจากด้านล่าง" loading="lazy" decoding="async" />
   <figcaption>16B: ปีนกลับขึ้นสู่ห้องซาวน่า</figcaption>
 </figure>
 
@@ -198,7 +198,7 @@ Sarah: "ลองเรียกต่อไปเรื่อย ๆ ค่ะ"
 Diana: "คาราช็อก พวกเราติดอยู่ที่ฮวิตเวลต์ ลอดจ์ถูกล็อกดาวน์ เจ้าของบ้านเสียชีวิต แขกเสียชีวิตไปสามคน ขอการอพยพด่วนค่ะ"
 
 <figure class="chapter-figure chapter-figure--portrait">
-  <img src="../../../assets/lodge/images/chapters/16C.png" width="1448" height="1086" alt="16C: ไดอาน่ากดส่งสัญญาณจากวิทยุฉุกเฉินบนโต๊ะ ซาร่ากอดสมุดเก่าไว้ข้างเตาผิง และเอเลน่ายืนหันข้างมองออกนอกหน้าต่าง" loading="lazy" decoding="async" />
+  <img src="../../../assets/lodge/images/chapters/16C.webp" width="1448" height="1086" alt="16C: ไดอาน่ากดส่งสัญญาณจากวิทยุฉุกเฉินบนโต๊ะ ซาร่ากอดสมุดเก่าไว้ข้างเตาผิง และเอเลน่ายืนหันข้างมองออกนอกหน้าต่าง" loading="lazy" decoding="async" />
   <figcaption>16C: เสียงตอบกลับจากคาราช็อก</figcaption>
 </figure>
 

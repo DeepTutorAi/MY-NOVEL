@@ -490,7 +490,7 @@ Haruto: "เปล่าครับ... อากิระแค่ทำหน�
 Akira: "ฉันยังไม่ได้พูดสักคำเลยนะ พวกนายฟังกันเถอะ เพลงอันริชุดนี้ฉันฮัมได้อยู่แล้ว คนตื่นธรรม"
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--shared-song">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-08-shared-song-akira-canonical.png" width="1024" height="1536" alt="ฮารุโตะหันไปมองอากิระด้วยความตกใจเล็กน้อย ขณะที่คาโอริมองฮารุโตะและอากิระส่งสายตาให้กำลังใจจากม้านั่งด้านหลัง" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-08-shared-song-akira-canonical.webp" width="1024" height="1536" alt="ฮารุโตะหันไปมองอากิระด้วยความตกใจเล็กน้อย ขณะที่คาโอริมองฮารุโตะและอากิระส่งสายตาให้กำลังใจจากม้านั่งด้านหลัง" loading="lazy" decoding="async" />
   <figcaption>ช่วงเวลาส่วนตัวที่อากิระมองเห็นและเข้าใจ โดยไม่แย่งพื้นที่ของคนสองคน</figcaption>
 </figure>
 
@@ -1793,7 +1793,7 @@ Hina: "ไม่กลัว แต่สงสาร"
 Hina: "เหมือนเธอรอพี่อยู่ตลอดเวลา"
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--river-confession">
-  <img src="../../../assets/tsukinomi/images/illustrations/chapter-09-river-confession.png" width="1024" height="1536" alt="ฮินะเล่าความฝันให้ฮารุโตะฟังใต้สะพานเหล็กเก่าริมแม่น้ำอาซึมะ" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/chapter-09-river-confession.webp" width="1024" height="1536" alt="ฮินะเล่าความฝันให้ฮารุโตะฟังใต้สะพานเหล็กเก่าริมแม่น้ำอาซึมะ" loading="lazy" decoding="async" />
   <figcaption>คำตอบของฮินะที่ทำให้ฮารุโตะรู้ว่าเขาไม่ได้แบกเรื่องนี้อยู่คนเดียว</figcaption>
 </figure>
 
@@ -2675,7 +2675,7 @@ Naomi: "มานี่สิ"
 พวกเราสามคนกอดกันข้างโต๊ะห้องนั่งเล่น ในบ้านไม้เก่าบนเนินเหนือเมืองฮาคุบะ
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--family-table">
-  <img src="../../../assets/tsukinomi/images/illustrations/section-03-family-table.png" width="1024" height="1536" alt="ฮารุโตะ นาโอมิ และฮินะกอดกันข้างโต๊ะที่มีถ้วยชา วอล์กแมน เทป และจดหมายของพ่อ" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-03-family-table.webp" width="1024" height="1536" alt="ฮารุโตะ นาโอมิ และฮินะกอดกันข้างโต๊ะที่มีถ้วยชา วอล์กแมน เทป และจดหมายของพ่อ" loading="lazy" decoding="async" />
   <figcaption>ความจริงที่ถูกวางลงกลางโต๊ะของครอบครัว</figcaption>
 </figure>
 

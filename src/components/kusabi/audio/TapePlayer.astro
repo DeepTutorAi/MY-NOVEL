@@ -198,6 +198,7 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
 
   type AudioStatus = "idle" | "loading" | "error";
   let audioStatus: AudioStatus = "idle";
+  let escapeHandler: ((e: KeyboardEvent) => void) | null = null;
 
   const FONT_SIZE_KEY = "kusabi:settings:font-size";
   const LINE_HEIGHT_KEY = "kusabi:settings:line-height";
@@ -413,11 +414,15 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
     els.close?.addEventListener("click", () => setPanelOpen(false));
 
     // Keyboard dismissal
-    window.addEventListener("keydown", (e) => {
+    if (escapeHandler) {
+      window.removeEventListener("keydown", escapeHandler);
+    }
+    escapeHandler = (e) => {
       if (e.key === "Escape" && els.root?.getAttribute("data-open") === "true") {
         setPanelOpen(false);
       }
-    });
+    };
+    window.addEventListener("keydown", escapeHandler);
 
     // Play/Pause
     els.play?.addEventListener("click", async () => {

@@ -79,6 +79,22 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
   >
     const initKusabiReader = () => {
       let lastSavedAt = 0;
+      const progressKey = `kusabi:reading:chapter:${chapterId}`;
+      const SECRET_TIME_SEC = 120;
+      const SECRET_SCROLL_PCT = 0.7;
+
+      let activeSeconds = 0;
+      let maxScrollPct = 0;
+
+      try {
+        const raw = localStorage.getItem(progressKey);
+        const saved = raw ? JSON.parse(raw) : null;
+        if (saved) {
+          if (Number.isFinite(saved.activeSeconds)) activeSeconds = saved.activeSeconds;
+          if (Number.isFinite(saved.maxScrollPct)) maxScrollPct = saved.maxScrollPct;
+        }
+      } catch (e) {}
+
       const saveReadingProgress = (ratio) => {
         if (!Number.isFinite(ratio) || ratio < 0.005) return;
         const now = Date.now();
@@ -91,12 +107,14 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
           chapterTitle,
           path: window.location.pathname,
           progress: Number(ratio.toFixed(4)),
+          activeSeconds,
+          maxScrollPct: Number(maxScrollPct.toFixed(4)),
           updatedAt: now,
         };
 
         try {
           localStorage.setItem("kusabi:reading:last", JSON.stringify(saved));
-          localStorage.setItem(`kusabi:reading:chapter:${chapterId}`, JSON.stringify(saved));
+          localStorage.setItem(progressKey, JSON.stringify(saved));
           localStorage.setItem("kusabi:reading:last-read", chapterId);
         } catch (e) {}
       };
@@ -105,6 +123,7 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
         const scrollTop = window.scrollY || document.documentElement.scrollTop;
         const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
         const ratio = scrollMax > 0 ? Math.min(1, Math.max(0, scrollTop / scrollMax)) : 1;
+        if (ratio > maxScrollPct) maxScrollPct = ratio;
         saveReadingProgress(ratio);
       };
 
@@ -124,24 +143,72 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
         }
       };
 
+      const checkReadThresholds = () => {
+        if (activeSeconds >= SECRET_TIME_SEC && maxScrollPct >= SECRET_SCROLL_PCT) {
+          markAsRead();
+          return true;
+        }
+        return false;
+      };
+
+      // Count active reading time; pause while the tab is hidden.
+      let secretInterval = 0;
+      const startSecretTimer = () => {
+        if (secretInterval) return;
+        secretInterval = window.setInterval(() => {
+          activeSeconds += 1;
+          if (activeSeconds % 10 === 0 || activeSeconds >= SECRET_TIME_SEC) {
+            saveReadingProgress(maxScrollPct);
+          }
+          checkReadThresholds();
+        }, 1000);
+      };
+      const stopSecretTimer = () => {
+        window.clearInterval(secretInterval);
+        secretInterval = 0;
+      };
+      const handleVisibilityChange = () => {
+        if (document.visibilityState === "hidden") {
+          stopSecretTimer();
+        } else {
+          startSecretTimer();
+        }
+      };
+      document.addEventListener("visibilitychange", handleVisibilityChange);
+
       const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
       if (resumeRequested) {
         try {
-          const raw = localStorage.getItem(`kusabi:reading:chapter:${chapterId}`);
+          const raw = localStorage.getItem(progressKey);
           const saved = raw ? JSON.parse(raw) : null;
           if (saved && Number.isFinite(saved.progress) && saved.progress > 0.01 && saved.progress < 0.995) {
-            const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-            window.scrollTo({ top: scrollMax * saved.progress, behavior: "auto" });
+            const computeTarget = () => {
+              const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+              return Math.max(0, scrollMax * saved.progress);
+            };
+            window.scrollTo({ top: computeTarget(), behavior: "auto" });
+            let corrections = 0;
+            const settleAndCorrect = () => {
+              if (Math.abs(window.scrollY - computeTarget()) > 8 && corrections < 5) {
+                corrections += 1;
+                window.scrollTo({ top: computeTarget(), behavior: "auto" });
+                window.setTimeout(settleAndCorrect, 160);
+              }
+            };
+            window.setTimeout(settleAndCorrect, 200);
           }
         } catch (e) {}
       }
 
-      markAsRead();
       updateProgress();
+      checkReadThresholds();
+      startSecretTimer();
 
       window.addEventListener("scroll", updateProgress, { passive: true });
       window.addEventListener("astro:before-swap", () => {
         window.removeEventListener("scroll", updateProgress);
+        document.removeEventListener("visibilitychange", handleVisibilityChange);
+        stopSecretTimer();
       }, { once: true });
     };
 

@@ -14,36 +14,43 @@ import { withBase } from "../../../utils/base-path";
 </header>
 
 <script>
-  const topbar = document.querySelector(".topbar");
+  let observer: IntersectionObserver | null = null;
 
-  if (topbar instanceof HTMLElement) {
-    let lastY = window.scrollY;
-    const observed = [
-      ...Array.from(document.querySelectorAll("main, section, footer, .chapter-nav")),
-      ...Array.from(document.querySelectorAll("article.chapter > p")).filter((_, index) => index % 8 === 0),
-    ].filter((node): node is Element => node instanceof Element);
+  const setupTopbar = () => {
+    const topbar = document.querySelector(".topbar");
 
-    const applyVisibility = () => {
-      const currentY = window.scrollY;
+    if (topbar instanceof HTMLElement) {
+      let lastY = window.scrollY;
+      const observed = [
+        ...Array.from(document.querySelectorAll("main, section, footer, .chapter-nav")),
+        ...Array.from(document.querySelectorAll("article.chapter > p")).filter((_, index) => index % 8 === 0),
+      ].filter((node): node is Element => node instanceof Element);
 
-      if (currentY < 80 || currentY < lastY) {
-        topbar.dataset.visible = "true";
-      } else if (currentY > 200 && currentY > lastY) {
-        topbar.dataset.visible = "false";
+      const applyVisibility = () => {
+        const currentY = window.scrollY;
+
+        if (currentY < 80 || currentY < lastY) {
+          topbar.dataset.visible = "true";
+        } else if (currentY > 200 && currentY > lastY) {
+          topbar.dataset.visible = "false";
+        }
+
+        lastY = currentY;
+      };
+
+      observer?.disconnect();
+      observer = new IntersectionObserver(applyVisibility, {
+        threshold: [0, 0.35, 1],
+        rootMargin: "-10% 0px -55% 0px",
+      });
+
+      for (const node of observed) {
+        observer.observe(node);
       }
-
-      lastY = currentY;
-    };
-
-    const observer = new IntersectionObserver(applyVisibility, {
-      threshold: [0, 0.35, 1],
-      rootMargin: "-10% 0px -55% 0px",
-    });
-
-    for (const node of observed) {
-      observer.observe(node);
     }
-  }
+  };
+
+  document.addEventListener("astro:page-load", setupTopbar);
 </script>
 
 <style>
