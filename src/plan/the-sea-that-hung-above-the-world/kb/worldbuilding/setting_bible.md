@@ -15,7 +15,7 @@ The five layers below describe the water **inside** the suspended ocean, using t
 | 1 | Sun-Sheet | 0–500m | Low | Silver Drifters, Pale-Skimmers, Cloud Whales (surface) |
 | 2 | Drowned Quarter | 500m–2,000m | Medium | Lure-Lanterns, Husk-Takers, Reef-Hounds, Drowned Walkers |
 | 3 | Pressure Veil | 2,000m–5,000m | HIGH | Trench-Wyrms, Spine Whales, Angler-Kelp |
-| 4 | Old Pressure | 5,000m–9,000m | EXTREME | Abyssal Leviathans, Void-Anglers |
+| 4 | Old Pressure | 5,000m–9,000m | EXTREME | Abyssal Leviathans, Void-Anglers, Bone-Sifters |
 | 5 | First Memory | 9,000m+ | BEYOND | The First Leviathan only |
 
 The *Albatross* does not enter the water under normal operation. In Arc 5, Maera seals the hull for a special dive through the lower surface and into Layers 1-3 to approach the Sky-Dam's submerged foundations — the crew's first experience of true ocean pressure.
@@ -51,6 +51,8 @@ Exposure through infected blood or tissue fluid can deliver a smaller dose. That
 - **Cloud Whales**: Massive cetaceans that have adapted to swim through the Sky Ocean and cloud layers. Their bones bear ancient scars and metal fittings from when the Ascendant Engineers anchored them to support the Sky-Dam.
 - **Pale-Moths**: Tiny translucent moths that appear on battlefields and deathbeds. They feed on the "final breath" of dying creatures and are viewed as omens the sea is claiming a soul.
 - **Reef-Hounds**: Quadrupedal predators with coral growths forming their skulls. Mutated from domestic dogs left behind in drowned ruins, they still possess faint instincts of their past lives (e.g. guarding ruined doorways).
+- **Angler-Kelp**: Rooted Layer 3 colonial plants that arrange amber photophores into the appearance of settlement windows or harbor lamps. They lure fish, divers, and small vessels into a pressure-sensing frond field, then immobilize prey with adhesive and contractile growth before digestion. They do not speak, mimic human bodies, or transmit Brine-Spores.
+- **Bone-Sifters**: Layer 4 free-swimming scavenger swarms that sift the Fossil Drift with flattened comb-plate undersides. They are not crabs, parasites, or apex predators, but a disturbed swarm can abrade exposed mineralized gear and turn the water into a white-silt veil. Nio first perceives them as living snowfall during his Dead Parliament contact.
 - **Glass Eels**: Translucent, thread-like fish that swim in pipe systems and the bloodstreams of those who are brine-touched. They act as transmitters for the sea's voice.
 
 ---

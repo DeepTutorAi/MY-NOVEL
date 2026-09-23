@@ -4,6 +4,7 @@ import { withBase } from "../../../utils/base-path";
 
 const thankYouImage = withBase("/assets/tsukinomi/images/extra/thank-you-haruto-hina-kaori.webp");
 const alternateFutureImage = withBase("/assets/tsukinomi/images/extra/alternate-future-haruto-kaori.webp");
+const kaoriAutumnStyleImage = withBase("/assets/tsukinomi/images/extra/kaori-autumn-style-study.png");
 ---
 
 <TsukinomiBaseLayout
@@ -113,7 +114,7 @@ const alternateFutureImage = withBase("/assets/tsukinomi/images/extra/alternate-
         <section class="extra-card extra-gallery" aria-labelledby="extra-gallery-heading">
           <h2 id="extra-gallery-heading">🖼️ ภาพส่งท้ายหลังอ่านจบ</h2>
           <p>
-            ภาพสองชิ้นนี้เป็นงานพิเศษนอกเนื้อเรื่องหลัก ภาพที่สองคือฉากสมมติแบบ alternate future ไม่ใช่ตอนจบหลักของเรื่อง
+            ภาพทั้งสามเป็นงานพิเศษนอกเนื้อเรื่องหลัก ภาพที่สองเป็นฉากสมมติแบบ alternate future ไม่ใช่ตอนจบหลัก ส่วนภาพที่สามเป็นการทดลองชุดและทรงผมฤดูใบไม้ร่วงของคาโอริ
           </p>
           <div class="extra-gallery-grid">
             <figure>
@@ -137,6 +138,17 @@ const alternateFutureImage = withBase("/assets/tsukinomi/images/extra/alternate-
                 decoding="async"
               />
               <figcaption>Alternate future / what-if — ไม่ใช่ตอนจบหลัก</figcaption>
+            </figure>
+            <figure>
+              <img
+                src={kaoriAutumnStyleImage}
+                width="1024"
+                height="1536"
+                alt="คาโอริในคาร์ดิแกนสีครีมบนสะพานท่ามกลางใบไม้สีทองในฤดูใบไม้ร่วง"
+                loading="lazy"
+                decoding="async"
+              />
+              <figcaption>Autumn style study — ทรงผมและเสื้อผ้าแบบทางเลือก นอกเนื้อเรื่องหลัก</figcaption>
             </figure>
           </div>
         </section>

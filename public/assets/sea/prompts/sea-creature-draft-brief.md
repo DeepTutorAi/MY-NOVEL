@@ -31,9 +31,9 @@ The current prose wins for what readers have already seen. The creature lore bib
 
 ## Visual-development scope
 
-The creature bible currently contains **22 creature/entity entries**: numbered 1–21 plus the inserted Choir-Warden entry 10-A. The quick-reference heading says 21 but omits the later Tide-Stalker row.
+The creature bible currently contains **24 creature/entity entries**: numbered 1–21 plus the inserted Choir-Warden entry 10-A, the newly documented Angler-Kelp entry 11-A, and the newly documented Bone-Sifters entry 14-A. The core quick-reference table does not include later predator-class or abyssal-ecology additions; those are cataloged in Part 4 of the creature bible.
 
-### Canonical creature/entity packages — 22
+### Canonical creature/entity packages — 24
 
 1. Cloud Whales
 2. Reef-Hounds
@@ -57,10 +57,12 @@ The creature bible currently contains **22 creature/entity entries**: numbered 1
 20. Pale-Skimmers
 21. Spine Whales
 22. The Tide-Stalker
+23. Angler-Kelp — new Layer 3 colonial predator; `angler-kelp-draft-v1.png` generated, pending author review
+24. Bone-Sifters — new Layer 4 scavenger swarm; `bone-sifters-draft-v1.png` generated, pending author review
 
 ### Supplemental infected-human packages — 8
 
-These are separate visual states not adequately covered by a generic creature sheet. Ash-Turned, Coral Husks, Drowned Walkers, and the conscious Spine-Coral host are already counted among the 22 packages above.
+These are separate visual states not adequately covered by a generic creature sheet. Ash-Turned, Coral Husks, Drowned Walkers, and the conscious Spine-Coral host are already counted among the 23 packages above.
 
 1. Generic Brine-Touched transformation progression — early exposure through established adaptation
 2. Wren — Salt Ward child with webbed fingers and recurring Leviathan drawing; dignified, non-exploitative presentation
@@ -71,7 +73,7 @@ These are separate visual states not adequately covered by a generic creature sh
 7. Nio Arvane — late Silence / Choir-Warden merge state, separate from the pending early post-rescue character sheet
 8. Varek — final Coral Beast state
 
-This creates a planned visual-development scope of **30 packages**. The number of individual images may be lower if an atmospheric entity is best represented by a reveal-sequence sheet rather than a conventional body turnaround.
+This creates a planned visual-development scope of **32 packages**. The number of individual images may be lower if an atmospheric entity is best represented by a reveal-sequence sheet rather than a conventional body turnaround.
 
 ## Draft workflow
 
@@ -106,6 +108,8 @@ This creates a planned visual-development scope of **30 packages**. The number o
 20. **Choir-Warden** — `choir-warden-draft-v1.png` generated as a partial-reveal Sky-Dam threshold presence candidate; pending author review
 21. **Tide-Stalker** — `tide-stalker-draft-v1.png` generated as the recurring scarred solitary-hunter candidate; pending author review
 22. **First Leviathan** — `first-leviathan-draft-v1.png` generated as a cosmic partial-reveal total-perception candidate; pending author review
+23. **Angler-Kelp** — `angler-kelp-draft-v1.png` is a generated Layer 3 colonial predatory-plant candidate, pending author review; retain the tree-like silhouette and biological-lantern caveats below
+24. **Bone-Sifters** — `bone-sifters-draft-v1.png` is a generated Layer 4 scavenger-swarm candidate, pending author review; retain the isopod-like silhouette and feeding-read caveats below
 
 Later ordering will follow prose reveal order while preserving cosmic entities for last.
 
@@ -677,3 +681,50 @@ Supporting views: living light node, false-dawn horizon, and top-down tentacle e
 Retain four caveats: the image chooses a long-limbed quadrupedal silhouette even though the final morphology is not fully locked in canon; the high-contrast dorsal growth can still read as a low crown-like ridge at first glance; the red eye and cloth communicate folklore more strongly than Varek's former red gauntlets or jaw-to-collar scar; and a still image cannot prove the patient predator behavior or its role as a guardian that hunts sea predators. Canon boundary retained: Varek is a former human hunter who mutates completely into a giant coral-salt beast and vanishes into the Mistwood; this is a versioned visual candidate, not a final biological specification.
 
 The author-supplied `varek-coral-beast-draft-v2.png` is the preferred visual direction for review. Its multi-view contact sheet makes the morphology, dorsal coral distribution, single red eye, limb joints, claws, and Mistwood scale easier to inspect than v1. It better supports the Red-Eyed Terror reading while keeping the creature grounded in wet tissue, calcified coral, and coastal ruin rather than a clean fantasy boss silhouette. Treat the sheet as a reference asset: if a production frame is later needed, extract and review one panel or regenerate a single-frame composition without panel borders. Retain the remaining caveats: the four-limbed morphology is still an explicit visual inference, the dorsal coral can still read as armor/crown in the main panel, the red cloth is a folklore cue rather than confirmed biological continuity from the gauntlets, and the still does not prove patient guardian behavior. Keep both versions until the author locks the final morphology.
+
+## Prompt — Angler-Kelp v1
+
+**Review status:** `angler-kelp-draft-v1.png` is a generated first visual candidate, copied into `public/assets/sea/images/creatures/drafts/`, and pending author review. It is not author-approved or production-ready. It succeeds at the connected rooted colony, amber settlement-like photophores, drowned-ruin scale, holdfast anatomy, and the false-route/closing-frond idea without text, a face, a victim, or gore. Retain these caveats without treating them as resolved: the dominant central holdfast rises like a giant tree trunk and canopy, so the silhouette is less distinctly kelp-like than the lore; the photophore sacs read somewhat like hanging lanterns rather than living organs at medium distance; and the behavior panels imply approach and contraction more clearly than they prove a pressure-sensing root field. This is a versioned generated candidate, not a final anatomy lock.
+
+**Canon boundary:** Angler-Kelp is a Layer 3 rooted colonial predatory plant. It lures fish, divers, and small vessels by arranging amber photophores into false settlement or harbor lights, then uses pressure-sensing filaments, adhesive mucilage, irritant contact cells, and slow contractile fronds to immobilize prey. It does not speak, imitate a human body, transmit Brine-Spores, or appear as a humanoid tree. Its relationship to Void-Anglers is a working taxonomy, not a confirmed life cycle.
+
+```text
+Use case: stylized-concept
+Asset type: creature, ecology, scale, and hunting-behavior reference sheet
+Fear question: why does the safest light in the deep belong to something rooted?
+Primary request: one coherent mature Angler-Kelp colony from The Sea That Hung Above The World, a pressure-adapted predatory plant that makes a drowned settlement out of its own amber bioluminescent organs and draws living prey into a rooted feeding field.
+Habitat: Layer 3, the Pressure Veil; a dark high-pressure underwater zone near drowned masonry, mineral shelves, and the edge of the Glimmer Shelf. The colony must feel attached to the world rather than floating in empty space.
+Subject: a single connected colony spreading across roughly 20–60 meters of rock and drowned structure. Its individual fronds are 3–8 meters long, ribbon-like, smoke-translucent, dark blue-green, wet, asymmetrical, and veined with pale conductive tissue. Small amber photophore sacs, roughly 5–15 cm across, grow along the upper fronds in irregular vertical clusters. From a distance these sacs form the visual pattern of inhabited windows, a harbor line, or a small rescue station. The lower holdfast is a dense pale-and-black root mass with contractile feeder folds and fine pressure-sensing filaments. The colony has no face, eyes, human limbs, human silhouette, speaking organ, or obvious giant mouth. Any digestive opening must be low, hidden beneath the root field, and biologically integrated.
+Hunting behavior: first show the photophores as a warm false settlement in black water. A tiny anonymous diver or sealed submersible may approach only as a scale cue; no named character, victim, or contact. When vibration reaches the colony, the pressure filaments tighten, nearby fronds slowly close the route, and adhesive mucilage catches rope, fins, or hull seams. The colony should look like it is making escape geometrically difficult, not lunging like a tentacle monster. One panel may show the false lights going dark one by one as the colony contracts.
+Anatomy studies: photophore sac with internal light-producing tissue and a conductive vein; pressure-sensing hair-like filament; holdfast root penetrating a crack in drowned masonry; contractile frond surface with restrained adhesive sheen; concealed feeding fold seen from below; small mineral and tissue transition where living plant meets old stone.
+Composition/framing: vertical multi-view reference sheet with one wide colony-and-ruin scale view, one false-harbor view, one side view of connected fronds and root boundary, one behavior panel with a distant anonymous diver or small submersible approaching the lights, one close-up of the photophore, and one close-up of the root/feeding fold. Every view must depict the same colony, the same dominant frond split, the same amber light pattern, and the same root architecture. Keep environmental fragments limited to what explains scale and behavior.
+Style/medium: cinematic semi-realistic dark maritime survival concept art; grounded plant and marine-organism anatomy; restrained painterly realism; tactile wet tissue, mineral, and water physics; gothic maritime body horror through false safety and invasive biology; original Sea Above design.
+Lighting/mood: nearly black Layer 3 water with restrained cold cyan-teal ambient light and a controlled warm amber lure. The amber must feel comforting from far away and organic, wet, and wrong up close. No magical aura or neon glow.
+Materials/textures: translucent wet frond membrane, dark blue-green plant tissue, pale conductive veins, amber light sacs, adhesive mucilage, porous holdfast roots, mineral-encrusted drowned masonry, suspended silt, and tiny pressure bubbles. Keep every material visibly distinct.
+Constraints: one connected colony; rooted anatomy; pressure-sensing behavior; settlement-like photophores; distant human scale only; no attack impact, gore, exposed human body, infection, or torture tableau; no text, labels, rulers, logo, signature, or watermark inside the image.
+Avoid: ordinary kelp forest, giant tree, humanoid plant, human face, eyes, teeth, smiling mouth, talking plant, tentacle monster, kraken, ordinary jellyfish, Lure-Lantern bell anatomy, Void-Angler canopy scale, Husk-Taker silhouette, Choir-Warden voices, red coral armor, fantasy magic glow, clean ornamental symmetry, decorative garden, bright neon, generic boss monster, combat poster, gore, anime, glossy game-poster finish, readable text.
+```
+
+## Prompt — Bone-Sifters v1
+
+**Review status:** `bone-sifters-draft-v1.png` is a generated first visual candidate, copied into `public/assets/sea/images/creatures/drafts/`, and pending author review. It is not author-approved or production-ready. It succeeds at the flattened translucent body plan, pressure hairs, underside comb plates, Fossil Drift feeding tracks, white-snow swarm read, shared species identity, and the stopped swarm beneath an indistinct larger shadow. Retain these caveats without treating them as resolved: the individuals may still read as translucent isopod-like animals at first glance; the comb anatomy is clearest in the dedicated underside panel rather than in the wide swarm; and the image communicates ecological scraping more strongly than the conditional risk to exposed mineralized equipment. This is a versioned generated candidate, not a final anatomy lock.
+
+**Canon boundary:** Bone-Sifters are Layer 4 free-swimming scavenger swarms, not apex predators, parasites, crabs, or intelligent hunters. Small flattened semi-translucent organisms sift the Fossil Drift with mineral-scraping comb plates. Nio first perceives them as living white snow during his Dead Parliament contact; no human physically reaches Layer 4 and returns.
+
+```text
+Use case: stylized-concept
+Asset type: deep-layer creature, swarm ecology, scale, and underside-anatomy reference sheet
+Fear question: what looks like snow in the abyss is eating the bones.
+Primary request: one coherent Bone-Sifters species and feeding swarm from The Sea That Hung Above The World, pressure-adapted deep scavengers that sift the Fossil Drift rather than actively hunt living people.
+Habitat: Layer 4, the Old Pressure, inside the Descent Spiral around suspended calcified remains of ancient sea creatures. Nearly black water, 0–3 meters of practical visibility, cold pressure, suspended mineral dust, no named person and no physical expedition scene.
+Subject: individuals are small, roughly 15–30 cm in working visual scale, flattened and semi-translucent pale grey bodies with frilled lateral finlets or cilia, fine pressure-sensing hairs, and a layered comb-plate underside for scraping mineral surfaces. Use restrained white-blue bioluminescent traces that fade when the swarm stops. No obvious eyes; the sensing hairs and underside plates carry the anatomy. The animals share one species identity with modest individual variation, not a pile of unrelated monsters.
+Behavior: a dense swarm drifts over the Fossil Drift like falling snow, settles in coordinated bands, and filters calcium-rich mineral dust. Show one or two individuals in side profile and one underside feeding study. A tiny anonymous sealed suit silhouette or remote instrument may appear only for scale, with no contact and no victim. In one distant panel, the entire swarm freezes as an indistinct enormous shadow passes; do not reveal a full Leviathan.
+Feeding detail: comb plates rasp narrow clean tracks across calcified surfaces; silt clouds trail behind the swarm. The feeding should read as ecological scraping and filtering, not biting flesh, gore, or a mouth full of teeth. Exposed mineralized equipment may be shown at a safe distance as a scale cue, never being attacked.
+Composition/framing: vertical multi-view reference sheet with one wide Fossil Drift and white-snow swarm view, one individual side profile, one underside comb-plate close-up, one pressure-hair and finlet detail, one clean feeding track in calcified material, and one stopped-swarm/huge-shadow scale view. Keep the same body plan and cold bioluminescent trace in every panel. No labels inside the image.
+Style/medium: cinematic semi-realistic deep-marine body horror; grounded abyssal biology, restrained painterly realism, tactile translucent tissue, mineral dust, old bone, and pressure-dark water; original Sea Above design, not a fantasy boss illustration.
+Lighting/mood: near-black water with sparse cold cyan and blue-white bioluminescence; the swarm should initially feel like snow, then become unsettling when the comb anatomy is understood. No neon, magic aura, or warm lure light.
+Color palette: smoke grey, pale mineral white, translucent blue-grey tissue, restrained cyan-white traces, black water, muted calcified bone; no saturated red or ornamental coral.
+Materials/textures: semi-translucent skin, fine cilia, pressure hairs, layered mineral-scraping comb plates, calcified Fossil Drift, suspended silt, tiny pressure bubbles, and soft bioluminescent dust. Keep living tissue distinct from fossil material.
+Constraints: one coherent species; swarm ecology; scavenger behavior; no direct human attack, gore, infection, memory alteration, voice mimicry, or physical Layer 4 expedition; no text, labels, rulers, logo, signature, or watermark inside the image.
+Avoid: skeleton fish, skull face, human bones as bodies, crab, isopod literal copy, shrimp swarm, worms, eel, manta ray, Trench-Wyrm, Keening Crab, Hull-Barnacle, Void-Angler, Spine Whale, giant eye, exposed teeth, tentacle monster, humanoid creature, magic snow, boss fight, attack poster, gore, anime, glossy game-poster finish, readable text.
+```

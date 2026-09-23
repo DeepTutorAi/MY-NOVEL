@@ -12,7 +12,7 @@ This folder contains the shipped Tsukinomi assets for the Sakura Twilight theme.
 | `icons/` | Hand-authored SVG interface marks for the Walkman and tape UI. |
 | `textures/` | Local film grain texture used by the Tsukinomi layout. |
 | `images/illustrations/` | In-content light-novel illustrations placed at canonical story beats. |
-| `images/extra/` | AI-generated/AI-assisted farewell and post-reading bonus illustrations; provenance is recorded in the root asset manifest. |
+| `images/extra/` | AI-generated/AI-assisted character-sheet drafts and farewell/post-reading bonus illustrations; provenance is recorded in the root asset manifest. |
 
 ## Authored Image Slots
 

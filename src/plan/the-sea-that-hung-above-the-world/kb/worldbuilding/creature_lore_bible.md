@@ -297,7 +297,9 @@ This document catalogs all mutated creatures, diseases, conditions, and ecologic
 
 ---
 
-## QUICK REFERENCE: Creature Appearances by Arc
+## QUICK REFERENCE: Core Creature Appearances by Arc
+
+This table covers the original core creature and phenomenon roster. Later predator-class and abyssal-ecology additions, including the newly documented Angler-Kelp and Bone-Sifters, are cataloged in Part 4 with their own reveal status and appearance notes.
 
 | Creature | Arc 1 | Arc 2 | Arc 3 | Arc 4 | Arc 5 | Arc 6 | Arc 7 |
 |---|---|---|---|---|---|---|---|
@@ -334,7 +336,7 @@ This document catalogs all mutated creatures, diseases, conditions, and ecologic
 
 ---
 
-## PART 4: PREDATOR-CLASS SKY OCEAN CREATURES
+## PART 4: PREDATOR-CLASS AND ABYSSAL SKY OCEAN CREATURES
 
 ### 11. Lure-Lanterns (ตะเกียงล่อเหยื่อ) — Layer 2+
 - **Type**: Predatory cephalopod — Bioluminescent ambush hunter
@@ -345,6 +347,19 @@ This document catalogs all mutated creatures, diseases, conditions, and ecologic
 - **Last Appearance**: Arc 5 Ch 21 — Explorer's Graveyard infested with Lure-Lanterns pulsing distress signals.
 - **Danger Level**: HIGH
 - **Narrative Use**: Ambush horror. "Candlelit window in a dead city." Thematic: even the light here is a lie.
+
+### 11-A. Angler-Kelp (สาหร่ายล่อแสง) — Layer 3
+- **Type**: Colonial predatory plant — pressure-adapted photophore-bearing kelp analogue
+- **Appearance**: A mature colony spreads across tens of meters of rock, drowned masonry, or the living edge of the Glimmer Shelf. Its individual fronds are long, ribbon-like, and smoke-translucent, with dark blue-green tissue, pale conductive veins, and small amber photophore sacs arranged along the upper growth. From a distance, the sacs resemble the windows of a settlement or the lamps of a harbor. The colony has no face, eyes, voice, or humanoid form. Its lower holdfast is a dense root mass with contractile feeder folds and fine pressure-sensing filaments.
+- **Behavior**: Angler-Kelp grows where current, mineral deposits, and structural shadows give it room to form a false horizon. It adjusts the height and rhythm of its photophores in response to water movement and nearby vibration, accidentally or adaptively producing the visual pattern of inhabited windows. It does not understand human language and does not imitate human voices. It becomes most active when visibility falls and a vessel's external lights create a reliable approach path.
+- **Hunting Strategy**: The colony first creates a warm-looking route through otherwise black water. Fish, divers, and small vessels that follow the lights enter the frond field. Pressure-sensitive filaments detect contact and trigger adhesive mucilage, irritant cells, and slow contraction in the surrounding blades. The holdfast then closes around fins, ropes, hull seams, or diving lines and draws the prey toward hidden digestive folds. A mature colony hunts by making escape feel like a navigational error rather than by chasing.
+- **Origin/Lore**: The origin is unconfirmed. Sera's working hypothesis is a native kelp-like colonial organism reshaped by the Sky Ocean's pressure gradient, mineral-rich water, and long isolation after the lift. It is not a known Brine-Spore, Coral-Spore, or Warden's Bloom infection. The Ministry's old depth records group it with plants because it remains rooted, but the crew's behavior notes describe it as a predator. The current working taxonomy treats Void-Anglers as a gigantic Layer 4 growth form or relative of Angler-Kelp; no living intermediate has been observed, so the relationship remains unproven.
+- **First Planned Appearance**: Arc 5 Ch 21 — During the *Albatross*'s emergency descent into Layer 3, false settlement lights almost draw the ship into a rooted colony before Maera kills the exterior lamps and holds the heading by instruments.
+- **Last Appearance**: Not yet established. The colony may persist as part of the reef system after the ocean falls, but the story has not yet committed to a post-fall sighting.
+- **Danger Level**: HIGH around a mature colony. A distant light field is avoidable; a vessel already inside the root boundary is difficult to free without damaging its own hull.
+- **Survival Method**: Do not follow warm lights in uncharted Layer 3 water. Extinguish exterior lamps, maintain a tethered instrument heading, trust depth and pressure readings over visual landmarks, and reverse before the root field closes. Cutting random fronds can trigger contraction; the holdfast is the true target, but reaching it exposes a diver to the entire colony.
+- **Effect on Humans**: Disorientation, loss of direction, chemical irritation, numbness from contact cells, and drowning or pressure injury after immobilization. Angler-Kelp does not transmit a known infection and does not alter memory. Any apparent voice or human silhouette belongs to another threat, a hallucination, or a frightened witness.
+- **Narrative Use**: Predatory false safety. The Angler-Kelp makes the Layer 3 environment itself participate in the hunt and forms the middle scale between a Lure-Lantern's false window and a Void-Angler's false sky.
 
 ### 12. Husk-Takers (ตัวเลียนแบบ) — Layer 2
 - **Type**: Colony organism — Shapeshifting ambush predator
@@ -371,6 +386,20 @@ This document catalogs all mutated creatures, diseases, conditions, and ecologic
 - **First Appearance**: Arc 5 Ch 25 — Nio perceives through Leviathan: *"A false sky in the deep."*
 - **Danger Level**: APEX — No survival strategy. Avoid.
 - **Narrative Use**: Cosmic horror. The "light at the end of the tunnel" is a stomach.
+
+### 14-A. Bone-Sifters (ตัวร่อนกระดูก) — Layer 4
+- **Type**: Deep scavenger swarm — pressure-adapted mineral-feeding organism; not an apex predator and not a parasite.
+- **Appearance**: A typical individual is small (working visual scale: roughly 15–30 cm), flattened, and pale grey rather than bone-white. Its body is semi-translucent, with frilled lateral finlets, fine pressure-sensing hairs, and a layered comb-plate underside that scrapes mineralized surfaces. A restrained white-blue bioluminescent trace runs through the body and disappears when the animal stops moving. It has no obvious eyes, skull-like face, human bone, crab carapace, or humanoid anatomy.
+- **Behavior**: Bone-Sifters drift with the Descent Spiral and gather around the Fossil Drift in dense, quiet clouds. They detect mineral concentration and vibration through their pressure hairs, then settle over exposed calcified surfaces as a coordinated feeding field. Individuals show little independence; the swarm turns as one when a current, vibration, or larger body passes.
+- **Feeding Strategy**: The underside comb plates rasp the outer mineral layer from ancient remains and filter the resulting dust for usable calcium and trace nutrients. The swarm leaves bones and fossil surfaces unnaturally clean in narrow bands. It does not stalk living prey, but it can misclassify an exposed calcified suit seam, loose mineral gear, or already mineralized Brine-Touched tissue as part of the same substrate.
+- **Origin/Lore**: The species appears to be native deep fauna adapted to pressure and permanent darkness. There is no evidence that it was engineered by the Dead Parliament, produced by the Warden's Bloom, or spread as an infection. Their relationship to Abyssal Leviathans is unconfirmed: the swarm often gathers in the disturbed Fossil Drift after a large body passes, but this may be a current effect rather than a symbiosis.
+- **First Planned Appearance**: Arc 5 Ch 25 — During Nio's contact with the Dead Parliament, his perception reaches Layer 4. He sees what first looks like white snow moving through the Descent Spiral, then understands that the snow is a living swarm sifting the Fossil Drift. When an Abyssal Leviathan passes, the entire swarm stops.
+- **Last Appearance**: Not yet established. The story has not committed to a physical expedition into Layer 4, so all direct knowledge remains perceptual or archival.
+- **Danger Level**: LOW as an individual; HIGH to exposed equipment or mineralized tissue when a swarm is disturbed. It is dangerous because it mistakes material for food, not because it chooses to hunt people.
+- **Survival Method**: Do not disturb a Fossil Drift field. Cover exposed mineral surfaces, reduce vibration and unnecessary light, and retreat with the current if the swarm begins to turn toward equipment. No ordinary human survival method exists at this depth; these rules belong to archive warnings and Nio's limited perception, not to a crew combat encounter.
+- **Effect on Humans**: A contact event would cause abrasive suit damage, pressure-leak risk, clouded visibility, and disorientation from the swarm's white-silt veil. Bone-Sifters do not transmit Brine-Spores, alter memory, imitate voices, or create a new form of Brine-Touch.
+- **Narrative Use**: Living snowfall and ecological aftermath. Bone-Sifters show that Layer 4 is a functioning food web rather than an empty boss arena, and they give Nio a small, concrete detail inside an otherwise incomprehensible Leviathan-scale perception.
+- **Canon Boundary**: Treat Bone-Sifters as scavengers and environmental danger, not a personal hunter, intelligent enemy, boss, or replacement for the Void-Angler. Their first reveal should deepen the ecosystem and make the Leviathan's passing legible through the swarm's sudden stillness.
 
 ---
 
@@ -461,7 +490,7 @@ This document catalogs all mutated creatures, diseases, conditions, and ecologic
 
 ---
 
-## QUICK REFERENCE: Creature Appearances by Arc (21 Species)
+## QUICK REFERENCE: Creature Appearances by Arc (23 Species)
 
 | Creature | Arc 1 | Arc 2 | Arc 3 | Arc 4 | Arc 5 | Arc 6 | Arc 7 |
 |---|---|---|---|---|---|---|---|
@@ -480,6 +509,8 @@ This document catalogs all mutated creatures, diseases, conditions, and ecologic
 | **Husk-Takers** | — | — | — | — | Ch 21 | — | — |
 | **Trench-Wyrms** | — | — | — | — | Ch 22 | — | — |
 | **Void-Anglers** | — | — | — | — | Ch 25 | — | Ch 34 |
+| **Angler-Kelp** | — | — | — | — | Ch 21 | — | — |
+| **Bone-Sifters** | — | — | — | — | Ch 25† | — | — |
 | **Ash-Turned** | — | — | Ch 14 | — | — | Ch 28 | — |
 | **Coral Husks** | — | — | — | Ch 17 | — | — | — |
 | **Drowned Walkers** | — | — | — | — | Ch 21† | — | Ch 33 |
