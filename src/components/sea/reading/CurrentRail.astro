@@ -1,0 +1,177 @@
+---
+// Reading progress chrome for the Sea reader, driven by
+// src/scripts/sea/reader/reading-progress.ts:
+// - >=1024px: the vertical "current" rail in the right gutter, filled through
+//   style.setProperty("--sea-read-y", ...) on #sea-current-orb.
+// - <1024px: a 2px line under the top bar, filled with transform: scaleX().
+// The rail's left edge is derived from --sea-column-max (the widest the
+// reading column ever gets, whatever the font setting), so it never overlaps
+// the prose.
+---
+
+<div class="sea-current-rail sea-voyage-rail" aria-hidden="true">
+  <span class="sea-current-label" data-current-label>กระแสน้ำฟ้า</span>
+  <span class="sea-current-orb" id="sea-current-orb">
+    <span class="sea-current-depth"></span>
+    <span class="sea-current-glass"></span>
+    <span class="sea-current-glint"></span>
+  </span>
+  <span class="sea-current-percent" id="sea-current-percent">0%</span>
+</div>
+
+<div class="sea-progress-line" aria-hidden="true">
+  <span data-sea-progress-line></span>
+</div>
+
+<style>
+  .sea-voyage-rail {
+    --sea-read-y: 100%;
+    position: fixed;
+    top: 50%;
+    left: calc(50% + var(--sea-column-max) / 2 + var(--sea-rail-gap));
+    z-index: 15;
+    display: none;
+    justify-items: center;
+    gap: 0.48rem;
+    width: var(--sea-rail-width);
+    padding: 0.75rem 0.45rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+    border-radius: 999px;
+    background:
+      linear-gradient(180deg, rgba(3, 8, 14, 0.7), rgba(3, 8, 14, 0.5)),
+      color-mix(in srgb, var(--bg-sea-night) 80%, transparent);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.28), inset 0 0 18px color-mix(in srgb, var(--accent-cyan) 4%, transparent);
+    pointer-events: none;
+    transform: translateY(-50%);
+    transition: opacity 200ms ease;
+  }
+
+  /* At desktop widths the open sonar panel hangs over the rail's gutter. */
+  :global(body:has(#sea-sonar-panel[data-open="true"])) .sea-voyage-rail {
+    opacity: 0;
+  }
+
+  @media (min-width: 1024px) {
+    .sea-voyage-rail {
+      display: grid;
+    }
+
+    .sea-progress-line {
+      display: none;
+    }
+  }
+
+  /* On short wide viewports the centred rail would reach the sonar corner;
+     the 2px line under the top bar takes over instead. */
+  @media (min-width: 1024px) and (max-height: 560px) {
+    .sea-voyage-rail {
+      display: none;
+    }
+
+    .sea-progress-line {
+      display: block;
+    }
+  }
+
+  .sea-current-label,
+  .sea-current-percent {
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    color: var(--sea-ink-muted);
+    line-height: 1.1;
+    text-align: center;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+  }
+
+  .sea-current-orb {
+    position: relative;
+    display: block;
+    width: 2.45rem;
+    height: 5.7rem;
+    overflow: hidden;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 42%, transparent);
+    border-radius: 999px;
+    background:
+      radial-gradient(circle at 50% 12%, rgba(238, 232, 221, 0.28), transparent 18%),
+      linear-gradient(180deg, color-mix(in srgb, var(--accent-cyan) 8%, transparent), color-mix(in srgb, var(--accent-copper) 5%, transparent) 68%, rgba(0, 0, 0, 0.18));
+    box-shadow:
+      inset 0 0 18px color-mix(in srgb, var(--accent-cyan) 10%, transparent),
+      inset -0.45rem 0 0.9rem rgba(0, 0, 0, 0.28),
+      0 0 18px color-mix(in srgb, var(--accent-cyan) 12%, transparent);
+    transform: perspective(7rem) rotateX(9deg) rotateY(-18deg);
+  }
+
+  .sea-current-depth {
+    position: absolute;
+    inset: 0.35rem;
+    display: block;
+    border-radius: inherit;
+    background:
+      radial-gradient(circle at 48% 15%, rgba(238, 232, 221, 0.55), transparent 12%),
+      linear-gradient(180deg, rgba(0, 243, 197, 0.78), rgba(0, 124, 170, 0.56) 48%, color-mix(in srgb, var(--accent-copper) 36%, transparent));
+    box-shadow: 0 0 24px color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+    transform: translateY(var(--sea-read-y));
+    transition: transform 140ms ease-out;
+  }
+
+  .sea-current-glass,
+  .sea-current-glint {
+    position: absolute;
+    inset: 0;
+    display: block;
+    border-radius: inherit;
+    pointer-events: none;
+  }
+
+  .sea-current-glass {
+    background:
+      linear-gradient(90deg, rgba(255, 255, 255, 0.28), transparent 24%, rgba(255, 255, 255, 0.06) 72%, transparent),
+      radial-gradient(circle at 50% 95%, color-mix(in srgb, var(--accent-cyan) 18%, transparent), transparent 38%);
+    mix-blend-mode: screen;
+  }
+
+  .sea-current-glint {
+    inset: 0.6rem 0.55rem auto auto;
+    width: 0.42rem;
+    height: 2.6rem;
+    background: rgba(238, 232, 221, 0.42);
+    filter: blur(0.5px);
+  }
+
+  .sea-progress-line {
+    position: fixed;
+    top: var(--sea-topbar-height);
+    right: 0;
+    left: 0;
+    z-index: 29;
+    height: 2px;
+    background: color-mix(in srgb, var(--sea-ink-muted) 12%, transparent);
+    pointer-events: none;
+    transition: transform 260ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .sea-progress-line span {
+    display: block;
+    height: 100%;
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent-copper) 70%, transparent), var(--accent-cyan));
+    transform: scaleX(0);
+    transform-origin: 0 50%;
+  }
+
+  :global(body[data-topbar="hidden"]) .sea-progress-line {
+    transform: translateY(calc(-1 * var(--sea-topbar-height)));
+  }
+
+  :global(html[data-sea-motion="off"]) .sea-progress-line,
+  :global(html[data-sea-motion="off"]) .sea-current-depth {
+    transition: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sea-progress-line,
+    .sea-current-depth {
+      transition: none;
+    }
+  }
+</style>

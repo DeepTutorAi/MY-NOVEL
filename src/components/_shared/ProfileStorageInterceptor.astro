@@ -1,0 +1,67 @@
+---
+// Per-profile localStorage namespacing shared by every base layout. Rendered
+// first in <head> so no other script can read or write storage before the
+// interceptor is installed.
+---
+
+<script is:inline>
+  (function() {
+    if (window.__localStorageIntercepted) return;
+    window.__localStorageIntercepted = true;
+
+    const originalGet = localStorage.getItem;
+    const originalSet = localStorage.setItem;
+    const originalRemove = localStorage.removeItem;
+
+    function getActiveProfileId() {
+      try {
+        return originalGet.call(localStorage, "piichan-novels:active-profile-id") || "guest";
+      } catch(e) {
+        return "guest";
+      }
+    }
+
+    function getProfileKey(key) {
+      if (typeof key !== 'string') return key;
+      const activeProfile = getActiveProfileId();
+      if (key.endsWith(`:${activeProfile}`)) return key;
+      const prefixes = [
+        "hvitveldt:reading:",
+        "tsukinomi:reading:",
+        "sea:reading:",
+        "kusabi:reading:",
+        "hvitveldt:secret:",
+        "tsukinomi:reading:secret:",
+        "sea:reading:secret:",
+        "kusabi:secret:",
+        "hvitveldt:extra-bypassed",
+        "tsukinomi:extra-bypassed",
+        "sea:extra-bypassed",
+        "kusabi:extra-bypassed",
+        "hvitveldt:characters:subject8-visible",
+        "hvitveldt:characters:toast-shown",
+        "hvitveldt:puzzle-unlocked",
+        "hvitveldt:cutscene:played:",
+        "tsukinomi:characters:revealed",
+        "tsukinomi:characters:toast-shown",
+        "tsukinomi:cutscene:played:",
+        "kusabi:cutscene:played:",
+        "sea:cutscene:played:"
+      ];
+      if (prefixes.some(p => key.startsWith(p))) {
+        return `${key}:${activeProfile}`;
+      }
+      return key;
+    }
+
+    localStorage.getItem = function(key) {
+      return originalGet.call(localStorage, getProfileKey(key));
+    };
+    localStorage.setItem = function(key, value) {
+      originalSet.call(localStorage, getProfileKey(key), value);
+    };
+    localStorage.removeItem = function(key) {
+      originalRemove.call(localStorage, getProfileKey(key));
+    };
+  })();
+</script>

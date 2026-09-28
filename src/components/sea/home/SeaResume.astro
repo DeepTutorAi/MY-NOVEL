@@ -1,0 +1,77 @@
+---
+// Resume chip next to the primary call to action. Rendered hidden; the client
+// script (src/scripts/sea/home/home-reading.ts) fills it from the v2
+// sea:reading:last record, or a legacy v1 record mapped onto the prologue.
+import { withBase } from "../../../utils/base-path";
+import type { SeaHomeUnit } from "../../../scripts/sea/home/home-reading-core";
+
+interface Props {
+  /** Published chapters in reading order; unknown ids never show a chip. */
+  units: SeaHomeUnit[];
+}
+
+const { units } = Astro.props;
+---
+
+<p
+  class="sea-resume"
+  data-sea-resume
+  data-units={JSON.stringify(units)}
+  data-chapter-base={withBase("/sea/chapters/")}
+  hidden
+>
+  <a class="sea-resume-link" data-sea-resume-link href={withBase("/sea/")}>อ่านต่อ</a>
+  <button type="button" class="sea-resume-clear" data-sea-resume-clear aria-label="ล้างตำแหน่งที่อ่านค้าง">
+    <span aria-hidden="true">×</span>
+  </button>
+</p>
+
+<script>
+  import "../../../scripts/sea/home/home-reading";
+</script>
+
+<style>
+  .sea-resume {
+    display: inline-flex;
+    align-items: stretch;
+    margin: 0;
+    border: 1px solid color-mix(in srgb, var(--accent-copper) 55%, transparent);
+    background: rgba(2, 8, 12, 0.66);
+  }
+
+  .sea-resume[hidden] {
+    display: none;
+  }
+
+  .sea-resume-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.9rem;
+    padding: 0.45rem 0.95rem;
+    color: var(--sea-ink);
+    font-size: 0.92rem;
+    text-decoration: none !important;
+  }
+
+  .sea-resume-link::before {
+    width: 0.4rem;
+    height: 0.4rem;
+    margin-right: 0.6rem;
+    border-radius: 999px;
+    content: "";
+    background: var(--accent-copper);
+    box-shadow: 0 0 0.6rem color-mix(in srgb, var(--accent-copper) 70%, transparent);
+  }
+
+  .sea-resume-clear {
+    min-width: 2.75rem;
+    border-left: 1px solid color-mix(in srgb, var(--accent-copper) 35%, transparent) !important;
+    color: var(--sea-ink-muted);
+    cursor: pointer;
+    font-size: 1.1rem;
+  }
+
+  .sea-resume-clear:hover {
+    color: var(--sea-ink);
+  }
+</style>

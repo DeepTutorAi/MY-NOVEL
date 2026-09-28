@@ -3,17 +3,28 @@ import { ClientRouter } from "astro:transitions";
 import GrainOverlay from "../../components/_shared/GrainOverlay.astro";
 import SeaRainBackdrop from "../../components/sea/atmosphere/SeaRainBackdrop.astro";
 import SonarPlayer from "../../components/sea/audio/SonarPlayer.astro";
+import SeaTopBar from "../../components/sea/navigation/SeaTopBar.astro";
 import SonarCorner from "../../components/sea/reading/SonarCorner.astro";
 import "../../styles/sea/global.css";
 import { withBase } from "../../utils/base-path";
+import ProfileStorageInterceptor from "../../components/_shared/ProfileStorageInterceptor.astro";
+import { seaTideWipe } from "../../scripts/sea/transitions";
+import type { SeaMusicCueId } from "../../data/sea/music-cues";
+import type { SeaZone } from "../../data/sea/zones";
 
 interface Props {
   title: string;
   description: string;
   bodyClass?: string;
-  depthLayer?: number;
-  musicCueId?: string;
-  showTopBar?: boolean;
+  zone?: SeaZone;
+  musicCueId?: SeaMusicCueId;
+  topBarMode?: "home" | "chapter";
+  /** Short chapter context shown in the top bar, e.g. "บทที่ 3 · เรืออัลบาทรอส". */
+  topBarContext?: string;
+  /** Chapter pages run the tide wipe (src/scripts/sea/transitions.ts) between chapters. */
+  tideWipe?: boolean;
+  /** Arc number on an arc's entry chapter, which carries the arc cutscene. */
+  cutsceneArc?: number;
   ogImage?: string;
 }
 
@@ -21,9 +32,12 @@ const {
   title,
   description,
   bodyClass,
-  depthLayer = 1,
+  zone = "elaris",
   musicCueId = "sun-sheet",
-  showTopBar = true,
+  topBarMode = "home",
+  topBarContext,
+  tideWipe = false,
+  cutsceneArc,
   ogImage = "/assets/sea/images/hero-sea-v2.webp",
 } = Astro.props;
 
@@ -32,77 +46,134 @@ const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href
 const faviconLit = withBase("/favicon.svg");
 const faviconPng = withBase("/favicon.png");
 
-const bodyClasses = ["sea-page", "sea-shell", showTopBar ? "has-sea-topbar" : "", bodyClass]
-  .filter(Boolean)
-  .join(" ");
+// The tide wipe is attached to <html> rather than to <main>: <main> is as tall
+// as the chapter and scrolled, so its view-transition snapshot would be
+// morphed and clipped in document space, while the root snapshot is always the
+// viewport. Chapter pages share the "sea-page" name, so the wipe runs between
+// chapters; other Sea pages keep the default crossfade under another name.
+const bodyClasses = ["sea-page", "sea-shell", "has-sea-topbar", bodyClass].filter(Boolean).join(" ");
 ---
 
 <!doctype html>
-<html lang="th">
+<html
+  lang="th"
+  transition:name={tideWipe ? "sea-page" : "sea-shell"}
+  transition:animate={tideWipe ? seaTideWipe : "initial"}
+  data-sea-cutscene={cutsceneArc}
+  data-sea-cutscene-dev={import.meta.env.DEV && cutsceneArc ? "" : undefined}
+>
   <head>
-    <!-- LocalStorage Interceptor for Profile Isolation -->
+    <ProfileStorageInterceptor />
     <script is:inline>
-      (function() {
-        if (window.__localStorageIntercepted) return;
-        window.__localStorageIntercepted = true;
+      // Reader settings before first paint. ClientRouter replaces the <html>
+      // attributes on every swap and does not re-run this script, so the
+      // same values are re-applied after each swap onto a Sea page.
+      (() => {
+        const apply = () => {
+          const read = (key) => {
+            try {
+              return localStorage.getItem(key);
+            } catch {
+              return null;
+            }
+          };
+          const root = document.documentElement;
+          const font = read("sea:settings:font-size");
+          const lh = read("sea:settings:line-height");
+          root.dataset.seaFont = ["s", "m", "l", "xl"].includes(font) ? font : "m";
+          root.dataset.seaLh = lh === "loose" ? "loose" : "normal";
+          root.dataset.seaMotion = read("sea:motion:backdrop") === "off" ? "off" : "on";
+        };
+        apply();
+        if (window.__seaSettingsBound) return;
+        window.__seaSettingsBound = true;
+        document.addEventListener("astro:after-swap", () => {
+          if (document.body.classList.contains("sea-page")) apply();
+        });
 
-        const originalGet = localStorage.getItem;
-        const originalSet = localStorage.setItem;
-        const originalRemove = localStorage.removeItem;
-
-        function getActiveProfileId() {
+        // Tier of the home hero (src/components/sea/home/AscentHero.astro).
+        // After the first visit ClientRouter skips the hero's inline script,
+        // and it would run after scroll restoration anyway, so a swap onto the
+        // home page sets the tier on the incoming document: the live tiers
+        // make the page taller, and a restored scroll position must fit it.
+        window.__seaAscentTier = () => {
+          let motionOff = document.documentElement.dataset.seaMotion === "off";
           try {
-            return originalGet.call(localStorage, "piichan-novels:active-profile-id") || "guest";
-          } catch(e) {
-            return "guest";
-          }
-        }
-
-        function getProfileKey(key) {
-          if (typeof key !== 'string') return key;
-          const activeProfile = getActiveProfileId();
-          if (key.endsWith(`:${activeProfile}`)) return key;
-          const prefixes = [
-            "hvitveldt:reading:",
-            "tsukinomi:reading:",
-            "sea:reading:",
-            "kusabi:reading:",
-            "hvitveldt:secret:",
-            "tsukinomi:reading:secret:",
-            "sea:reading:secret:",
-            "kusabi:secret:",
-            "hvitveldt:extra-bypassed",
-            "tsukinomi:extra-bypassed",
-            "sea:extra-bypassed",
-            "kusabi:extra-bypassed",
-            "hvitveldt:characters:subject8-visible",
-            "hvitveldt:characters:toast-shown",
-            "hvitveldt:puzzle-unlocked",
-            "hvitveldt:cutscene:played:",
-            "tsukinomi:characters:revealed",
-            "tsukinomi:characters:toast-shown",
-            "tsukinomi:cutscene:played:",
-            "kusabi:cutscene:played:"
-          ];
-          if (prefixes.some(p => key.startsWith(p))) {
-            return `${key}:${activeProfile}`;
-          }
-          return key;
-        }
-
-        localStorage.getItem = function(key) {
-          return originalGet.call(localStorage, getProfileKey(key));
+            motionOff = motionOff || localStorage.getItem("sea:motion:backdrop") === "off";
+          } catch {}
+          const media = (query) => window.matchMedia(query).matches;
+          const nav = navigator;
+          const lowEnd =
+            media("(pointer: coarse)") ||
+            (typeof nav.deviceMemory === "number" && nav.deviceMemory <= 4) ||
+            (nav.connection && nav.connection.saveData === true);
+          return media("(prefers-reduced-motion: reduce)") || motionOff ? "c" : lowEnd ? "b" : "a";
         };
-        localStorage.setItem = function(key, value) {
-          originalSet.call(localStorage, getProfileKey(key), value);
-        };
-        localStorage.removeItem = function(key) {
-          originalRemove.call(localStorage, getProfileKey(key));
-        };
+        document.addEventListener("astro:before-swap", (event) => {
+          const hero = event.newDocument.querySelector("section[data-sea-ascent]");
+          if (hero) hero.dataset.tier = window.__seaAscentTier();
+        });
       })();
     </script>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>
+      // No-flash cover for the arc cutscene (src/scripts/sea/cutscene/runner.ts).
+      // Runs before first paint and, through astro:after-swap, before the
+      // swapped-in page is shown. The rule mirrors shouldPlay() in runner.ts;
+      // the snapshot keeps this page's URL for the runner, since ?resume=1 is
+      // stripped by the reader as soon as it starts. The cover is lifted by
+      // the runner, or after 2.5s of visible time at the latest.
+      (() => {
+        if (window.__seaCutsceneNav) return;
+        const entry = performance.getEntriesByType("navigation")[0];
+        const nav = (window.__seaCutsceneNav = { traverse: entry?.type === "back_forward" });
+        let timer = 0;
+        let waitVisible = null;
+        const cover = () => {
+          const root = document.documentElement;
+          nav.path = location.pathname;
+          nav.search = location.search;
+          window.clearTimeout(timer);
+          if (waitVisible) document.removeEventListener("visibilitychange", waitVisible);
+          waitVisible = null;
+          const arc = root.dataset.seaCutscene;
+          if (!arc) return;
+          const params = new URLSearchParams(location.search);
+          const mode = params.get("cutscene");
+          // Played counts only since the latest 06:00 local time (playedToday() in runner.ts).
+          let played = false;
+          try {
+            const at = Date.parse(localStorage.getItem("sea:cutscene:played:" + arc) ?? "");
+            const start = new Date();
+            start.setHours(6, 0, 0, 0);
+            if (start.getTime() > Date.now()) start.setDate(start.getDate() - 1);
+            const end = new Date(start);
+            end.setDate(end.getDate() + 1);
+            played = at >= start.getTime() && at < end.getTime();
+          } catch {}
+          const explicit = mode === "replay" || (mode === "force" && root.hasAttribute("data-sea-cutscene-dev"));
+          if (!explicit && (played || params.get("resume") === "1" || nav.traverse)) return;
+          root.classList.add("sea-cutscene-pending");
+          const arm = () => {
+            timer = window.setTimeout(() => root.classList.remove("sea-cutscene-pending"), 2500);
+          };
+          if (!document.hidden) return arm();
+          waitVisible = () => {
+            if (document.hidden) return;
+            document.removeEventListener("visibilitychange", waitVisible);
+            waitVisible = null;
+            arm();
+          };
+          document.addEventListener("visibilitychange", waitVisible);
+        };
+        document.addEventListener("astro:before-preparation", (event) => {
+          nav.traverse = event.navigationType === "traverse";
+        });
+        document.addEventListener("astro:after-swap", cover);
+        cover();
+      })();
+    </script>
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#060B12" />
@@ -119,58 +190,22 @@ const bodyClasses = ["sea-page", "sea-shell", showTopBar ? "has-sea-topbar" : ""
     <meta name="twitter:title" content={title} />
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
+    <slot name="head" />
     <ClientRouter />
   </head>
-  <body
-    class={bodyClasses}
-    data-depth-layer={depthLayer}
-    data-music-cue={musicCueId}
-  >
-    <script is:inline>
-      (function() {
-        function setTimeOfDay(hour) {
-          let tod = 'evening';
-          if (hour >= 6 && hour < 13) {
-            tod = 'morning';
-          } else if (hour >= 13 && hour < 19) {
-            tod = 'afternoon';
-          } else if (hour >= 19 || hour < 1) {
-            tod = 'evening';
-          } else {
-            tod = 'night';
-          }
-          document.body.setAttribute('data-time-of-day', tod);
-          window.__currentTimeOfDay = tod;
-        }
-
-        const localHour = new Date().getHours();
-        setTimeOfDay(localHour);
-
-        if (!window.__timeOfDayBound) {
-          window.__timeOfDayBound = true;
-          document.addEventListener('astro:after-swap', () => {
-            const currentTod = window.__currentTimeOfDay || 'evening';
-            document.body.setAttribute('data-time-of-day', currentTod);
-          });
-        }
-      })();
-    </script>
-    <a class="skip-to-content" href="#sea-main" style="position: fixed; top: 10px; left: 10px; z-index: 100; background: var(--surface-sea); padding: 5px 10px; color: var(--sea-ink); text-decoration: none; font-family: var(--font-mono); font-size: 0.8rem; transform: translateY(-150%);" onfocus="this.style.transform='translateY(0)'" onblur="this.style.transform='translateY(-150%)'">ข้ามไปยังเนื้อหา</a>
+  <body class={bodyClasses} data-zone={zone} data-music-cue={musicCueId}>
+    <a class="sea-skip-link" href="#sea-main">ข้ามไปยังเนื้อหา</a>
     <SeaRainBackdrop />
     <GrainOverlay texture="/assets/tsukinomi/textures/film-grain.png" />
+    <SeaTopBar mode={topBarMode} context={topBarContext} />
     <SonarCorner />
     <SonarPlayer />
-    {showTopBar && (
-      <header class="sea-topbar">
-        <a href={withBase("/sea/")} class="sea-topbar-mark">THE SEA</a>
-        <nav style="display: flex; gap: 20px; align-items: center;">
-          <a href={withBase("/")} class="sea-topbar-link" data-astro-reload>HUB</a>
-          <a href={withBase("/sea/")} class="sea-topbar-link">HOME</a>
-        </nav>
-      </header>
-    )}
-    <main id="sea-main" style="position: relative; z-index: 5;">
+    <main id="sea-main" class="sea-main" tabindex="-1">
       <slot />
     </main>
+    <slot name="chrome" />
+    <script>
+      import "../../scripts/sea/audio-boot";
+    </script>
   </body>
 </html>

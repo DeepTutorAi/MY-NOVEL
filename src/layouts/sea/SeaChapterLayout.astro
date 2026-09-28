@@ -1,0 +1,455 @@
+---
+// Reader layout for one Sea chapter. Arc data arrives from the route already
+// reduced to the current arc, so unpublished arc titles never reach the page.
+// Flourish lives in the header, scene markers, dividers and chapter end; the
+// prose column itself stays plain.
+import ArcCutscene from "../../components/sea/cutscene/ArcCutscene.astro";
+import ChapterDrawer from "../../components/sea/navigation/ChapterDrawer.astro";
+import CurrentRail from "../../components/sea/reading/CurrentRail.astro";
+import LocationPlate from "../../components/sea/reading/LocationPlate.astro";
+import SeaBaseLayout from "./SeaBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+import { formatReadingTime } from "../../utils/reading-time";
+import type { SeaArcCutscene } from "../../data/sea/arcs";
+import type { SeaChapter } from "../../utils/sea-chapters";
+import type { SeaSealedNext } from "../../utils/sea-chapters-core";
+
+interface Props {
+  chapter: SeaChapter;
+  prev: SeaChapter | null;
+  next: SeaChapter | null;
+  arc: { number: number; titleTh: string; cutscene: SeaArcCutscene };
+  isArcEntry: boolean;
+  sealedNext: SeaSealedNext | null;
+}
+
+const { chapter, prev, next, arc, isArcEntry, sealedNext } = Astro.props;
+const { number, title, plate, readingMinutes, zone, zoneShifts, musicCueId, arcEnd } = chapter.data;
+
+const unitLabel = (value: number) => (value === 0 ? "บทนำ" : `บทที่ ${value}`);
+const chapterHref = (id: string) => withBase(`/sea/chapters/${id}/`);
+const pageTitle = number === 0 ? "บทนำ — ทะเลเหนือโลก" : `บทที่ ${number}: ${title} — ทะเลเหนือโลก`;
+const description = `${unitLabel(number)} ของทะเลเหนือโลก อาร์กที่ ${arc.number} · ${plate.place}`;
+const topBarContext = number === 0 ? "บทนำ" : `บทที่ ${number} · ${title}`;
+const endMark = number === 0 ? "จบบทนำ" : `จบบทที่ ${number}`;
+---
+
+<SeaBaseLayout
+  title={pageTitle}
+  description={description}
+  zone={zone}
+  musicCueId={musicCueId}
+  bodyClass="sea-chapter-page"
+  topBarMode="chapter"
+  topBarContext={topBarContext}
+  tideWipe
+  cutsceneArc={isArcEntry ? arc.number : undefined}
+>
+  <CurrentRail slot="chrome" />
+  <ChapterDrawer slot="chrome" currentId={chapter.id} />
+
+  {isArcEntry && <ArcCutscene arc={arc.number} titleTh={arc.titleTh} scene={arc.cutscene} />}
+
+  <article
+    class="sea-chapter sea-reader"
+    data-chapter-id={chapter.id}
+    data-chapter-number={number}
+    data-chapter-title={title}
+    data-arc-number={arc.number}
+    data-arc-entry={isArcEntry ? "true" : undefined}
+    data-base-zone={zone}
+    data-zone-shifts={JSON.stringify(zoneShifts)}
+  >
+    <header class="sea-reader-header">
+      <div class="sea-reader-relic" aria-hidden="true">
+        <span class="sea-reader-relic-core"></span>
+        <span class="sea-reader-relic-shadow"></span>
+      </div>
+      <p class="sea-kicker">อาร์กที่ {arc.number} · {arc.titleTh}</p>
+      {number > 0 && <p class="sea-chapter-number">{unitLabel(number)}</p>}
+      <h1 id="sea-chapter-title" class="sea-reader-title" tabindex="-1">{title}</h1>
+      <LocationPlate place={plate.place} pov={plate.pov} time={plate.time} />
+      <p class="sea-reader-subtitle">เวลาอ่านประมาณ {formatReadingTime(readingMinutes)}</p>
+    </header>
+
+    <div class="sea-prose">
+      <slot />
+    </div>
+
+    <footer class="sea-chapter-end">
+      <p class="sea-end-mark">
+        <span class="sea-end-line" aria-hidden="true"></span>
+        <span class="sea-end-drop" aria-hidden="true"></span>
+        <span class="sea-end-text">{endMark}</span>
+        <span class="sea-end-drop" aria-hidden="true"></span>
+        <span class="sea-end-line" aria-hidden="true"></span>
+      </p>
+
+      {arcEnd && (
+        <p class="sea-arc-end-plate">
+          <span class="sea-arc-end-kicker">จบอาร์กที่ {arc.number}</span>
+          <span class="sea-arc-end-title">{arc.titleTh}</span>
+        </p>
+      )}
+
+      <nav class="sea-chapter-nav" aria-label="นำทางระหว่างบท">
+        {prev && (
+          <a class="sea-chapter-link is-prev" href={chapterHref(prev.id)} rel="prev">
+            <span class="btn-relic-icon" aria-hidden="true"><span></span></span>
+            <span class="btn-text-lines">
+              <span class="btn-action-sub">ก่อนหน้า · {unitLabel(prev.data.number)}</span>
+              <strong class="btn-action-title">{prev.data.title}</strong>
+              <span class="btn-action-place">{prev.data.plate.place}</span>
+            </span>
+          </a>
+        )}
+        {next ? (
+          <div class="sea-chapter-next">
+            <div class="sea-transition-relic" aria-hidden="true"><span></span></div>
+            <a class="sea-chapter-link is-next" href={chapterHref(next.id)} rel="next">
+              <span class="btn-relic-icon" aria-hidden="true"><span></span></span>
+              <span class="btn-text-lines">
+                <span class="btn-action-sub">ถัดไป · {unitLabel(next.data.number)}</span>
+                <strong class="btn-action-title">{next.data.title}</strong>
+                <span class="btn-action-place">{next.data.plate.place}</span>
+              </span>
+            </a>
+          </div>
+        ) : sealedNext ? (
+          <div class="sea-chapter-next">
+            <div class="sea-transition-relic" aria-hidden="true"><span></span></div>
+            <p class="sea-chapter-sealed">
+              {sealedNext.kind === "arc" ? `อาร์กที่ ${sealedNext.number}` : unitLabel(sealedNext.number)} · ยังไม่เปิด
+            </p>
+          </div>
+        ) : null}
+      </nav>
+
+      <p class="sea-chapter-exits">
+        <a href={withBase("/sea/#sea-toc")}>สารบัญทั้งเรื่อง</a>
+        <span aria-hidden="true">·</span>
+        <a href={withBase("/")} data-astro-reload>กลับหน้าฮับ</a>
+      </p>
+    </footer>
+  </article>
+</SeaBaseLayout>
+
+<style>
+  .sea-reader-relic {
+    position: relative;
+    width: 5.5rem;
+    height: 3.6rem;
+    margin: 0 0 1.45rem;
+    opacity: 0.88;
+    perspective: 9rem;
+  }
+
+  .sea-reader-relic-core,
+  .sea-reader-relic-shadow {
+    position: absolute;
+    left: 50%;
+    display: block;
+    transform: translateX(-50%);
+  }
+
+  .sea-reader-relic-core {
+    top: 0;
+    width: 1.7rem;
+    height: 3.2rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 50%, var(--accent-copper) 50%);
+    border-radius: 999px 999px 0.7rem 0.7rem;
+    background:
+      linear-gradient(135deg, rgba(238, 232, 221, 0.18), transparent 32%),
+      linear-gradient(180deg, color-mix(in srgb, var(--accent-cyan) 24%, transparent), color-mix(in srgb, var(--accent-copper) 10%, transparent));
+    box-shadow: inset -0.45rem 0 0.8rem rgba(0, 0, 0, 0.26), 0 0 22px color-mix(in srgb, var(--accent-cyan) 16%, transparent);
+    transform: translateX(-50%) rotateX(14deg) rotateY(-22deg);
+  }
+
+  .sea-reader-relic-shadow {
+    bottom: 0;
+    width: 5.4rem;
+    height: 0.28rem;
+    border-radius: 999px;
+    background: radial-gradient(ellipse, color-mix(in srgb, var(--accent-cyan) 34%, transparent), transparent 72%);
+    filter: blur(1px);
+  }
+
+  .sea-kicker {
+    margin: 0 0 0.6rem;
+    color: var(--sea-ink-muted);
+    line-height: 1.6;
+  }
+
+  .sea-chapter-number {
+    margin: 0 0 0.3rem;
+    color: var(--accent-copper);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+  }
+
+  .sea-chapter-end {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.25rem;
+    margin-top: clamp(4rem, 9vw, 6rem);
+  }
+
+  .sea-end-mark {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.8rem;
+    width: min(100%, 30rem);
+    margin: 0;
+    color: var(--accent-copper);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  .sea-end-text {
+    flex: none;
+    padding: 0 0.3rem;
+  }
+
+  .sea-end-line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-copper) 55%, transparent));
+  }
+
+  .sea-end-line:last-child {
+    transform: scaleX(-1);
+  }
+
+  .sea-end-drop {
+    flex: none;
+    width: 0.4rem;
+    height: 0.7rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 55%, var(--accent-copper) 45%);
+    border-radius: 999px 999px 0.3rem 0.3rem;
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent-cyan) 30%, transparent), transparent);
+  }
+
+  .sea-arc-end-plate {
+    display: grid;
+    justify-items: center;
+    gap: 0.35rem;
+    width: min(100%, 26rem);
+    margin: 0;
+    padding: 1.4rem 1.5rem 1.5rem;
+    border: 1px solid color-mix(in srgb, var(--accent-copper) 45%, transparent);
+    border-top-color: color-mix(in srgb, var(--accent-cyan) 50%, transparent);
+    background:
+      radial-gradient(ellipse at 50% 0%, color-mix(in srgb, var(--accent-cyan) 10%, transparent), transparent 70%),
+      linear-gradient(180deg, transparent 60%, color-mix(in srgb, var(--accent-copper) 8%, transparent));
+    text-align: center;
+  }
+
+  .sea-arc-end-kicker {
+    color: var(--accent-copper);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .sea-arc-end-title {
+    color: var(--sea-ink);
+    font-family: var(--font-display-sea);
+    font-size: 1.45rem;
+    font-weight: 600;
+    line-height: 1.35;
+    text-wrap: balance;
+  }
+
+  .sea-chapter-nav {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+    width: 100%;
+    max-width: 600px;
+  }
+
+  .sea-chapter-next {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .sea-chapter-link {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    width: 100%;
+    padding: 1rem 1.5rem;
+    border: 1px solid var(--accent-copper);
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--accent-copper) 5%, transparent);
+    color: var(--sea-ink);
+    text-decoration: none;
+    transition:
+      background-color 200ms ease,
+      border-color 200ms ease,
+      box-shadow 200ms ease;
+  }
+
+  .sea-chapter-link.is-prev {
+    border-color: var(--sea-line);
+    background: transparent;
+  }
+
+  .sea-chapter-link:hover {
+    border-color: var(--accent-cyan);
+    background: color-mix(in srgb, var(--accent-cyan) 8%, transparent);
+    box-shadow: 0 0 12px color-mix(in srgb, var(--accent-cyan) 20%, transparent);
+  }
+
+  .sea-chapter-sealed {
+    width: 100%;
+    margin: 0;
+    padding: 1rem 1.5rem;
+    border: 1px dashed var(--sea-line);
+    border-radius: 4px;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  .sea-transition-relic {
+    position: relative;
+    width: min(100%, 21rem);
+    height: 3rem;
+    opacity: 0.76;
+  }
+
+  .sea-transition-relic::before,
+  .sea-transition-relic::after {
+    position: absolute;
+    top: 50%;
+    width: calc(50% - 2.8rem);
+    height: 1px;
+    content: "";
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--accent-copper) 70%, transparent));
+  }
+
+  .sea-transition-relic::before {
+    left: 0;
+  }
+
+  .sea-transition-relic::after {
+    right: 0;
+    transform: scaleX(-1);
+  }
+
+  .sea-transition-relic span {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 2.6rem;
+    height: 2.6rem;
+    border: 1px solid color-mix(in srgb, var(--accent-cyan) 55%, var(--accent-copper) 45%);
+    border-radius: 44% 56% 52% 48%;
+    background: linear-gradient(135deg, color-mix(in srgb, var(--accent-cyan) 20%, transparent), color-mix(in srgb, var(--accent-copper) 8%, transparent));
+    box-shadow: inset -0.35rem 0 0.7rem rgba(0, 0, 0, 0.24), 0 0 18px color-mix(in srgb, var(--accent-cyan) 14%, transparent);
+    transform: translate(-50%, -50%) rotate(45deg) skew(-7deg);
+  }
+
+  .btn-relic-icon {
+    position: relative;
+    flex-shrink: 0;
+    width: 2.5rem;
+    height: 2.5rem;
+    perspective: 6rem;
+  }
+
+  .btn-relic-icon span {
+    position: absolute;
+    inset: 0.22rem 0.55rem;
+    display: block;
+    border: 1px solid var(--accent-copper);
+    border-radius: 999px 999px 0.55rem 0.55rem;
+    background: linear-gradient(160deg, rgba(238, 232, 221, 0.12), color-mix(in srgb, var(--accent-copper) 18%, transparent));
+    box-shadow: inset -0.35rem 0 0.65rem rgba(0, 0, 0, 0.24), 0 0 10px color-mix(in srgb, var(--accent-copper) 18%, transparent);
+    transform: rotateX(14deg) rotateY(-21deg);
+    transition:
+      border-color 200ms ease,
+      box-shadow 200ms ease,
+      transform 300ms ease;
+  }
+
+  .sea-chapter-link:hover .btn-relic-icon span {
+    border-color: var(--accent-cyan);
+    box-shadow: inset -0.35rem 0 0.65rem rgba(0, 0, 0, 0.24), 0 0 16px color-mix(in srgb, var(--accent-cyan) 28%, transparent);
+    transform: translateY(-1px) rotateX(14deg) rotateY(-21deg) rotateZ(8deg);
+  }
+
+  .btn-text-lines {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    min-width: 0;
+  }
+
+  .btn-action-sub {
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .btn-action-title {
+    color: var(--sea-ink);
+    font-family: var(--font-thai);
+    font-size: 1rem;
+    font-weight: bold;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .btn-action-place {
+    color: var(--sea-ink-muted);
+    font-size: 0.8rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .sea-chapter-link:hover .btn-action-title {
+    color: var(--accent-cyan);
+  }
+
+  .sea-chapter-exits {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 0.5rem 0.9rem;
+    margin: 0.5rem 0 0;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sea-chapter-link,
+    .btn-relic-icon span {
+      transition: none;
+    }
+
+    .sea-chapter-link:hover .btn-relic-icon span {
+      transform: rotateX(14deg) rotateY(-21deg);
+    }
+  }
+
+  @media (max-width: 480px) {
+    .sea-chapter-link {
+      gap: 0.9rem;
+      padding: 0.9rem 1rem;
+    }
+  }
+</style>
+
+<script>
+  import { onSeaPage } from "../../scripts/sea/lifecycle";
+  import { bindReadingProgress } from "../../scripts/sea/reader/reading-progress";
+
+  onSeaPage("reading-progress", bindReadingProgress);
+</script>

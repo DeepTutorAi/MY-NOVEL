@@ -1,10 +1,12 @@
 ---
 import { getCollection } from "astro:content";
 import { withBase } from "../../utils/base-path";
+import { getSeaChapters } from "../../utils/sea-chapters";
 
 const lodgeChapterBase = withBase("/lodge/chapters/");
 const tsukinomiSectionBase = withBase("/tsukinomi/sections/");
-const seaArcBase = withBase("/sea/arcs/");
+const seaChapterBase = withBase("/sea/chapters/");
+const seaTocHref = withBase("/sea/#sea-toc");
 const kusabiChapterBase = withBase("/kusabi/chapters/");
 
 const lodgeUnits = (await getCollection("chapters"))
@@ -13,9 +15,12 @@ const lodgeUnits = (await getCollection("chapters"))
 const tsukinomiUnits = (await getCollection("tsukinomiSections"))
   .sort((a, b) => a.data.number - b.data.number)
   .map((section) => ({ id: section.id, number: section.data.number, title: section.data.title }));
-const seaUnits = (await getCollection("seaArcs"))
-  .sort((a, b) => a.data.number - b.data.number)
-  .map((arc) => ({ id: arc.id, number: arc.data.number, title: arc.data.title }));
+// Published chapters only (drafts are filtered in PROD by getSeaChapters).
+const seaUnits = (await getSeaChapters()).map((chapter) => ({
+  id: chapter.id,
+  number: chapter.data.number,
+  title: chapter.data.title,
+}));
 const kusabiUnits = (await getCollection("kusabiChapters"))
   .sort((a, b) => a.data.number - b.data.number)
   .map((chapter) => ({ id: chapter.id, number: chapter.data.number, title: chapter.data.thaiTitle || chapter.data.title }));
@@ -39,7 +44,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
   define:vars={{
     lodgeChapterBase,
     tsukinomiSectionBase,
-    seaArcBase,
+    seaChapterBase,
+    seaTocHref,
     kusabiChapterBase,
     lodgeUnits,
     tsukinomiUnits,
@@ -91,18 +97,21 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
       }
 
       const index = config.units.findIndex((unit) => String(unit.id) === String(id));
+      if (index < 0 && config.requirePublishedUnit) {
+        return null;
+      }
       const next = index >= 0 ? config.units[index + 1] : null;
 
-      const formattedTitle =
-        number === "0" && config.novelTitle.includes("คุซาบิ")
-          ? `บทนำ: ${chapterTitle}`
-          : `${config.unitLabel} ${number}: ${chapterTitle}`;
+      const formatUnit =
+        config.formatUnit ??
+        ((unitNumber, unitTitle) =>
+          unitNumber === "0" && config.novelTitle.includes("คุซาบิ")
+            ? `บทนำ: ${unitTitle}`
+            : `${config.unitLabel} ${unitNumber}: ${unitTitle}`);
 
-      const formattedNextLabel = next
-        ? next.number === 0 && config.novelTitle.includes("คุซาบิ")
-          ? `บทนำ: ${next.title}`
-          : `${config.unitLabel} ${next.number}: ${next.title}`
-        : "";
+      const formattedTitle = formatUnit(number, chapterTitle);
+
+      const formattedNextLabel = next ? formatUnit(String(next.number), next.title) : "";
 
       return {
         storageKey: config.storageKey,
@@ -115,7 +124,7 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
         resumeHref: `${config.baseHref}${id}/?resume=1`,
         nextHref: next ? `${config.baseHref}${next.id}/` : "",
         nextLabel: formattedNextLabel,
-        tocHref: config.baseHref,
+        tocHref: config.tocHref ?? config.baseHref,
         updatedAt: Number.isFinite(updatedAt) ? updatedAt : 0,
       };
     };
@@ -211,25 +220,32 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
               ? saved.chapterTitle.trim()
               : "",
       }),
+      // Sea records: v2 { chapterId, chapterNumber, chapterTitle }. Legacy v1
+      // records { arcId, arcNumber, arcTitle } came from the arc layout, which
+      // only ever published the prologue, so they map onto chapter "00".
       normalize({
         storageKey: "sea:reading:last",
-        detailPrefix: "sea:reading:arc:",
-        baseHref: seaArcBase,
+        detailPrefix: "sea:reading:chapter:",
+        baseHref: seaChapterBase,
+        tocHref: seaTocHref,
         novelTitle: "ทะเลเหนือโลก",
-        unitLabel: "Arc",
+        unitLabel: "บทที่",
         units: seaUnits,
+        requirePublishedUnit: true,
+        formatUnit: (unitNumber, unitTitle) => (unitNumber === "0" ? "บทนำ" : `บทที่ ${unitNumber}: ${unitTitle}`),
         getId: (saved) =>
-          typeof saved?.arcId === "string"
-            ? saved.arcId
-            : typeof saved?.chapterId === "string"
-              ? saved.chapterId
+          typeof saved?.chapterId === "string" ? saved.chapterId : typeof saved?.arcId === "string" ? "00" : "",
+        getNumber: (saved) =>
+          typeof saved?.chapterId === "string"
+            ? `${saved?.chapterNumber ?? ""}`.trim()
+            : typeof saved?.arcId === "string"
+              ? "0"
               : "",
-        getNumber: (saved) => `${saved?.arcNumber ?? saved?.chapterNumber ?? ""}`.trim(),
         getTitle: (saved) =>
-          typeof saved?.arcTitle === "string"
-            ? saved.arcTitle.trim()
-            : typeof saved?.chapterTitle === "string"
-              ? saved.chapterTitle.trim()
+          typeof saved?.chapterTitle === "string"
+            ? saved.chapterTitle.trim()
+            : typeof saved?.arcId === "string"
+              ? (seaUnits.find((unit) => unit.id === "00")?.title ?? "")
               : "",
       }),
       normalize({

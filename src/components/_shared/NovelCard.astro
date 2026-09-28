@@ -11,6 +11,9 @@ const isAvailable = novel.status === "เผยแพร่";
 const heroImage = withBase(novel.heroImage);
 const accentStyle = `--novel-accent: ${novel.accent}`;
 const useImage = novel.heroState !== "placeholder";
+// The short link name replaces the card text, so subtitle and status/length
+// are attached as its description.
+const descriptionId = `novel-card-${novel.slug}-desc`;
 ---
 
 <div class="novel-card-wrapper" data-novel-slug={novel.slug} data-status={novel.status}>
@@ -20,6 +23,7 @@ const useImage = novel.heroState !== "placeholder";
     style={accentStyle + (isAvailable ? "" : "; display: none")}
     href={withBase(novel.href)}
     aria-label={`เปิดอ่าน ${novel.titleTh}`}
+    aria-describedby={`${descriptionId}-subtitle ${descriptionId}-meta`}
     data-active-card
   >
     <span class="novel-card-media" aria-hidden="true">
@@ -38,8 +42,8 @@ const useImage = novel.heroState !== "placeholder";
     <span class="novel-card-body">
       <span class="novel-card-kicker">{novel.titleEn}</span>
       <strong class="novel-card-title">{novel.titleTh}</strong>
-      <span class="novel-card-subtitle">{novel.subtitle}</span>
-      <span class="novel-card-meta">{novel.mood} · {novel.length}</span>
+      <span class="novel-card-subtitle" id={`${descriptionId}-subtitle`}>{novel.subtitle}</span>
+      <span class="novel-card-meta" id={`${descriptionId}-meta`}>{novel.mood} · {novel.length}</span>
       <span class="novel-card-footer">
         <span>เผยแพร่</span>
         <span class="novel-card-action">เริ่มอ่าน</span>

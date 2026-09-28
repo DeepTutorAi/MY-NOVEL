@@ -5,8 +5,19 @@
 @import "@fontsource/cormorant-garamond/400.css";
 @import "@fontsource/cormorant-garamond/600.css";
 @import "@fontsource/cormorant-garamond/400-italic.css";
-@import "@fontsource/jetbrains-mono/400.css";
 @import "./tokens.css";
+
+/* Label face behind --font-mono: JetBrains Mono for Latin letters, digits and
+   punctuation only. The space and Thai are left out of the range, so Thai
+   labels keep the site's Thai face and normal word gaps. */
+@font-face {
+  font-family: "Sea Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("@fontsource/jetbrains-mono/files/jetbrains-mono-latin-400-normal.woff2") format("woff2");
+  unicode-range: U+0021-007E, U+00A1-00FF, U+2013-2014, U+2018-201D, U+2026, U+2191, U+2193;
+}
 
 *,
 *::before,
@@ -17,6 +28,8 @@
 html {
   background: var(--sea-paper);
   color-scheme: dark;
+  /* Focus and anchor scrolling stop below the fixed top bar. */
+  scroll-padding-top: calc(var(--sea-topbar-height) + 0.5rem);
 }
 
 .sea-page {
@@ -61,78 +74,39 @@ html {
   font: inherit;
 }
 
-.sea-topbar {
+.sea-skip-link {
   position: fixed;
-  inset: 0 0 auto;
-  z-index: 20;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: var(--sea-topbar-height);
-  padding: 0 18px;
-  border-bottom: 1px solid color-mix(in srgb, var(--sea-ink-muted) 14%, transparent);
-  background: color-mix(in srgb, var(--bg-sea-night) 78%, transparent);
-  color: var(--sea-ink-muted);
-  backdrop-filter: blur(14px);
-  transition: background-color 0.8s ease, border-color 0.8s ease;
-}
-
-.sea-topbar a {
-  text-decoration: none;
-}
-
-.sea-topbar-mark {
+  top: 10px;
+  left: 10px;
+  z-index: 100;
+  padding: 5px 10px;
+  background: var(--surface-sea);
   color: var(--sea-ink);
-  font-family: var(--font-display-sea);
-  font-size: 1.05rem;
-  letter-spacing: 0.05em;
-}
-
-.sea-topbar-link {
   font-family: var(--font-mono);
-  font-size: 0.76rem;
+  font-size: 0.8rem;
+  text-decoration: none;
+  transform: translateY(-150%);
 }
 
-.sea-home,
-.sea-toc {
+.sea-page .sea-skip-link:focus-visible {
+  transform: translateY(0);
+}
+
+.sea-main {
   position: relative;
-  z-index: 1;
-  width: min(1120px, calc(100% - 32px));
-  margin: 0 auto;
+  z-index: 5;
 }
 
-.sea-home {
-  min-height: 100vh;
-  display: grid;
-  align-items: center;
-  padding: calc(var(--sea-topbar-height) + 56px) 0 64px;
-}
-
-.sea-home-hero {
-  display: grid;
-  grid-template-columns: minmax(0, 0.92fr) minmax(20rem, 1.08fr);
-  gap: clamp(2rem, 6vw, 5.5rem);
-  width: 100%;
-  min-height: min(72vh, 680px);
-  align-items: center;
-}
-
-.sea-home-copy {
-  max-width: 38rem;
-}
-
+/* Ground plate of the home hero (src/components/sea/home/AscentHero.astro):
+   rainy Elaris under the sky-ocean. Darkened at the top for the top bar and
+   at the foot for the title block. */
 .sea-home-visual {
-  min-height: clamp(22rem, 46vw, 38rem);
-  border: 1px solid color-mix(in srgb, var(--accent-cyan) 18%, transparent);
+  background-color: var(--bg-sea-abyss);
   background-image:
-    linear-gradient(90deg, rgba(19, 23, 30, 0.12), rgba(1, 4, 8, 0.08)),
+    linear-gradient(180deg, rgba(1, 4, 8, 0.45) 0%, rgba(1, 4, 8, 0) 22%, rgba(1, 4, 8, 0.08) 58%, rgba(1, 4, 8, 0.78) 100%),
     var(--sea-home-hero-image);
-  background-position: center;
+  background-position: 62% center;
   background-size: cover;
-  box-shadow:
-    0 2rem 5rem rgba(0, 0, 0, 0.42),
-    inset 0 0 0 1px rgba(234, 239, 248, 0.04);
-  mask-image: linear-gradient(90deg, transparent 0%, #000 10%, #000 100%);
 }
 
 .sea-kicker {
@@ -142,121 +116,260 @@ html {
   font-size: 0.78rem;
 }
 
-.sea-home h1,
-.sea-toc h1 {
-  font-family: var(--font-display-sea);
-  font-weight: 600;
-  font-size: clamp(2.2rem, 7vw, 4.2rem);
-  line-height: 1.15;
-  margin: 0 0 1.25rem;
-  color: var(--sea-ink);
-  letter-spacing: 0;
+.sea-visually-hidden {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
 }
 
-.sea-home-subtitle {
-  font-size: clamp(1.15rem, 3vw, 1.4rem);
-  line-height: 1.6;
-  color: var(--sea-ink-muted);
-  margin: 0 0 2.5rem;
-  max-width: 580px;
-}
-
-.sea-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  padding: 0.8rem 1.6rem;
-  border: 1px solid var(--accent-copper);
-  color: var(--sea-ink);
-  font-family: var(--font-mono);
-  font-size: 0.85rem;
-  text-decoration: none !important;
-  transition: background-color 200ms ease, border-color 200ms ease;
-  width: fit-content;
-}
-
-.sea-btn:hover {
-  background: color-mix(in srgb, var(--accent-copper) 25%, transparent);
-  border-color: var(--accent-cyan);
-}
-
-.sea-meta-row {
-  margin-top: 3rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 2rem;
-  border-top: 1px solid var(--sea-line);
-  padding-top: 1.5rem;
-  font-family: var(--font-mono);
-  font-size: 0.76rem;
-  color: var(--sea-ink-muted);
-}
-
-.sea-meta-item strong {
-  color: var(--sea-ink);
-  font-weight: normal;
-}
-
-/* Reader styles */
+/* Reader column. --sea-column-max is also what CurrentRail uses to stay in
+   the gutter, so the column must never grow past it. */
 .sea-reader {
   position: relative;
-  width: min(var(--sea-measure), calc(100% - 2rem));
-  margin: 0 auto;
-  padding: calc(var(--sea-topbar-height) + 80px) 0 120px;
   z-index: 5;
+  width: min(var(--sea-column-max), 100% - 2 * var(--sea-gutter));
+  margin: 0 auto;
+  padding: calc(var(--sea-topbar-height) + clamp(3rem, 8vw, 5.5rem)) 0 clamp(5rem, 10vw, 8rem);
 }
 
 .sea-reader-header {
-  margin-bottom: 4rem;
+  position: relative;
+  margin-bottom: clamp(2.75rem, 6vw, 4rem);
+  padding-bottom: 2.25rem;
   border-bottom: 1px solid var(--sea-line);
-  padding-bottom: 2rem;
+}
+
+/* Amber rim light from the world below, under the header hairline. */
+.sea-reader-header::after {
+  position: absolute;
+  bottom: -1px;
+  left: 0;
+  width: min(14rem, 45%);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, color-mix(in srgb, var(--accent-copper) 70%, transparent), transparent);
 }
 
 .sea-reader-title {
+  margin: 0;
+  color: var(--sea-ink);
   font-family: var(--font-display-sea);
-  font-size: clamp(1.8rem, 5vw, 3rem);
-  line-height: 1.25;
-  margin: 0 0 0.5rem;
+  font-size: clamp(2rem, 6vw, 3.1rem);
+  font-weight: 600;
+  line-height: 1.22;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+/* Focus only lands here programmatically (tabindex=-1, after a cutscene or a
+   chapter swap) to set the reading position; the heading is not a control. */
+.sea-reader-title:focus {
+  outline: none;
 }
 
 .sea-reader-subtitle {
+  margin: 1.1rem 0 0;
   color: var(--sea-ink-muted);
   font-family: var(--font-mono);
-  font-size: 0.8rem;
+  font-size: 0.75rem;
 }
 
+/* In-world plates: the chapter-opening LocationPlate and the mid-chapter
+   POV plate produced by rehypeSeaScenes. Cool light on the top edge, copper
+   rim on the bottom. */
+.sea-location-plate,
+.sea-prose > .sea-scene-plate {
+  position: relative;
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid color-mix(in srgb, var(--accent-copper) 34%, transparent);
+  border-top-color: color-mix(in srgb, var(--accent-cyan) 42%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--accent-cyan) 7%, transparent),
+    transparent 55%,
+    color-mix(in srgb, var(--accent-copper) 5%, transparent)
+  );
+  overflow-wrap: break-word;
+}
+
+.sea-location-plate::before,
+.sea-prose > .sea-scene-plate::before {
+  position: absolute;
+  top: -3px;
+  left: 0.9rem;
+  width: 5px;
+  height: 5px;
+  border-radius: 999px;
+  content: "";
+  background: var(--accent-cyan);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--accent-cyan) 60%, transparent);
+}
+
+.sea-location-plate {
+  margin: 1.6rem 0 0;
+  padding: 0.8rem 1.15rem 0.85rem;
+  line-height: 1.5;
+}
+
+.sea-location-place {
+  color: var(--sea-ink);
+  font-family: var(--font-display-sea);
+  font-size: 1.2rem;
+}
+
+.sea-location-pov {
+  margin-left: 0.45em;
+  color: var(--sea-ink-muted);
+  font-size: 0.92rem;
+}
+
+.sea-location-time {
+  display: block;
+  margin-top: 0.3rem;
+  color: color-mix(in srgb, var(--accent-cyan) 55%, var(--sea-ink-muted));
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
+}
+
+.sea-prose > .sea-scene-plate {
+  margin: -0.4em 0 1.9em;
+  padding: 0.45em 0.95em 0.5em;
+  color: var(--sea-ink-muted);
+  font-size: 0.8em;
+  line-height: 1.65;
+}
+
+/* Prose. Size and line height follow html[data-sea-font] / [data-sea-lh],
+   set before first paint by SeaBaseLayout. */
 .sea-prose {
+  --sea-prose-size: 18px;
+  --sea-prose-lh: 1.85;
+  max-width: min(64ch, 100%);
+  color: color-mix(in srgb, var(--sea-ink) 92%, var(--sea-ink-muted));
   font-family: var(--font-thai);
-  font-size: 1.08rem;
-  line-height: 1.85;
+  font-size: var(--sea-prose-size);
+  line-height: var(--sea-prose-lh);
+  overflow-wrap: break-word;
 }
 
-.sea-prose p {
-  margin-block: 1.4em;
+html[data-sea-font="s"] .sea-prose {
+  --sea-prose-size: 16px;
 }
 
-/* Custom Dividers */
-.cable-divider {
+html[data-sea-font="l"] .sea-prose {
+  --sea-prose-size: 20px;
+}
+
+html[data-sea-font="xl"] .sea-prose {
+  --sea-prose-size: 23px;
+}
+
+html[data-sea-lh="loose"] .sea-prose {
+  --sea-prose-lh: 2.15;
+}
+
+.sea-prose > p {
+  margin: 0 0 0.95em;
+}
+
+/* A first-line tint instead of a drop cap, which breaks Thai clusters. */
+.sea-prose > p:first-of-type::first-line {
+  color: color-mix(in srgb, var(--accent-cyan) 32%, var(--sea-ink));
+}
+
+.sea-prose blockquote {
+  margin: 1.6em 0;
+  padding-left: 1.1em;
+  border-left: 1px solid color-mix(in srgb, var(--accent-copper) 55%, transparent);
+  color: var(--sea-ink-muted);
+}
+
+.sea-prose strong {
+  color: var(--sea-ink);
+}
+
+/* Scene headings ("## เช้า: ...") as tide/time markers: a small mono time
+   word behind a drop glyph and a hairline, then the scene title. */
+.sea-prose > h2.sea-scene {
+  display: grid;
+  gap: 0.5rem;
+  margin: 3.6em 0 1.5em;
+  font-size: 1em;
+  font-weight: normal;
+  line-height: 1.4;
+}
+
+.sea-prose > h2.sea-scene:first-child {
+  margin-top: 0.5em;
+}
+
+.sea-scene-time {
   display: flex;
   align-items: center;
-  justify-content: center;
-  margin: 3rem 0;
+  gap: 0.7rem;
   color: var(--accent-copper);
+  font-family: var(--font-mono);
+  font-size: 0.75rem;
 }
 
-.cable-line {
-  height: 2px;
+.sea-scene-time::before {
+  flex: none;
+  width: 0.5rem;
+  height: 0.85rem;
+  border: 1px solid color-mix(in srgb, var(--accent-cyan) 60%, var(--accent-copper) 40%);
+  border-radius: 999px 999px 0.35rem 0.35rem;
+  content: "";
+  background: linear-gradient(180deg, color-mix(in srgb, var(--accent-cyan) 30%, transparent), transparent);
+  box-shadow: 0 0 0.6rem color-mix(in srgb, var(--accent-cyan) 22%, transparent);
+}
+
+.sea-scene-time::after {
   flex: 1;
-  background: linear-gradient(90deg, transparent, var(--accent-copper) 50%, transparent);
-  max-width: 120px;
+  height: 1px;
+  content: "";
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--accent-copper) 50%, transparent),
+    color-mix(in srgb, var(--accent-cyan) 18%, transparent) 55%,
+    transparent
+  );
 }
 
-.cable-key {
-  margin: 0 1rem;
-  font-size: 1.2rem;
-  color: var(--accent-cyan);
+/* The ": " between time and title stays in the heading text for screen
+   readers; the layout already separates the two visually. */
+.sea-scene-sep {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
+.sea-scene-title {
+  display: block;
+  color: var(--sea-ink);
+  font-family: var(--font-display-sea);
+  font-size: 1.42em;
+  font-weight: 600;
+  line-height: 1.35;
+  overflow-wrap: break-word;
+  text-wrap: balance;
+}
+
+/* On top of the root scroll-padding-top, which already clears the top bar. */
+.sea-prose > h2.sea-scene,
+.sea-prose > .current-divider,
+.sea-reader-title {
+  scroll-margin-top: 1rem;
+}
 
 .current-divider {
   display: flex;
@@ -266,7 +379,6 @@ html {
   width: min(100%, 30rem);
   margin: 3rem auto;
   color: var(--accent-cyan);
-  perspective: 9rem;
 }
 
 .current-line {
@@ -284,14 +396,16 @@ html {
   border: 1px solid color-mix(in srgb, var(--accent-cyan) 58%, var(--accent-copper) 42%);
   border-radius: 999px 999px 0.55rem 0.55rem;
   background:
-    linear-gradient(90deg, rgba(238, 232, 221, 0.22), transparent 36%, rgba(0, 229, 255, 0.16)),
+    linear-gradient(90deg, rgba(238, 232, 221, 0.22), transparent 36%, color-mix(in srgb, var(--accent-cyan) 16%, transparent)),
     radial-gradient(circle at 45% 12%, rgba(238, 232, 221, 0.42), transparent 30%),
-    linear-gradient(180deg, rgba(0, 229, 255, 0.22), rgba(7, 10, 16, 0.72));
+    linear-gradient(180deg, color-mix(in srgb, var(--accent-cyan) 22%, transparent), rgba(7, 10, 16, 0.72));
   box-shadow:
     0 0.7rem 1.4rem rgba(0, 0, 0, 0.32),
-    0 0 1.2rem rgba(0, 229, 255, 0.18),
-    inset 0 0 1rem rgba(0, 229, 255, 0.16);
-  transform: rotateX(14deg) rotateY(-20deg);
+    0 0 1.2rem color-mix(in srgb, var(--accent-cyan) 18%, transparent),
+    inset 0 0 1rem color-mix(in srgb, var(--accent-cyan) 16%, transparent);
+  /* A 2D stand-in for the old rotateX/rotateY tilt: the 3D transform made
+     Chrome report viewport-sized layout shifts for the drop on load. */
+  transform: skewY(-6deg) scaleX(0.94);
 }
 
 .current-drop::after {
@@ -304,24 +418,102 @@ html {
   content: "";
 }
 
-@media (max-width: 820px) {
-  .sea-home,
-  .sea-toc {
-    width: min(100% - 24px, 620px);
-  }
+/* Resume landing: a brief glow on the block the reader left off at. */
+.sea-resume-highlight {
+  border-radius: 2px;
+  animation: sea-resume-glow 2.6s ease-out both;
+}
 
-  .sea-home {
-    padding-top: calc(var(--sea-topbar-height) + 34px);
-  }
+.sea-resume-highlight.is-static {
+  outline: 1px solid color-mix(in srgb, var(--accent-cyan) 60%, transparent);
+  outline-offset: 0.45rem;
+  animation: none;
+}
 
-  .sea-home-hero {
-    grid-template-columns: 1fr;
-    align-content: center;
+@media (prefers-reduced-motion: reduce) {
+  .sea-resume-highlight {
+    outline: 1px solid color-mix(in srgb, var(--accent-cyan) 60%, transparent);
+    outline-offset: 0.45rem;
+    animation: none;
   }
+}
 
-  .sea-home-visual {
-    order: -1;
-    min-height: 18rem;
-    mask-image: linear-gradient(180deg, #000 0%, #000 72%, transparent 100%);
+@keyframes sea-resume-glow {
+  0% {
+    background: color-mix(in srgb, var(--accent-cyan) 14%, transparent);
+    box-shadow: 0 0 0 0.45rem color-mix(in srgb, var(--accent-cyan) 14%, transparent);
+  }
+  100% {
+    background: transparent;
+    box-shadow: 0 0 0 0.45rem transparent;
+  }
+}
+
+/* Tide wipe between chapters (src/scripts/sea/transitions.ts). The root
+   snapshot is viewport-sized, so percentages are viewport fractions. The
+   outgoing page drains faster than the next one rises, so the two never
+   overlap. */
+@keyframes sea-tide-drain {
+  0% {
+    clip-path: inset(0 0 0 0);
+    opacity: 1;
+  }
+  100% {
+    clip-path: inset(0 0 100% 0);
+    opacity: 0.4;
+  }
+}
+
+@keyframes sea-tide-rise {
+  0% {
+    clip-path: inset(100% 0 0 0);
+  }
+  100% {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
+@keyframes sea-tide-settle-out {
+  to {
+    opacity: 0;
+    transform: translateY(1.5vh);
+  }
+}
+
+@keyframes sea-tide-settle-in {
+  from {
+    opacity: 0;
+    transform: translateY(-1.5vh);
+  }
+}
+
+html[data-sea-motion="off"]::view-transition-group(sea-page),
+html[data-sea-motion="off"]::view-transition-new(sea-page) {
+  animation: none;
+}
+
+html[data-sea-motion="off"]::view-transition-old(sea-page) {
+  animation: none;
+  opacity: 0;
+}
+
+/* No-flash cover while an arc cutscene loads (inline gate in SeaBaseLayout,
+   lifted by src/scripts/sea/cutscene/runner.ts or its 2.5s safety timeout). */
+html.sea-cutscene-pending body::after {
+  position: fixed;
+  inset: 0;
+  z-index: 2147483647;
+  content: "";
+  background: #02050a;
+}
+
+/* Browsers without view transitions: Astro's fallback animates the root itself. */
+html[data-sea-motion="off"][data-astro-transition-fallback] {
+  animation: none !important;
+}
+
+@media (max-width: 760px) {
+  .sea-location-place {
+    font-size: 1.1rem;
   }
 }

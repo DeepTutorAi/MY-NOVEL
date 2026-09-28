@@ -11,7 +11,9 @@
     "dev": "astro sync && astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "sea:sync": "tsx src/scripts/sea/sync-sea-chapters.ts",
+    "sea:verify-dist": "tsx src/scripts/sea/verify-sea-dist.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",

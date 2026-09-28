@@ -1,0 +1,19 @@
+---
+// In-world location plate at the opening of a Sea chapter: place in the
+// display face, point-of-view names after an em dash, time in mono beneath.
+// Real text, so screen readers get the same orientation as sighted readers.
+interface Props {
+  place: string;
+  pov?: string[];
+  time?: string;
+}
+
+const { place, pov = [], time } = Astro.props;
+const povText = pov.join(" · ");
+---
+
+<p class="sea-location-plate">
+  <span class="sea-location-place">{place}</span>
+  {povText && <span class="sea-location-pov">— {povText}</span>}
+  {time && <span class="sea-location-time">{time}</span>}
+</p>

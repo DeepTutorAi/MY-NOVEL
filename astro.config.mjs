@@ -221,6 +221,148 @@ function rehypeStoryDividers() {
   return transform;
 }
 
+/** @param {any} node @returns {string} */
+function hastText(node) {
+  if (node.type === "text") {
+    return node.value || "";
+  }
+  return Array.isArray(node.children) ? node.children.map(hastText).join("") : "";
+}
+
+/** @param {any} node @param {string} className */
+function hasClass(node, className) {
+  const value = node.properties?.className;
+  return Array.isArray(value) ? value.includes(className) : value === className;
+}
+
+// Sea scene headings are written "## <time>: <title>" (e.g. "## เช้า: งาน").
+// Split them into styled spans while keeping the real text for readers and
+// screen readers, and give scenes and current dividers stable anchors
+// (scene-N / part-N) so the chapter drawer can navigate chapters with or
+// without "##" headings. Runs after rehypeStoryDividers (which creates the
+// .current-divider nodes) and keeps ids set explicitly with {#id}. Exported
+// for the unit test in src/scripts/sea/sea-ui-contract.test.ts.
+export function rehypeSeaScenes() {
+  /**
+   * @param {any} tree
+   * @param {any} file
+   */
+  const transform = (tree, file) => {
+    const sourcePath = String(file?.path || file?.history?.[0] || "").replaceAll("\\", "/");
+    const isSea = sourcePath.includes("/src/content/the-sea-that-hung-above-the-world/");
+    if (!isSea) {
+      return;
+    }
+
+    let scene = 0;
+    let part = 0;
+
+    visit(tree, "element", (node) => {
+      if (node.tagName === "div" && hasClass(node, "current-divider")) {
+        part += 1;
+        node.properties = { ...(node.properties || {}), id: `part-${part}` };
+        return;
+      }
+
+      if (node.tagName !== "h2") {
+        return;
+      }
+
+      scene += 1;
+      const properties = node.properties || (node.properties = {});
+      if (typeof properties.id !== "string") {
+        properties.id = `scene-${scene}`;
+      }
+      const existing = Array.isArray(properties.className)
+        ? properties.className
+        : properties.className
+          ? [properties.className]
+          : [];
+      properties.className = [...existing, "sea-scene"];
+
+      const children = Array.isArray(node.children) ? node.children : [];
+      const splitIndex = children.findIndex(
+        (/** @type {any} */ child) => child.type === "text" && (child.value || "").includes(":"),
+      );
+      /** @param {any[]} nodes */
+      const trimEdges = (nodes) => {
+        const out = nodes.filter((child) => !(child.type === "text" && !child.value));
+        const first = out[0];
+        const last = out[out.length - 1];
+        if (first?.type === "text") first.value = first.value.replace(/^\s+/, "");
+        if (last?.type === "text") last.value = last.value.replace(/\s+$/, "");
+        return out.filter((child) => !(child.type === "text" && !child.value));
+      };
+      /** @param {string} className @param {any[]} nodes */
+      const span = (className, nodes) => ({
+        type: "element",
+        tagName: "span",
+        properties: { className: [className] },
+        children: nodes,
+      });
+
+      if (splitIndex < 0) {
+        node.children = [span("sea-scene-title", trimEdges(children))];
+        return;
+      }
+
+      const splitNode = children[splitIndex];
+      const colon = splitNode.value.indexOf(":");
+      const before = [
+        ...children.slice(0, splitIndex),
+        { type: "text", value: splitNode.value.slice(0, colon) },
+      ];
+      const after = [
+        { type: "text", value: splitNode.value.slice(colon + 1) },
+        ...children.slice(splitIndex + 1),
+      ];
+      const time = trimEdges(before);
+      const title = trimEdges(after);
+      if (hastText({ children: time }).trim() === "" || hastText({ children: title }).trim() === "") {
+        node.children = [span("sea-scene-title", trimEdges(children))];
+        return;
+      }
+
+      node.children = [
+        span("sea-scene-time", time),
+        span("sea-scene-sep", [{ type: "text", value: ": " }]),
+        span("sea-scene-title", title),
+      ];
+    });
+
+    // A mid-chapter POV line ("*POV: name — place*") directly under a scene
+    // heading becomes an in-world plate. The "POV:" label is dropped; the
+    // rest of the author's text is kept as written.
+    /** @type {any} */
+    let previous = null;
+    for (const node of Array.isArray(tree.children) ? tree.children : []) {
+      if (node.type === "text" && !(node.value || "").trim()) {
+        continue;
+      }
+      if (
+        previous?.tagName === "h2" &&
+        hasClass(previous, "sea-scene") &&
+        node.type === "element" &&
+        node.tagName === "p"
+      ) {
+        const content = (node.children || []).filter(
+          (/** @type {any} */ child) => !(child.type === "text" && !(child.value || "").trim()),
+        );
+        const em = content.length === 1 && content[0].type === "element" && content[0].tagName === "em" ? content[0] : null;
+        const first = em?.children?.[0];
+        if (first?.type === "text" && /^\s*POV:/.test(first.value || "")) {
+          first.value = first.value.replace(/^\s*POV:\s*/, "");
+          node.properties = { ...(node.properties || {}), className: ["sea-scene-plate"] };
+          node.children = em.children;
+        }
+      }
+      previous = node.type === "element" ? node : null;
+    }
+  };
+
+  return transform;
+}
+
 // Thai drop caps via CSS `::first-letter` look broken when the opening
 // paragraph is a single short line (a date stamp, a one-line sentence): the
 // floated multi-line cap has no second line to sit beside, so it overhangs
@@ -285,7 +427,7 @@ export default defineConfig({
       remarkEmphasisDirective,
       remarkNeutralizeStrayDirectives,
     ],
-    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers, rehypeOpeningDropcap],
+    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers, rehypeSeaScenes, rehypeOpeningDropcap],
   },
   vite: {
     plugins: [tailwindcss()],

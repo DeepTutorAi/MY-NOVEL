@@ -1,0 +1,80 @@
+---
+import { render } from "astro:content";
+import SeaChapterLayout from "../../../layouts/sea/SeaChapterLayout.astro";
+import { SEA_ARCS, type SeaArcCutscene } from "../../../data/sea/arcs";
+import { getSeaChapters, type SeaChapter } from "../../../utils/sea-chapters";
+import {
+  arcForChapterNumber,
+  isArcEntry,
+  neighbors,
+  type SeaSealedNext,
+} from "../../../utils/sea-chapters-core";
+
+export async function getStaticPaths() {
+  const chapters = await getSeaChapters();
+
+  // getSeaChapters() already filters drafts in PROD; fail the build loudly if
+  // that filter is ever bypassed rather than publishing an unreleased chapter.
+  if (import.meta.env.PROD) {
+    const leaked = chapters.filter((chapter) => chapter.data.draft);
+    if (leaked.length > 0) {
+      throw new Error(`Draft Sea chapters reached a production build: ${leaked.map((c) => c.id).join(", ")}`);
+    }
+  }
+
+  return chapters.map((chapter) => {
+    const arc = SEA_ARCS.find((candidate) => candidate.number === chapter.data.arc);
+    if (!arc) {
+      throw new Error(`Sea chapter ${chapter.id} names unknown arc ${chapter.data.arc}`);
+    }
+    const { prev, next } = neighbors(chapters, chapter.id);
+
+    let sealedNext: SeaSealedNext | null = null;
+    if (!next) {
+      const nextArc = arcForChapterNumber(chapter.data.number + 1, SEA_ARCS);
+      if (nextArc) {
+        sealedNext =
+          nextArc.number === arc.number
+            ? { kind: "chapter", number: chapter.data.number + 1 }
+            : { kind: "arc", number: nextArc.number };
+      }
+    }
+
+    return {
+      params: { slug: chapter.id },
+      props: {
+        chapter,
+        prev,
+        next,
+        // Only the current arc's title leaves the server.
+        arc: { number: arc.number, titleTh: arc.titleTh, cutscene: arc.cutscene },
+        isArcEntry: isArcEntry(chapter, SEA_ARCS),
+        sealedNext,
+      },
+    };
+  });
+}
+
+interface Props {
+  chapter: SeaChapter;
+  prev: SeaChapter | null;
+  next: SeaChapter | null;
+  arc: { number: number; titleTh: string; cutscene: SeaArcCutscene };
+  isArcEntry: boolean;
+  sealedNext: SeaSealedNext | null;
+}
+
+const { chapter, prev, next, arc, isArcEntry: arcEntry, sealedNext } = Astro.props;
+const { Content } = await render(chapter);
+---
+
+<SeaChapterLayout
+  chapter={chapter}
+  prev={prev}
+  next={next}
+  arc={arc}
+  isArcEntry={arcEntry}
+  sealedNext={sealedNext}
+>
+  <Content />
+</SeaChapterLayout>

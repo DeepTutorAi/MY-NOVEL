@@ -1,0 +1,362 @@
+---
+// Chapter drawer for the Sea reader. Server-rendered from the visible
+// chapters only: arc titles appear for arcs with at least one visible
+// chapter, sealed arcs show just their number and chapter range. Behaviour
+// lives in src/scripts/sea/reader/drawer.ts.
+import { SEA_ARCS } from "../../../data/sea/arcs";
+import { withBase } from "../../../utils/base-path";
+import { formatReadingTime } from "../../../utils/reading-time";
+import { getSeaChapters } from "../../../utils/sea-chapters";
+import { buildSeaToc } from "../../../utils/sea-chapters-core";
+
+interface Props {
+  currentId: string;
+}
+
+const { currentId } = Astro.props;
+const strata = buildSeaToc(await getSeaChapters(), SEA_ARCS);
+const showDraftBadges = !import.meta.env.PROD;
+const unitLabel = (value: number) => (value === 0 ? "บทนำ" : `บทที่ ${value}`);
+---
+
+<dialog id="sea-chapter-drawer" class="sea-drawer" aria-labelledby="sea-drawer-title">
+  <div class="sea-drawer-inner">
+    <header class="sea-drawer-head">
+      <h2 id="sea-drawer-title" class="sea-drawer-title">สารบัญ</h2>
+      <button type="button" class="sea-drawer-close" data-sea-drawer-close aria-label="ปิดสารบัญ">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M6 6l12 12M18 6L6 18" />
+        </svg>
+      </button>
+    </header>
+
+    <nav class="sea-drawer-body" aria-label="บททั้งหมด">
+      {strata.map((stratum) =>
+        stratum.sealed ? (
+          <div class="sea-drawer-arc is-sealed">
+            <p class="sea-drawer-arc-title">อาร์กที่ {stratum.number} · ปิดผนึก</p>
+            <p class="sea-drawer-arc-range">บทที่ {stratum.chapterStart}–{stratum.chapterEnd}</p>
+          </div>
+        ) : (
+          <section class="sea-drawer-arc" aria-labelledby={`sea-drawer-arc-${stratum.number}`}>
+            <h3 id={`sea-drawer-arc-${stratum.number}`} class="sea-drawer-arc-title">
+              อาร์กที่ {stratum.number} · {stratum.titleTh}
+            </h3>
+            <ol class="sea-drawer-list">
+              {stratum.chapters.map((chapter) => {
+                const isCurrent = chapter.id === currentId;
+                return (
+                  <li class:list={["sea-drawer-row", { "is-current": isCurrent }]}>
+                    <a
+                      class="sea-drawer-chapter"
+                      href={withBase(`/sea/chapters/${chapter.id}/`)}
+                      aria-current={isCurrent ? "page" : undefined}
+                    >
+                      <span class="sea-drawer-num">{unitLabel(chapter.data.number)}</span>
+                      <span class="sea-drawer-copy">
+                        <span class="sea-drawer-chapter-title">{chapter.data.title}</span>
+                        <span class="sea-drawer-place">{chapter.data.plate.place}</span>
+                      </span>
+                      <span class="sea-drawer-meta">
+                        <span class="sea-drawer-time">{formatReadingTime(chapter.data.readingMinutes)}</span>
+                        {showDraftBadges && chapter.data.draft && <span class="sea-drawer-draft">ร่าง</span>}
+                        <span class="sea-drawer-mark" data-read-mark={chapter.id}></span>
+                      </span>
+                    </a>
+                    {isCurrent && (
+                      <ol class="sea-drawer-scenes" data-sea-drawer-scenes aria-label="ฉากในบทนี้" hidden></ol>
+                    )}
+                  </li>
+                );
+              })}
+            </ol>
+          </section>
+        ),
+      )}
+    </nav>
+
+    <footer class="sea-drawer-foot">
+      <a href={withBase("/sea/#sea-toc")}>หน้าสารบัญเต็ม</a>
+      <a href={withBase("/")} data-astro-reload>กลับหน้าฮับ</a>
+    </footer>
+  </div>
+</dialog>
+
+<style>
+  .sea-drawer {
+    width: min(27rem, 100vw);
+    max-width: 100vw;
+    height: 100dvh;
+    max-height: 100dvh;
+    margin: 0 0 0 auto;
+    padding: 0;
+    border: 0;
+    border-left: 1px solid color-mix(in srgb, var(--accent-cyan) 22%, transparent);
+    background: color-mix(in srgb, var(--bg-sea-night) 97%, black);
+    color: var(--sea-ink);
+    box-shadow: -1.5rem 0 4rem rgba(0, 0, 0, 0.45);
+  }
+
+  .sea-drawer[open] {
+    animation: sea-drawer-in 280ms cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+
+  .sea-drawer::backdrop {
+    background: rgba(1, 4, 8, 0.62);
+  }
+
+  :global(html[data-sea-motion="off"]) .sea-drawer[open] {
+    animation: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .sea-drawer[open] {
+      animation: none;
+    }
+  }
+
+  @keyframes sea-drawer-in {
+    from {
+      opacity: 0.4;
+      transform: translateX(2.5rem);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  .sea-drawer-inner {
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    height: 100%;
+    min-height: 0;
+  }
+
+  .sea-drawer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.85rem 1rem 0.85rem 1.25rem;
+    border-bottom: 1px solid var(--sea-line);
+  }
+
+  .sea-drawer-title {
+    margin: 0;
+    font-family: var(--font-display-sea);
+    font-size: 1.35rem;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+  }
+
+  .sea-drawer-close {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    border: 1px solid transparent;
+    color: var(--sea-ink-muted);
+    cursor: pointer;
+  }
+
+  .sea-drawer-close:hover {
+    border-color: var(--sea-line);
+    color: var(--sea-ink);
+  }
+
+  .sea-drawer-close svg {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .sea-drawer-body {
+    min-height: 0;
+    padding: 0.5rem 0 1.5rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  .sea-drawer-arc {
+    padding: 1rem 1.25rem 0.5rem;
+  }
+
+  .sea-drawer-arc.is-sealed {
+    margin: 0.75rem 1.25rem 0;
+    padding: 0.75rem 1rem;
+    border: 1px dashed var(--sea-line);
+  }
+
+  .sea-drawer-arc-title {
+    margin: 0 0 0.6rem;
+    color: var(--accent-copper);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    font-weight: normal;
+    line-height: 1.6;
+  }
+
+  .sea-drawer-arc.is-sealed .sea-drawer-arc-title {
+    margin: 0;
+    color: var(--sea-ink-muted);
+  }
+
+  .sea-drawer-arc-range {
+    margin: 0;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .sea-drawer-list,
+  .sea-drawer-scenes {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sea-drawer-row + .sea-drawer-row {
+    border-top: 1px solid color-mix(in srgb, var(--sea-ink-muted) 10%, transparent);
+  }
+
+  .sea-drawer-chapter {
+    display: grid;
+    grid-template-columns: 4.2rem minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 0.75rem;
+    padding: 0.7rem 0.5rem;
+    color: var(--sea-ink);
+    text-decoration: none !important;
+  }
+
+  .sea-drawer-chapter:hover {
+    background: color-mix(in srgb, var(--accent-cyan) 6%, transparent);
+  }
+
+  .sea-drawer-row.is-current > .sea-drawer-chapter {
+    box-shadow: inset 2px 0 0 var(--accent-cyan);
+    background: color-mix(in srgb, var(--accent-cyan) 7%, transparent);
+  }
+
+  .sea-drawer-num {
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .sea-drawer-copy {
+    display: grid;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+
+  .sea-drawer-chapter-title {
+    font-size: 0.95rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .sea-drawer-place {
+    color: var(--sea-ink-muted);
+    font-size: 0.75rem;
+    line-height: 1.5;
+    overflow-wrap: break-word;
+  }
+
+  .sea-drawer-meta {
+    display: grid;
+    justify-items: end;
+    gap: 0.2rem;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .sea-drawer-draft {
+    padding: 0 0.35rem;
+    border: 1px solid var(--accent-copper);
+    color: var(--accent-copper);
+    font-family: var(--font-thai);
+  }
+
+  .sea-drawer-mark[data-state="done"] {
+    color: var(--accent-cyan);
+  }
+
+  .sea-drawer-mark[data-state="partial"] {
+    color: var(--sea-ink);
+  }
+
+  .sea-drawer-scenes {
+    display: grid;
+    gap: 0.1rem;
+    margin: 0 0 0.6rem 4.95rem;
+    padding-left: 0.75rem;
+    border-left: 1px solid color-mix(in srgb, var(--accent-cyan) 25%, transparent);
+  }
+
+  .sea-drawer-scenes[hidden] {
+    display: none;
+  }
+
+  .sea-drawer-scenes :global(.sea-drawer-scene) {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.1rem 0.5rem;
+    padding: 0.35rem 0.25rem;
+    color: var(--sea-ink);
+    font-size: 0.85rem;
+    line-height: 1.5;
+    text-decoration: none !important;
+  }
+
+  .sea-drawer-scenes :global(.sea-drawer-scene:hover) {
+    color: var(--accent-cyan);
+  }
+
+  .sea-drawer-scenes :global(.sea-drawer-scene-time) {
+    color: var(--accent-copper);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .sea-drawer-scenes :global(.sea-drawer-scene.is-veiled) {
+    color: var(--sea-ink-muted);
+  }
+
+  .sea-drawer-foot {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 1.25rem;
+    padding: 0.9rem 1.25rem calc(0.9rem + env(safe-area-inset-bottom));
+    border-top: 1px solid var(--sea-line);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  @media (max-width: 480px) {
+    .sea-drawer {
+      width: 100vw;
+      border-left: 0;
+    }
+
+    .sea-drawer-chapter {
+      grid-template-columns: 3.6rem minmax(0, 1fr) auto;
+      gap: 0.6rem;
+    }
+
+    .sea-drawer-scenes {
+      margin-left: 4.2rem;
+    }
+  }
+</style>
+
+<script>
+  import { onSeaPage } from "../../../scripts/sea/lifecycle";
+  import { bindChapterDrawer } from "../../../scripts/sea/reader/drawer";
+
+  onSeaPage("chapter-drawer", bindChapterDrawer);
+</script>

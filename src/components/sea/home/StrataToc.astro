@@ -1,0 +1,340 @@
+---
+// Table of contents as strata: one band per arc, from the ground of Elaris
+// (arc 1) down into the story. Published arcs take their zone palette through
+// data-zone and list their chapters; sealed arcs show only their number and
+// chapter range: no title, no tint. Read marks and the cutscene replay link
+// are filled client-side from localStorage (home-reading.ts).
+import { getSeaArc } from "../../../data/sea/arcs";
+import { withBase } from "../../../utils/base-path";
+import { formatReadingTime } from "../../../utils/reading-time";
+import type { SeaChapter } from "../../../utils/sea-chapters";
+import type { SeaStratum } from "../../../utils/sea-chapters-core";
+import { unitLabel } from "../../../scripts/sea/home/home-reading-core";
+
+interface Props {
+  strata: SeaStratum<SeaChapter>[];
+  showDraftBadges: boolean;
+}
+
+const { strata, showDraftBadges } = Astro.props;
+
+const replayHref = (arcNumber: number, chapters: SeaChapter[]) => {
+  const entry = getSeaArc(arcNumber)?.entryChapter;
+  const chapter = chapters.find((candidate) => candidate.data.number === entry);
+  return chapter ? withBase(`/sea/chapters/${chapter.id}/?cutscene=replay`) : null;
+};
+---
+
+<section class="sea-strata" id="sea-toc" aria-labelledby="sea-toc-title">
+  <header class="sea-strata-head">
+    <h2 id="sea-toc-title">สารบัญ</h2>
+    <p>จากพื้นเมืองเอลาริส ลึกลงไปในเรื่อง</p>
+  </header>
+
+  <ol class="sea-strata-list">
+    {
+      strata.map((stratum, index) => {
+        if (stratum.sealed) {
+          return (
+            <li class="sea-stratum is-sealed" style={`--sea-stratum-depth: ${index}`}>
+              <p class="sea-stratum-sealed">
+                <span class="sea-stratum-number">อาร์กที่ {stratum.number}</span>
+                <span>ปิดผนึก</span>
+              </p>
+              <p class="sea-stratum-range">
+                บทที่ {stratum.chapterStart}–{stratum.chapterEnd}
+              </p>
+            </li>
+          );
+        }
+        const replay = replayHref(stratum.number, stratum.chapters);
+        return (
+          <li class="sea-stratum" data-zone={stratum.tint} style={`--sea-stratum-depth: ${index}`}>
+            <div class="sea-stratum-rail">
+              <p class="sea-stratum-number">อาร์กที่ {stratum.number}</p>
+              <h3 class="sea-stratum-title" id={`sea-arc-${stratum.number}`}>
+                {stratum.titleTh}
+              </h3>
+              <p class="sea-stratum-en" lang="en">
+                {stratum.titleEn}
+              </p>
+              <p class="sea-stratum-range">
+                {stratum.chapterStart === 0 ? "บทนำ" : `บทที่ ${stratum.chapterStart}`}–บทที่ {stratum.chapterEnd}
+              </p>
+              {replay && (
+                <a class="sea-stratum-replay" href={replay} data-cutscene-replay={stratum.number} hidden>
+                  ชมฉากเปิดอาร์กอีกครั้ง
+                </a>
+              )}
+            </div>
+            <ol class="sea-stratum-chapters" aria-labelledby={`sea-arc-${stratum.number}`}>
+              {stratum.chapters.map((chapter) => (
+                <li>
+                  <a class="sea-chapter-row" href={withBase(`/sea/chapters/${chapter.id}/`)}>
+                    <span class="sea-chapter-row-number">
+                      {unitLabel(chapter.data.number)}
+                      {showDraftBadges && chapter.data.draft && <span class="sea-draft-badge">ร่าง</span>}
+                    </span>
+                    <span class="sea-chapter-row-title">{chapter.data.title}</span>
+                    <span class="sea-chapter-row-place">{chapter.data.plate.place}</span>
+                    <span class="sea-chapter-row-meta">
+                      <span class="sea-chapter-row-time">{formatReadingTime(chapter.data.readingMinutes)}</span>
+                      <span class="sea-read-mark" data-read-mark={chapter.id}>
+                        <span data-read-mark-text aria-hidden="true" />
+                        <span class="sea-visually-hidden" data-read-mark-spoken />
+                      </span>
+                    </span>
+                  </a>
+                </li>
+              ))}
+            </ol>
+          </li>
+        );
+      })
+    }
+  </ol>
+</section>
+
+<script>
+  import "../../../scripts/sea/home/home-reading";
+</script>
+
+<style>
+  .sea-strata {
+    position: relative;
+    z-index: 1;
+    padding: clamp(4rem, 10vw, 7rem) 0 clamp(4rem, 8vw, 6rem);
+    background: linear-gradient(180deg, #03090b 0%, var(--bg-sea-night) 18rem);
+  }
+
+  .sea-strata-head,
+  .sea-strata-list {
+    width: min(100% - 2 * var(--sea-gutter), 1080px);
+    margin: 0 auto;
+  }
+
+  .sea-strata-head {
+    margin-bottom: clamp(1.8rem, 4vw, 2.8rem);
+  }
+
+  .sea-strata-head h2 {
+    margin: 0;
+    color: var(--sea-ink);
+    font-family: var(--font-thai);
+    font-size: clamp(1.7rem, 4vw, 2.3rem);
+    font-weight: 700;
+    line-height: 1.3;
+  }
+
+  .sea-strata-head p {
+    margin: 0.3rem 0 0;
+    color: var(--sea-ink-muted);
+    font-size: 0.95rem;
+  }
+
+  .sea-strata-list {
+    display: grid;
+    gap: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  /* One stratum: cool light on the top edge, the zone's water in the band,
+     a copper seam at the bottom. Deeper bands sit a little darker. */
+  .sea-stratum {
+    position: relative;
+    display: grid;
+    grid-template-columns: minmax(12rem, 17rem) minmax(0, 1fr);
+    gap: clamp(1.2rem, 4vw, 3rem);
+    padding: clamp(1.6rem, 4vw, 2.6rem) clamp(1rem, 3vw, 2rem);
+    border-top: 1px solid color-mix(in srgb, var(--accent-cyan) 38%, transparent);
+    background:
+      linear-gradient(180deg, color-mix(in srgb, var(--accent-cyan) 9%, transparent), transparent 42%),
+      linear-gradient(180deg, var(--bg-sea-depth), var(--bg-sea-night));
+    color: var(--sea-ink);
+  }
+
+  .sea-stratum::after {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    height: 1px;
+    content: "";
+    background: linear-gradient(90deg, color-mix(in srgb, var(--accent-copper) 60%, transparent), transparent 70%);
+  }
+
+  .sea-stratum-number {
+    margin: 0;
+    color: color-mix(in srgb, var(--accent-cyan) 70%, var(--sea-ink-muted));
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .sea-stratum-title {
+    margin: 0.35rem 0 0;
+    font-family: var(--font-thai);
+    font-size: clamp(1.35rem, 3vw, 1.7rem);
+    font-weight: 700;
+    line-height: 1.35;
+  }
+
+  .sea-stratum-en {
+    margin: 0.15rem 0 0;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-display-sea);
+    font-size: 1rem;
+    font-style: italic;
+  }
+
+  .sea-stratum-range {
+    margin: 0.7rem 0 0;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+  }
+
+  .sea-stratum-replay {
+    display: inline-block;
+    margin-top: 0.9rem;
+    color: color-mix(in srgb, var(--accent-cyan) 70%, var(--sea-ink));
+    font-size: 0.85rem;
+  }
+
+  .sea-stratum-replay[hidden] {
+    display: none;
+  }
+
+  .sea-stratum-chapters {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .sea-stratum-chapters > li + li {
+    border-top: 1px solid color-mix(in srgb, var(--sea-ink-muted) 16%, transparent);
+  }
+
+  .sea-chapter-row {
+    display: grid;
+    grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+    grid-template-areas:
+      "number title meta"
+      "number place meta";
+    gap: 0.1rem 1rem;
+    align-items: baseline;
+    padding: 0.85rem 0.4rem;
+    color: var(--sea-ink);
+    text-decoration: none !important;
+    transition: background-color 160ms ease;
+  }
+
+  .sea-chapter-row:hover {
+    background: color-mix(in srgb, var(--accent-cyan) 7%, transparent);
+  }
+
+  .sea-chapter-row-number {
+    grid-area: number;
+    color: var(--accent-copper);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .sea-chapter-row-title {
+    grid-area: title;
+    font-size: 1.06rem;
+    font-weight: 700;
+    line-height: 1.45;
+  }
+
+  .sea-chapter-row:hover .sea-chapter-row-title {
+    color: var(--accent-cyan);
+  }
+
+  .sea-chapter-row-place {
+    grid-area: place;
+    color: var(--sea-ink-muted);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
+
+  .sea-chapter-row-meta {
+    grid-area: meta;
+    display: grid;
+    justify-items: end;
+    gap: 0.15rem;
+    color: var(--sea-ink-muted);
+    font-family: var(--font-mono);
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .sea-read-mark {
+    min-height: 1.1em;
+    color: color-mix(in srgb, var(--accent-cyan) 70%, var(--sea-ink));
+  }
+
+  .sea-read-mark[data-state="done"] {
+    color: var(--accent-cyan);
+  }
+
+  .sea-draft-badge {
+    display: inline-block;
+    margin-left: 0.4rem;
+    padding: 0 0.35rem;
+    border: 1px solid var(--accent-copper);
+    font-size: 0.75rem;
+    line-height: 1.5;
+  }
+
+  /* Sealed arcs: no zone, no title, only pressure growing darker. */
+  .sea-stratum.is-sealed {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 0.3rem 1rem;
+    padding-block: 1.1rem;
+    border-top: 1px dashed color-mix(in srgb, var(--sea-ink-muted) 22%, transparent);
+    background: color-mix(in srgb, #010306 calc(20% + var(--sea-stratum-depth) * 10%), var(--bg-sea-night));
+    color: var(--sea-ink-muted);
+  }
+
+  .sea-stratum.is-sealed::after {
+    display: none;
+  }
+
+  .sea-stratum-sealed {
+    display: flex;
+    gap: 0.6rem;
+    margin: 0;
+    font-size: 0.9rem;
+  }
+
+  .sea-stratum.is-sealed .sea-stratum-number {
+    color: var(--sea-ink-muted);
+    font-size: inherit;
+    font-family: var(--font-mono);
+  }
+
+  .sea-stratum.is-sealed .sea-stratum-range {
+    margin: 0;
+  }
+
+  @media (max-width: 760px) {
+    .sea-stratum {
+      grid-template-columns: 1fr;
+    }
+
+    .sea-chapter-row {
+      grid-template-columns: minmax(0, 1fr) auto;
+      grid-template-areas:
+        "number meta"
+        "title meta"
+        "place meta";
+      padding-inline: 0;
+    }
+  }
+</style>

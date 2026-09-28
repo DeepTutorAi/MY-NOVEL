@@ -1,6 +1,7 @@
 import { defineCollection } from "astro:content";
 import { glob } from "astro/loaders";
 import { z } from "astro/zod";
+import { SEA_ZONES } from "./data/sea/zones";
 
 const chapters = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/lodge/chapters" }),
@@ -39,20 +40,30 @@ const tsukinomiSections = defineCollection({
   }),
 });
 
-const seaArcs = defineCollection({
-  loader: glob({ pattern: "**/*.md", base: "./src/content/the-sea-that-hung-above-the-world" }),
+const seaChapters = defineCollection({
+  loader: glob({ pattern: "*.md", base: "./src/content/the-sea-that-hung-above-the-world/chapters" }),
   schema: z.object({
-    number: z.number().int().min(1).max(7),
+    number: z.number().int().min(0).max(35),
+    arc: z.number().int().min(1).max(7),
     title: z.string(),
-    englishTitle: z.string(),
-    chapterRange: z.string(),
-    summary: z.string(),
-    readingMinutes: z.number().int().positive(),
+    plate: z.object({
+      place: z.string(),
+      time: z.string().optional(),
+      pov: z.array(z.string()),
+    }),
+    zone: z.enum(SEA_ZONES),
+    zoneShifts: z
+      .array(z.object({ scene: z.number().int().positive(), zone: z.enum(SEA_ZONES) }))
+      .default([]),
     musicCueId: z.enum(["sun-sheet", "drowned-quarter", "pressure-veil", "old-pressure", "first-memory"]),
-    backgroundImage: z.string().optional(),
-    depthLayer: z.number().int().min(1).max(5),
+    readingMinutes: z.number().int().positive(),
+    wordsThai: z.number().int().nonnegative(),
+    arcEnd: z.boolean().default(false),
+    draft: z.boolean().default(false),
+    source: z.string(),
   }),
 });
+
 
 const kusabiChapters = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/kusabi/chapters" }),
@@ -80,5 +91,5 @@ const kusabiExtras = defineCollection({
   }),
 });
 
-export const collections = { chapters, extras, tsukinomiSections, seaArcs, kusabiChapters, kusabiExtras };
+export const collections = { chapters, extras, tsukinomiSections, seaChapters, kusabiChapters, kusabiExtras };
 

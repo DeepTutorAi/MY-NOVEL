@@ -1,210 +1,56 @@
 ---
-import { getCollection } from "astro:content";
+import AscentHero from "../../components/sea/home/AscentHero.astro";
+import SeaResume from "../../components/sea/home/SeaResume.astro";
+import StrataToc from "../../components/sea/home/StrataToc.astro";
 import SeaBaseLayout from "../../layouts/sea/SeaBaseLayout.astro";
+import { SEA_ARCS } from "../../data/sea/arcs";
 import { withBase } from "../../utils/base-path";
+import { formatReadingTime } from "../../utils/reading-time";
+import { getSeaChapters } from "../../utils/sea-chapters";
+import { buildSeaToc } from "../../utils/sea-chapters-core";
 
-const arcs = (await getCollection("seaArcs")).sort(
-  (a, b) => a.data.number - b.data.number,
+const chapters = await getSeaChapters();
+const strata = buildSeaToc(chapters, SEA_ARCS);
+const published = chapters.filter((chapter) => chapter.data.draft !== true);
+
+const prologue = chapters.find((chapter) => chapter.data.number === 0) ?? chapters[0];
+const startHref = prologue ? withBase(`/sea/chapters/${prologue.id}/`) : withBase("/sea/#sea-toc");
+const heroImage = withBase("/assets/sea/images/hero-sea-v2.webp");
+const ceilingImage = withBase("/assets/sea/images/ceiling-plate.webp");
+
+// The current arc is the latest one with a published chapter; its title is
+// public by definition. Later arcs stay untitled (see StrataToc).
+const currentArc = SEA_ARCS.find(
+  (arc) => arc.number === Math.max(1, ...published.map((chapter) => chapter.data.arc)),
 );
+const totalChapters = Math.max(...SEA_ARCS.map((arc) => arc.chapterEnd));
+const publishedMinutes = published.reduce((sum, chapter) => sum + chapter.data.readingMinutes, 0);
+const facts = [
+  `กำลังเผยแพร่ · อาร์กที่ ${currentArc?.number ?? 1}`,
+  `${SEA_ARCS.length} อาร์ก · ${totalChapters} บท`,
+  `อ่านได้แล้ว ${formatReadingTime(publishedMinutes)}`,
+];
+const arcLabel = currentArc ? `อาร์กที่ ${currentArc.number} · ${currentArc.titleTh}` : "";
 
-const firstArc = arcs[0];
-const startHref = firstArc
-  ? withBase(`/sea/arcs/${firstArc.id}/`)
-  : withBase("/sea/");
+const resumeUnits = chapters.map((chapter) => ({ id: chapter.id, number: chapter.data.number }));
 ---
 
 <SeaBaseLayout
   title="ทะเลเหนือโลก — The Sea That Hung Above The World"
   description="เรื่องราวสยองขวัญทางนิเวศวิทยาเกี่ยวกับทะเลบนฟ้าและโรคปนเปื้อนน้ำเค็ม"
   bodyClass="sea-home-page"
-  depthLayer={1}
+  zone="elaris"
   musicCueId="sun-sheet"
 >
-  <main id="sea-main" class="sea-home">
-    <section class="sea-home-hero" aria-labelledby="sea-title">
-      <div class="sea-home-copy">
-        <p class="sea-kicker">THE SEA THAT HUNG ABOVE THE WORLD</p>
-        <h1 id="sea-title">ทะเลเหนือโลก</h1>
-        <p class="sea-home-subtitle">
-          เมื่อมหาสมุทรบนฟ้าร่วงหล่นลงมาทวงคืนแผ่นดิน สปอร์น้ำเค็มเริ่มกลืนกินร่างกายและความทรงจำของมนุษย์ ทางรอดเดียวคือยอมปล่อยให้ผืนน้ำกลืนกินโลกใบเก่า
-        </p>
-        
-        <div class="sea-home-actions" style="display: flex; gap: 16px; align-items: center;">
-          <a class="sea-btn" href={startHref} style="border-color: var(--accent-cyan); background: color-mix(in srgb, var(--accent-cyan) 8%, transparent);">
-            เริ่มอ่าน / บทนำ →
-          </a>
-          <a class="sea-btn" href={withBase("/")} style="border-color: var(--sea-line);">
-            กลับหน้าฮับหลัก
-          </a>
-        </div>
-
-        <div class="sea-meta-row">
-          <div class="sea-meta-item">
-            สถานะ: <strong>เร็วๆ นี้</strong>
-          </div>
-          <div class="sea-meta-item">
-            กระแสน้ำฟ้า: <strong>5 ชั้นแรงดัน</strong>
-          </div>
-          <div class="sea-meta-item">
-            โครงสร้าง: <strong>7 Arcs / 35 Chapters</strong>
-          </div>
-        </div>
-      </div>
-      <div
-        class="sea-home-visual"
-        style={`--sea-home-hero-image: url("${withBase("/assets/sea/images/hero-sea-v2.webp")}")`}
-        aria-hidden="true"
-      ></div>
-    </section>
-
-    {/* Resume Card Widget */}
-    <div class="sea-resume-card" data-sea-resume style="display: none;">
-      <span class="sea-resume-label">อ่านค้างไว้</span>
-      <strong data-sea-resume-title class="sea-resume-title"></strong>
-      <span data-sea-resume-detail class="sea-resume-detail"></span>
-      <div class="sea-resume-actions">
-        <a data-sea-resume-link href="#" class="sea-btn" style="border-color: var(--accent-cyan);">อ่านต่อ</a>
-        <button type="button" data-sea-resume-clear class="sea-btn" style="border-color: var(--sea-line); font-size: 0.8rem;">ล้างตำแหน่ง</button>
-      </div>
-    </div>
-
-    {/* Table of Contents / Arc List */}
-    <section class="sea-toc" aria-label="สารบัญกระแสน้ำฟ้า" style="margin-top: 3.5rem; max-width: 800px;">
-      <h2 style="font-family: var(--font-display); color: var(--accent-cyan); font-size: 1.5rem; margin-bottom: 1.5rem; letter-spacing: 0.05em;">
-        กระแสน้ำฟ้า (Arcs)
-      </h2>
-      <div class="sea-arc-list" style="display: flex; flex-direction: column; gap: 1rem;">
-        {arcs.map((arc) => (
-          <a
-            href={withBase(`/sea/arcs/${arc.id}/`)}
-            class="sea-arc-item"
-            data-arc-id={arc.id}
-          >
-            <div>
-              <div style="font-family: var(--font-mono); font-size: 0.75rem; color: var(--accent-copper); margin-bottom: 0.25rem;">
-                {arc.data.chapterRange} · ชั้นแรงดัน {arc.data.depthLayer}
-              </div>
-              <div style="font-size: 1.1rem; font-weight: 500; color: var(--sea-ink);">
-                {arc.data.title}
-              </div>
-              <div style="font-size: 0.85rem; color: var(--sea-ink-muted); margin-top: 0.25rem;">
-                {arc.data.englishTitle}
-              </div>
-            </div>
-            <div style="font-family: var(--font-mono); font-size: 0.8rem; color: var(--sea-ink-muted);">
-              {arc.data.readingMinutes} นาที →
-            </div>
-          </a>
-        ))}
-      </div>
-    </section>
-  </main>
-
-  <script is:inline define:vars={{ resumeBase: withBase("/sea/arcs/") }}>
-    const initSeaHome = () => {
-      const resumeCard = document.querySelector("[data-sea-resume]");
-      const resumeTitle = document.querySelector("[data-sea-resume-title]");
-      const resumeDetail = document.querySelector("[data-sea-resume-detail]");
-      const resumeLink = document.querySelector("[data-sea-resume-link]");
-      const resumeClear = document.querySelector("[data-sea-resume-clear]");
-
-      try {
-        const raw = localStorage.getItem("sea:reading:last");
-        const saved = raw ? JSON.parse(raw) : null;
-        if (
-          saved &&
-          typeof saved.arcId === "string" &&
-          typeof saved.arcTitle === "string" &&
-          Number.isFinite(saved.progress) &&
-          saved.progress >= 0.005
-        ) {
-          if (resumeCard instanceof HTMLElement && resumeTitle && resumeDetail && resumeLink instanceof HTMLAnchorElement) {
-            resumeTitle.textContent = `Arc ${saved.arcNumber || ""}: ${saved.arcTitle}`;
-            if (saved.progress >= 0.995) {
-              resumeDetail.textContent = "อ่านจบแล้ว 100%";
-              resumeLink.textContent = "อ่านอีกครั้ง";
-              resumeLink.href = `${resumeBase}${saved.arcId}/`;
-            } else {
-              const percent = Math.round(saved.progress * 100);
-              resumeDetail.textContent = `ค้างไว้ประมาณ ${percent}%`;
-              resumeLink.textContent = "อ่านต่อ";
-              resumeLink.href = `${resumeBase}${saved.arcId}/?resume=1`;
-            }
-            resumeCard.style.display = "flex";
-
-            if (resumeClear instanceof HTMLButtonElement) {
-              resumeClear.onclick = () => {
-                try {
-                  localStorage.removeItem("sea:reading:last");
-                  localStorage.removeItem(`sea:reading:arc:${saved.arcId}`);
-                } finally {
-                  resumeCard.style.display = "none";
-                }
-              };
-            }
-          }
-        } else if (resumeCard instanceof HTMLElement) {
-          resumeCard.style.display = "none";
-        }
-      } catch {
-        if (resumeCard instanceof HTMLElement) {
-          resumeCard.style.display = "none";
-        }
-      }
-    };
-
-    initSeaHome();
-    document.addEventListener("astro:page-load", initSeaHome);
-  </script>
-
-  <style>
-    .sea-resume-card {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      padding: 1.2rem 1.5rem;
-      margin-top: 2rem;
-      border: 1px solid var(--accent-cyan);
-      border-radius: 6px;
-      background: color-mix(in srgb, var(--accent-cyan) 6%, rgba(3, 8, 14, 0.6));
-      max-width: 600px;
-    }
-    .sea-resume-label {
-      font-family: var(--font-mono);
-      font-size: 0.75rem;
-      letter-spacing: 0.1em;
-      color: var(--accent-cyan);
-      text-transform: uppercase;
-    }
-    .sea-resume-title {
-      font-size: 1.15rem;
-      color: var(--sea-ink);
-    }
-    .sea-resume-detail {
-      font-size: 0.85rem;
-      color: var(--sea-ink-muted);
-    }
-    .sea-resume-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-top: 0.5rem;
-    }
-    .sea-arc-item {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1.2rem 1.5rem;
-      border: 1px solid var(--sea-line);
-      border-radius: 6px;
-      background: rgba(3, 8, 14, 0.4);
-      text-decoration: none;
-      transition: border-color 0.2s, background 0.2s, transform 0.2s;
-    }
-    .sea-arc-item:hover {
-      border-color: var(--accent-cyan) !important;
-      background: rgba(0, 229, 255, 0.06) !important;
-      transform: translateY(-2px);
-    }
-  </style>
+  <link slot="head" rel="preload" as="image" href={heroImage} type="image/webp" fetchpriority="high" />
+  <AscentHero
+    startHref={startHref}
+    heroImage={heroImage}
+    ceilingImage={ceilingImage}
+    facts={facts}
+    arcLabel={arcLabel}
+  >
+    <SeaResume slot="resume" units={resumeUnits} />
+  </AscentHero>
+  <StrataToc strata={strata} showDraftBadges={!import.meta.env.PROD} />
 </SeaBaseLayout>

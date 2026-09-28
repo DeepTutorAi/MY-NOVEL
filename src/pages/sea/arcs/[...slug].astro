@@ -1,30 +1,30 @@
 ---
-import { getCollection, render, type CollectionEntry } from "astro:content";
-import SeaArcLayout from "../../../layouts/sea/SeaArcLayout.astro";
+// Legacy URL from the arc-based Sea layout. The only page ever published there
+// was the prologue, which now lives at /sea/chapters/00/.
+import { withBase } from "../../../utils/base-path";
 
-export async function getStaticPaths() {
-  const arcs = (await getCollection("seaArcs")).sort(
-    (a, b) => a.data.number - b.data.number,
-  );
-
-  return arcs.map((arc, index) => {
-    const nextArc = arcs[index + 1] || null;
-    return {
-      params: { slug: arc.id },
-      props: { arc, nextArc },
-    };
-  });
+export function getStaticPaths() {
+  return [{ params: { slug: "arc-01/01-introduction" } }];
 }
 
-interface Props {
-  arc: CollectionEntry<"seaArcs">;
-  nextArc: CollectionEntry<"seaArcs"> | null;
-}
-
-const { arc, nextArc } = Astro.props;
-const { Content } = await render(arc);
+const target = withBase("/sea/chapters/00/");
+const canonical = new URL(target, Astro.site ?? Astro.url).href;
 ---
 
-<SeaArcLayout arc={arc} nextArc={nextArc}>
-  <Content />
-</SeaArcLayout>
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>ย้ายไปที่บทนำ — ทะเลเหนือโลก</title>
+    <meta name="robots" content="noindex" />
+    <link rel="canonical" href={canonical} />
+    <meta http-equiv="refresh" content={`0; url=${target}`} />
+    <script is:inline define:vars={{ target }}>
+      location.replace(target);
+    </script>
+  </head>
+  <body>
+    <p>หน้านี้ย้ายแล้ว <a href={target}>ไปที่บทนำของทะเลเหนือโลก</a></p>
+  </body>
+</html>

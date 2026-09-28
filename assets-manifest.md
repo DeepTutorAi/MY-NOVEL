@@ -30,6 +30,7 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/sea/images/hub-sea-dark-adventure.webp` | Generated locally by author | Project-owned generated asset | None | hub cover (no author name or in-image text) |
 | `public/assets/sea/images/hero-sea.webp` | Generated locally by author | Project-owned generated asset | None | alternative hero cover |
 | `public/assets/sea/images/hero-sea-v2.webp` | Generated locally by author | Project-owned generated asset | None | final hero cover (sky-ocean above Elaris) |
+| `public/assets/sea/images/ceiling-plate.webp` | Cropped locally from `hub-sea-dark-adventure.webp` by `src/scripts/sea/make-ceiling-plate.ts` (sharp, box x 170-1250, y 134-376) | Project-owned generated asset | None | home hero water-ceiling texture and still fallback (water, whale and fish only) |
 | `public/assets/kusabi/images/home-hero.webp` | Generated locally by author | Project-owned generated asset | None | kusabi hero cover |
 | `public/assets/_shared/images/pages_into_stars.webp` | Generated locally by author | Project-owned generated asset | None | background stars texture |
 
