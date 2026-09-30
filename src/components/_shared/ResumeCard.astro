@@ -53,6 +53,53 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
     kusabiUnits,
   }}
 >
+  // Per-novel progress on the hub cards: a bar for the whole novel, a short
+  // state line, and a direct "continue" link beside the card's own link.
+  const updateNovelCards = (entries, percentText) => {
+    for (const wrapper of document.querySelectorAll("[data-novel-slug]")) {
+      const state = wrapper.querySelector("[data-card-state]");
+      const bar = wrapper.querySelector("[data-card-progress]");
+      const cont = wrapper.querySelector("[data-card-continue]");
+      if (!(state instanceof HTMLElement) || !(bar instanceof HTMLElement) || !(cont instanceof HTMLAnchorElement)) {
+        continue;
+      }
+      // A saved unit that is no longer in the published list says nothing
+      // reliable about the novel as a whole, so the card stays neutral.
+      const entry = entries.find((candidate) => candidate.slug === wrapper.dataset.novelSlug && candidate.index >= 0);
+      if (!entry) {
+        state.textContent = state.dataset.default ?? "";
+        bar.hidden = true;
+        cont.hidden = true;
+        wrapper.classList.remove("has-progress");
+        continue;
+      }
+
+      const unitProgress = entry.completed ? 1 : entry.progress;
+      const overall = entry.unitCount > 0 ? (entry.index + unitProgress) / entry.unitCount : 0;
+      bar.style.setProperty("--novel-progress", String(Math.max(0.02, Math.min(1, overall))));
+      bar.hidden = false;
+
+      if (entry.completed && !entry.nextHref) {
+        state.textContent = "อ่านจบเรื่องแล้ว";
+        cont.hidden = true;
+        wrapper.classList.remove("has-progress");
+        continue;
+      }
+
+      if (entry.completed) {
+        state.textContent = `อ่านจบ${entry.shortLabel} · ต่อ${entry.nextShortLabel}`;
+        cont.href = entry.nextHref;
+        cont.setAttribute("aria-label", `อ่านต่อ ${entry.novelTitle} ${entry.nextShortLabel}`);
+      } else {
+        state.textContent = `อ่านถึง${entry.shortLabel} · ${percentText(entry.progress)}`;
+        cont.href = entry.resumeHref;
+        cont.setAttribute("aria-label", `อ่านต่อ ${entry.novelTitle} ${entry.shortLabel}`);
+      }
+      cont.hidden = false;
+      wrapper.classList.add("has-progress");
+    }
+  };
+
   const initResumeCard = async () => {
     const card = document.querySelector("[data-hub-resume]");
     const novelLabel = document.querySelector("[data-resume-novel]");
@@ -112,8 +159,15 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
       const formattedTitle = formatUnit(number, chapterTitle);
 
       const formattedNextLabel = next ? formatUnit(String(next.number), next.title) : "";
+      const shortUnit = (unitNumber) =>
+        unitNumber === "0" && config.zeroLabel ? config.zeroLabel : `${config.unitLabel} ${unitNumber}`;
 
       return {
+        slug: config.slug,
+        index,
+        unitCount: config.units.length,
+        shortLabel: shortUnit(number),
+        nextShortLabel: next ? shortUnit(String(next.number)) : "",
         storageKey: config.storageKey,
         detailKey: `${config.detailPrefix}${id}`,
         novelTitle: config.novelTitle,
@@ -189,6 +243,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
 
     const candidates = [
       normalize({
+        slug: "lodge",
+        zeroLabel: "บทนำ",
         storageKey: "hvitveldt:reading:last",
         detailPrefix: "hvitveldt:reading:chapter:",
         baseHref: lodgeChapterBase,
@@ -200,6 +256,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
         getTitle: (saved) => (typeof saved?.chapterTitle === "string" ? saved.chapterTitle.trim() : ""),
       }),
       normalize({
+        slug: "tsukinomi",
+        zeroLabel: "บทนำ",
         storageKey: "tsukinomi:reading:last",
         detailPrefix: "tsukinomi:reading:section:",
         baseHref: tsukinomiSectionBase,
@@ -224,6 +282,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
       // records { arcId, arcNumber, arcTitle } came from the arc layout, which
       // only ever published the prologue, so they map onto chapter "00".
       normalize({
+        slug: "sea",
+        zeroLabel: "บทนำ",
         storageKey: "sea:reading:last",
         detailPrefix: "sea:reading:chapter:",
         baseHref: seaChapterBase,
@@ -249,6 +309,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
               : "",
       }),
       normalize({
+        slug: "kusabi",
+        zeroLabel: "บทนำ",
         storageKey: "kusabi:reading:last",
         detailPrefix: "kusabi:reading:chapter:",
         baseHref: kusabiChapterBase,
@@ -267,6 +329,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
         }
         return true;
       });
+
+    updateNovelCards(candidates, percentText);
 
     const saved = candidates.sort((a, b) => b.updatedAt - a.updatedAt)[0];
 

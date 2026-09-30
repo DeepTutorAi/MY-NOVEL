@@ -1,517 +1,109 @@
 ---
-// FireflyBackground.astro
+// FireflyBackground.astro: lamphu trees and synchronised fireflies over a canal
+// at night. Rendering lives in src/scripts/hub/firefly-scene.ts.
 ---
-<div class="dynamic-firefly-bg">
-  <div class="scene" aria-hidden="true">
-    <div class="sky"></div>
-    <div class="stars" id="firefly-stars"></div>
-    <div class="moon">
-      <div class="moon-halo"></div>
-      <div class="moon-core"></div>
-    </div>
-    <div class="mist mist-far"></div>
-    <div class="canopy canopy-back" data-depth="6"></div>
-    <div class="light-shaft shaft-1"></div>
-    <div class="light-shaft shaft-2"></div>
-    <div class="light-shaft shaft-3"></div>
-    <div class="mist mist-mid"></div>
-    <div class="canopy canopy-mid" data-depth="12"></div>
-    <canvas id="fireflies-canvas"></canvas>
-    <div class="canopy canopy-front" data-depth="20"></div>
-    <!-- Excluded branch-left and branch-right elements to remove black circular side frames -->
-    <div class="mist mist-near"></div>
-    <div class="vignette"></div>
-    <div class="grain"></div>
-  </div>
+<div class="firefly-scene" data-firefly-scene aria-hidden="true">
+  <canvas class="ff-static" data-layer="sky"></canvas>
+  <canvas class="ff-static" data-layer="far"></canvas>
+  <canvas class="ff-river" data-layer="river"></canvas>
+  <canvas class="ff-static" data-layer="near"></canvas>
+  <canvas id="fireflies-canvas" class="ff-fx" data-layer="fx"></canvas>
+  <canvas class="ff-reeds" data-layer="reeds"></canvas>
+  <div class="ff-vignette"></div>
 </div>
 
 <style>
-  .dynamic-firefly-bg {
+  .firefly-scene {
+    --ff-margin: 28px;
     position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    overflow: hidden;
-  }
-
-  .scene {
-    position: relative;
-    width: 100vw;
+    inset: 0 0 auto;
+    /* Large viewport height: mobile URL-bar changes do not resize (and repaint) the scene. */
     height: 100vh;
+    height: 100lvh;
+    z-index: 1;
     overflow: hidden;
-    background: #050906;
-  }
-
-  .sky {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 75% 45% at 50% -8%, #1c1a33 0%, transparent 55%),
-      linear-gradient(to bottom, #0e1a13 0%, #0a140e 38%, #050906 70%, #020403 100%);
-  }
-
-  .stars {
-    position: absolute;
-    inset: 0 0 45% 0;
-  }
-  
-  :global(.star) {
-    position: absolute;
-    border-radius: 50%;
-    background: #eef3e4;
-    box-shadow: 0 0 4px rgba(238, 243, 228, 0.7);
-    animation: twinkle ease-in-out infinite;
-  }
-  @keyframes twinkle {
-    0%, 100% { opacity: 0.15; }
-    50% { opacity: 0.85; }
-  }
-
-  .moon {
-    position: absolute;
-    top: 10%;
-    right: 14%;
-    width: 84px;
-    height: 84px;
-  }
-  .moon-core {
-    position: absolute;
-    inset: 0;
-    border-radius: 50%;
-    background: radial-gradient(circle at 35% 35%, #f8faf1, #d9e2cd 65%, #b6c5a8 100%);
-    box-shadow: 0 0 50px 12px rgba(225, 238, 210, 0.22);
-  }
-  .moon-halo {
-    position: absolute;
-    inset: -46px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(220, 235, 210, 0.14), transparent 70%);
-    filter: blur(4px);
-    animation: moonPulse 9s ease-in-out infinite;
-  }
-  @keyframes moonPulse {
-    0%, 100% { opacity: 0.6; }
-    50% { opacity: 1; }
-  }
-
-  .mist {
-    position: absolute;
-    left: -15%;
-    width: 130%;
-    height: 32vh;
-    bottom: 0;
     pointer-events: none;
-  }
-  .mist-far {
-    background: linear-gradient(to top, rgba(157, 179, 163, 0.07), transparent 80%);
-    filter: blur(18px);
-    animation: driftA 70s ease-in-out infinite;
-  }
-  .mist-mid {
-    height: 22vh;
-    background: linear-gradient(to top, rgba(157, 179, 163, 0.09), transparent 75%);
-    filter: blur(12px);
-    animation: driftA 46s ease-in-out infinite reverse;
-  }
-  .mist-near {
-    height: 12vh;
-    background: linear-gradient(to top, rgba(180, 200, 185, 0.10), transparent 80%);
-    filter: blur(8px);
-    animation: driftA 30s ease-in-out infinite;
-  }
-  @keyframes driftA {
-    0%, 100% { transform: translateX(-4%); }
-    50% { transform: translateX(4%); }
+    background: #050a16;
   }
 
-  .light-shaft {
+  .firefly-scene canvas {
     position: absolute;
-    top: -12%;
-    height: 95vh;
-    background: linear-gradient(180deg, rgba(255, 241, 214, 0.16) 0%, rgba(255, 241, 214, 0.05) 42%, transparent 75%);
-    filter: blur(7px);
-    mix-blend-mode: screen;
-    opacity: 0.7;
-    animation: shaftShimmer 13s ease-in-out infinite;
-  }
-  .shaft-1 { left: 20%; width: 16vw; transform: rotate(9deg); animation-delay: 0s; }
-  .shaft-2 { left: 56%; width: 11vw; transform: rotate(-7deg); animation-delay: 4s; }
-  .shaft-3 { left: 78%; width: 9vw; transform: rotate(12deg); animation-delay: 8s; opacity: 0.55; }
-  @keyframes shaftShimmer {
-    0%, 100% { opacity: 0.45; }
-    50% { opacity: 0.85; }
+    display: block;
+    /* Overscanned layers are wider than the viewport; override the preflight cap. */
+    max-width: none;
   }
 
-  .canopy {
-    position: absolute;
-    left: 0;
-    right: 0;
-    bottom: 0;
+  .ff-static {
+    top: calc(var(--ff-margin) * -1);
+    left: calc(var(--ff-margin) * -1);
+    width: calc(100% + var(--ff-margin) * 2);
+    height: calc(100% + var(--ff-margin) * 2);
     will-change: transform;
   }
-  .canopy-back {
-    height: 30vh;
-    background: #1c2b1e;
-    opacity: 0.8;
-    filter: blur(2px);
-    clip-path: polygon(0% 100%, 0% 70%, 4% 55%, 8% 68%, 12% 48%, 16% 62%, 20% 42%, 24% 58%, 28% 38%, 32% 55%, 36% 45%, 40% 60%, 44% 40%, 48% 52%, 52% 36%, 56% 58%, 60% 44%, 64% 30%, 68% 50%, 72% 40%, 76% 55%, 80% 35%, 84% 48%, 88% 38%, 92% 60%, 96% 42%, 100% 55%, 100% 100%);
-  }
-  .canopy-mid {
-    height: 40vh;
-    background: #101c11;
-    opacity: 0.95;
-    clip-path: polygon(0% 100%, 0% 60%, 5% 40%, 9% 55%, 13% 30%, 17% 48%, 21% 25%, 25% 44%, 29% 20%, 33% 42%, 37% 28%, 41% 46%, 45% 18%, 49% 38%, 53% 24%, 57% 44%, 61% 15%, 65% 36%, 69% 22%, 73% 40%, 77% 12%, 81% 34%, 85% 20%, 89% 42%, 93% 16%, 97% 38%, 100% 25%, 100% 100%);
-  }
-  .canopy-front {
-    height: 46vh;
-    background: #060a06;
-    clip-path: polygon(0% 100%, 0% 45%, 6% 65%, 10% 20%, 14% 50%, 18% 10%, 22% 40%, 26% 15%, 30% 55%, 34% 25%, 38% 8%, 42% 45%, 46% 18%, 50% 60%, 54% 22%, 58% 5%, 62% 38%, 66% 12%, 70% 50%, 74% 20%, 78% 8%, 82% 42%, 86% 15%, 90% 55%, 94% 18%, 100% 40%, 100% 100%);
+
+  .ff-river {
+    left: calc(var(--ff-margin) * -1);
+    width: calc(100% + var(--ff-margin) * 2);
+    will-change: transform;
   }
 
-  #fireflies-canvas {
-    position: absolute;
+  .ff-fx {
     inset: 0;
-    display: block;
     width: 100%;
     height: 100%;
   }
 
-  .vignette {
+  .ff-reeds {
+    bottom: 0;
+    left: calc(var(--ff-margin) * -1);
+    width: calc(100% + var(--ff-margin) * 2);
+    will-change: transform;
+  }
+
+  .ff-vignette {
     position: absolute;
     inset: 0;
-    background: radial-gradient(ellipse at center, transparent 42%, rgba(2, 5, 3, 0.6) 100%);
-  }
-  .grain {
-    position: absolute;
-    inset: -60px;
-    opacity: 0.05;
-    mix-blend-mode: overlay;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  }
-
-  @media (max-width: 768px) {
-    .light-shaft { filter: blur(5px); }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .mist, .moon-halo, .light-shaft {
-      animation: none !important;
-    }
-    :global(.star) {
-      animation: none !important;
-    }
+    background:
+      radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(1, 3, 8, 0.55) 100%),
+      linear-gradient(to bottom, rgba(2, 4, 12, 0.35), transparent 18%);
   }
 </style>
 
 <script>
-  interface FireflyType {
-    depth: number;
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    size: number;
-    rgb: number[];
-    baseAlpha: number;
-    phase: number;
-    flickerSpeed: number;
-    flicker: number;
-    reset: () => void;
-    update: (t: number) => void;
-    draw: (ctx: CanvasRenderingContext2D) => void;
-  }
+  import { mountFireflyScene, type FireflySceneHandle } from "../../scripts/hub/firefly-scene";
 
-  interface SporeType {
-    x: number;
-    y: number;
-    vx: number;
-    vy: number;
-    size: number;
-    alphaMax: number;
-    life: number;
-    maxLife: number;
-    reset: (initial: boolean) => void;
-    update: () => void;
-    draw: (ctx: CanvasRenderingContext2D) => void;
-  }
+  // Bind contract with the hub theme switcher (src/pages/index.astro).
+  type FireflyWindow = Window & {
+    __bindFireflyBg?: () => void;
+    __fireflyBgCleanup?: () => void;
+    __fireflyBgInitialized?: boolean;
+  };
+  const win = window as FireflyWindow;
+  let live: { root: HTMLElement; handle: FireflySceneHandle } | null = null;
 
-  const initFireflyBackground = () => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    const isMobile = window.innerWidth < 768;
-
-    /* ---------- Stars ---------- */
-    const starsEl = document.getElementById("firefly-stars");
-    if (starsEl && starsEl.children.length === 0) {
-      const starCount = reduceMotion ? 30 : (isMobile ? 60 : 110);
-      const starFrag = document.createDocumentFragment();
-      for (let i = 0; i < starCount; i++) {
-        const s = document.createElement("span");
-        s.className = "star";
-        const size = (Math.random() * 1.6 + 0.6).toFixed(2);
-        s.style.top = (Math.random() * 55) + "%";
-        s.style.left = (Math.random() * 100) + "%";
-        s.style.width = size + "px";
-        s.style.height = size + "px";
-        s.style.animationDelay = (Math.random() * 6).toFixed(2) + "s";
-        s.style.animationDuration = (4 + Math.random() * 5).toFixed(2) + "s";
-        starFrag.appendChild(s);
-      }
-      starsEl.appendChild(starFrag);
-    }
-
-    /* ---------- Canvas setup ---------- */
-    const canvas = document.getElementById("fireflies-canvas") as HTMLCanvasElement | null;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    let w = window.innerWidth;
-    let h = window.innerHeight;
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
-    let mouseX = 0;
-    let mouseY = 0;
-    let mouseActive = false;
-
-    const resize = () => {
-      w = window.innerWidth;
-      h = window.innerHeight;
-      canvas.width = w * dpr;
-      canvas.height = h * dpr;
-      canvas.style.width = w + "px";
-      canvas.style.height = h + "px";
-      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    };
-    window.addEventListener("resize", resize);
-    resize();
-
-    const onMouseMove = (e: MouseEvent) => {
-      mouseX = e.clientX;
-      mouseY = e.clientY;
-      mouseActive = true;
-    };
-    const onMouseLeave = () => {
-      mouseActive = false;
-    };
-    const onTouchStart = (e: TouchEvent) => {
-      if (e.touches && e.touches[0]) {
-        mouseX = e.touches[0].clientX;
-        mouseY = e.touches[0].clientY;
-        mouseActive = true;
-      }
-    };
-
-    window.addEventListener("mousemove", onMouseMove);
-    window.addEventListener("mouseleave", onMouseLeave);
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-
-    /* ---------- Firefly Class ---------- */
-    class Firefly implements FireflyType {
-      depth!: number;
-      x!: number;
-      y!: number;
-      vx!: number;
-      vy!: number;
-      size!: number;
-      rgb!: number[];
-      baseAlpha!: number;
-      phase: number;
-      flickerSpeed: number;
-      flicker!: number;
-
-      constructor() {
-        this.reset();
-        this.phase = Math.random() * Math.PI * 2;
-        this.flickerSpeed = 0.4 + Math.random() * 1.1;
-      }
-
-      reset() {
-        this.depth = Math.random();
-        this.x = Math.random() * w;
-        this.y = h * 0.16 + Math.random() * h * 0.74;
-        this.vx = (Math.random() - 0.5) * 0.2;
-        this.vy = (Math.random() - 0.5) * 0.15;
-        this.size = (0.7 + this.depth * 1.6) * (0.8 + Math.random() * 0.5);
-        this.rgb = Math.random() < 0.72 ? [233, 255, 143] : [255, 207, 107];
-        this.baseAlpha = 0.35 + this.depth * 0.45;
-      }
-
-      update(t: number) {
-        this.vx += (Math.random() - 0.5) * 0.025;
-        this.vy += (Math.random() - 0.5) * 0.02;
-        this.vx = Math.max(-0.35, Math.min(0.35, this.vx));
-        this.vy = Math.max(-0.22, Math.min(0.22, this.vy));
-
-        if (mouseActive) {
-          const dx = this.x - mouseX;
-          const dy = this.y - mouseY;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 130 && dist > 0.01) {
-            const force = ((130 - dist) / 130) * 0.05;
-            this.vx += (dx / dist) * force;
-            this.vy += (dy / dist) * force;
-          }
-        }
-
-        const speed = 0.4 + this.depth * 0.8;
-        this.x += this.vx * speed;
-        this.y += this.vy * speed;
-
-        if (this.x < -30) this.x = w + 30;
-        if (this.x > w + 30) this.x = -30;
-        if (this.y < h * 0.1) this.y = h * 0.1;
-        if (this.y > h * 0.94) this.y = h * 0.94;
-
-        this.flicker = Math.sin(t * 0.0011 * this.flickerSpeed + this.phase) * 0.5 + 0.5;
-      }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        const alpha = this.baseAlpha * (0.25 + this.flicker * 0.75);
-        const glowSize = this.size * 9;
-        const grad = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, glowSize);
-        grad.addColorStop(0, `rgba(${this.rgb[0]},${this.rgb[1]},${this.rgb[2]},${alpha})`);
-        grad.addColorStop(0.35, `rgba(${this.rgb[0]},${this.rgb[1]},${this.rgb[2]},${alpha * 0.3})`);
-        grad.addColorStop(1, `rgba(${this.rgb[0]},${this.rgb[1]},${this.rgb[2]},0)`);
-        ctx.fillStyle = grad;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, glowSize, 0, Math.PI * 2);
-        ctx.fill();
-
-        ctx.fillStyle = `rgba(255,253,240,${Math.min(alpha * 1.4, 1)})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size * 0.55, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    /* ---------- Spore Class ---------- */
-    class Spore implements SporeType {
-      x!: number;
-      y!: number;
-      vx!: number;
-      vy!: number;
-      size!: number;
-      alphaMax!: number;
-      life!: number;
-      maxLife!: number;
-
-      constructor() {
-        this.reset(true);
-      }
-
-      reset(initial: boolean) {
-        this.x = Math.random() * w;
-        this.y = initial ? Math.random() * h : h + 15;
-        this.vx = (Math.random() - 0.5) * 0.08;
-        this.vy = -(0.12 + Math.random() * 0.22);
-        this.size = 0.6 + Math.random() * 1.1;
-        this.alphaMax = 0.10 + Math.random() * 0.16;
-        this.life = 0;
-        this.maxLife = 500 + Math.random() * 500;
-      }
-
-      update() {
-        this.life++;
-        this.x += this.vx;
-        this.y += this.vy;
-        if (this.life > this.maxLife || this.y < -15) this.reset(false);
-      }
-
-      draw(ctx: CanvasRenderingContext2D) {
-        const fadeIn = Math.min(this.life / 80, 1);
-        const fadeOut = Math.min((this.maxLife - this.life) / 80, 1);
-        const alpha = this.alphaMax * Math.max(Math.min(fadeIn, fadeOut), 0);
-        ctx.fillStyle = `rgba(228,236,218,${alpha})`;
-        ctx.beginPath();
-        ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    const fireflyCount = reduceMotion ? 20 : (isMobile ? 42 : 85);
-    const sporeCount = reduceMotion ? 6 : (isMobile ? 14 : 26);
-    
-    const fireflies: Firefly[] = [];
-    for (let fi = 0; fi < fireflyCount; fi++) {
-      fireflies.push(new Firefly());
-    }
-    const spores: Spore[] = [];
-    for (let si = 0; si < sporeCount; si++) {
-      spores.push(new Spore());
-    }
-
-    ctx.globalCompositeOperation = "lighter";
-
-    /* ---------- Parallax ---------- */
-    const parallaxEls = Array.prototype.slice.call(document.querySelectorAll(".canopy"))
-      .map((el: HTMLElement) => ({
-        el,
-        depth: parseFloat(el.dataset.depth || "6"),
-      }));
-
-    const updateParallax = (t: number) => {
-      if (reduceMotion) return;
-      const px = mouseActive ? (mouseX / w - 0.5) : 0;
-      const py = mouseActive ? (mouseY / h - 0.5) : 0;
-      const idle = Math.sin(t * 0.00015) * 0.4;
-      parallaxEls.forEach((item) => {
-        const dx = (px + idle) * item.depth;
-        const dy = py * item.depth * 0.3;
-        item.el.style.transform = `translate3d(${dx.toFixed(2)}px,${dy.toFixed(2)}px,0)`;
-      });
-    };
-
-    let animationFrameId: number;
-    const animate = (t: number) => {
-      ctx.clearRect(0, 0, w, h);
-      for (let i = 0; i < spores.length; i++) {
-        spores[i].update();
-        spores[i].draw(ctx);
-      }
-      for (let j = 0; j < fireflies.length; j++) {
-        fireflies[j].update(t);
-        fireflies[j].draw(ctx);
-      }
-      updateParallax(t);
-      animationFrameId = requestAnimationFrame(animate);
-    };
-    animationFrameId = requestAnimationFrame(animate);
-
-    // Cleanup helper
-    const cleanup = () => {
-      cancelAnimationFrame(animationFrameId);
-      window.removeEventListener("resize", resize);
-      window.removeEventListener("mousemove", onMouseMove);
-      window.removeEventListener("mouseleave", onMouseLeave);
-      window.removeEventListener("touchstart", onTouchStart);
-    };
-
-    (window as any).__fireflyBgCleanup = cleanup;
+  const cleanup = () => {
+    live?.handle.destroy();
+    live = null;
+    win.__fireflyBgInitialized = false;
   };
 
-  const bindFireflyBg = () => {
-    const bgContainer = document.getElementById("firefly-bg-container");
-    // Only initialize if the container is visible
-    if (bgContainer && bgContainer.style.display === "none") {
-      const win = window as any;
-      if (typeof win.__fireflyBgCleanup === "function") {
-        win.__fireflyBgCleanup();
-      }
-      win.__fireflyBgInitialized = false;
+  const bind = () => {
+    const container = document.getElementById("firefly-bg-container");
+    const root = container?.querySelector<HTMLElement>("[data-firefly-scene]");
+    if (!container || !root || container.style.display === "none") {
+      cleanup();
       return;
     }
-
-    const win = window as any;
-    if (win.__fireflyBgInitialized) {
-      if (typeof win.__fireflyBgCleanup === "function") {
-        win.__fireflyBgCleanup();
-      }
-    }
+    // Already running on this exact DOM: nothing to do.
+    if (live && live.root === root) return;
+    cleanup();
+    const handle = mountFireflyScene(root, { quietSelector: ".hub-hero h1, .hub-hero p" });
+    if (!handle) return;
+    live = { root, handle };
     win.__fireflyBgInitialized = true;
-    initFireflyBackground();
   };
 
-  (window as any).__bindFireflyBg = bindFireflyBg;
-  bindFireflyBg();
-  document.addEventListener("astro:page-load", bindFireflyBg);
+  win.__bindFireflyBg = bind;
+  win.__fireflyBgCleanup = cleanup;
+  bind();
 </script>

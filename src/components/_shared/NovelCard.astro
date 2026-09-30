@@ -23,10 +23,12 @@ const descriptionId = `novel-card-${novel.slug}-desc`;
     style={accentStyle + (isAvailable ? "" : "; display: none")}
     href={withBase(novel.href)}
     aria-label={`เปิดอ่าน ${novel.titleTh}`}
-    aria-describedby={`${descriptionId}-subtitle ${descriptionId}-meta`}
+    aria-describedby={`${descriptionId}-subtitle ${descriptionId}-meta ${descriptionId}-state`}
     data-active-card
   >
-    <span class="novel-card-media" aria-hidden="true">
+    {/* Shares its transition name with the hero of the novel's home page, so
+        opening a card morphs its art into that page. */}
+    <span class="novel-card-media" aria-hidden="true" transition:name={`novel-hero-${novel.slug}`}>
       {
         useImage ? (
           <img src={heroImage} alt="" loading="eager" decoding="async" />
@@ -38,6 +40,7 @@ const descriptionId = `novel-card-${novel.slug}-desc`;
           </span>
         )
       }
+      <span class="novel-card-progress" data-card-progress hidden><span></span></span>
     </span>
     <span class="novel-card-body">
       <span class="novel-card-kicker">{novel.titleEn}</span>
@@ -45,11 +48,12 @@ const descriptionId = `novel-card-${novel.slug}-desc`;
       <span class="novel-card-subtitle" id={`${descriptionId}-subtitle`}>{novel.subtitle}</span>
       <span class="novel-card-meta" id={`${descriptionId}-meta`}>{novel.mood} · {novel.length}</span>
       <span class="novel-card-footer">
-        <span>เผยแพร่</span>
-        <span class="novel-card-action">เริ่มอ่าน</span>
+        <span class="novel-card-state" id={`${descriptionId}-state`} data-card-state data-default={novel.badge ?? ""}>{novel.badge ?? ""}</span>
+        <span class="novel-card-action">เข้าสู่เรื่อง</span>
       </span>
     </span>
   </a>
+  <a class="novel-card-continue" style={accentStyle} href={withBase(novel.href)} data-card-continue hidden>อ่านต่อ</a>
 
   <!-- Locked / Coming Soon Card -->
   <article

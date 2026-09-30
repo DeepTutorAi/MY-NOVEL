@@ -26,27 +26,30 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     <PagesStarsBackground />
   </div>
   <main class="hub-shell" aria-labelledby="hub-title">
+    <div class="hub-topbar">
+      <div class="hub-profile-widget" data-profile-widget style="display: none;">
+        <div class="hub-profile-info">
+          <span class="profile-icon" data-profile-icon>👤</span>
+          <span class="profile-name" data-profile-name>...</span>
+        </div>
+        <div class="hub-profile-actions">
+          <button type="button" class="hub-profile-edit-btn" data-profile-edit-btn aria-label="แก้ไขโปรไฟล์">
+            แก้ไข
+          </button>
+          <button type="button" class="hub-profile-settings-btn" data-profile-settings-btn aria-label="สลับโปรไฟล์ Guest">
+            สลับ
+          </button>
+        </div>
+      </div>
+    </div>
+
     <section class="hub-hero">
       <div class="hub-title-group">
         <h1 id="hub-title">Pii-chan Dechalert</h1>
         <p>สี่เรื่อง สี่บรรยากาศ และพื้นที่อ่านเดียวกันสำหรับกลับไปยังโลกที่ยังค้างอยู่</p>
       </div>
-      
+
       <div class="hub-side-col">
-        <div class="hub-profile-widget" data-profile-widget style="display: none;">
-          <div class="hub-profile-info">
-            <span class="profile-icon" data-profile-icon>👤</span>
-            <span class="profile-name" data-profile-name>...</span>
-          </div>
-          <div class="hub-profile-actions">
-            <button type="button" class="hub-profile-edit-btn" data-profile-edit-btn>
-              แก้ไขโปรไฟล์
-            </button>
-            <button type="button" class="hub-profile-settings-btn" data-profile-settings-btn>
-              สลับ Guest
-            </button>
-          </div>
-        </div>
         <p class="hub-side-note">ฮับกลางสำหรับนิยายที่เปิดให้อ่านแล้ว และเรื่องถัดไปที่กำลังรอเวลาเดินทางมาถึง</p>
       </div>
     </section>
@@ -139,24 +142,30 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
 </HubLayout>
 
 <style>
-  /* Profile Widget */
   .hub-side-col {
     display: flex;
     flex-direction: column;
-    gap: 16px;
     align-items: flex-end;
   }
 
-  .hub-profile-widget {
-    background: var(--hub-panel-strong);
-    border: 1px solid var(--hub-line);
-    border-radius: 6px;
-    padding: 12px 16px;
-    width: 100%;
-    max-width: 260px;
+  /* Profile chip: one compact row above the hero so the first screen belongs
+     to the title, the resume card and the novels. */
+  .hub-topbar {
     display: flex;
-    flex-direction: column;
-    gap: 8px;
+    justify-content: flex-end;
+    margin-bottom: 18px;
+  }
+
+  .hub-profile-widget {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    max-width: 100%;
+    padding: 5px 6px 5px 5px;
+    border: 1px solid var(--hub-line);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--hub-panel-strong) 88%, transparent);
+    box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.35);
     box-sizing: border-box;
   }
 
@@ -164,13 +173,14 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 0.95rem;
+    min-width: 0;
+    font-size: 0.9rem;
   }
 
   .profile-icon {
-    font-size: 1.25rem;
-    width: 32px;
-    height: 32px;
+    font-size: 1.1rem;
+    width: 30px;
+    height: 30px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -191,24 +201,23 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 180px;
+    max-width: 160px;
   }
 
   .hub-profile-actions {
     display: flex;
-    gap: 6px;
-    width: 100%;
+    gap: 4px;
   }
 
   .hub-profile-edit-btn,
   .hub-profile-settings-btn {
-    flex: 1;
+    min-height: 30px;
     background: none;
     border: 1px solid var(--hub-line);
     color: var(--hub-muted);
-    font-size: 0.75rem;
-    padding: 6px 4px;
-    border-radius: 4px;
+    font-size: 0.78rem;
+    padding: 4px 12px;
+    border-radius: 999px;
     cursor: pointer;
     text-align: center;
     transition: background 0.2s, color 0.2s;
@@ -499,11 +508,11 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
   }
 
   @media (max-width: 780px) {
-    .hub-side-col {
-      align-items: stretch;
+    .hub-topbar {
+      margin-bottom: 14px;
     }
-    .hub-profile-widget {
-      max-width: none;
+    .hub-side-col {
+      display: none;
     }
   }
 
@@ -912,142 +921,135 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
 </script>
 
 <script is:inline>
+  /*
+   * Hub background theme switcher.
+   *
+   * Background bind contract (window globals, one set per background):
+   *   __bind<Key>()       Idempotent. Starts the scene when its container is shown
+   *                       (style.display !== "none"); cleans up and returns when the
+   *                       container is hidden or absent (novel pages).
+   *   __<key>Cleanup()    Stops the frame loop and removes every listener, observer
+   *                       and timer. Safe to call repeatedly.
+   *   __<key>Initialized  true while a scene instance is live.
+   * Keys: DynamicCityBg / dynamicCityBg (constellation), MothlightBg / mothlightBg,
+   * FireflyBg / fireflyBg, PagesStarsBg / pagesStarsBg.
+   * The switcher owns visibility: it sets container display before calling bind,
+   * and calls every cleanup on astro:before-swap. Global listeners are bound once
+   * (window.__hubThemeSwitcher) so a re-executed script never stacks handlers.
+   */
   (() => {
+    const win = window;
     const OVERRIDE_KEY = "piichan-novels:theme-override";
+    const REFERENCE_MONDAY = "2026-01-05T07:00:00+07:00";
+    const BACKGROUNDS = [
+      { theme: "constellation", containerId: "constellation-bg-container", key: "DynamicCityBg", label: "ธีม: กลุ่มดาว (กดสลับ)", icon: "🌌" },
+      { theme: "mothlight", containerId: "mothlight-bg-container", key: "MothlightBg", label: "ธีม: Mothlight (กดสลับ)", icon: "🦋" },
+      { theme: "firefly", containerId: "firefly-bg-container", key: "FireflyBg", label: "ธีม: ป่าหิ่งห้อย (กดสลับ)", icon: "✨" },
+      { theme: "pages-stars", containerId: "pages-stars-bg-container", key: "PagesStarsBg", label: "ธีม: หน้าหนังสือกลายเป็นดาว (กดสลับ)", icon: "📖" },
+    ];
+    const THEMES = BACKGROUNDS.map((bg) => bg.theme);
+    const lowerKey = (key) => key.charAt(0).toLowerCase() + key.slice(1);
 
-    function getActiveTheme() {
-      const override = localStorage.getItem(OVERRIDE_KEY);
-      if (override) {
-        return override;
-      }
+    const state = (win.__hubThemeSwitcher ??= { bound: false, sessionOverride: null });
+
+    function readOverride() {
       try {
-        const now = new Date();
-        const referenceMonday = new Date("2026-01-05T07:00:00+07:00");
-        const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-        const diffMs = now.getTime() - referenceMonday.getTime();
-        const weeksElapsed = Math.floor(diffMs / msPerWeek);
-        
-        const themes = ["constellation", "mothlight", "firefly", "pages-stars"];
-        return themes[((weeksElapsed % themes.length) + themes.length) % themes.length];
-      } catch (e) {
-        return "constellation";
+        const value = localStorage.getItem(OVERRIDE_KEY);
+        if (value === null) return state.sessionOverride;
+        if (THEMES.includes(value)) return value;
+        localStorage.removeItem(OVERRIDE_KEY);
+      } catch {
+        return state.sessionOverride;
+      }
+      return null;
+    }
+
+    function writeOverride(theme) {
+      state.sessionOverride = theme;
+      try {
+        localStorage.setItem(OVERRIDE_KEY, theme);
+      } catch {
+        // Storage blocked: the in-memory override keeps the choice for this session.
       }
     }
 
-    function applyTheme() {
+    function weeklyTheme() {
+      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
+      const weeksElapsed = Math.floor((Date.now() - new Date(REFERENCE_MONDAY).getTime()) / msPerWeek);
+      if (!Number.isFinite(weeksElapsed)) return THEMES[0];
+      return THEMES[((weeksElapsed % THEMES.length) + THEMES.length) % THEMES.length];
+    }
+
+    function getActiveTheme() {
+      return readOverride() ?? weeklyTheme();
+    }
+
+    function isHub() {
+      return BACKGROUNDS.some((bg) => document.getElementById(bg.containerId));
+    }
+
+    function cleanupBackground(bg) {
+      const cleanup = win[`__${lowerKey(bg.key)}Cleanup`];
+      if (typeof cleanup === "function") cleanup();
+      win[`__${lowerKey(bg.key)}Initialized`] = false;
+    }
+
+    // Sets container visibility and body class; with bind=true also starts the
+    // active scene and stops the others (component scripts may not have run yet
+    // on the first parse, so the early pass only prevents a flash of no theme).
+    function applyTheme(bind) {
+      if (!isHub()) return;
       const theme = getActiveTheme();
-      const constellationBg = document.getElementById("constellation-bg-container");
-      const mothlightBg = document.getElementById("mothlight-bg-container");
-      const fireflyBg = document.getElementById("firefly-bg-container");
-      const pagesStarsBg = document.getElementById("pages-stars-bg-container");
-      const toggleBtnText = document.querySelector(".hub-theme-toggle-btn .theme-btn-text");
-      const toggleBtnIcon = document.querySelector(".hub-theme-toggle-btn .theme-btn-icon");
+      const active = BACKGROUNDS.find((bg) => bg.theme === theme) ?? BACKGROUNDS[0];
 
-      document.body.classList.remove("theme-constellation", "theme-mothlight", "theme-firefly", "theme-pages-stars");
-      document.body.classList.add(`theme-${theme}`);
+      document.body.classList.remove(...THEMES.map((name) => `theme-${name}`));
+      document.body.classList.add(`theme-${active.theme}`);
 
-      const win = window;
-
-      // 1. Constellation background
-      if (theme === "constellation") {
-        if (constellationBg) constellationBg.style.display = "block";
-        if (toggleBtnText) toggleBtnText.textContent = "ธีม: กลุ่มดาว (กดสลับ)";
-        if (toggleBtnIcon) toggleBtnIcon.textContent = "🌌";
-
-        if (typeof win.__bindDynamicCityBg === "function") {
-          win.__bindDynamicCityBg();
-        }
-      } else {
-        if (constellationBg) constellationBg.style.display = "none";
-        if (typeof win.__dynamicCityBgCleanup === "function") {
-          win.__dynamicCityBgCleanup();
-        }
-        win.__dynamicCityBgInitialized = false;
+      for (const bg of BACKGROUNDS) {
+        if (bg === active) continue;
+        const container = document.getElementById(bg.containerId);
+        if (container) container.style.display = "none";
+        if (bind) cleanupBackground(bg);
       }
 
-      // 2. Mothlight background
-      if (theme === "mothlight") {
-        if (mothlightBg) mothlightBg.style.display = "block";
-        if (toggleBtnText) toggleBtnText.textContent = "ธีม: Mothlight (กดสลับ)";
-        if (toggleBtnIcon) toggleBtnIcon.textContent = "🦋";
+      const container = document.getElementById(active.containerId);
+      if (container) container.style.display = "block";
+      const toggleText = document.querySelector("[data-theme-toggle-btn] .theme-btn-text");
+      const toggleIcon = document.querySelector("[data-theme-toggle-btn] .theme-btn-icon");
+      if (toggleText) toggleText.textContent = active.label;
+      if (toggleIcon) toggleIcon.textContent = active.icon;
 
-        if (typeof win.__bindMothlightBg === "function") {
-          win.__bindMothlightBg();
-        }
-      } else {
-        if (mothlightBg) mothlightBg.style.display = "none";
-        if (typeof win.__mothlightBgCleanup === "function") {
-          win.__mothlightBgCleanup();
-        }
-        win.__mothlightBgInitialized = false;
-      }
-
-      // 3. Firefly background
-      if (theme === "firefly") {
-        if (fireflyBg) fireflyBg.style.display = "block";
-        if (toggleBtnText) toggleBtnText.textContent = "ธีม: ป่าหิ่งห้อย (กดสลับ)";
-        if (toggleBtnIcon) toggleBtnIcon.textContent = "✨";
-
-        if (typeof win.__bindFireflyBg === "function") {
-          win.__bindFireflyBg();
-        }
-      } else {
-        if (fireflyBg) fireflyBg.style.display = "none";
-        if (typeof win.__fireflyBgCleanup === "function") {
-          win.__fireflyBgCleanup();
-        }
-        win.__fireflyBgInitialized = false;
-      }
-
-      // 4. Pages into Stars background
-      if (theme === "pages-stars") {
-        if (pagesStarsBg) pagesStarsBg.style.display = "block";
-        if (toggleBtnText) toggleBtnText.textContent = "ธีม: หน้าหนังสือกลายเป็นดาว (กดสลับ)";
-        if (toggleBtnIcon) toggleBtnIcon.textContent = "📖";
-
-        if (typeof win.__bindPagesStarsBg === "function") {
-          win.__bindPagesStarsBg();
-        }
-      } else {
-        if (pagesStarsBg) pagesStarsBg.style.display = "none";
-        if (typeof win.__pagesStarsBgCleanup === "function") {
-          win.__pagesStarsBgCleanup();
-        }
-        win.__pagesStarsBgInitialized = false;
-      }
+      const bindFn = win[`__bind${active.key}`];
+      if (bind && typeof bindFn === "function") bindFn();
     }
 
     function toggleTheme() {
-      const current = getActiveTheme();
-      let next = "constellation";
-      if (current === "constellation") next = "mothlight";
-      else if (current === "mothlight") next = "firefly";
-      else if (current === "firefly") next = "pages-stars";
-      else if (current === "pages-stars") next = "constellation";
-
-      localStorage.setItem(OVERRIDE_KEY, next);
-      applyTheme();
+      const index = THEMES.indexOf(getActiveTheme());
+      writeOverride(THEMES[(index + 1) % THEMES.length]);
+      applyTheme(true);
     }
 
-    function initBackgroundSwitcher() {
+    function onPageLoad() {
+      if (!isHub()) return;
       const toggleBtn = document.querySelector("[data-theme-toggle-btn]");
-      if (toggleBtn) {
-        toggleBtn.removeEventListener("click", toggleTheme);
+      if (toggleBtn && !toggleBtn.hasAttribute("data-theme-toggle-bound")) {
+        toggleBtn.setAttribute("data-theme-toggle-bound", "");
         toggleBtn.addEventListener("click", toggleTheme);
       }
-      applyTheme();
+      applyTheme(true);
     }
 
-    initBackgroundSwitcher();
-    document.addEventListener("astro:page-load", initBackgroundSwitcher);
+    function onBeforeSwap() {
+      for (const bg of BACKGROUNDS) cleanupBackground(bg);
+    }
 
-    document.addEventListener("astro:before-swap", () => {
-      const win = window;
-      if (typeof win.__dynamicCityBgCleanup === "function") win.__dynamicCityBgCleanup();
-      if (typeof win.__mothlightBgCleanup === "function") win.__mothlightBgCleanup();
-      if (typeof win.__fireflyBgCleanup === "function") win.__fireflyBgCleanup();
-      if (typeof win.__pagesStarsBgCleanup === "function") win.__pagesStarsBgCleanup();
-    });
+    if (!state.bound) {
+      state.bound = true;
+      document.addEventListener("astro:page-load", onPageLoad);
+      document.addEventListener("astro:before-swap", onBeforeSwap);
+    }
+
+    applyTheme(false);
   })();
 </script>
 

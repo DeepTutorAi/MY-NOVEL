@@ -12,6 +12,8 @@ export interface NovelMeta {
   accent: string;
   href: string;
   status: NovelStatus;
+  /** Short label shown on the hub card footer until the reader has progress. */
+  badge?: string;
 }
 
 export const NOVELS = [
@@ -53,6 +55,7 @@ export const NOVELS = [
     accent: "#00F3C5",
     href: "/sea/",
     status: "เผยแพร่",
+    badge: "ใหม่ · อาร์กที่ 1",
   },
   {
     slug: "kusabi",

@@ -32,11 +32,38 @@
 }
 
 .hub-hero {
+  position: relative;
+  isolation: isolate;
   display: grid;
   grid-template-columns: minmax(0, 0.92fr) minmax(260px, 0.42fr);
   gap: 32px;
   align-items: end;
   padding-bottom: 30px;
+}
+
+/* The four hub backgrounds are busy and bright in places; a soft dark pool
+   behind the hero keeps its text legible on every theme. */
+.hub-hero::before {
+  position: absolute;
+  /* Side bleed shrinks to the page gutter on narrow screens so it never adds horizontal scroll. */
+  inset: -48px calc(-1 * clamp(0px, (100vw - 100%) / 2 - 8px, 72px)) -12px;
+  z-index: -1;
+  content: "";
+  /* closest-side makes the pool fully transparent by the time it reaches the
+     pseudo-element's edges, so it never shows as a box. */
+  background: radial-gradient(
+    ellipse closest-side at var(--hub-hero-pool-x, 34%) 55%,
+    rgba(8, 7, 6, 0.8) 0%,
+    rgba(8, 7, 6, 0.5) 55%,
+    rgba(8, 7, 6, 0) 100%
+  );
+  pointer-events: none;
+}
+
+.hub-title-group h1,
+.hub-title-group p,
+.hub-side-note {
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7);
 }
 
 .hub-title-group {
@@ -63,9 +90,11 @@
 
 .hub-side-note {
   margin: 0;
-  padding: 18px 0 0 18px;
-  border-left: 1px solid var(--hub-line);
-  color: var(--hub-faint);
+  padding: 14px 16px;
+  border-left: 1px solid color-mix(in srgb, var(--hub-accent) 45%, transparent);
+  border-radius: 0 8px 8px 0;
+  background: rgba(10, 9, 8, 0.62);
+  color: var(--hub-muted);
   font-size: 0.92rem;
   line-height: 1.75;
 }
@@ -312,7 +341,69 @@
 }
 
 .novel-card-action {
+  margin-left: auto;
   color: var(--hub-muted);
+}
+
+.novel-card-state:empty {
+  display: none;
+}
+
+/* Reading progress across the whole novel, drawn on the image's lower edge. */
+.novel-card-progress {
+  position: absolute;
+  inset: auto 0 0;
+  z-index: 1;
+  height: 3px;
+  background: rgba(10, 9, 8, 0.55);
+}
+
+.novel-card-progress[hidden] {
+  display: none;
+}
+
+.novel-card-progress span {
+  display: block;
+  height: 100%;
+  background: color-mix(in srgb, var(--novel-accent) 82%, #ffffff 18%);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--novel-accent) 60%, transparent);
+  transform: scaleX(var(--novel-progress, 0));
+  transform-origin: left center;
+}
+
+/* The card itself opens the novel's home; this second link, laid over the
+   card footer, jumps straight back to where the reader stopped. */
+.novel-card-continue {
+  position: absolute;
+  right: 22px;
+  bottom: 18px;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 8px 14px;
+  border: 1px solid color-mix(in srgb, var(--novel-accent) 70%, transparent);
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--novel-accent) 16%, var(--hub-panel-strong));
+  color: var(--hub-ink);
+  font-size: 0.9rem;
+  line-height: 1.2;
+  text-decoration: none;
+  transition: background 180ms ease, border-color 180ms ease;
+}
+
+.novel-card-continue[hidden] {
+  display: none;
+}
+
+.novel-card-continue:hover,
+.novel-card-continue:focus-visible {
+  border-color: color-mix(in srgb, var(--novel-accent) 90%, #ffffff 10%);
+  background: color-mix(in srgb, var(--novel-accent) 28%, var(--hub-panel-strong));
+}
+
+.novel-card-wrapper.has-progress .novel-card-action {
+  visibility: hidden;
 }
 
 .novel-card.is-disabled {
@@ -481,6 +572,11 @@
     padding-bottom: 22px;
   }
 
+  .hub-hero::before {
+    --hub-hero-pool-x: 50%;
+    inset: -32px -12px -8px;
+  }
+
   .hub-title-group h1 {
     font-size: 3rem;
     line-height: 1.02;
@@ -491,11 +587,6 @@
     font-size: 1rem;
   }
 
-  .hub-side-note {
-    padding: 14px 0 0;
-    border-top: 1px solid var(--hub-line);
-    border-left: 0;
-  }
 
   .resume-card-actions {
     width: 100%;
@@ -535,6 +626,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .novel-card,
+  .novel-card-continue,
   .resume-card-actions a,
   .resume-card-actions button {
     transition: none;
@@ -543,5 +635,60 @@
   .novel-card:hover .novel-card-media img,
   .novel-card:focus-visible .novel-card-media img {
     animation: none;
+  }
+}
+
+/* Landscape phones: the first screen shows the title, the subtitle and the
+   start of the resume card or library. The profile chip moves up beside the
+   title and the side note, which only restates the subtitle, steps aside. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .hub-shell {
+    padding-top: 14px;
+  }
+
+  .hub-page .hub-shell .hub-topbar {
+    position: absolute;
+    top: 12px;
+    right: 0;
+    z-index: 3;
+    margin: 0;
+  }
+
+  .hub-hero {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+    padding-bottom: 16px;
+  }
+
+  .hub-page .hub-hero .hub-side-col {
+    display: none;
+  }
+
+  .hub-title-group h1 {
+    font-size: clamp(2.1rem, 11svh, 2.8rem);
+    line-height: 1.05;
+    white-space: nowrap;
+  }
+
+  .hub-title-group p {
+    max-width: none;
+    margin-top: 8px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+  }
+
+  .resume-card {
+    margin-bottom: 16px;
+    padding: 12px 16px;
+  }
+
+  .resume-card h2 {
+    font-size: 1.3rem;
+  }
+
+  .novel-card-media,
+  .novel-card-media img,
+  .novel-card-placeholder {
+    height: min(230px, 52svh);
   }
 }
