@@ -250,32 +250,14 @@ const hasCutscene = !!epigraphText;
   body.has-cutscene {
     overflow: hidden;
   }
-  body.has-cutscene .sakura-backdrop {
-    z-index: 998 !important;
-    background: #000000 !important;
-  }
-  body.has-cutscene .sakura-backdrop__base,
-  body.has-cutscene .sakura-backdrop__tint,
-  body.has-cutscene .sakura-backdrop__moon,
-  body.has-cutscene .sakura-backdrop__rays,
-  body.has-cutscene .sakura-backdrop__mist,
-  body.has-cutscene .sakura-backdrop__train,
-  body.has-cutscene .sakura-backdrop__clock,
-  body.has-cutscene .sakura-backdrop__frame {
-    opacity: 0 !important;
-    visibility: hidden !important;
-  }
-  body.has-cutscene .sakura-backdrop__petals {
-    opacity: 1 !important;
-    visibility: visible !important;
-    z-index: 999 !important;
-  }
-
+  /* The overlay must paint above every page layer, the fixed backdrop and its
+     petals included; raising a page layer above it hides the epigraph and the
+     continue button (they stay in the DOM but render black). */
   .cutscene-overlay {
     position: fixed;
     inset: 0;
     background: #000000;
-    z-index: 997;
+    z-index: 1001;
     display: flex;
     align-items: center;
     justify-content: center;
