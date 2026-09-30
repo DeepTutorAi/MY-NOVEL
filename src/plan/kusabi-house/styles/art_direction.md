@@ -33,6 +33,11 @@ the character and costume.
   stillness, concealment, and shadow rather than photorealistic detail.
 - Keep the character readable as an anime design first and horror illustration
   second.
+- **Ayame Hirasaka version 2 exception:** use clean shoujo / light-novel 2D
+  anime rendering in neutral grayscale, with soft cel shading and bright, gentle
+  tonal values. Do not apply the horror wash, dry-brush texture, or heavy pooled
+  shadows to her approved pre-tragedy design; keep her human, warm, and quietly
+  compassionate.
 
 ## Shion Madoka — murderer guise visual invariants
 
@@ -59,7 +64,7 @@ details are visual direction; they do not become story canon unless established
 in the story files.
 
 The approved Arai Ryoya, Nao Amamiya, Kaito Sakuraba, Risa Asahina, Misaki
-Kurosawa, and Shion Madoka version 2 drafts are stored in the separate
+Kurosawa, Ayame Hirasaka, and Shion Madoka version 2 drafts are stored in the separate
 `public/assets/kusabi/images/characters/drafts-v2/` directory. Their version 1
 drafts remain in `drafts/` unchanged.
 
@@ -89,11 +94,13 @@ drafts remain in `drafts/` unchanged.
   — short dark bob, a direct guarded gaze, and practical summer-travel styling.
   Version 1 remains at
   `public/assets/kusabi/images/characters/drafts/misaki-kurosawa-draft-v1.png`.
-- Ayame Hirasaka: `public/assets/kusabi/images/characters/drafts/ayame-hirasaka-draft-v1.png`
-  — the most beautiful woman in the story, with long straight black hair and a
-  gentle, pure, almost angelic presence. Keep her appearance warm and human;
-  the ivory field blouse, muted blue-gray long skirt, shoulder bag, and cassette
-  are this approved pre-tragedy visual design.
+- Ayame Hirasaka, version 2:
+  `public/assets/kusabi/images/characters/drafts-v2/ayame-hirasaka-draft-v2.png`
+  — clean grayscale shoujo / light-novel anime rendering; long straight black
+  hair, ivory field blouse, muted gray long skirt, shoulder bag, and cassette
+  player. Her gentle beauty stays human, sincere, and quietly strong. Version 1
+  remains at
+  `public/assets/kusabi/images/characters/drafts/ayame-hirasaka-draft-v1.png`.
 - Unnamed ryokan owner: `public/assets/kusabi/images/characters/drafts/ryokan-owner-draft-v1.png`
   — mature, middle-aged woman with dark hair touched with silver and gathered
   into a low bun; practical charcoal-indigo kimono and apron, room keys, and a
