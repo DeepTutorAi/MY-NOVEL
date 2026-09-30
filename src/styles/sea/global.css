@@ -517,3 +517,39 @@ html[data-sea-motion="off"][data-astro-transition-fallback] {
     font-size: 1.1rem;
   }
 }
+
+/* Landscape phones: the chapter header compacts so the first lines of prose
+   share the opening screen with the title. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .sea-reader {
+    padding-top: calc(var(--sea-topbar-height) + 1.1rem);
+  }
+
+  .sea-reader-header {
+    margin-bottom: 1.6rem;
+    padding-bottom: 1rem;
+  }
+
+  .sea-reader-title {
+    font-size: clamp(1.6rem, 9svh, 2.2rem);
+    line-height: 1.2;
+  }
+
+  .sea-location-plate {
+    margin-top: 0.7rem;
+    padding: 0.45rem 0.9rem 0.5rem;
+  }
+
+  .sea-location-place {
+    font-size: 1.05rem;
+  }
+
+  .sea-location-time {
+    display: inline;
+    margin: 0 0 0 0.6rem;
+  }
+
+  .sea-reader-subtitle {
+    margin-top: 0.5rem;
+  }
+}

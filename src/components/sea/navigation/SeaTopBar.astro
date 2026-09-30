@@ -221,6 +221,23 @@ const isChapter = mode === "chapter";
       display: none;
     }
   }
+
+  @media (pointer: coarse) {
+    .sea-topbar-mark {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+    }
+
+    .sea-topbar :global(.sea-topbar-button) {
+      min-width: 44px;
+      height: 44px;
+    }
+
+    .sea-topbar-nav {
+      gap: 0;
+    }
+  }
 </style>
 
 <script>

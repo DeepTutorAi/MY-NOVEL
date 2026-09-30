@@ -65,6 +65,20 @@ function splitLines(lines: HTMLElement[]): () => void {
   };
 }
 
+// ScrollTrigger keeps its own requestAnimationFrame loop (and scroll listeners)
+// alive for as long as it is enabled, even after every trigger is killed.
+// Without parking it, that loop would keep running on every page reached from
+// the home page through the client router.
+type ScrollTriggerApi = (typeof import("gsap/ScrollTrigger"))["ScrollTrigger"];
+let scrollTriggerApi: ScrollTriggerApi | null = null;
+let scrollTriggerParked = false;
+
+function parkScrollTriggerIfIdle(): void {
+  if (!scrollTriggerApi || scrollTriggerParked || scrollTriggerApi.getAll().length > 0) return;
+  scrollTriggerApi.disable();
+  scrollTriggerParked = true;
+}
+
 async function mount(root: HTMLElement, isTornDown: () => boolean): Promise<(() => void) | null> {
   const [{ gsap }, { ScrollTrigger }, { createCeilingRenderer }, frameMs] = await Promise.all([
     import("gsap"),
@@ -74,6 +88,11 @@ async function mount(root: HTMLElement, isTornDown: () => boolean): Promise<(() 
   ]);
   if (isTornDown()) return null;
   gsap.registerPlugin(ScrollTrigger);
+  scrollTriggerApi = ScrollTrigger;
+  if (scrollTriggerParked) {
+    ScrollTrigger.enable();
+    scrollTriggerParked = false;
+  }
 
   const $ = <T extends Element = HTMLElement>(selector: string) => root.querySelector<T>(selector);
   const stage = $(".sea-ascent-stage");
@@ -81,7 +100,10 @@ async function mount(root: HTMLElement, isTornDown: () => boolean): Promise<(() 
   const canvas = $<HTMLCanvasElement>(".sea-ascent-ceiling");
   const copy = $(".sea-ascent-copy");
   const end = $(".sea-ascent-end");
-  if (!stage || !plate || !canvas || !copy || !end) return null;
+  if (!stage || !plate || !canvas || !copy || !end) {
+    parkScrollTriggerIfIdle();
+    return null;
+  }
   const shade = $(".sea-ascent-shade");
   const floor = $(".sea-ascent-floor");
   const [fogLow, fogMid, fogHigh] = Array.from(root.querySelectorAll<HTMLElement>(".sea-fog"));
@@ -268,6 +290,7 @@ async function mount(root: HTMLElement, isTornDown: () => boolean): Promise<(() 
   const onMotionChange = (event: Event) => {
     if ((event as CustomEvent<unknown>).detail === false) {
       mm.revert();
+      parkScrollTriggerIfIdle();
       root.dataset.tier = "c";
     }
   };
@@ -275,6 +298,7 @@ async function mount(root: HTMLElement, isTornDown: () => boolean): Promise<(() 
   return () => {
     window.removeEventListener("sea:motion-change", onMotionChange);
     mm.revert();
+    parkScrollTriggerIfIdle();
   };
 }
 

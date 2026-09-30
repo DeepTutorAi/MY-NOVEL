@@ -195,3 +195,11 @@
   --bg-mist-linear-start: rgba(1, 4, 10, 0.08);
   --bg-mist-linear-end: rgba(0, 2, 5, 0.99);
 }
+
+/* Landscape phones: every row of height counts, so the top bar shrinks to
+   one touch target tall. Everything offset by the bar follows this token. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --sea-topbar-height: 44px;
+  }
+}

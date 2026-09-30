@@ -445,6 +445,17 @@ const endMark = number === 0 ? "จบบทนำ" : `จบบทที่ ${n
       padding: 0.9rem 1rem;
     }
   }
+
+  /* Landscape phones: the relic gives its height back to the prose. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .sea-reader-relic {
+      display: none;
+    }
+
+    .sea-kicker {
+      margin-bottom: 0.15rem;
+    }
+  }
 </style>
 
 <script>

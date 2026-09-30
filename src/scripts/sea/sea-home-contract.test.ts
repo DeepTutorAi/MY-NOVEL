@@ -137,6 +137,15 @@ describe("Sea home contract", () => {
     assert.equal(resolveResume(null, units, base), null);
   });
 
+  it("parks ScrollTrigger when the hero is torn down", () => {
+    // ScrollTrigger runs its own requestAnimationFrame loop until disabled;
+    // left running it kept ticking on every page reached through the router.
+    const ascent = read("src/scripts/sea/home/ascent.ts");
+    assert.match(ascent, /scrollTriggerApi\.disable\(\)/);
+    assert.match(ascent, /ScrollTrigger\.enable\(\)/);
+    assert.match(ascent, /mm\.revert\(\);\s*\n\s*parkScrollTriggerIfIdle\(\);/);
+  });
+
   it("formats table-of-contents read marks", () => {
     assert.equal(readMark(null), null);
     assert.equal(readMark(0.001), null);

@@ -42,7 +42,7 @@ const { startHref, heroImage, ceilingImage, facts, arcLabel } = Astro.props;
 
   <div class="sea-ascent-stage">
     <div class="sea-ascent-scene" aria-hidden="true">
-      <div class="sea-home-visual sea-ascent-plate" style={`--sea-home-hero-image: url("${heroImage}")`}></div>
+      <div class="sea-home-visual sea-ascent-plate" style={`--sea-home-hero-image: url("${heroImage}")`} transition:name="novel-hero-sea"></div>
       <div class="sea-ascent-shade"></div>
       <div class="sea-ascent-fog" data-zone="shroud">
         <span class="sea-fog sea-fog-low"></span>
@@ -552,6 +552,81 @@ const { startHref, heroImage, ceilingImage, facts, arcLabel } = Astro.props;
 
     .sea-ascent-skip {
       margin-top: 0.8rem;
+    }
+  }
+
+  /* Landscape phones: the title block has to fit one short screen below the
+     fixed top bar, so the type steps down with the viewport height and the
+     facts row, repeated in the table of contents, is left out. */
+  @media (orientation: landscape) and (max-height: 500px) {
+    .sea-ascent-copy {
+      justify-content: center;
+      padding: calc(var(--sea-topbar-height) + 0.6rem) 0 0.9rem;
+    }
+
+    .sea-ascent-kicker {
+      margin-bottom: 0.1rem;
+      font-size: 0.7rem;
+    }
+
+    .sea-ascent-title {
+      font-size: clamp(2rem, 12svh, 3rem);
+    }
+
+    .sea-ascent-epigraph {
+      max-width: 38rem;
+      margin-top: 0.35rem;
+      padding-left: 0.8rem;
+    }
+
+    .sea-ascent-epigraph p {
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .sea-ascent-epigraph figcaption {
+      margin-top: 0.1rem;
+      font-size: 0.7rem;
+    }
+
+    .sea-ascent-actions {
+      margin-top: 0.75rem;
+    }
+
+    .sea-ascent-cta {
+      padding-block: 0.45rem;
+      font-size: 0.95rem;
+    }
+
+    .sea-ascent-skip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.3em;
+      min-height: 2.75rem;
+      margin-top: 0.15rem;
+    }
+
+    .sea-ascent-facts {
+      display: none;
+    }
+
+    .sea-line-text,
+    .sea-ascent-lines :global(.sea-line-glyphs) {
+      font-size: clamp(1.1rem, 6svh, 1.5rem);
+      line-height: 1.45;
+    }
+
+    .sea-ascent:is([data-tier="a"], [data-tier="b"]) .sea-ascent-line {
+      width: min(40rem, 100% - 2 * var(--sea-gutter));
+    }
+
+    .sea-ascent:is([data-tier="a"], [data-tier="b"]) .sea-ascent-line[data-stage="ceiling"] {
+      top: 36%;
+    }
+
+    .sea-ascent:is([data-tier="a"], [data-tier="b"]) .sea-ascent-end {
+      bottom: 0.9rem;
+      gap: 0.3rem;
     }
   }
 </style>
