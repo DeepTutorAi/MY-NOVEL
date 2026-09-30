@@ -120,10 +120,11 @@ const bodyClasses = ["sea-page", "sea-shell", "has-sea-topbar", bodyClass].filte
     <script is:inline>
       // No-flash cover for the arc cutscene (src/scripts/sea/cutscene/runner.ts).
       // Runs before first paint and, through astro:after-swap, before the
-      // swapped-in page is shown. The rule mirrors shouldPlay() in runner.ts;
-      // the snapshot keeps this page's URL for the runner, since ?resume=1 is
-      // stripped by the reader as soon as it starts. The cover is lifted by
-      // the runner, or after 2.5s of visible time at the latest.
+      // swapped-in page is shown. The rule mirrors shouldPlay() in
+      // src/scripts/_shared/cutscene/core.ts; the snapshot keeps this page's
+      // URL for the runner, since ?resume=1 is stripped by the reader as soon
+      // as it starts. The cover is lifted by the runner, or after 2.5s of
+      // visible time at the latest.
       (() => {
         if (window.__seaCutsceneNav) return;
         const entry = performance.getEntriesByType("navigation")[0];
@@ -141,7 +142,8 @@ const bodyClasses = ["sea-page", "sea-shell", "has-sea-topbar", bodyClass].filte
           if (!arc) return;
           const params = new URLSearchParams(location.search);
           const mode = params.get("cutscene");
-          // Played counts only since the latest 06:00 local time (playedToday() in runner.ts).
+          // Played counts only since the latest 06:00 local time (playedToday() in
+          // src/scripts/_shared/cutscene/core.ts; keep the hour in step with COOLDOWN_RESET_HOUR there).
           let played = false;
           try {
             const at = Date.parse(localStorage.getItem("sea:cutscene:played:" + arc) ?? "");

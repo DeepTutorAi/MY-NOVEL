@@ -2,7 +2,7 @@
 // pads on its tips, weeping strands and the perches fireflies settle on.
 // Pure data, no canvas: painting lives in firefly-scene.ts.
 
-import { createNoise2D, createRng, fbm2D } from "./scene-runtime";
+import { createNoise2D, createRng, fbm2D } from "../_shared/scene-runtime";
 
 const TAU = Math.PI * 2;
 

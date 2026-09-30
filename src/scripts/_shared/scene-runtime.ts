@@ -1,4 +1,5 @@
-// Runtime for full-screen canvas scenes on the hub (Firefly, Mothlight, ...).
+// Runtime for full-screen canvas scenes, shared by the hub (Firefly, Mothlight,
+// ...) and the cutscene scenes.
 //
 // A scene supplies render/resize callbacks; the runtime owns the frame loop,
 // backing-store sizing, visibility pausing, live reduced-motion handling and a

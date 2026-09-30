@@ -7,8 +7,8 @@
 // and cards with CSS selectors; the moon is placed clear of them and moths and
 // the pointer lantern keep out of them.
 
-import { createNoise2D, createRng, createScene, fbm2D } from "./scene-runtime";
-import type { PointerState, SceneFrame, SceneHandle, SceneSize } from "./scene-runtime";
+import { createNoise2D, createRng, createScene, fbm2D } from "../_shared/scene-runtime";
+import type { PointerState, SceneFrame, SceneHandle, SceneSize } from "../_shared/scene-runtime";
 
 const TAU = Math.PI * 2;
 const SEED = 0x6d6f7468;

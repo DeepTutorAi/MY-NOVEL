@@ -13,7 +13,7 @@ import {
   type PointerState,
   type SceneFrame,
   type SceneSize,
-} from "./scene-runtime";
+} from "../_shared/scene-runtime";
 import {
   configureGrid,
   createFlashField,

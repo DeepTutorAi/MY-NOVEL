@@ -16,7 +16,7 @@ import {
   triggerFlash,
 } from "./firefly-sync";
 import { computeLayout, fireflyCount, layoutMode } from "./firefly-scene";
-import { createRng } from "./scene-runtime";
+import { createRng } from "../_shared/scene-runtime";
 
 function simulate(seconds: number, waves: number[]) {
   const rng = createRng(5);

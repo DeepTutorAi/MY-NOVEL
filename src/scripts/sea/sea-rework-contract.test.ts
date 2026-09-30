@@ -82,7 +82,7 @@ describe("Sea rework contract", () => {
     for (const path of SEA_SOURCES) {
       assert.doesNotMatch(read(path), /window\.addEventListener\(\s*["'`]astro:/, path);
     }
-    assert.match(read("src/scripts/sea/lifecycle.ts"), /document\.addEventListener\(\s*"astro:/);
+    assert.match(read("src/scripts/_shared/lifecycle.ts"), /document\.addEventListener\(\s*"astro:/);
   });
 
   it("never breaks Thai words anywhere", () => {

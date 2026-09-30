@@ -20,25 +20,35 @@
 // Reduced motion (media query or html[data-sea-motion=off]) shows the static
 // title card from ArcCutscene.astro instead: no scene, no GSAP, a 300ms CSS
 // fade and a "เริ่มอ่าน" button.
+//
+// The cooldown (06:00 local reset), the played-stamp reader and the URL
+// cleaner live in src/scripts/_shared/cutscene/core.ts, shared with
+// Tsukinomi, and are re-exported here for Sea's callers. This runner keeps its
+// own DOM lifecycle and its own copies of parseCutsceneParams and shouldPlay
+// rather than moving onto _shared/cutscene/runner.ts: the Sea contract test
+// (sea-rework-contract.test.ts) pins those lines in this file, and
+// sea-e2e.ts waits for dialog.dataset.state === "done". The copies are held to
+// the shared ones by cutscene-core-parity.test.ts.
+import {
+  cleanCutsceneUrl,
+  COOLDOWN_RESET_HOUR,
+  cooldownDay,
+  playedToday,
+  type CutsceneParams,
+  type CutsceneTrigger,
+} from "../../_shared/cutscene/core";
 import { loadScene, type SceneHandle, type SceneModule } from "./registry";
 import type { CutsceneSfx } from "./sfx";
+
+export { cleanCutsceneUrl, COOLDOWN_RESET_HOUR, cooldownDay, playedToday };
+export type { CutsceneParams, CutsceneTrigger };
 
 export type CutsceneState = "idle" | "pending" | "loading" | "playing" | "finishing" | "done";
 
 export const COVER_CLASS = "sea-cutscene-pending";
 export const PLAYED_PREFIX = "sea:cutscene:played:";
 export const TAP_GRACE_MS = 400;
-/** Local hour at which the once-per-day cooldown resets. */
-export const COOLDOWN_RESET_HOUR = 6;
 const FADE_OUT_S = 0.25;
-
-export interface CutsceneParams {
-  resume: boolean;
-  replay: boolean;
-  force: boolean;
-  /** Dev-only scene override (?cutscene=force&scene=sealed-depth). */
-  scene: string | null;
-}
 
 export function parseCutsceneParams(search: string): CutsceneParams {
   const params = new URLSearchParams(search);
@@ -51,59 +61,15 @@ export function parseCutsceneParams(search: string): CutsceneParams {
   };
 }
 
-export interface CutsceneTrigger {
-  /** The article carries data-arc-entry. */
-  hasEntry: boolean;
-  resume: boolean;
-  /** Back/forward history traversal (Astro navigationType "traverse", or a back_forward page load). */
-  traversal: boolean;
-  played: boolean;
-  replay: boolean;
-  force: boolean;
-  dev: boolean;
-}
-
 /**
- * Keep in sync with the inline gate in SeaBaseLayout.astro, which applies the
- * same rule before first paint to decide whether to cover the page.
+ * Keep in sync with shouldPlay() in _shared/cutscene/core.ts and with the
+ * inline gate in SeaBaseLayout.astro, which applies the same rule before first
+ * paint to decide whether to cover the page.
  */
 export function shouldPlay(trigger: CutsceneTrigger): boolean {
   if (!trigger.hasEntry) return false;
   if (trigger.replay || (trigger.force && trigger.dev)) return true;
   return !trigger.resume && !trigger.traversal && !trigger.played;
-}
-
-/** The current cooldown day: from the latest 06:00 local time to the next one. */
-export function cooldownDay(now: Date): { start: number; end: number } {
-  const start = new Date(now);
-  start.setHours(COOLDOWN_RESET_HOUR, 0, 0, 0);
-  if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 1);
-  const end = new Date(start);
-  end.setDate(end.getDate() + 1);
-  return { start: start.getTime(), end: end.getTime() };
-}
-
-/**
- * Whether a stored played timestamp falls in the current cooldown day. Missing
- * or unreadable values count as not played. Keep in sync with the inline gate
- * in SeaBaseLayout.astro.
- */
-export function playedToday(stored: string | null, now: Date): boolean {
-  if (stored === null) return false;
-  const at = Date.parse(stored);
-  const { start, end } = cooldownDay(now);
-  return at >= start && at < end;
-}
-
-/** The URL without the cutscene-only parameters. */
-export function cleanCutsceneUrl(href: string): string {
-  const url = new URL(href);
-  const mode = url.searchParams.get("cutscene");
-  if (mode === "replay" || mode === "force") {
-    url.searchParams.delete("cutscene");
-    url.searchParams.delete("scene");
-  }
-  return `${url.pathname}${url.search}${url.hash}`;
 }
 
 interface CutsceneNav {
