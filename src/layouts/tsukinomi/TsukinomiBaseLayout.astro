@@ -10,6 +10,7 @@ import {
   getTsukinomiBackgroundSlot,
   type TsukinomiBackgroundSlotId,
 } from "../../data/tsukinomi/background-slots";
+import { NOVELS, type NovelMeta } from "../../data/_novels";
 import "../../styles/tsukinomi/global.css";
 import { withBase } from "../../utils/base-path";
 import ProfileStorageInterceptor from "../../components/_shared/ProfileStorageInterceptor.astro";
@@ -35,6 +36,13 @@ const {
   showTopBar = true,
   ogImage = "/og.jpg",
 } = Astro.props;
+// The section unlock gate only applies while the novel is not published
+// (mirrors the hub card in NovelCard.astro). A published novel emits no gate
+// script, so a direct link or refresh on a section page is never redirected;
+// set the status back to anything else in _novels.ts to restore the lock.
+const novels: readonly NovelMeta[] = NOVELS;
+const tsukinomiNovel = novels.find((novel) => novel.slug === "tsukinomi");
+const requiresUnlockGate = tsukinomiNovel?.status !== "เผยแพร่";
 const canonical = Astro.url.href;
 const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href;
 const faviconLit = withBase("/favicon.svg");
@@ -90,59 +98,65 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
     data-background-status={backgroundStatus}
     data-background-expected={backgroundSlot.expectedImageBase}
   >
+    {
+      requiresUnlockGate && (
+        <script is:inline>
+          (function() {
+            const parts = ["7a1c", "d5bf", "758e", "bf3d", "42bd", "bf81", "706a", "d55c", "2f7d", "c9a1", "da1e", "27ab", "bcae", "f433", "f167", "8968"];
+            const h1 = parts.join("");
+            const key = "tsukinomi:extra-bypassed";
+
+            let isProgressMet = false;
+            try {
+              const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
+              const arr = raw ? JSON.parse(raw) : [];
+              if (Array.isArray(arr)) {
+                isProgressMet = arr.filter(id => id !== "00-introduction").length >= 4;
+              }
+            } catch(e) {}
+
+            let isLodgeUnlocked = false;
+            try {
+              const lodgeBypassH1 = localStorage.getItem("hvitveldt:extra-bypassed");
+              // Obfuscated Lodge H1 check to run synchronously
+              // Lodge H1: c14cbee5949dbd6b00df5b3e7893764cba713534db902dac0fa66369a78890bf
+              const lodgeH1Parts = ["c14c", "bee5", "949d", "bd6b", "00df", "5b3e", "7893", "764c", "ba71", "3534", "db90", "2dac", "0fa6", "6369", "a788", "90bf"];
+              if (lodgeBypassH1 === lodgeH1Parts.join("")) {
+                isLodgeUnlocked = true;
+              }
+
+              const rawLodge = localStorage.getItem("hvitveldt:secret:reads");
+              const arrLodge = rawLodge ? JSON.parse(rawLodge) : [];
+              if (Array.isArray(arrLodge)) {
+                const lodgeReads = arrLodge.filter(id => id !== "00-introduction").length;
+                if (lodgeReads >= 15) {
+                  isLodgeUnlocked = true;
+                }
+              }
+            } catch(e) {}
+
+            const isUnlocked = localStorage.getItem(key) === h1 || isProgressMet || isLodgeUnlocked;
+            const rawPath = window.location.pathname.replace(/\/+$/, "/");
+            const appPath = rawPath.startsWith("/MY-NOVEL/") ? rawPath.slice("/MY-NOVEL".length) : rawPath;
+            const PUBLIC_TSUKINOMI_PATHS = ["/tsukinomi/", "/tsukinomi/sections/", "/tsukinomi/characters/", "/tsukinomi/extra/"];
+            const isPublicTsukinomiPath = PUBLIC_TSUKINOMI_PATHS.includes(appPath);
+            const pathParts = appPath.split("/").filter(Boolean);
+            const requiresTsukinomiUnlock =
+              appPath.startsWith("/tsukinomi/sections/") && !isPublicTsukinomiPath && pathParts.length >= 3;
+
+            if (!isUnlocked && requiresTsukinomiUnlock) {
+              let target = "/";
+              if (window.location.pathname.startsWith("/MY-NOVEL/")) {
+                target = "/MY-NOVEL/";
+              }
+              window.location.replace(target);
+            }
+          })();
+        </script>
+      )
+    }
     <script is:inline>
       (function() {
-        const parts = ["7a1c", "d5bf", "758e", "bf3d", "42bd", "bf81", "706a", "d55c", "2f7d", "c9a1", "da1e", "27ab", "bcae", "f433", "f167", "8968"];
-        const h1 = parts.join("");
-        const key = "tsukinomi:extra-bypassed";
-        
-        let isProgressMet = false;
-        try {
-          const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
-          const arr = raw ? JSON.parse(raw) : [];
-          if (Array.isArray(arr)) {
-            isProgressMet = arr.filter(id => id !== "00-introduction").length >= 4;
-          }
-        } catch(e) {}
-        
-        let isLodgeUnlocked = false;
-        try {
-          const lodgeBypassH1 = localStorage.getItem("hvitveldt:extra-bypassed");
-          // Obfuscated Lodge H1 check to run synchronously
-          // Lodge H1: c14cbee5949dbd6b00df5b3e7893764cba713534db902dac0fa66369a78890bf
-          const lodgeH1Parts = ["c14c", "bee5", "949d", "bd6b", "00df", "5b3e", "7893", "764c", "ba71", "3534", "db90", "2dac", "0fa6", "6369", "a788", "90bf"];
-          if (lodgeBypassH1 === lodgeH1Parts.join("")) {
-            isLodgeUnlocked = true;
-          }
-          
-          const rawLodge = localStorage.getItem("hvitveldt:secret:reads");
-          const arrLodge = rawLodge ? JSON.parse(rawLodge) : [];
-          if (Array.isArray(arrLodge)) {
-            const lodgeReads = arrLodge.filter(id => id !== "00-introduction").length;
-            if (lodgeReads >= 15) {
-              isLodgeUnlocked = true;
-            }
-          }
-        } catch(e) {}
-        
-        const isUnlocked = localStorage.getItem(key) === h1 || isProgressMet || isLodgeUnlocked;
-        const rawPath = window.location.pathname.replace(/\/+$/, "/");
-        const appPath = rawPath.startsWith("/MY-NOVEL/") ? rawPath.slice("/MY-NOVEL".length) : rawPath;
-        const PUBLIC_TSUKINOMI_PATHS = ["/tsukinomi/", "/tsukinomi/sections/", "/tsukinomi/characters/", "/tsukinomi/extra/"];
-        const isPublicTsukinomiPath = PUBLIC_TSUKINOMI_PATHS.includes(appPath);
-        const pathParts = appPath.split("/").filter(Boolean);
-        const requiresTsukinomiUnlock =
-          appPath.startsWith("/tsukinomi/sections/") && !isPublicTsukinomiPath && pathParts.length >= 3;
-        
-        if (!isUnlocked && requiresTsukinomiUnlock) {
-          let target = "/";
-          if (window.location.pathname.startsWith("/MY-NOVEL/")) {
-            target = "/MY-NOVEL/";
-          }
-          window.location.replace(target);
-          return;
-        }
-
         function setTimeOfDay(hour) {
           let tod = 'evening';
           if (hour >= 6 && hour < 13) {
