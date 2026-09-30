@@ -77,9 +77,22 @@ import { withBase } from "../../../utils/base-path";
     transform: rotate(45deg);
   }
 
-  @media (max-width: 760px) {
+  /* Matches the breakpoint where WalkmanCorner hides. */
+  @media (max-width: 1023px), (orientation: landscape) and (max-height: 500px) {
     .tsukinomi-topbar-audio {
       display: grid;
+    }
+  }
+
+  @media (pointer: coarse) {
+    .tsukinomi-topbar-actions {
+      gap: 0.2rem;
+    }
+
+    .tsukinomi-topbar-audio {
+      width: 44px;
+      min-width: 44px;
+      height: 44px;
     }
   }
 </style>

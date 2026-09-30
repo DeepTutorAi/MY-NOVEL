@@ -634,3 +634,32 @@ pre {
     color: #000 !important;
   }
 }
+
+/* Touch screens scroll on their own, and on narrow or short screens the
+   fixed cue would sit over the note text once it appears. */
+@media (max-width: 760px), (orientation: landscape) and (max-height: 500px) {
+  .home-enter {
+    display: none;
+  }
+}
+
+/* Touch targets: the table-of-contents rows, its "full contents" link and the
+   ambient player buttons are a few pixels under the 44px comfortable size. */
+@media (pointer: coarse) {
+  .toc-panel-row {
+    min-block-size: 44px;
+    box-sizing: border-box;
+  }
+
+  .toc-panel-head a {
+    display: inline-flex;
+    align-items: center;
+    min-block-size: 44px;
+  }
+
+  .ambient-main,
+  .ambient-icon-button {
+    min-inline-size: 44px;
+    min-block-size: 44px;
+  }
+}

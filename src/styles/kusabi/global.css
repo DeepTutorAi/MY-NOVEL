@@ -85,6 +85,46 @@ body {
   color: var(--kusabi-accent) !important;
 }
 
+.kusabi-topbar-nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.kusabi-audio-btn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+@media (pointer: coarse) {
+  .kusabi-topbar-mark,
+  .kusabi-topbar-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .kusabi-topbar-link {
+    justify-content: center;
+    min-width: 44px;
+  }
+
+  .kusabi-topbar-nav {
+    gap: 6px;
+  }
+}
+
+@media (max-width: 400px) {
+  .kusabi-topbar {
+    padding: 0 14px;
+  }
+}
+
 /* Hero Banner on TOC Page */
 .kusabi-hero-banner {
   position: relative;
@@ -421,4 +461,60 @@ body {
   font-size: 1rem;
   color: var(--kusabi-accent);
   text-shadow: 0 0 10px var(--kusabi-accent-glow);
+}
+
+/* Narrow screens: the chapter meta drops under its title instead of
+   squeezing beside a two-line Thai title. */
+@media (max-width: 560px) {
+  .kusabi-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 12px 16px;
+  }
+
+  .kusabi-item-meta {
+    font-size: 0.78rem;
+  }
+}
+
+.kusabi-item-meta {
+  flex: none;
+  white-space: nowrap;
+}
+
+/* Justified Thai only stretches the few spaces between phrases, which opens
+   wide gaps on a phone-width line. */
+@media (max-width: 640px) {
+  .kusabi-prose p {
+    text-align: start !important;
+  }
+}
+
+/* Landscape phones: a compact top bar and a hero that leaves room for the
+   start of the chapter list. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --kusabi-topbar-height: 44px;
+  }
+
+  /* The hairline moves to a shadow so 44 px targets keep the bar at 44 px. */
+  .kusabi-topbar {
+    border-bottom: 0;
+    box-shadow: 0 1px 0 var(--kusabi-line);
+  }
+
+  .kusabi-hero-banner {
+    height: clamp(15rem, 80svh, 380px);
+    padding-bottom: 24px;
+  }
+
+  .kusabi-title {
+    font-size: clamp(1.9rem, 11svh, 2.6rem);
+    margin-bottom: 0.4rem;
+  }
+
+  .kusabi-subtitle {
+    font-size: 0.95rem;
+  }
 }

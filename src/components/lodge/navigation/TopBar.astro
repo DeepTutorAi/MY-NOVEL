@@ -122,4 +122,22 @@ import { withBase } from "../../../utils/base-path";
       font-size: 0.68rem;
     }
   }
+
+  @media (pointer: coarse) {
+    .topbar-mark,
+    .topbar-link {
+      display: inline-flex;
+      align-items: center;
+      min-block-size: 44px;
+    }
+
+    .topbar-link {
+      justify-content: center;
+      min-inline-size: 44px;
+    }
+
+    .topbar-actions {
+      gap: 0.15rem;
+    }
+  }
 </style>

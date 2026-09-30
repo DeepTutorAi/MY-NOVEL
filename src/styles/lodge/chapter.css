@@ -486,10 +486,12 @@ article.chapter figure.chapter-figure .resume-highlight::before {
     font-size: 4em;
   }
 
+  /* Thai has no spaces between words: break at dictionary word boundaries
+     and fall back to breaking a word only when nothing else fits. */
   article.chapter p,
   .journal {
-    line-break: anywhere;
-    word-break: break-all;
+    overflow-wrap: anywhere;
+    word-break: normal;
   }
 
   .chapter-shell::after {
@@ -527,5 +529,34 @@ article.chapter figure.chapter-figure .resume-highlight::before {
 
   .chapter-figure {
     margin-inline: 0;
+  }
+}
+
+/* Landscape phones: the chapter header compacts so prose starts on the
+   opening screen. */
+@media (orientation: landscape) and (max-height: 500px) {
+  article.chapter {
+    padding-block-start: 1.5rem;
+  }
+
+  .chapter-header {
+    margin-block-end: 1.75rem;
+  }
+
+  .chapter-number {
+    margin-block-start: 0.4rem;
+    font-size: 1.2rem;
+  }
+
+  .chapter-header h1 {
+    font-size: clamp(1.7rem, 9svh, 2.2rem);
+  }
+
+  .chapter-reading-time {
+    margin-block-start: 0.5rem;
+  }
+
+  .chapter-header .rune {
+    margin-block-start: 0.9rem;
   }
 }

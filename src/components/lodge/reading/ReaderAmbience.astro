@@ -115,7 +115,9 @@
     }
   }
 
-  @media (max-width: 760px) {
+  /* The candle only fits in the gutter beside a full-width column; on
+     narrower or short screens it would stand over the text. */
+  @media (max-width: 960px), (orientation: landscape) and (max-height: 500px) {
     .reader-ambience {
       display: none;
     }

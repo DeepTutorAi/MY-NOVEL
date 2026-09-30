@@ -371,3 +371,31 @@ article.tsukinomi-section hr {
     box-shadow: none;
   }
 }
+
+/* Landscape phones: the section header compacts so prose starts on the
+   opening screen. */
+@media (orientation: landscape) and (max-height: 500px) {
+  article.tsukinomi-section {
+    padding-top: 1.6rem;
+  }
+
+  .section-header {
+    margin-bottom: 1.5rem;
+  }
+
+  article.tsukinomi-section .section-header + h2 {
+    margin-top: 0;
+  }
+
+  .section-header h1 {
+    font-size: clamp(1.8rem, 10svh, 2.3rem);
+  }
+
+  .section-range {
+    margin-top: 0.8rem;
+  }
+
+  .section-chapter-links {
+    margin-top: 0.6rem;
+  }
+}

@@ -86,3 +86,10 @@ body[data-background-slot="section-05"] {
     radial-gradient(ellipse at 44% 78%, rgba(205, 211, 224, 0.14), transparent 30rem),
     linear-gradient(180deg, #0E0B1E 0%, #171430 52%, #243047 76%, #101328 100%);
 }
+
+/* Landscape phones: the top bar shrinks to one touch target tall. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root {
+    --tsuki-topbar-height: 44px;
+  }
+}

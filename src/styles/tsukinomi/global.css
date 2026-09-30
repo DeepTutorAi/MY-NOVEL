@@ -127,6 +127,7 @@ html {
 
 .tsukinomi-home {
   min-height: 100vh;
+  min-height: 100svh;
   display: grid;
   align-items: end;
   padding: calc(var(--tsuki-topbar-height) + 56px) 0 64px;
@@ -280,6 +281,65 @@ html {
   .tsukinomi-section-list a {
     grid-template-columns: 1fr;
     gap: 10px;
+  }
+}
+
+@media (pointer: coarse) {
+  .tsukinomi-topbar-mark,
+  .tsukinomi-topbar-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+
+  .tsukinomi-topbar-link {
+    justify-content: center;
+    min-width: 44px;
+  }
+}
+
+/* Landscape phones: a compact hero that fits one short screen, and the
+   backdrop clock, which would sit under the reading column, is left out. */
+@media (orientation: landscape) and (max-height: 500px) {
+  .tsukinomi-home {
+    padding: calc(var(--tsuki-topbar-height) + 18px) 0 28px;
+  }
+
+  .tsukinomi-home-hero {
+    min-height: 0;
+  }
+
+  .tsukinomi-kicker {
+    margin-bottom: 6px;
+  }
+
+  .tsukinomi-home h1,
+  .tsukinomi-toc h1 {
+    font-size: clamp(2.2rem, 12svh, 2.9rem);
+  }
+
+  .tsukinomi-home-copy p:not(.tsukinomi-kicker) {
+    margin-top: 10px;
+    font-size: 0.98rem;
+    line-height: 1.7;
+  }
+
+  .tsukinomi-home-actions {
+    margin-top: 18px;
+  }
+
+  .tsukinomi-toc {
+    padding-top: calc(var(--tsuki-topbar-height) + 24px);
+  }
+
+  .sakura-backdrop__clock {
+    display: none;
+  }
+
+  /* The hairline moves to a shadow so 44 px targets keep the bar at 44 px. */
+  .tsukinomi-topbar {
+    border-bottom: 0;
+    box-shadow: 0 1px 0 color-mix(in srgb, var(--mist) 14%, transparent);
   }
 }
 

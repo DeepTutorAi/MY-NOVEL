@@ -172,6 +172,13 @@ const chapters = (await getCollection("chapters")).sort(
     transition: color 150ms ease-out;
   }
 
+  @media (pointer: coarse) {
+    .toc-trigger {
+      min-inline-size: 44px;
+      block-size: 44px;
+    }
+  }
+
   .toc-trigger::-webkit-details-marker {
     display: none;
   }
@@ -201,6 +208,7 @@ const chapters = (await getCollection("chapters")).sort(
     inset-inline-end: 0;
     width: min(25rem, calc(100vw - 1rem));
     max-height: calc(100vh - var(--topbar-height) - 1rem);
+    max-height: calc(100dvh - var(--topbar-height) - 1rem);
     overflow: auto;
     padding: 1rem;
     border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
@@ -312,6 +320,7 @@ const chapters = (await getCollection("chapters")).sort(
       inset-inline: 0.5rem;
       width: auto;
       max-height: calc(100vh - var(--topbar-height) - 1rem);
+      max-height: calc(100dvh - var(--topbar-height) - 1rem);
     }
   }
 </style>

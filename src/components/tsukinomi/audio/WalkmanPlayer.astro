@@ -580,6 +580,19 @@
     accent-color: var(--tsuki-accent);
   }
 
+  /* Opened from the top bar button (see WalkmanCorner): hang the panel under
+     the bar and let it scroll when the screen is short. */
+  @media (max-width: 1023px), (orientation: landscape) and (max-height: 500px) {
+    .walkman-player {
+      top: calc(var(--tsuki-topbar-height) + 0.55rem);
+      right: 0.75rem;
+      bottom: auto;
+      max-height: calc(100dvh - var(--tsuki-topbar-height) - 1.1rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+  }
+
   @media (max-width: 760px) {
     .walkman-player {
       top: calc(var(--tsuki-topbar-height) + 0.55rem);

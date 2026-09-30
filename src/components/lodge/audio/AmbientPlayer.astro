@@ -482,6 +482,22 @@
     accent-color: var(--accent);
   }
 
+  @media (pointer: coarse) {
+    .ambient-main {
+      inline-size: 44px;
+      block-size: 44px;
+    }
+  }
+
+  /* Short screens: the panel scrolls instead of running past the fold. */
+  @media (max-height: 560px) {
+    .ambient-panel {
+      max-block-size: calc(100dvh - var(--topbar-height) - 1rem);
+      overflow-y: auto;
+      overscroll-behavior: contain;
+    }
+  }
+
   @media (max-width: 700px) {
     .ambient-panel {
       position: fixed;

@@ -118,7 +118,9 @@ const walkmanSvg = readFileSync(join(process.cwd(), "public/assets/tsukinomi/ico
     }
   }
 
-  @media (max-width: 760px) {
+  /* Wherever the corner would sit over the reading column, the top bar
+     audio button opens the same panel instead. */
+  @media (max-width: 1023px), (orientation: landscape) and (max-height: 500px) {
     .walkman-corner {
       display: none;
     }

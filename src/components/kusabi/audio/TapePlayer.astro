@@ -1105,13 +1105,18 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
     50% { transform: rotate(8deg); }
   }
 
-  /* Hide floating corner trigger on small screens if needed, or when topbar is available */
-  @media (max-width: 760px) {
+  /* The bell hangs in the right gutter, which only exists beside a full-width
+     column; on narrower or short screens it would hang over the text. */
+  @media (max-width: 1023px), (orientation: landscape) and (max-height: 500px) {
     .kusabi-corner-prop {
-      bottom: 12px;
-      right: 12px;
-      width: 60px;
-      height: 120px;
+      display: none;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .kusabi-corner-prop,
+    .kusabi-corner-prop[data-playing="true"] {
+      animation: none;
     }
   }
 
