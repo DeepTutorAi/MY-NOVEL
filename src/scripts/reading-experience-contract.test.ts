@@ -173,7 +173,7 @@ describe("shared reading experience contract", () => {
     );
   });
 
-  it("implements TOC read indicators and accurate IP timezone tracking", () => {
+  it("implements TOC read indicators and device-clock time of day", () => {
     const lodgeFullToc = readProjectFile("src/pages/lodge/chapters/index.astro");
     const lodgeMiniToc = readProjectFile("src/components/lodge/navigation/TableOfContents.astro");
     const tsukiSectionsToc = readProjectFile("src/pages/tsukinomi/sections/index.astro");
@@ -191,11 +191,11 @@ describe("shared reading experience contract", () => {
     assert.match(tsukiSectionsToc, /\.tsukinomi-toc-row\.is-read \.toc-number::after/);
     assert.match(tsukiSectionsToc, /🚂/);
 
-    // IP timezone hour extraction (no local timezone getHours() conversion)
-    assert.match(lodgeLayout, /data\.datetime\.substring/);
-    assert.match(lodgeLayout, /data\.datetime\.indexOf\('T'\)/);
-    assert.match(tsukiLayout, /data\.datetime\.substring/);
-    assert.match(tsukiLayout, /data\.datetime\.indexOf\('T'\)/);
+    // Time of day comes from the device clock only; no third-party request per page view.
+    for (const layout of [lodgeLayout, tsukiLayout]) {
+      assert.match(layout, /new Date\(\)\.getHours\(\)/);
+      assert.doesNotMatch(layout, /fetch\(\s*['"]https?:/);
+    }
   });
 
   it("implements Introductions and Cutscene Epigraphs for both novels", () => {
