@@ -12,6 +12,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "tsukinomi:e2e": "tsx src/scripts/tsukinomi/tsukinomi-e2e.ts",
+    "tsukinomi:measure": "tsx src/scripts/tsukinomi/scene-measure.ts",
     "sea:sync": "tsx src/scripts/sea/sync-sea-chapters.ts",
     "sea:verify-dist": "tsx src/scripts/sea/verify-sea-dist.ts"
   },
