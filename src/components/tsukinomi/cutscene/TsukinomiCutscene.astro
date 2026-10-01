@@ -12,6 +12,13 @@
 // the first frame. The "เดินทางต่อ" button is the reduced-motion still's way
 // on; the runner swaps it for Skip when it shows the still.
 //
+// The controls slot (data-cutscene-controls) is where a scene puts the real
+// buttons the aria-hidden stage cannot hold (the prologue's Play, part 1's
+// keyboard way to wipe the fog). It comes after Skip, so Skip stays first in
+// focus order, and it is outside the stage and the text card: in the
+// accessibility tree and the tab order, and never over the epigraph. It is
+// empty until a scene fills it and hidden in the reduced-motion still.
+//
 // Playback rules live in src/scripts/_shared/cutscene/core.ts and the scene
 // contract in src/scripts/tsukinomi/cutscene/scene-types.ts.
 //
@@ -64,6 +71,7 @@ const scene = registryEntry(part);
     <button type="button" class="tsuki-cutscene__continue" id="cutscene-continue" data-cutscene-start hidden>เดินทางต่อ</button>
   </div>
   <button type="button" class="tsuki-cutscene__skip" data-cutscene-skip autofocus>ข้าม</button>
+  <div class="tsuki-cutscene__controls" data-cutscene-controls></div>
 </dialog>
 
 <script is:inline>
@@ -152,16 +160,18 @@ const scene = registryEntry(part);
   }
 
   /* No z-index anywhere below: the dialog is in the top layer, and inside it the
-     order of the children (stage, card, skip button) is the paint order. All
-     three are positioned (z-index auto), so that order is the DOM order and the
-     stage can never paint over the text.
+     order of the children (stage, card, skip button, controls) is the paint
+     order. All are positioned (z-index auto), so that order is the DOM order and
+     the stage can never paint over the text.
 
      The three share one grid cell. The dialog scrolls vertically, but only when
      the text is taller than the screen (the reader's text size at 200% on a
      phone): centring it in a box that cannot scroll would cut off its first
      lines. The stage and the Skip button are sticky, not fixed, so they stay on
      screen while the card scrolls and still belong to the dialog's scroll chain
-     (a wheel or touch over a fixed element scrolls the viewport instead). */
+     (a wheel or touch over a fixed element scrolls the viewport instead). The
+     controls slot is sticky in the same cell and sits on the opposite side of
+     the same bottom band as Skip. */
   .tsuki-cutscene {
     position: fixed;
     inset: 0;
@@ -216,6 +226,13 @@ const scene = registryEntry(part);
     justify-items: center;
     gap: clamp(1.4rem, 5vmin, 2.6rem);
     padding: max(4.25rem, env(safe-area-inset-top)) 1rem max(4.75rem, env(safe-area-inset-bottom));
+    /* The band under the text also clears the controls slot, whose height the session
+       publishes (it grows when controls wrap at a large text size); 0px when it is empty. */
+    padding-bottom: max(
+      4.75rem,
+      env(safe-area-inset-bottom),
+      calc(var(--tsuki-controls-reserve, 0px) + max(16px, env(safe-area-inset-bottom)) + 0.75rem)
+    );
     background: radial-gradient(ellipse 75% 60% at 50% 50%, rgba(0, 0, 0, 0.5), transparent 75%);
     text-align: center;
     pointer-events: none;
@@ -234,8 +251,13 @@ const scene = registryEntry(part);
     text-wrap: pretty;
   }
 
-  .tsuki-cutscene__skip,
-  .tsuki-cutscene__continue {
+  /* One look for Skip, the continue button and every scene control. Prefixed
+     with the dialog class on purpose: the page's `.tsukinomi-page button` reset
+     (border 0, no background, font inherit) has higher specificity than a lone
+     class and would strip the border, the fill and the font from them. */
+  .tsuki-cutscene .tsuki-cutscene__skip,
+  .tsuki-cutscene .tsuki-cutscene__continue,
+  .tsuki-cutscene .tsuki-cutscene__control {
     min-width: 44px;
     min-height: 44px;
     border: 1px solid rgba(224, 163, 106, 0.45);
@@ -258,19 +280,57 @@ const scene = registryEntry(part);
     padding: 0.5rem 1.3rem;
   }
 
-  .tsuki-cutscene__continue {
+  .tsuki-cutscene .tsuki-cutscene__continue {
     padding: 0.75rem 2.2rem;
     background: rgba(224, 163, 106, 0.1);
   }
 
-  .tsuki-cutscene__skip:hover,
-  .tsuki-cutscene__continue:hover {
+  /* The controls slot: left of Skip, in the bottom band the text card keeps clear
+     (the card's bottom padding). The right margin reserves Skip's width, about
+     5rem (2 x 1.3rem of padding plus a 2.4rem label, measured at 100% to 300%
+     text size) and its own margin, plus a little air; items that do not fit wrap
+     onto another row above instead of running under Skip. The slot itself lets
+     pointer input through to the stage; the buttons catch their own. */
+  .tsuki-cutscene__controls {
+    grid-area: 1 / 1;
+    position: sticky;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    justify-self: start;
+    align-self: end;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 0.6rem;
+    margin-left: max(16px, env(safe-area-inset-left));
+    margin-right: calc(max(16px, env(safe-area-inset-right)) + 5.6rem);
+    pointer-events: none;
+  }
+
+  .tsuki-cutscene__controls > * {
+    pointer-events: auto;
+  }
+
+  .tsuki-cutscene .tsuki-cutscene__control {
+    padding: 0.5rem 1.3rem;
+    background: rgba(224, 163, 106, 0.1);
+  }
+
+  .tsuki-cutscene .tsuki-cutscene__skip:hover,
+  .tsuki-cutscene .tsuki-cutscene__continue:hover,
+  .tsuki-cutscene .tsuki-cutscene__control:hover {
     border-color: var(--sunset, #e08a4c);
     background: rgba(224, 163, 106, 0.18);
   }
 
+  .tsuki-cutscene__control:focus-visible {
+    outline: 2px solid var(--sunset, #e08a4c);
+    outline-offset: 3px;
+  }
+
   .tsuki-cutscene__skip[hidden],
-  .tsuki-cutscene__continue[hidden] {
+  .tsuki-cutscene__continue[hidden],
+  .tsuki-cutscene__controls:empty,
+  .tsuki-cutscene[data-mode="still"] .tsuki-cutscene__controls {
     display: none;
   }
 </style>

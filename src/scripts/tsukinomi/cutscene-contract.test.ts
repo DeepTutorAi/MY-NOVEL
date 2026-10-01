@@ -90,12 +90,13 @@ describe("Tsukinomi cutscene contract: dialog", () => {
     assert.doesNotMatch(rule(".tsuki-cutscene"), /display:/);
     assert.match(rule(".tsuki-cutscene"), /overflow-y: auto/);
     assert.match(rule(".tsuki-cutscene"), /overscroll-behavior: contain/);
-    for (const selector of [".tsuki-cutscene__stage", ".tsuki-cutscene__card", ".tsuki-cutscene__skip"]) {
+    for (const selector of [".tsuki-cutscene__stage", ".tsuki-cutscene__card", ".tsuki-cutscene__skip", ".tsuki-cutscene__controls"]) {
       assert.match(rule(selector), /grid-area: 1 \/ 1/, selector);
       assert.match(rule(selector), /position: (?:sticky|relative)/, `${selector} is positioned, so the DOM order is the paint order`);
     }
     assert.match(rule(".tsuki-cutscene__stage"), /position: sticky/);
     assert.match(rule(".tsuki-cutscene__skip"), /position: sticky/);
+    assert.match(rule(".tsuki-cutscene__controls"), /position: sticky/);
     for (const { selector, body } of rules.filter((candidate) => candidate.selector.startsWith(".tsuki-cutscene"))) {
       if (selector === ".tsuki-cutscene") continue; // the dialog itself fills the viewport
       assert.doesNotMatch(body, /position: fixed/, `${selector}: fixed would leave the dialog's scroll chain`);
@@ -113,8 +114,90 @@ describe("Tsukinomi cutscene contract: dialog", () => {
     // The skip button must not be hidden or hidden-by-default: visible from the first frame.
     assert.doesNotMatch(component, /data-cutscene-skip[^>]*\bhidden\b/);
     // Touch target and focus order: the stage comes first, so it paints under the text.
-    assert.match(component, /\.tsuki-cutscene__skip,\s*\.tsuki-cutscene__continue \{[^}]*min-height: 44px/);
+    assert.match(component, /\.tsuki-cutscene \.tsuki-cutscene__skip,\s*\.tsuki-cutscene \.tsuki-cutscene__continue,\s*\.tsuki-cutscene \.tsuki-cutscene__control \{[^}]*min-height: 44px/);
     assert.ok(component.indexOf("tsuki-cutscene__stage") < component.indexOf("tsuki-cutscene__card"));
+  });
+});
+
+/** The attribute text of every ancestor, outermost first, of the first element whose open tag contains `marker`. */
+function ancestorTags(markup: string, marker: string): string[] {
+  const voidElements = new Set(["area", "br", "hr", "img", "input", "link", "meta", "source", "wbr"]);
+  const stack: Array<{ name: string; attributes: string }> = [];
+  // Attribute text may hold quoted strings and {expressions} (which can hold quotes and ">" ).
+  const tag = /<(\/?)([a-zA-Z][\w-]*)((?:[^>"'{]|"[^"]*"|'[^']*'|\{[^}]*\})*?)(\/?)>/g;
+  for (const match of markup.matchAll(tag)) {
+    const [, closing, name, attributes, selfClosing] = match;
+    if (closing) {
+      while (stack.length > 0 && stack.pop()?.name !== name);
+      continue;
+    }
+    if (attributes.includes(marker)) return stack.map((entry) => entry.attributes);
+    if (!selfClosing && !voidElements.has(name)) stack.push({ name, attributes });
+  }
+  throw new Error(`no element with ${marker}`);
+}
+
+describe("Tsukinomi cutscene contract: controls slot", () => {
+  const component = read(COMPONENT);
+  // The component's header comment names <dialog> too, so start at the element itself.
+  const dialogMarkup = component.slice(component.search(/<dialog\s+class="tsuki-cutscene"/), component.indexOf("</dialog>") + "</dialog>".length);
+
+  it("has an empty [data-cutscene-controls] container that is a direct child of the dialog, outside the aria-hidden stage and the text card", () => {
+    assert.match(dialogMarkup, /<div class="tsuki-cutscene__controls" data-cutscene-controls><\/div>/, "empty in the markup: a scene fills it");
+    const ancestors = ancestorTags(dialogMarkup, "data-cutscene-controls");
+    assert.equal(ancestors.length, 1, `the container should sit directly in the dialog, found ancestors: ${JSON.stringify(ancestors)}`);
+    assert.match(ancestors[0], /class="tsuki-cutscene"/);
+    for (const attributes of ancestors) assert.doesNotMatch(attributes, /aria-hidden|\binert\b/, "a control in an aria-hidden or inert ancestor is unreachable");
+    // The helper itself: the stage is aria-hidden and the text card is a sibling, so neither may hold the container.
+    assert.match(ancestorTags(dialogMarkup, "data-cutscene-stage").join(" "), /class="tsuki-cutscene"/);
+    assert.match(ancestorTags(dialogMarkup, "data-cutscene-start").join(" "), /class="tsuki-cutscene__card"/, "the helper sees a nested element's ancestors");
+    assert.match(dialogMarkup, /class="tsuki-cutscene__stage" data-cutscene-stage aria-hidden="true"><\/div>/, "the stage is closed before the container, which is not inside it");
+  });
+
+  it("comes after Skip in the DOM, so Skip stays first in focus order and keeps the autofocus", () => {
+    const order = ["data-cutscene-stage", "data-cutscene-text", "data-cutscene-start", "data-cutscene-skip", "data-cutscene-controls"].map((marker) => dialogMarkup.indexOf(marker));
+    assert.ok(order.every((index) => index >= 0), "every part is in the dialog");
+    assert.deepEqual([...order].sort((a, b) => a - b), order, "stage, text, continue, Skip, then the controls");
+    assert.equal(dialogMarkup.match(/\bautofocus\b/g)?.length, 1, "only Skip is autofocused");
+    assert.match(dialogMarkup, /data-cutscene-skip autofocus/);
+  });
+
+  it("is sticky beside Skip, one shared control look at 44 px with a focus ring, hidden when empty and in the still, and sets no z-index", () => {
+    const rules = cssRules(component);
+    const rule = (selector: string) => rules.find((candidate) => candidate.selector === selector)?.body ?? "";
+    assert.match(rule(".tsuki-cutscene__controls"), /grid-area: 1 \/ 1/);
+    assert.match(rule(".tsuki-cutscene__controls"), /position: sticky/);
+    assert.match(rule(".tsuki-cutscene__controls"), /align-self: end/);
+    assert.match(rule(".tsuki-cutscene__controls"), /margin-right: calc\([^;]*\d+(?:\.\d+)?rem\)/, "reserves the width of Skip in rem, so a larger text size keeps them apart");
+    assert.match(rule(".tsuki-cutscene__controls"), /flex-wrap: wrap/, "a control that does not fit wraps instead of running under Skip");
+    assert.match(rule(".tsuki-cutscene__controls > *"), /pointer-events: auto/);
+    assert.match(rule(".tsuki-cutscene .tsuki-cutscene__control"), /padding:/);
+    assert.match(rule(".tsuki-cutscene__control:focus-visible"), /outline: 2px solid/);
+    // The card's bottom band grows with the slot's measured height (see session.ts), so wrapped controls never reach the last line.
+    assert.match(rule(".tsuki-cutscene__card"), /padding-bottom: max\([^;]*var\(--tsuki-controls-reserve, 0px\)/);
+    assert.match(read(`${CUTSCENE_DIR}/session.ts`), /CONTROLS_RESERVE_PROPERTY = "--tsuki-controls-reserve"/);
+    // The page's `.tsukinomi-page button` reset beats a lone class, so the look is prefixed with the dialog class.
+    assert.match(read("src/styles/tsukinomi/global.css"), /\.tsukinomi-page button,[^{]*\{[^}]*border: 0;[^}]*background: none;/);
+    assert.doesNotMatch(component, /^\s*\.tsuki-cutscene__(?:skip|continue|control)\s*,/m, "an unprefixed look would lose to the page's button reset");
+    const hidden = rules.find((candidate) => /\.tsuki-cutscene__controls:empty/.test(candidate.selector));
+    assert.ok(hidden, "an empty slot is display: none");
+    assert.match(hidden.selector, /\.tsuki-cutscene\[data-mode="still"\] \.tsuki-cutscene__controls/, "the reduced-motion still hides the slot");
+    assert.match(hidden.body, /display: none/);
+    for (const candidate of rules.filter((entry) => /controls?\b/.test(entry.selector))) assert.doesNotMatch(candidate.body, /z-index|position: fixed/, candidate.selector);
+    // The runner blocks Space on the dialog but lets it through on a control, and only the Skip button skips.
+    assert.match(read(SHARED_RUNNER), /event\.key === " " && !isControl\(event\.target\)/);
+    assert.match(read(SHARED_RUNNER), /skipButton\.addEventListener\("click", onSkipClick\)/);
+  });
+
+  it("reaches scenes as ctx.controls: declared in the contract, passed by the adapter, emptied by the session and again when the dialog closes", () => {
+    assert.match(read(`${CUTSCENE_DIR}/scene-types.ts`), /readonly controls: HTMLElement;/);
+    const adapter = read(`${CUTSCENE_DIR}/index.ts`);
+    assert.match(adapter, /querySelector<HTMLElement>\("\[data-cutscene-controls\]"\)/);
+    assert.match(adapter, /dialog,\s*stage,\s*controls,/);
+    assert.match(adapter, /dialog\.addEventListener\("close", clearControls\)/);
+    const session = read(`${CUTSCENE_DIR}/session.ts`);
+    assert.match(session, /controls: init\.controls,/);
+    assert.match(session, /init\.controls\.replaceChildren\(\);/);
   });
 });
 

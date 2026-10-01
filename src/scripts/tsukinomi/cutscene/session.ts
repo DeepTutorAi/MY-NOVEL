@@ -9,11 +9,20 @@
 // the page's single audio graph, via the wrapper in audio.ts. Nothing here
 // creates a Howl or an Audio element.
 //
+// The controls slot sits over the bottom band the text card keeps clear for
+// Skip. Controls wrap onto more rows when the reader's text size grows, so the
+// session measures the slot with a ResizeObserver and publishes its height as
+// --tsuki-controls-reserve on the dialog, which the card's bottom padding adds
+// to (TsukinomiCutscene.astro): the last line of the epigraph stays above the
+// controls at the end of the scroll, however many rows they take.
+//
 // Ending a session is two steps, in this order, so a scene's own dispose() runs
-// after its signal aborted and before its loops and audio are taken away:
+// after its signal aborted and before its loops, controls and audio are taken
+// away:
 //
 //   abort()    aborts ctx.signal
-//   dispose()  destroys the canvas loops still alive and hands the audio back
+//   dispose()  destroys the canvas loops still alive, empties ctx.controls (the
+//              buttons the scene appended) and hands the audio back
 //
 // The Walkman persists every toggle and volume the moment it is set, so a scene
 // that layered a soundscape would leave it persisted if the page were closed or
@@ -29,10 +38,14 @@ import { resolveAssets, type TsukiRegistryEntry } from "./registry";
 import type { TsukiCanvasLoop, TsukiCanvasLoopOptions, TsukiSceneContext } from "./scene-types";
 
 const DEFAULT_DPR_CAP = 1.5;
+/** Custom property on the dialog: the controls slot's height in px, read by the text card's bottom padding. */
+export const CONTROLS_RESERVE_PROPERTY = "--tsuki-controls-reserve";
 
 export interface SessionInit {
   dialog: HTMLDialogElement;
   stage: HTMLElement;
+  /** The dialog's [data-cutscene-controls] container: outside the aria-hidden stage and the text card. */
+  controls: HTMLElement;
   textEl: HTMLElement;
   part: number;
   entry: TsukiRegistryEntry;
@@ -60,7 +73,7 @@ export interface TsukiSession {
   pause(): void;
   /** Aborts ctx.signal. Idempotent. */
   abort(): void;
-  /** Destroys the loops still alive and restores the Walkman. Aborts first if needed. Idempotent. */
+  /** Destroys the loops still alive, empties the controls and restores the Walkman. Aborts first if needed. Idempotent. */
   dispose(): void;
 }
 
@@ -107,6 +120,7 @@ export function createSession(init: SessionInit, deps: SessionDeps = {}): TsukiS
   const ctx: TsukiSceneContext = {
     dialog: init.dialog,
     stage: init.stage,
+    controls: init.controls,
     textEl: init.textEl,
     part: init.part,
     skip: init.skip,
@@ -116,6 +130,11 @@ export function createSession(init: SessionInit, deps: SessionDeps = {}): TsukiS
     audio,
     createCanvasLoop,
   };
+
+  // Without a ResizeObserver (none in old browsers) the card keeps its default band, enough for one row.
+  const reserve = () => init.dialog.style.setProperty(CONTROLS_RESERVE_PROPERTY, `${init.controls.offsetHeight}px`);
+  const watcher = typeof ResizeObserver === "function" ? new ResizeObserver(reserve) : null;
+  watcher?.observe(init.controls);
 
   const abort = () => controller.abort();
   const onPageHide = () => audio.restore({ cue: pageCue });
@@ -133,6 +152,8 @@ export function createSession(init: SessionInit, deps: SessionDeps = {}): TsukiS
       window.removeEventListener("pagehide", onPageHide);
       abort();
       for (const loop of [...loops]) loop.destroy();
+      watcher?.disconnect();
+      init.controls.replaceChildren();
       audio.restore({ cue: pageCue });
     },
   };

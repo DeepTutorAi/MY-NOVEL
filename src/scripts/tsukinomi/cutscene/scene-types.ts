@@ -18,7 +18,8 @@
 //   - the "เดินทางต่อ" button shown in the reduced-motion still.
 //
 // What a scene owns: its own drawing inside ctx.stage, the animation of
-// ctx.textEl, its canvas loops, timers and listeners, and the moment it ends.
+// ctx.textEl, the buttons it appends to ctx.controls, its canvas loops, timers
+// and listeners, and the moment it ends.
 //
 // Ending. A scene ends by resolving handle.done at its natural end; the runner
 // then fades the dialog out. A scene never closes the dialog itself; the
@@ -49,6 +50,43 @@
 // reader prefers reduced motion; ctx.reducedMotion is true then and ctx.audio
 // is silent. The same module is loaded for both, so keep heavy code behind a
 // dynamic import() inside play() if the still should stay cheap.
+//
+// Controls. ctx.stage is aria-hidden and sits behind the text, so it can hold
+// nothing a reader operates. A scene that needs a real control (the prologue's
+// Play button, the keyboard way to wipe the fog in part 1) appends it to
+// ctx.controls instead: a container the dialog keeps outside both the stage and
+// the text card, so it is in the accessibility tree and the tab order, and it
+// never covers the epigraph.
+//
+//   const button = document.createElement("button");
+//   button.type = "button";
+//   button.className = "tsuki-cutscene__control";
+//   button.textContent = "...";          // the accessible name: real text, not an icon
+//   button.addEventListener("click", wipe, { signal: ctx.signal });
+//   ctx.controls.append(button);
+//
+// What a control may rely on:
+//   - Always a real <button type="button"> with an accessible name. Never a
+//     div or a canvas hit area; the shared class tsuki-cutscene__control gives
+//     the 44 px target, the tokens and the visible focus ring (the container
+//     itself is tsuki-cutscene__controls). Add your own class for anything more.
+//   - Focus order. Skip is first and keeps the autofocus, so a reader who does
+//     nothing can still leave at once; the controls follow in DOM order. A scene
+//     moves focus to a control only in answer to the reader's own input.
+//   - Space and Enter on a control press it (a click event) and do nothing else:
+//     the runner blocks Space for the dialog but lets it through on a control,
+//     the dialog does not scroll, and only the Skip button skips. Listen for
+//     "click", not "keydown", so pointer, keyboard and assistive tech all work.
+//   - One or two short labels. The controls share one row with Skip, beside it;
+//     a row that wraps is taller than the band the text card keeps clear.
+//   - A control that removes or hides itself while it has focus drops focus to
+//     the dialog. Give focus to the next control or to the Skip button
+//     (ctx.dialog.querySelector("[data-cutscene-skip]")) first.
+//   - Not in still(): the container is hidden under reduced motion, and a still
+//     has nothing to operate. A button appended anyway is out of sight and tab order.
+//   - The session empties the container in dispose() and the adapter again when
+//     the dialog closes, so a control never outlives the cutscene and a scene
+//     need not remove its own. Add none after dispose().
 //
 // Audio. Scenes are silent unless the Walkman is already on; see audio.ts. The
 // only audio path is ctx.audio, which wraps the page's one Walkman graph.
@@ -116,6 +154,16 @@ export interface TsukiSceneContext {
   readonly dialog: HTMLDialogElement;
   /** aria-hidden host for the scene's own canvas and decoration. Fills the screen and stays put when the dialog scrolls; behind the text. */
   readonly stage: HTMLElement;
+  /**
+   * Where a scene puts its real controls: append `<button type="button">`
+   * elements with an accessible name and the class tsuki-cutscene__control.
+   * Outside the aria-hidden stage and outside the text card, beside Skip and
+   * sticky like it. Skip comes first in focus order, then these in DOM order;
+   * Space and Enter on one press it without scrolling or skipping. Emptied by
+   * the session on dispose() and by the adapter when the dialog closes; hidden
+   * (and to be left alone) in still(). See the Controls notes at the top.
+   */
+  readonly controls: HTMLElement;
   /** The real epigraph paragraph (#cutscene-text). Animate it; never remove or replace its text. */
   readonly textEl: HTMLElement;
   /** 0 for the prologue, 1 to 5 for the parts. */

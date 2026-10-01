@@ -21,6 +21,7 @@ let env: FakeEnv;
 let dialog: FakeDialog;
 let skipButton: FakeButton;
 let startButton: FakeButton;
+let controls: FakeElement;
 let heading: FakeElement;
 let main: FakeElement;
 
@@ -47,8 +48,10 @@ beforeEach(() => {
   startButton.hidden = true;
   const stage = new FakeElement(env);
   const textEl = new FakeElement(env);
+  controls = new FakeElement(env);
   dialog.queries = {
     "[data-cutscene-stage]": stage,
+    "[data-cutscene-controls]": controls,
     "[data-cutscene-text]": textEl,
     "[data-cutscene-skip]": skipButton,
     "[data-cutscene-start]": startButton,
@@ -85,7 +88,10 @@ const covered = () => env.document.documentElement.classList.contains(COVER_CLAS
 function sceneModule(): TsukiSceneModule {
   return {
     play(ctx) {
-      if (rig.scene.throwOnPlay) throw new Error("canvas lost");
+      if (rig.scene.throwOnPlay) {
+        controls.append(new FakeButton(env)); // a scene may have added a control before it failed
+        throw new Error("canvas lost");
+      }
       rig.scene.plays.push(ctx);
       const done = new Promise<void>((resolve, reject) => {
         rig.scene.finish = resolve;
@@ -167,6 +173,7 @@ describe("setupTsukinomiCutscene: playing", () => {
     assert.equal(rig.scene.plays.length, 1);
     assert.equal(rig.scene.plays[0], rig.sessions[0].ctx, "the scene is handed the session's context");
     assert.equal(rig.sessions[0].init.part, 3);
+    assert.equal(rig.sessions[0].init.controls, controls as unknown, "the dialog's controls slot reaches the session, for ctx.controls");
     assert.equal(rig.sessions[0].init.reducedMotion, false);
     assert.equal(rig.sessions[0].init.pageCue, "decision", "the section's own cue goes to the session, to be restored at the end");
     assert.equal(covered(), false, "the runner lifted the no-flash cover when it opened");
@@ -345,7 +352,7 @@ describe("setupTsukinomiCutscene: when it does not play", () => {
   });
 
   it("lifts the cover and does nothing when the dialog is missing a part", () => {
-    for (const missing of ["[data-cutscene-stage]", "[data-cutscene-text]", "[data-cutscene-skip]", "[data-cutscene-start]"]) {
+    for (const missing of ["[data-cutscene-stage]", "[data-cutscene-controls]", "[data-cutscene-text]", "[data-cutscene-skip]", "[data-cutscene-start]"]) {
       env.document.documentElement.classList.add(COVER_CLASS);
       const saved = dialog.queries[missing];
       dialog.queries[missing] = null;
@@ -445,6 +452,83 @@ describe("setupTsukinomiCutscene: reduced motion", () => {
     await tick();
     assert.equal(dialog.open, true);
     assert.ok(env.warnings.some((args) => /still failed to load/.test(String(args[0]))));
+    cleanup?.();
+  });
+});
+
+describe("setupTsukinomiCutscene: the controls slot", () => {
+  const addControls = (count: number) => controls.append(...Array.from({ length: count }, () => new FakeButton(env)));
+
+  it("hands the same container to a reduced-motion session, which is where still() would find it hidden", async () => {
+    env.reduced = true;
+    const cleanup = start();
+    await tick();
+    assert.equal(rig.sessions[0].init.controls, controls as unknown);
+    cleanup?.();
+  });
+
+  it("empties it right after the scene's dispose, whichever way the cutscene ended (the fake session here empties nothing itself)", async () => {
+    start();
+    await tick();
+    addControls(2);
+    rig.scene.finish();
+    await sleep(320);
+    assert.equal(dialog.open, false);
+    assert.deepEqual(rig.events, ["session.abort", "scene.dispose", "session.dispose"]);
+    assert.deepEqual(controls.children, [], "no close event fires on the fake dialog, so only the adapter's own clearing can have done this");
+  });
+
+  it("empties it when a still closes before its session was ever built, and when a scene throws while starting", async () => {
+    env.reduced = true;
+    rig.gate = { release: () => {} };
+    start();
+    await tick();
+    addControls(1);
+    startButton.dispatchEvent(new Event("click"));
+    assert.deepEqual(controls.children, [], "the still was closed with no session to empty it");
+    rig.gate.release();
+    await tick();
+
+    env.reduced = false;
+    env.storage.clear(); // the still above recorded today's play
+    delete rig.gate;
+    dialog.open = false;
+    delete dialog.dataset.state;
+    env.document.documentElement.classList.add(COVER_CLASS);
+    rig.scene.throwOnPlay = true;
+    start();
+    await tick();
+    assert.equal(rig.sessions.at(-1)?.aborted, 1, "the failed start was undone");
+    assert.deepEqual(controls.children, [], "the control the failed scene added is gone");
+  });
+
+  it("empties it when the dialog closes, even if the session never got to (the browser closed the dialog by itself)", async () => {
+    start();
+    await tick();
+    addControls(2);
+    dialog.open = false; // what the browser did
+    dialog.dispatchEvent(new Event("close"));
+    assert.deepEqual(controls.children, []);
+    assert.equal(rig.sessions[0].disposed, 1, "and the runner took the session down too");
+  });
+
+  it("empties it, and stops listening, when the cleanup returned to onPage runs", async () => {
+    const cleanup = start();
+    await tick();
+    assert.equal(dialog.listenerCount("close"), 2, "the runner's own close handler and the adapter's");
+    addControls(1);
+    cleanup?.();
+    assert.deepEqual(controls.children, []);
+    assert.equal(dialog.listenerCount("close"), 0, "no listener outlives the page");
+  });
+
+  it("leaves a scene's controls alone while it plays", async () => {
+    const cleanup = start();
+    await tick();
+    addControls(2);
+    await sleep(20);
+    assert.equal(controls.children.length, 2);
+    assert.equal(dialog.open, true);
     cleanup?.();
   });
 });

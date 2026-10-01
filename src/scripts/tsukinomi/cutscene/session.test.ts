@@ -3,20 +3,22 @@
 import assert from "node:assert/strict";
 import { afterEach, beforeEach, describe, it } from "node:test";
 
-import { FakeDialog, FakeElement, installFakeDom, type FakeEnv } from "../../_shared/cutscene/fake-dom";
+import { FakeButton, FakeDialog, FakeElement, installFakeDom, type FakeEnv } from "../../_shared/cutscene/fake-dom";
 import type { SceneOptions } from "../../_shared/scene-runtime";
 import type { RestoreOptions, SceneAudio } from "./audio";
 import { registryEntry } from "./registry";
-import { createSession, type SessionInit } from "./session";
+import { CONTROLS_RESERVE_PROPERTY, createSession, type SessionInit } from "./session";
 
 let env: FakeEnv;
 let stage: FakeElement;
+let controls: FakeElement;
 let restores: RestoreOptions[];
 let built: Array<{ options: SceneOptions; started: number; stopped: number; destroyed: number }>;
 
 beforeEach(() => {
   env = installFakeDom("https://x.test/MY-NOVEL/tsukinomi/sections/01-discovery/");
   stage = new FakeElement(env);
+  controls = new FakeElement(env);
   restores = [];
   built = [];
 });
@@ -56,6 +58,7 @@ function init(overrides: Partial<SessionInit> = {}): SessionInit {
   return {
     dialog: new FakeDialog(env) as unknown as HTMLDialogElement,
     stage: stage as unknown as HTMLElement,
+    controls: controls as unknown as HTMLElement,
     textEl: new FakeElement(env) as unknown as HTMLElement,
     part: 1,
     entry: registryEntry(1),
@@ -82,6 +85,8 @@ describe("createSession: what a scene is handed", () => {
     const { ctx } = session;
     assert.equal(ctx.part, 1);
     assert.equal(ctx.stage, stage as unknown);
+    assert.equal(ctx.controls, controls as unknown, "the controls slot is the dialog's own, not the stage");
+    assert.notEqual(ctx.controls, ctx.stage as unknown, "a control cannot live in the aria-hidden stage");
     ctx.skip();
     assert.equal(skipped, 1);
     assert.equal(ctx.reducedMotion, false);
@@ -211,5 +216,110 @@ describe("createSession: ending", () => {
     assert.equal(env.window.listenerCount("pagehide"), 0);
     env.window.dispatchEvent(new Event("pagehide"));
     assert.equal(restores.length, 1, "only dispose() restored");
+  });
+});
+
+describe("createSession: controls", () => {
+  const addButtons = (count: number) => {
+    const buttons = Array.from({ length: count }, () => new FakeButton(env));
+    controls.append(...buttons);
+    return buttons;
+  };
+
+  it("leaves the buttons a scene appended in place while the scene runs, and while it is only aborted", () => {
+    const session = makeSession();
+    addButtons(2);
+    assert.equal(controls.children.length, 2);
+    session.pause();
+    session.abort();
+    assert.equal(controls.children.length, 2, "the scene's own dispose() still has them to work with");
+    session.dispose();
+  });
+
+  it("dispose() empties the container, so no control outlives the cutscene", () => {
+    const session = makeSession();
+    addButtons(2);
+    session.dispose();
+    assert.deepEqual(controls.children, []);
+  });
+
+  it("empties the container of a reduced-motion session too", () => {
+    const session = makeSession({ reducedMotion: true });
+    addButtons(1);
+    session.dispose();
+    assert.deepEqual(controls.children, []);
+  });
+
+  it("leaves the stage and its canvases alone while emptying the container, and the container alone while destroying the loops", () => {
+    const session = makeSession();
+    addButtons(1);
+    const loop = session.ctx.createCanvasLoop(loopOptions());
+    assert.deepEqual(stage.children, [loop.canvas as unknown as FakeElement], "the canvas goes to the stage, never to the controls");
+    assert.equal(controls.children.length, 1);
+    session.dispose();
+    assert.deepEqual(stage.children, []);
+    assert.deepEqual(controls.children, []);
+  });
+});
+
+describe("createSession: the band the text card keeps clear of the controls", () => {
+  interface FakeObserver {
+    callback: () => void;
+    observed: unknown[];
+    disconnected: number;
+  }
+  let observers: FakeObserver[];
+
+  beforeEach(() => {
+    observers = [];
+    (globalThis as Record<string, unknown>).ResizeObserver = class {
+      private readonly record: FakeObserver;
+      constructor(callback: () => void) {
+        this.record = { callback, observed: [], disconnected: 0 };
+        observers.push(this.record);
+      }
+      observe(element: unknown) {
+        this.record.observed.push(element);
+      }
+      disconnect() {
+        this.record.disconnected++;
+      }
+    };
+  });
+
+  afterEach(() => {
+    delete (globalThis as Record<string, unknown>).ResizeObserver;
+  });
+
+  const reserveOf = (session: ReturnType<typeof makeSession>) => (session.ctx.dialog as unknown as FakeElement).style[CONTROLS_RESERVE_PROPERTY];
+
+  it("publishes the slot's height on the dialog whenever it is resized, so the card's bottom padding can clear it", () => {
+    const session = makeSession();
+    assert.equal(CONTROLS_RESERVE_PROPERTY, "--tsuki-controls-reserve");
+    assert.equal(observers.length, 1);
+    assert.deepEqual(observers[0].observed, [controls], "it watches the controls slot, not the stage");
+    assert.equal(reserveOf(session), undefined, "nothing to reserve until the slot has a size");
+    (controls as unknown as { offsetHeight: number }).offsetHeight = 62;
+    observers[0].callback();
+    assert.equal(reserveOf(session), "62px");
+    (controls as unknown as { offsetHeight: number }).offsetHeight = 240; // the controls wrapped at a large text size
+    observers[0].callback();
+    assert.equal(reserveOf(session), "240px");
+    session.dispose();
+  });
+
+  it("stops watching on dispose(), once", () => {
+    const session = makeSession();
+    session.dispose();
+    session.dispose();
+    assert.equal(observers[0].disconnected, 1);
+  });
+
+  it("works without a ResizeObserver: the card keeps its default band", () => {
+    delete (globalThis as Record<string, unknown>).ResizeObserver;
+    const session = makeSession();
+    assert.equal(observers.length, 0);
+    assert.equal(reserveOf(session), undefined);
+    session.dispose();
   });
 });

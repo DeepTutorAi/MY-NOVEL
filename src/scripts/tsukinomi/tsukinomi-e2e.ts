@@ -594,6 +594,221 @@ async function checkLargeText(browser: Browser): Promise<void> {
   });
 }
 
+/**
+ * Appends two real buttons to the controls slot, as a scene would: the probe,
+ * whose clicks are counted in window.__probe, and a companion with a longer Thai
+ * label, so the layout is checked with a row of two (which wraps at 200%).
+ */
+const addProbe = (page: Page) =>
+  page.evaluate(() => {
+    const slot = document.querySelector<HTMLElement>("[data-cutscene-controls]");
+    if (!slot) throw new Error("no controls slot");
+    const make = (label: string) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "tsuki-cutscene__control";
+      button.textContent = label;
+      return button;
+    };
+    const probe = make("probe");
+    probe.dataset.e2eProbe = "";
+    (window as unknown as { __probe: { clicks: number } }).__probe = { clicks: 0 };
+    probe.addEventListener("click", () => void (window as unknown as { __probe: { clicks: number } }).__probe.clicks++);
+    slot.append(probe, make("ล้างหมอก"));
+  });
+
+const probeState = (page: Page) =>
+  page.evaluate(() => {
+    const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
+    const probe = document.querySelector<HTMLElement>("[data-e2e-probe]");
+    const skip = document.querySelector<HTMLElement>("[data-cutscene-skip]");
+    const text = document.getElementById("cutscene-text");
+    const box = (element: Element | null) => {
+      const rect = element?.getBoundingClientRect();
+      return rect ? { left: rect.left, top: rect.top, right: rect.right, bottom: rect.bottom, width: rect.width, height: rect.height } : null;
+    };
+    const centre = probe ? probe.getBoundingClientRect() : null;
+    const hit = centre ? document.elementFromPoint(centre.left + centre.width / 2, centre.top + centre.height / 2) : null;
+    const all = [...document.querySelectorAll("[data-cutscene-controls] > *")].map((control) => {
+      const rect = control.getBoundingClientRect();
+      const on = document.elementFromPoint(rect.left + rect.width / 2, rect.top + rect.height / 2);
+      return { box: box(control), hit: on !== null && control.contains(on) };
+    });
+    return {
+      all,
+      clicks: (window as unknown as { __probe?: { clicks: number } }).__probe?.clicks ?? -1,
+      open: dialog?.open ?? false,
+      state: dialog?.dataset.state ?? "",
+      dialogScrollTop: dialog?.scrollTop ?? -1,
+      scrollY: Math.round(window.scrollY),
+      probeIsActive: document.activeElement === probe,
+      probe: box(probe),
+      skip: box(skip),
+      text: box(text),
+      hit: hit !== null && probe !== null && probe.contains(hit),
+      innerWidth,
+      innerHeight,
+      scrolls: (dialog?.scrollHeight ?? 0) - (dialog?.clientHeight ?? 0) > 1,
+    };
+  });
+
+type Box = NonNullable<Awaited<ReturnType<typeof probeState>>["probe"]>;
+const overlaps = (a: Box, b: Box) => a.left < b.right && b.left < a.right && a.top < b.bottom && b.top < a.bottom;
+
+async function checkControlsSlot(browser: Browser): Promise<void> {
+  await check("controls slot: outside aria-hidden, after Skip, Space and Enter press a control, never over the text, emptied on close", async () => {
+    const problems: string[] = [];
+    const cases = [
+      ...VIEWPORTS.map((viewport) => ({ viewport, fontSize: undefined as string | undefined })),
+      { viewport: VIEWPORTS[0], fontSize: "200%" },
+      { viewport: VIEWPORTS[3], fontSize: "200%" },
+    ];
+    for (const [index, { viewport, fontSize }] of cases.entries()) {
+      const tag = `${viewport.width}x${viewport.height}${fontSize ? ` at ${fontSize}` : ""}`;
+      const { context, page } = await openPage(browser, { viewport, fontSize, touch: true });
+      try {
+        await page.goto(sectionUrl("03-decision", "?cutscene=replay"), { waitUntil: "domcontentloaded" });
+        await waitForPlaying(page);
+        await pause(400);
+
+        const slot = await page.evaluate(() => {
+          const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
+          const slot = document.querySelector<HTMLElement>("[data-cutscene-controls]");
+          const skip = document.querySelector<HTMLElement>("[data-cutscene-skip]");
+          const named = (button: Element) => (button.getAttribute("aria-label") ?? button.textContent ?? "").trim().length > 0;
+          return {
+            exists: slot !== null,
+            directChild: slot?.parentElement === dialog,
+            hiddenAncestor: slot?.closest("[aria-hidden='true'], [inert]") !== null,
+            inStage: slot?.closest("[data-cutscene-stage]") !== null,
+            inCard: slot?.closest(".tsuki-cutscene__card") !== null,
+            afterSkip: skip && slot ? Boolean(skip.compareDocumentPosition(slot) & Node.DOCUMENT_POSITION_FOLLOWING) : false,
+            children: slot ? [...slot.children].map((child) => ({ tag: child.tagName, type: child.getAttribute("type"), named: named(child) })) : [],
+            skipFocused: document.activeElement === skip,
+          };
+        });
+        if (!slot.exists) {
+          problems.push(`${tag}: no [data-cutscene-controls] in the dialog`);
+          continue;
+        }
+        if (!slot.directChild || slot.hiddenAncestor || slot.inStage || slot.inCard) problems.push(`${tag}: the slot is not a plain child of the dialog (${JSON.stringify(slot)})`);
+        if (!slot.afterSkip) problems.push(`${tag}: the slot does not follow Skip in the DOM`);
+        for (const child of slot.children) {
+          if (child.tag !== "BUTTON" || child.type !== "button" || !child.named) problems.push(`${tag}: a scene control is not a named <button type=button> (${JSON.stringify(child)})`);
+        }
+
+        await addProbe(page);
+        // Skip first (autofocus), then the controls in DOM order.
+        const first = await page.evaluate(() => document.querySelector("[data-cutscene-controls] button")?.hasAttribute("data-e2e-probe") ?? false);
+        await page.keyboard.press("Tab");
+        const afterTab = await page.evaluate(() => document.activeElement?.closest("[data-cutscene-controls]") !== null && document.activeElement?.tagName === "BUTTON");
+        if (!afterTab) problems.push(`${tag}: Tab from Skip did not reach a control`);
+        if (first && !(await probeState(page)).probeIsActive) problems.push(`${tag}: Tab from Skip did not land on the first control`);
+
+        let state = await probeState(page);
+        const probe = state.probe;
+        if (!probe) {
+          problems.push(`${tag}: the probe control is not in the page`);
+          continue;
+        }
+        for (const [at, control] of state.all.entries()) {
+          const box = control.box;
+          if (!box) continue;
+          const name = `control ${at + 1}`;
+          if (box.width < 44 || box.height < 44) problems.push(`${tag}: ${name} target ${Math.round(box.width)}x${Math.round(box.height)}, under 44 px`);
+          if (box.left < 0 || box.top < 0 || box.right > state.innerWidth || box.bottom > state.innerHeight) problems.push(`${tag}: ${name} is outside the viewport`);
+          if (!control.hit) problems.push(`${tag}: something covers ${name}`);
+          if (state.skip && overlaps(box, state.skip)) problems.push(`${tag}: ${name} overlaps Skip`);
+          if (!state.scrolls && state.text && overlaps(box, state.text)) problems.push(`${tag}: ${name} overlaps the epigraph`);
+          for (const other of state.all.slice(at + 1)) if (other.box && overlaps(box, other.box)) problems.push(`${tag}: ${name} overlaps another control`);
+        }
+
+        // Space and Enter press a control and do nothing else.
+        await page.evaluate(() => document.querySelector<HTMLElement>("[data-e2e-probe]")?.focus({ preventScroll: true }));
+        const before = await probeState(page);
+        await page.keyboard.press("Space");
+        await pause(150);
+        state = await probeState(page);
+        if (state.clicks !== before.clicks + 1) problems.push(`${tag}: Space on the control fired ${state.clicks - before.clicks} clicks`);
+        if (!state.open || state.state !== "playing") problems.push(`${tag}: Space on the control ended the cutscene (${state.state})`);
+        if (state.dialogScrollTop !== before.dialogScrollTop || state.scrollY !== 0) problems.push(`${tag}: Space on the control scrolled (dialog ${state.dialogScrollTop}, page ${state.scrollY})`);
+        await page.keyboard.press("Enter");
+        await pause(150);
+        state = await probeState(page);
+        if (state.clicks !== before.clicks + 2) problems.push(`${tag}: Enter on the control fired ${state.clicks - before.clicks - 1} clicks`);
+        if (!state.open || state.state !== "playing") problems.push(`${tag}: Enter on the control ended the cutscene (${state.state})`);
+        // A tap on it is a click too, and not a skip.
+        await page.touchscreen.tap(probe.left + probe.width / 2, probe.top + probe.height / 2);
+        await pause(150);
+        state = await probeState(page);
+        if (state.clicks !== before.clicks + 3 || !state.open) problems.push(`${tag}: a tap on the control gave ${state.clicks - before.clicks - 2} clicks, open ${state.open}`);
+
+        // When the dialog scrolls (large text) the text card moves over the stage: at the end of the
+        // scroll, the last line is above the controls and Skip.
+        if (state.scrolls) {
+          const end = await page.evaluate(async () => {
+            const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
+            if (dialog) dialog.scrollTop = dialog.scrollHeight;
+            await new Promise((resolve) => setTimeout(resolve, 150));
+            const text = document.getElementById("cutscene-text")?.getBoundingClientRect();
+            const controls = [...document.querySelectorAll("[data-cutscene-controls] > *")].map((control) => control.getBoundingClientRect());
+            const skip = document.querySelector("[data-cutscene-skip]")?.getBoundingClientRect();
+            return {
+              textBottom: text?.bottom ?? -1,
+              controlsTop: Math.min(...controls.map((rect) => rect.top)),
+              skipTop: skip?.top ?? -1,
+              controlsBottom: Math.max(...controls.map((rect) => rect.bottom)),
+              innerHeight,
+            };
+          });
+          if (end.textBottom > Math.min(end.controlsTop, end.skipTop) + 0.5) problems.push(`${tag}: at the end of the scroll the text still reaches the controls (${JSON.stringify(end)})`);
+          if (end.controlsBottom > end.innerHeight) problems.push(`${tag}: the controls left the viewport when scrolled (${JSON.stringify(end)})`);
+        }
+
+        // Emptied when the dialog closes, whichever way it ends.
+        if (index % 2 === 0) await page.keyboard.press("Escape");
+        else await page.evaluate(() => document.querySelector<HTMLElement>("[data-cutscene-skip]")?.click());
+        await waitForClosed(page);
+        const after = await page.evaluate(() => ({
+          children: document.querySelector("[data-cutscene-controls]")?.children.length ?? -1,
+          probe: document.querySelector("[data-e2e-probe]") !== null,
+        }));
+        if (after.children !== 0 || after.probe) problems.push(`${tag}: the controls slot still holds ${after.children} children after the dialog closed`);
+      } finally {
+        await context.close();
+      }
+    }
+
+    // Reduced motion: the still has nothing to operate, so the slot is out of sight and out of the tab order.
+    const still = await openPage(browser, { reducedMotion: true });
+    try {
+      await still.page.goto(sectionUrl("03-decision", "?cutscene=replay"), { waitUntil: "domcontentloaded" });
+      await waitForPlaying(still.page);
+      await pause(300);
+      await addProbe(still.page);
+      const hidden = await still.page.evaluate(() => {
+        const slot = document.querySelector<HTMLElement>("[data-cutscene-controls]");
+        const probe = document.querySelector<HTMLElement>("[data-e2e-probe]");
+        const before = document.activeElement;
+        probe?.focus();
+        const focusable = document.activeElement === probe;
+        (before as HTMLElement | null)?.focus();
+        return { display: slot ? getComputedStyle(slot).display : "missing", probeRendered: probe ? probe.getClientRects().length > 0 : null, focusable };
+      });
+      if (hidden.display !== "none" || hidden.probeRendered || hidden.focusable) problems.push(`reduced motion: the slot is not hidden (${JSON.stringify(hidden)})`);
+      await still.page.keyboard.press("Enter");
+      await waitForClosed(still.page);
+      const left = await still.page.evaluate(() => document.querySelector("[data-cutscene-controls]")?.children.length ?? -1);
+      if (left !== 0) problems.push(`reduced motion: ${left} children left in the slot after the still closed`);
+    } finally {
+      await still.context.close();
+    }
+
+    assert(problems.length === 0, problems.join("; "));
+    return `${cases.length} cases (5 viewports, 200% at 375x812 and 667x375): outside aria-hidden and after Skip, Tab reaches it, Space, Enter and a tap press it without scrolling or skipping, 44 px and clear of Skip and the text, emptied on Escape and Skip; hidden in the still`;
+  });
+}
+
 async function checkAudioSilence(browser: Browser): Promise<void> {
   await check("the Walkman is off: the scene requests no audio", async () => {
     const { context, page } = await openPage(browser);
@@ -653,6 +868,7 @@ async function main(): Promise<void> {
     await checkNoFlashCover(browser);
     await checkLayout(browser);
     await checkLargeText(browser);
+    await checkControlsSlot(browser);
     await checkAudioSilence(browser);
   } finally {
     await browser.close();

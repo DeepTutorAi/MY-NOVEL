@@ -22,6 +22,12 @@
 //     is on its way the adapter asks the gate to restart it (hold) with a
 //     budget for the scene chunks alone;
 //   - focus goes to the section heading (or <main>) when the dialog closes;
+//   - the controls container ([data-cutscene-controls], where a scene puts the
+//     real buttons ctx.stage cannot hold) is handed to the session, which empties
+//     it on dispose(). It is emptied here too, right after every dispose (a
+//     still closed before its session was built has none to do it) and again on
+//     the dialog's own close event, so a control never outlives the cutscene
+//     whichever way it ended;
 //   - nothing to clean up by hand on ClientRouter navigation: onPage tears the
 //     runner down on astro:before-swap, which closes the dialog, disposes the
 //     scene and hands the Walkman back.
@@ -79,11 +85,12 @@ export function setupTsukinomiCutscene(deps: AdapterDeps = {}): (() => void) | u
   const uncover = () => root.classList.remove(COVER_CLASS);
   const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
   const stage = dialog?.querySelector<HTMLElement>("[data-cutscene-stage]");
+  const controls = dialog?.querySelector<HTMLElement>("[data-cutscene-controls]");
   const textEl = dialog?.querySelector<HTMLElement>("[data-cutscene-text]");
   const skipButton = dialog?.querySelector<HTMLElement>("[data-cutscene-skip]");
   const startButton = dialog?.querySelector<HTMLElement>("[data-cutscene-start]");
   const part = Number(dialog?.dataset.part);
-  if (!dialog || !stage || !textEl || !skipButton || !startButton || !Number.isInteger(part)) {
+  if (!dialog || !stage || !controls || !textEl || !skipButton || !startButton || !Number.isInteger(part)) {
     uncover();
     return undefined;
   }
@@ -100,10 +107,13 @@ export function setupTsukinomiCutscene(deps: AdapterDeps = {}): (() => void) | u
   const loadParts = () =>
     (loading ??= Promise.all([entry.load(), loadSession()]).then(([scene, session]) => ({ scene, session })));
 
+  const clearControls = () => controls.replaceChildren();
+
   const openSession = (session: Loaded["session"], reducedMotion: boolean) =>
     session.createSession({
       dialog,
       stage,
+      controls,
       textEl,
       part,
       entry,
@@ -136,6 +146,7 @@ export function setupTsukinomiCutscene(deps: AdapterDeps = {}): (() => void) | u
           handle?.dispose();
         } finally {
           session.dispose();
+          clearControls();
         }
         throw error;
       }
@@ -148,6 +159,7 @@ export function setupTsukinomiCutscene(deps: AdapterDeps = {}): (() => void) | u
             scene.dispose();
           } finally {
             session.dispose();
+            clearControls();
           }
         },
       };
@@ -170,6 +182,7 @@ export function setupTsukinomiCutscene(deps: AdapterDeps = {}): (() => void) | u
         cancelled = true;
         session?.abort();
         session?.dispose();
+        clearControls();
       };
     },
 
@@ -182,10 +195,17 @@ export function setupTsukinomiCutscene(deps: AdapterDeps = {}): (() => void) | u
     label: "tsukinomi cutscene",
   });
 
+  // Belt and braces: whatever closed the dialog, nothing is left in the slot.
+  dialog.addEventListener("close", clearControls);
+
   runner.start();
   // Not playing (cooldown, ?resume=1, traversal) has already lifted the cover; a still opens at once.
   if (runner.state === "pending" || runner.state === "loading") window.__tsukiCutsceneNav?.hold?.(SCENE_LOAD_BUDGET_MS);
-  return () => runner.destroy();
+  return () => {
+    runner.destroy();
+    dialog.removeEventListener("close", clearControls);
+    clearControls();
+  };
 }
 
 onPage("tsukinomi-cutscene", { bodyClass: "tsukinomi-page" }, () => setupTsukinomiCutscene());
