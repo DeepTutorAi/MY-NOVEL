@@ -1,0 +1,56 @@
+/* Look of the placeholder plate reveal (plate-reveal.ts). The epigraph is
+   visible by default; only .tsuki-reveal hides it, and only for the moment the
+   per-character animation drives it, so a scene that never starts leaves the
+   text readable. No z-index: the stage sits behind the text by paint order. */
+
+.tsuki-cutscene .tsuki-plate {
+  background-color: #000;
+  background-image: var(--tsuki-plate-image, none);
+  background-position: center;
+  background-size: cover;
+}
+
+.tsuki-cutscene .tsuki-plate::before,
+.tsuki-cutscene .tsuki-plate::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+
+.tsuki-cutscene .tsuki-plate::before {
+  background: var(--tsuki-plate-tint, none);
+}
+
+.tsuki-cutscene .tsuki-plate::after {
+  background:
+    radial-gradient(ellipse at 50% 50%, transparent 35%, rgba(0, 0, 0, 0.55) 100%),
+    rgba(0, 0, 0, var(--tsuki-plate-scrim, 0));
+}
+
+.tsuki-cutscene[data-mode="motion"] .tsuki-plate {
+  animation: tsuki-plate-in 1400ms ease-out both;
+}
+
+.tsuki-cutscene .tsuki-reveal .tsuki-g {
+  animation: tsuki-g-in var(--tsuki-g-fade, 900ms) ease-out both;
+}
+
+@keyframes tsuki-plate-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes tsuki-g-in {
+  from {
+    opacity: 0;
+    filter: blur(6px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-plate,
+  .tsuki-cutscene .tsuki-reveal .tsuki-g {
+    animation: none;
+  }
+}

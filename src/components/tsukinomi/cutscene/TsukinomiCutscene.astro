@@ -1,0 +1,276 @@
+---
+// The opening cutscene of a Tsukinomi part, rendered by TsukinomiSectionLayout
+// for the prologue and parts 1 to 5. A native <dialog> opened with showModal()
+// by src/scripts/tsukinomi/cutscene/index.ts, so it sits in the top layer and no
+// page layer (backdrop, petals, grain, Walkman) can paint over it: there is
+// deliberately no z-index on it (the B2 bug was a z-index fight).
+//
+// Everything the scene shows as text is rendered here, on the server: the
+// epigraph is a real paragraph (#cutscene-text) for screen readers, and the
+// scene animates it without replacing it. The stage is decorative and
+// aria-hidden; scenes draw into it. The Skip button is visible and focused from
+// the first frame. The "เดินทางต่อ" button is the reduced-motion still's way
+// on; the runner swaps it for Skip when it shows the still.
+//
+// Playback rules live in src/scripts/_shared/cutscene/core.ts and the scene
+// contract in src/scripts/tsukinomi/cutscene/scene-types.ts.
+//
+// The inline gate below is the no-flash cover: it decides before first paint
+// whether this visit will play the cutscene and, if so, hides the page until the
+// runner opens the dialog (and lifts it), so the reader never sees the chapter
+// text flash before the scene. It mirrors shouldPlay() and playedToday() in
+// core.ts (src/scripts/tsukinomi/cutscene/gate.test.ts evaluates the code
+// between the gate:begin and gate:end markers against core.ts) and keeps a
+// snapshot of the page's URL, since the reading-progress script strips ?resume=1.
+//
+// Safety timeout. The gate starts a 2.5 s timer when it runs, at HTML parse, so
+// a page whose scripts never arrive is not left black. That timer cannot also
+// cover the scene's download: the adapter only starts after every deferred
+// module (Howler, the Walkman) has loaded, which on a slow phone can take most
+// of the 2.5 s. So once the adapter is running and the cutscene will play it
+// calls __tsukiCutsceneNav.hold(ms), which restarts the timer with a budget for
+// the scene chunks alone. If that also lapses the cutscene is dropped for this
+// visit (no played stamp, so it plays on the next one).
+//
+// The comments are kept out of the script on purpose: it is inline on every
+// section page, and Astro does not minify it.
+import { registryEntry } from "../../../scripts/tsukinomi/cutscene/registry";
+
+interface Props {
+  /** Section number: 0 for the prologue, 1 to 5 for the parts. */
+  part: number;
+  /** The epigraph, rendered as real text. */
+  epigraph: string;
+  /** Accessible name of the dialog (the section title). */
+  label: string;
+}
+
+const { part, epigraph, label } = Astro.props;
+const scene = registryEntry(part);
+---
+
+<dialog
+  class="tsuki-cutscene"
+  data-part={part}
+  data-scene={scene.id}
+  data-state="idle"
+  data-dev={import.meta.env.DEV ? "" : undefined}
+  aria-label={label}
+  aria-describedby="cutscene-text"
+>
+  <div class="tsuki-cutscene__stage" data-cutscene-stage aria-hidden="true"></div>
+  <div class="tsuki-cutscene__card">
+    <p class="tsuki-cutscene__text" id="cutscene-text" data-cutscene-text>{epigraph}</p>
+    <button type="button" class="tsuki-cutscene__continue" id="cutscene-continue" data-cutscene-start hidden>เดินทางต่อ</button>
+  </div>
+  <button type="button" class="tsuki-cutscene__skip" data-cutscene-skip autofocus>ข้าม</button>
+</dialog>
+
+<script is:inline>
+  (() => {
+    const COVER = "tsuki-cutscene-pending";
+
+    // gate:begin (evaluated by cutscene/gate.test.ts; plain ES5-style JS, no outer names)
+    function playedToday(stored, now) {
+      var text = typeof stored === "string" ? stored.trim() : "";
+      if (text === "") return false;
+      var at = /^-?\d+$/.test(text) ? Number(text) : Date.parse(text);
+      if (!isFinite(at) || at < 0 || at > 8.64e15) return false;
+      var start = new Date(now.getTime());
+      start.setHours(6, 0, 0, 0);
+      if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 1);
+      var end = new Date(start.getTime());
+      end.setDate(end.getDate() + 1);
+      return at >= start.getTime() && at < end.getTime();
+    }
+    function covers(search, traverse, stored, now, dev) {
+      var params = new URLSearchParams(search);
+      var mode = params.get("cutscene");
+      if (mode === "replay" || (mode === "force" && dev)) return true;
+      return params.get("resume") !== "1" && !traverse && !playedToday(stored, now);
+    }
+    // gate:end
+
+    if (window.__tsukiCutsceneNav) return;
+    const entry = performance.getEntriesByType("navigation")[0];
+    const nav = (window.__tsukiCutsceneNav = {
+      traverse: document.readyState === "loading" && !!entry && entry.type === "back_forward",
+    });
+    let timer = 0;
+    let waitVisible = null;
+    const disarm = () => {
+      window.clearTimeout(timer);
+      if (waitVisible) document.removeEventListener("visibilitychange", waitVisible);
+      waitVisible = null;
+    };
+    const arm = (ms) => {
+      disarm();
+      const start = () => {
+        timer = window.setTimeout(() => document.documentElement.classList.remove(COVER), ms);
+      };
+      if (!document.hidden) return start();
+      waitVisible = () => {
+        if (document.hidden) return;
+        disarm();
+        start();
+      };
+      document.addEventListener("visibilitychange", waitVisible);
+    };
+    nav.hold = (ms) => {
+      if (document.documentElement.classList.contains(COVER)) arm(ms);
+    };
+    const cover = () => {
+      nav.path = location.pathname;
+      nav.search = location.search;
+      disarm();
+      const dialog = document.querySelector("dialog.tsuki-cutscene");
+      if (!dialog) return;
+      let stored = null;
+      try {
+        stored = localStorage.getItem("tsukinomi:cutscene:played:" + dialog.dataset.part);
+      } catch (e) {}
+      if (!covers(location.search, nav.traverse, stored, new Date(), dialog.hasAttribute("data-dev"))) return;
+      document.documentElement.classList.add(COVER);
+      arm(2500);
+    };
+    document.addEventListener("astro:before-preparation", (event) => {
+      nav.traverse = event.navigationType === "traverse";
+    });
+    document.addEventListener("astro:after-swap", cover);
+    cover();
+  })();
+</script>
+
+<style is:global>
+  /* No-flash cover while the scene loads; lifted by the runner or by the gate's timeout. */
+  html.tsuki-cutscene-pending body::after {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    content: "";
+    background: #000;
+  }
+
+  /* No z-index anywhere below: the dialog is in the top layer, and inside it the
+     order of the children (stage, card, skip button) is the paint order. All
+     three are positioned (z-index auto), so that order is the DOM order and the
+     stage can never paint over the text.
+
+     The three share one grid cell. The dialog scrolls vertically, but only when
+     the text is taller than the screen (the reader's text size at 200% on a
+     phone): centring it in a box that cannot scroll would cut off its first
+     lines. The stage and the Skip button are sticky, not fixed, so they stay on
+     screen while the card scrolls and still belong to the dialog's scroll chain
+     (a wheel or touch over a fixed element scrolls the viewport instead). */
+  .tsuki-cutscene {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-y: auto;
+    border: 0;
+    background: #000;
+    color: var(--tsuki-ink, #ece6da);
+    font-family: var(--font-thai, sans-serif);
+    overscroll-behavior: contain;
+  }
+
+  /* [open]: a display value here would otherwise keep a closed dialog on screen. */
+  .tsuki-cutscene[open] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .tsuki-cutscene::backdrop {
+    background: transparent;
+  }
+
+  .tsuki-cutscene__stage {
+    grid-area: 1 / 1;
+    position: sticky;
+    top: 0;
+    align-self: start;
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
+
+  .tsuki-cutscene__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .tsuki-cutscene__card {
+    grid-area: 1 / 1;
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: clamp(1.4rem, 5vmin, 2.6rem);
+    padding: max(4.25rem, env(safe-area-inset-top)) 1rem max(4.75rem, env(safe-area-inset-bottom));
+    background: radial-gradient(ellipse 75% 60% at 50% 50%, rgba(0, 0, 0, 0.5), transparent 75%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .tsuki-cutscene__text {
+    max-width: min(36rem, 100%);
+    margin: 0;
+    color: var(--tsuki-ink, #ece6da);
+    font-size: clamp(0.98rem, 0.8rem + 1.1vmin, 1.3rem);
+    line-height: 1.95;
+    letter-spacing: 0.02em;
+    text-shadow:
+      0 1px 10px rgba(0, 0, 0, 0.85),
+      0 0 18px rgba(224, 163, 106, 0.15);
+    text-wrap: pretty;
+  }
+
+  .tsuki-cutscene__skip,
+  .tsuki-cutscene__continue {
+    min-width: 44px;
+    min-height: 44px;
+    border: 1px solid rgba(224, 163, 106, 0.45);
+    background: rgba(14, 11, 30, 0.55);
+    color: var(--tsuki-ink, #ece6da);
+    font-family: var(--font-mono, monospace);
+    font-size: 0.88rem;
+    letter-spacing: 0.12em;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .tsuki-cutscene__skip {
+    grid-area: 1 / 1;
+    position: sticky;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    justify-self: end;
+    align-self: end;
+    margin-right: max(16px, env(safe-area-inset-right));
+    padding: 0.5rem 1.3rem;
+  }
+
+  .tsuki-cutscene__continue {
+    padding: 0.75rem 2.2rem;
+    background: rgba(224, 163, 106, 0.1);
+  }
+
+  .tsuki-cutscene__skip:hover,
+  .tsuki-cutscene__continue:hover {
+    border-color: var(--sunset, #e08a4c);
+    background: rgba(224, 163, 106, 0.18);
+  }
+
+  .tsuki-cutscene__skip[hidden],
+  .tsuki-cutscene__continue[hidden] {
+    display: none;
+  }
+</style>

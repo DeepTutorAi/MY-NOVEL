@@ -228,10 +228,20 @@ describe("shared reading experience contract", () => {
     assert.match(lodgeChapterLayout, /typewriter/);
     assert.match(lodgeChapterLayout, /has-cutscene/);
 
-    assert.match(tsukiSectionLayout, /hasCutscene/);
-    assert.match(tsukiSectionLayout, /cutscene-overlay/);
-    assert.match(tsukiSectionLayout, /fade-char/);
-    assert.match(tsukiSectionLayout, /has-cutscene/);
+    // Tsukinomi's cutscene is no longer in the layout: it is a native <dialog>
+    // (src/components/tsukinomi/cutscene), and the epigraph text lives in
+    // src/scripts/tsukinomi/cutscene/epigraphs.ts. Only the Lodge assertions
+    // above still describe the in-layout overlay.
+    const tsukiCutscene = readProjectFile("src/components/tsukinomi/cutscene/TsukinomiCutscene.astro");
+    const tsukiEpigraphs = readProjectFile("src/scripts/tsukinomi/cutscene/epigraphs.ts");
+    assert.match(tsukiSectionLayout, /<TsukinomiCutscene part=\{section\.data\.number\}/);
+    assert.match(tsukiSectionLayout, /epigraphFor\(section\.data\.number\)/);
+    assert.doesNotMatch(tsukiSectionLayout, /cutscene-overlay|has-cutscene/);
+    assert.match(tsukiCutscene, /<dialog\s+class="tsuki-cutscene"/);
+    assert.match(tsukiCutscene, /id="cutscene-text"/);
+    for (const part of [0, 1, 2, 3, 4, 5]) {
+      assert.match(tsukiEpigraphs, new RegExp(`\\n  ${part}: "`), `epigraph ${part} should be defined`);
+    }
 
     // Extra pages exclude introduction (00-introduction)
     assert.match(lodgeExtra, /id !== "00-introduction"/);

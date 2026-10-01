@@ -8,6 +8,7 @@ const root = process.cwd();
 
 const BASE_LAYOUT = "src/layouts/tsukinomi/TsukinomiBaseLayout.astro";
 const SECTION_LAYOUT = "src/layouts/tsukinomi/TsukinomiSectionLayout.astro";
+const CUTSCENE_COMPONENT = "src/components/tsukinomi/cutscene/TsukinomiCutscene.astro";
 
 function readProjectFile(path: string): string {
   return readFileSync(join(root, path), "utf8");
@@ -41,16 +42,13 @@ function withoutGatedRegion(layout: string): string {
   return layout.slice(0, start) + layout.slice(end);
 }
 
-/** Declaration body of a rule whose selector list is exactly `selector`. */
-function ruleBody(source: string, selector: string): string {
-  const escaped = selector.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const match = source.match(new RegExp(`(?:^|\\n)\\s*${escaped}\\s*\\{([^}]*)\\}`));
-  assert.ok(match, `rule ${selector} should exist`);
-  return match[1];
-}
-
-function zIndexes(source: string): number[] {
-  return [...source.matchAll(/z-index:\s*(-?\d+)/g)].map((match) => Number(match[1]));
+/** The flat `selector { body }` rules (no nesting) of the <style> blocks of an Astro component. */
+function cssRules(component: string): Array<{ selector: string; body: string }> {
+  const styles = [...component.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((match) => match[1]).join("\n");
+  return [...styles.replace(/\/\*[\s\S]*?\*\//g, "").matchAll(/([^{}]+)\{([^{}]*)\}/g)].map((match) => ({
+    selector: match[1].trim(),
+    body: match[2],
+  }));
 }
 
 describe("Tsukinomi reader gate and cutscene layering contract", () => {
@@ -106,45 +104,26 @@ describe("Tsukinomi reader gate and cutscene layering contract", () => {
     assert.doesNotMatch(readProjectFile("src/layouts/lodge/LodgeBaseLayout.astro"), /worldtimeapi/i);
   });
 
-  it("paints the cutscene overlay above the backdrop, its petals and every other page layer", () => {
+  it("has no .cutscene-overlay left, and the cutscene dialog has no z-index", () => {
+    // The old hand-rolled overlay (and its z-index fight with the backdrop, bug B2)
+    // is gone: the cutscene is a native <dialog> in the top layer, which no page
+    // layer can cover, so it needs no z-index at all.
     const sectionLayout = readProjectFile(SECTION_LAYOUT);
-    const backdropComponent = readProjectFile("src/components/tsukinomi/atmosphere/SakuraTwilightBackdrop.astro");
+    const component = readProjectFile(CUTSCENE_COMPONENT);
 
-    const overlayZ = zIndexes(ruleBody(sectionLayout, ".cutscene-overlay"));
-    assert.equal(overlayZ.length, 1, ".cutscene-overlay must declare exactly one z-index");
-    const overlay = overlayZ[0];
-
-    // Backdrop layers: its base rule plus any override the section layout applies to them.
-    const backdropLayers = [
-      ...zIndexes(backdropComponent),
-      ...[...sectionLayout.matchAll(/([^{}]*sakura-backdrop[^{}]*)\{([^}]*)\}/g)].flatMap((match) => zIndexes(match[2])),
-    ];
-    assert.ok(backdropLayers.length > 0, "the backdrop z-index values should be readable from the source");
-    for (const z of backdropLayers) {
-      assert.ok(overlay > z, `overlay z-index ${overlay} must exceed backdrop layer z-index ${z}`);
+    for (const dir of ["src/layouts/tsukinomi", "src/components/tsukinomi", "src/styles/tsukinomi"]) {
+      for (const file of projectFilesUnder(dir, [".astro", ".css"])) {
+        assert.doesNotMatch(readProjectFile(file), /cutscene-overlay|has-cutscene/, `${file} must not carry the old overlay`);
+      }
     }
-
-    // `.cutscene-content` lives inside the overlay's own stacking context, so it does not compete.
-    const sectionOutsideOverlay = sectionLayout
-      .replace(/(?:^|\n)\s*\.cutscene-overlay\s*\{[^}]*\}/, "")
-      .replace(/(?:^|\n)\s*\.cutscene-content\s*\{[^}]*\}/, "");
-    const pageLayers = [
-      ...zIndexes(sectionOutsideOverlay),
-      ...zIndexes(readProjectFile(BASE_LAYOUT)),
-      ...["src/styles/tsukinomi", "src/components/tsukinomi"].flatMap((dir) =>
-        projectFilesUnder(dir, [".css", ".astro"]).flatMap((file) => zIndexes(readProjectFile(file))),
-      ),
-      ...zIndexes(readProjectFile("src/components/_shared/GrainOverlay.astro")),
-    ];
-    for (const z of pageLayers) {
-      assert.ok(overlay > z, `overlay z-index ${overlay} must exceed page layer z-index ${z}`);
-    }
-  });
-
-  it("does not raise the backdrop above the overlay while a cutscene is active", () => {
-    const sectionLayout = readProjectFile(SECTION_LAYOUT);
-
-    assert.doesNotMatch(sectionLayout, /body\.has-cutscene\s+\.sakura-backdrop[^{]*\{[^}]*z-index/);
     assert.doesNotMatch(sectionLayout, /z-index:\s*\d+\s*!important/);
+    assert.match(component, /<dialog\s+class="tsuki-cutscene"/);
+
+    // `.tsuki-cutscene` and everything inside it: the dialog's own stacking is DOM order.
+    const dialogRules = cssRules(component).filter((rule) => /\.tsuki-cutscene(?!-)/.test(rule.selector));
+    assert.ok(dialogRules.length > 0, "the dialog should have base styles");
+    for (const rule of dialogRules) {
+      assert.doesNotMatch(rule.body, /z-index/, `${rule.selector} must not set z-index`);
+    }
   });
 });

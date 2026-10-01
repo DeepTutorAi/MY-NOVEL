@@ -45,9 +45,11 @@ const soundscapeVolumeKey = (id: SoundscapeId) => SOUNDSCAPE_VOLUME_KEYS[id];
 type TrackState = {
   howl: Howl;
   soundId?: number;
+  /** The pending stop that ends a fade-out; playing the track again cancels it. */
+  stopTimer?: number;
 };
 
-type SfxId = "tape-click" | "tape-rewind";
+export type SfxId = "tape-click" | "tape-rewind";
 
 export class WalkmanAudio {
   private musicTracks = new Map<MusicCueId, TrackState>();
@@ -183,6 +185,15 @@ export class WalkmanAudio {
     this.setCue(cueId);
     this.playOneShot("tape-rewind");
     return cueId;
+  }
+
+  /**
+   * Plays one of the tape sound effects without touching the music or the
+   * enabled state. Used by the cutscene scenes (src/scripts/tsukinomi/cutscene/
+   * audio.ts), which decide for themselves whether the reader has the Walkman on.
+   */
+  playSfx(id: SfxId) {
+    this.playOneShot(id);
   }
 
   setVolume(value: number) {
@@ -333,6 +344,10 @@ export class WalkmanAudio {
       track.howl.load();
     }
 
+    // A cue switched away from and back to within the fade-out must not be
+    // stopped by the timer the first switch left behind.
+    this.cancelPendingStop(track);
+
     if (track.soundId === undefined || !track.howl.playing(track.soundId)) {
       track.soundId = track.howl.play();
     }
@@ -422,7 +437,20 @@ export class WalkmanAudio {
 
     const soundId = track.soundId;
     track.howl.fade(track.howl.volume(soundId) as number, 0, duration, soundId);
-    window.setTimeout(() => track.howl.stop(soundId), duration + 100);
+    this.cancelPendingStop(track);
+    track.stopTimer = window.setTimeout(() => {
+      track.stopTimer = undefined;
+      track.howl.stop(soundId);
+    }, duration + 100);
+  }
+
+  private cancelPendingStop(track: TrackState) {
+    if (track.stopTimer === undefined) {
+      return;
+    }
+
+    window.clearTimeout(track.stopTimer);
+    track.stopTimer = undefined;
   }
 
   private fadeOutAndUnload(track: TrackState) {
