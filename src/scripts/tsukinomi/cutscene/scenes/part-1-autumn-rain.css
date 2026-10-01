@@ -1,0 +1,191 @@
+/* Look of the part 1 cutscene (part-1-autumn-rain.ts): rain on a fogged window.
+   The layers fill the stage in this order, by DOM order and with no z-index, all in one
+   container so that the touch canvas the loop makes comes last: the plate (the part's
+   background, softened once), the rain (two tall canvases carried down their own length,
+   under the fog), the fog (two halves in windows that part from the epigraph, and a soft
+   edge on each), and over them the train's light and the droplets. Everything that moves is
+   a transform or an opacity, which the compositor runs. The epigraph's paragraph and the
+   wipe button are the dialog's own; this file only styles them.
+
+   Before the plate has loaded nothing of the picture shows, so the reader sees the dialog's
+   black, the Skip button and the epigraph; .tsuki-p1-ready fades the plate and fog in. The
+   epigraph is visible by default: only .tsuki-p1-text hazes it, and its reveal falls back to
+   crisp if the scene never sets it. */
+
+/* While the scene plays, the dialog is opaque and covers the whole screen, so the page's own
+   backdrop behind it (blurred mist layers, a blend, a petals canvas redrawn every frame) cannot
+   be seen, yet the browser still draws it: about 2.5 to 3 ms a frame in software rendering. It
+   is not rendered for the duration. The rule stops applying the moment the runner begins the
+   fade-out (data-state leaves "playing"), so the page is back, running, under the dissolving
+   dialog. */
+body:has(dialog.tsuki-cutscene[open][data-state="playing"][data-mode="motion"]) .sakura-backdrop {
+  display: none;
+}
+
+.tsuki-cutscene .tsuki-p1-layers,
+.tsuki-cutscene .tsuki-p1-host,
+.tsuki-cutscene .tsuki-p1-rainbox,
+.tsuki-cutscene .tsuki-p1-dropbox {
+  position: absolute;
+  inset: 0;
+  margin: 0;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-p1-rainbox,
+.tsuki-cutscene .tsuki-p1-dropbox {
+  overflow: hidden;
+}
+
+/* A plane is painted bigger than the stage and moved by animations made in
+   part-1-autumn-rain.ts; where it sits is set there, in pixels. The page resets every canvas
+   to max-width: 100%, which would cut it down to the stage's width. */
+.tsuki-cutscene .tsuki-p1-rainplane,
+.tsuki-cutscene .tsuki-p1-fogsheet,
+.tsuki-cutscene .tsuki-p1-train {
+  position: absolute;
+  display: block;
+  max-width: none;
+  max-height: none;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-p1-rainplane,
+.tsuki-cutscene .tsuki-p1-train {
+  will-change: transform;
+}
+
+/* The fog is two sheets, painted by part-1-autumn-rain.ts with a soft edge on the side that faces the
+   epigraph; the scene slides them away from it. No mask, no clip: a mask or a filter makes the compositor
+   draw the whole stage into a surface of its own first, and in software that alone halved the frame rate. */
+.tsuki-cutscene .tsuki-p1-fogsheet {
+  position: absolute;
+  left: 0;
+  width: 100%;
+  will-change: transform;
+}
+
+/* A soft veil round the epigraph, over the rain and under the fog. */
+.tsuki-cutscene .tsuki-p1-veil {
+  position: absolute;
+  background: radial-gradient(closest-side, rgba(3, 5, 12, 0.5) 0%, rgba(3, 5, 12, 0.5) 55%, rgba(3, 5, 12, 0) 100%);
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-p1-drop {
+  position: absolute;
+  background-repeat: no-repeat;
+  background-size: 100% 100%;
+  pointer-events: none;
+  /* Always a layer of its own: a droplet that is only promoted for the second it runs makes the browser build the page's layers again at the start and the end of every slide. */
+  will-change: transform;
+}
+
+/* Where a droplet sits in the fog the glass is clear, a dark lens in it, and the lens goes along when the
+   droplet runs; once the fog is gone it has nothing to show through and fades. */
+.tsuki-cutscene .tsuki-p1-lens {
+  position: absolute;
+  display: block;
+  inset: 8%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 45%, rgba(8, 12, 24, 0.5), rgba(8, 12, 24, 0.3) 70%, rgba(8, 12, 24, 0) 100%);
+  opacity: 1;
+  transition: opacity 600ms ease-out;
+}
+
+.tsuki-cutscene .tsuki-p1-idle .tsuki-p1-lens {
+  opacity: 0;
+}
+
+.tsuki-cutscene[data-scene="part-1-autumn-rain"] {
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.tsuki-cutscene .tsuki-p1-plate {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+.tsuki-cutscene .tsuki-p1-plate,
+.tsuki-cutscene .tsuki-p1-fog {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-p1-ready .tsuki-p1-plate {
+  opacity: 1;
+  transition: opacity 900ms ease-out;
+}
+
+.tsuki-cutscene .tsuki-p1-ready .tsuki-p1-fog {
+  opacity: 0.95;
+  transition: opacity 900ms ease-out;
+}
+
+/* The film left once the glass counts as clear: it fades instead of vanishing, and stops being drawn after. */
+.tsuki-cutscene .tsuki-p1-ready .tsuki-p1-fog.tsuki-p1-fog--gone {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 600ms ease-in-out,
+    visibility 0s linear 600ms;
+}
+
+/* The loop's own canvas draws nothing (the scene is all compositor animation), so it is not in the page at all:
+   a full-screen canvas that is only there to be touched still costs a handoff to the compositor every frame.
+   The touches land on the stage instead, which the scene gives the grab cursor and, while there is fog to
+   wipe, touch-action: none (part-1-autumn-rain.ts sets it, and the dialog's own vertical pan when it scrolls). */
+.tsuki-cutscene .tsuki-p1-rain {
+  display: none;
+}
+
+.tsuki-cutscene .tsuki-p1-ready {
+  cursor: grab;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.tsuki-cutscene .tsuki-p1-ready:active {
+  cursor: grabbing;
+}
+
+/* Once the glass is clear there is nothing to wipe. */
+.tsuki-cutscene .tsuki-p1-ready.tsuki-p1-idle,
+.tsuki-cutscene .tsuki-p1-ready.tsuki-p1-idle:active {
+  cursor: default;
+}
+
+/* The epigraph behind fog: dimmed and a little out of focus until the glass in front of it is
+   wiped. --tsuki-p1-reveal runs 0 (hazed) to 1 (crisp) in a dozen steps, written when the level
+   changes. There is deliberately no transition between them: a blur that is animated costs the
+   main thread about two milliseconds a frame in a software renderer (half a frame budget), and a
+   step of a twelfth of the range is below what the eye separates. */
+.tsuki-cutscene .tsuki-p1-text {
+  --tsuki-p1-reveal: 1;
+  opacity: calc(0.38 + 0.62 * var(--tsuki-p1-reveal));
+  filter: blur(calc((1 - var(--tsuki-p1-reveal)) * 2.6px));
+}
+
+/* The wipe button has done its job once the glass is clear. It stays in the layout (so the text
+   card does not shift) but leaves the tab order and the accessibility tree. */
+.tsuki-cutscene .tsuki-p1-wipe.tsuki-p1-wipe--done {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 500ms linear,
+    visibility 0s linear 500ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-p1-ready .tsuki-p1-plate,
+  .tsuki-cutscene .tsuki-p1-ready .tsuki-p1-fog,
+  .tsuki-cutscene .tsuki-p1-lens,
+  .tsuki-cutscene .tsuki-p1-wipe.tsuki-p1-wipe--done {
+    transition: none;
+  }
+}

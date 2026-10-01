@@ -1,0 +1,298 @@
+/* Look of the prologue cutscene (prologue.ts): a black plate, a Walkman, one
+   earphone wire, a station lamp at some stone steps. The epigraph is real text;
+   only the per-character spans fade in, one after another, like subtitles.
+
+   Everything is placed by prologue.ts, in pixels, around the epigraph. Moving
+   parts are kept to opacity and transform animations, which the compositor runs
+   without the main thread, and the lamp's glow is a gradient that fades in
+   rather than a flash. No z-index: the stage's children are ordered by the DOM. */
+
+/* While the scene plays, the dialog is opaque and covers the whole screen, so the page's
+   own backdrop behind it (blurred mist layers, a blend, a petals canvas redrawn every
+   frame) cannot be seen, yet the browser still draws it: about 2.5 ms a frame in
+   software rendering. It is not rendered for the duration. The rule stops applying the
+   moment the runner begins the fade-out (data-state leaves "playing"), so the page is
+   back, running, under the dissolving dialog. */
+body:has(dialog.tsuki-cutscene[open][data-state="playing"][data-mode="motion"]) .sakura-backdrop {
+  display: none;
+}
+
+.tsuki-cutscene .tsuki-prologue__canvas {
+  pointer-events: none;
+}
+
+/* ---- The Walkman ------------------------------------------------------ */
+
+.tsuki-cutscene .tsuki-prologue__walkman,
+.tsuki-cutscene .tsuki-prologue__cassette,
+.tsuki-cutscene .tsuki-prologue__glow {
+  position: absolute;
+  display: block;
+  margin: 0;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-prologue__walkman {
+  opacity: 0;
+  transition: opacity 1600ms ease-out;
+}
+
+.tsuki-cutscene .tsuki-prologue__walkman > svg,
+.tsuki-cutscene .tsuki-prologue__walkman > img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Waiting for Play: the Walkman is there but dim, and its lamp breathes, slowly. */
+.tsuki-cutscene .tsuki-prologue.is-ready .tsuki-prologue__walkman {
+  opacity: 0.72;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-playing .tsuki-prologue__walkman,
+.tsuki-cutscene .tsuki-prologue.is-still .tsuki-prologue__walkman {
+  opacity: 1;
+  transition-duration: 900ms;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-still .tsuki-prologue__walkman {
+  transition: none;
+}
+
+/* The reels and the little lamp are lifted out of walkman.svg by prologue.ts into elements
+   of their own, laid over the drawing at the same place: turning an HTML element is a
+   transform the compositor runs, where an animation inside the SVG is painted by the main thread. */
+.tsuki-cutscene .tsuki-prologue__reel,
+.tsuki-cutscene .tsuki-prologue__led {
+  position: absolute;
+  display: block;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-prologue__reel > svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tsuki-cutscene .tsuki-prologue__led {
+  border-radius: 50%;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-playing .tsuki-prologue__reel--left {
+  animation: tsuki-prologue-spin 3600ms linear infinite;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-playing .tsuki-prologue__reel--right {
+  animation: tsuki-prologue-spin 3000ms linear infinite;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-ready:not(.is-playing):not(.is-still) .tsuki-prologue__led {
+  animation: tsuki-prologue-breathe 2600ms ease-in-out infinite;
+}
+
+/* ---- The wire --------------------------------------------------------- */
+
+/* prologue.ts draws the wire whole into one small canvas, once, and puts a black cover over it
+   (the stage is black, so the screen looks empty); the cover slides off, the earbud rides the
+   tip, the glow and the empty earbud fade in: all transforms and opacities, all on the compositor.
+   Where each sits is set in pixels by prologue.ts. */
+.tsuki-cutscene .tsuki-prologue__wire,
+.tsuki-cutscene .tsuki-prologue__empty,
+.tsuki-cutscene .tsuki-prologue__halo,
+.tsuki-cutscene .tsuki-prologue__bud-sprite {
+  position: absolute;
+  margin: 0;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-prologue__wire {
+  overflow: hidden;
+}
+
+.tsuki-cutscene .tsuki-prologue__wire-line,
+.tsuki-cutscene .tsuki-prologue__empty > canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.tsuki-cutscene .tsuki-prologue__wire-line {
+  position: absolute;
+  left: 0;
+  top: 0;
+}
+
+.tsuki-cutscene .tsuki-prologue__cover {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: #000;
+  will-change: transform;
+}
+
+.tsuki-cutscene .tsuki-prologue__bud {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  margin: 0;
+  transform-origin: 0 0;
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+
+.tsuki-cutscene .tsuki-prologue__halo {
+  border-radius: 50%;
+  background: radial-gradient(closest-side, rgba(240, 185, 120, 0.42), rgba(240, 185, 120, 0));
+}
+
+/* The page resets every canvas to max-width: 100%, which would make this one as wide as its zero-size wrapper. */
+.tsuki-cutscene .tsuki-prologue__bud-sprite {
+  display: block;
+  max-width: none;
+  max-height: none;
+}
+
+/* ---- The lamp's light and the cassette it finds ------------------------ */
+
+.tsuki-cutscene .tsuki-prologue__glow {
+  opacity: 0;
+  transition: opacity 3200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+  background:
+    radial-gradient(circle var(--bulb-r, 6px) at var(--bulb-x, 50%) var(--bulb-y, 50%), rgba(255, 238, 206, 0.95) 0%, rgba(255, 208, 146, 0.55) 55%, rgba(255, 190, 110, 0) 100%),
+    radial-gradient(ellipse var(--halo-rx, 90px) var(--halo-ry, 60px) at var(--halo-x, 50%) var(--halo-y, 50%), rgba(255, 190, 112, 0.4) 0%, rgba(224, 138, 76, 0.2) 38%, rgba(224, 138, 76, 0.07) 70%, rgba(224, 138, 76, 0) 100%),
+    radial-gradient(ellipse var(--pool-rx, 120px) var(--pool-ry, 30px) at var(--pool-x, 50%) var(--pool-y, 50%), rgba(255, 200, 130, 0.26) 0%, rgba(224, 150, 90, 0.1) 55%, rgba(224, 150, 90, 0) 100%);
+}
+
+.tsuki-cutscene .tsuki-prologue.is-lit .tsuki-prologue__glow,
+.tsuki-cutscene .tsuki-prologue.is-still .tsuki-prologue__glow {
+  opacity: 1;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-still .tsuki-prologue__glow {
+  transition: none;
+}
+
+.tsuki-cutscene .tsuki-prologue__cassette {
+  /* The asset is dark brown on dark: lifted so the lamp has something to find. A static filter,
+     rastered once; only the opacity moves. */
+  filter: brightness(1.7);
+  opacity: 0.38;
+  transition: opacity 3200ms cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+
+.tsuki-cutscene .tsuki-prologue.is-lit .tsuki-prologue__cassette,
+.tsuki-cutscene .tsuki-prologue.is-still .tsuki-prologue__cassette {
+  opacity: 0.92;
+}
+
+.tsuki-cutscene .tsuki-prologue.is-still .tsuki-prologue__cassette {
+  transition: none;
+}
+
+/* ---- Large text: the card moves over the stage, so the picture steps aside ---- */
+
+.tsuki-cutscene .tsuki-prologue.is-bare .tsuki-prologue__walkman,
+.tsuki-cutscene .tsuki-prologue.is-bare .tsuki-prologue__cassette,
+.tsuki-cutscene .tsuki-prologue.is-bare .tsuki-prologue__glow {
+  visibility: hidden;
+}
+
+/* ---- The Play button (a real control in the dialog's controls slot) ---- */
+
+.tsuki-cutscene .tsuki-prologue__play {
+  position: relative;
+}
+
+/* The ring stays inside the button: a box that bled out of it would count as the dialog's
+   overflow (the controls slot is sticky, so it is measured where it would sit unstuck). */
+.tsuki-cutscene .tsuki-prologue__play::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border: 1px solid rgba(224, 138, 76, 0.6);
+  opacity: 0;
+  pointer-events: none;
+  animation: tsuki-prologue-ring 2600ms ease-in-out infinite;
+}
+
+/* ---- Subtitles ---------------------------------------------------------- */
+
+/* The epigraph is plain text, visible by default; prologue.ts lays a black cover over each of
+   its lines (in the text card, over the text, under the buttons) and slides it off, left to
+   right, with a soft leading edge: the words come up like subtitles. The paragraph is only
+   hidden (is-waiting) for the moment between the scene starting and its covers being in place,
+   so a scene that never gets that far leaves the text readable. */
+.tsuki-cutscene .tsuki-prologue__text.is-waiting {
+  opacity: 0;
+}
+
+.tsuki-cutscene .tsuki-prologue__line {
+  position: absolute;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.tsuki-cutscene .tsuki-prologue__sweep {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  /* Black like the stage behind the text: a transparent edge of this width, then solid. */
+  background: linear-gradient(90deg, rgba(0, 0, 0, 0), #000 var(--tsuki-feather, 80px));
+  will-change: transform;
+}
+
+/* Hidden tab: the reels stop where they are (the shorthand on a reel is more specific than a bare .is-held *). */
+.tsuki-cutscene .tsuki-prologue.is-held .tsuki-prologue__reel,
+.tsuki-cutscene .tsuki-prologue.is-held .tsuki-prologue__led {
+  animation-play-state: paused;
+}
+
+@keyframes tsuki-prologue-spin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes tsuki-prologue-breathe {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes tsuki-prologue-ring {
+  0%,
+  100% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-prologue__walkman,
+  .tsuki-cutscene .tsuki-prologue__glow,
+  .tsuki-cutscene .tsuki-prologue__cassette {
+    transition: none;
+  }
+
+  .tsuki-cutscene .tsuki-prologue__reel,
+  .tsuki-cutscene .tsuki-prologue__led,
+  .tsuki-cutscene .tsuki-prologue__play::after {
+    animation: none;
+  }
+
+  .tsuki-cutscene .tsuki-prologue__text.is-waiting {
+    opacity: 1;
+  }
+}
