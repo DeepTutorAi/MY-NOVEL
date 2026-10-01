@@ -1,0 +1,59 @@
+---
+// The departure board of the /tsukinomi/ home concourse (design 4.4): one row
+// for the prologue and each part, then the last-train row. Rows are the real
+// section links; the last train is text, not a link. Row data comes from
+// buildBoardRows() so title, chapter range and reading time are the section
+// metadata as written. The clock cell is decoration (aria-hidden): a screen
+// reader gets the reading time in words, the way the table of contents says it.
+// concourse.ts adds each row's read state and settles the rows into view.
+import type { BoardRow } from "../../../scripts/tsukinomi/home/concourse-core";
+import "../../../styles/tsukinomi/home.css";
+import { withBase } from "../../../utils/base-path";
+
+interface Props {
+  rows: readonly BoardRow[];
+}
+
+const { rows } = Astro.props;
+const TITLE_ID = "tsuki-board-title";
+---
+
+<div class="tsuki-board" data-board>
+  <h2 class="tsuki-board-title" id={TITLE_ID}>สารบัญ</h2>
+  <ol class="tsuki-board-rows" aria-labelledby={TITLE_ID}>
+    {
+      rows.map((row, index) =>
+        row.kind === "section" && row.id !== null ? (
+          <li
+            class="tsuki-board-row"
+            data-section-id={row.id}
+            data-part={row.number}
+            data-state="unread"
+            style={`--row-index:${index}`}
+          >
+            <a class="tsuki-board-link" href={withBase(`/tsukinomi/sections/${row.id}/`)}>
+              <span class="tsuki-board-clock" aria-hidden="true">{row.clock}</span>
+              {/* The prologue is titled "บทนำ" like its label: say it once. The span stays, it carries the read lamp. */}
+              <span class="tsuki-board-label">{row.label === row.title ? "" : row.label}</span>
+              <span class="tsuki-board-name">{row.title}</span>
+              <span class="tsuki-board-meta">
+                <span class="tsuki-board-range">{row.chapterRange}</span>
+                <span class="tsuki-board-sep" aria-hidden="true"> · </span>
+                <span class="tsuki-board-time">{row.readingText}</span>
+              </span>
+              <span class="tsuki-board-state" data-board-state hidden>อ่านจบแล้ว</span>
+              <span class="tsuki-board-go" aria-hidden="true">→</span>
+            </a>
+          </li>
+        ) : (
+          <li class="tsuki-board-row is-last" style={`--row-index:${index}`}>
+            <div class="tsuki-board-link">
+              <span class="tsuki-board-clock" aria-hidden="true">{row.clock}</span>
+              <span class="tsuki-board-name">{row.title}</span>
+            </div>
+          </li>
+        ),
+      )
+    }
+  </ol>
+</div>

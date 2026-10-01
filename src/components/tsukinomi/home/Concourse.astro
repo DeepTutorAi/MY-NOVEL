@@ -1,0 +1,50 @@
+---
+// The concourse below the /tsukinomi/ hero (design 4.4): the departure board
+// and the rail line, with the client module that settles the board into view,
+// draws the rail, marks the furthest part read and tints the page. The hero,
+// its copy, actions and resume card, and the passing train's mount point stay
+// in pages/tsukinomi/index.astro.
+//
+// The root carries the state other scripts may read:
+//   data-concourse           the marker for the root
+//   data-motion              "full" or "reduced" (prefers-reduced-motion)
+//   data-direct              present on a short landscape screen (SHORT_LANDSCAPE_QUERY)
+//   data-furthest-read       furthest part read, or ""
+//   data-furthest-opened     furthest part opened, or ""
+import type { CollectionEntry } from "astro:content";
+import {
+  buildBoardRows,
+  partLabel,
+  sectionMeta,
+  STATION_COUNT,
+} from "../../../scripts/tsukinomi/home/concourse-core";
+import "../../../styles/tsukinomi/home.css";
+import DepartureBoard from "./DepartureBoard.astro";
+import RailLine, { type RailStation } from "./RailLine.astro";
+
+interface Props {
+  sections: readonly CollectionEntry<"tsukinomiSections">[];
+}
+
+const { sections } = Astro.props;
+const rows = buildBoardRows(sections.map(sectionMeta));
+const stations: RailStation[] = sections
+  .filter((section) => section.data.number >= 1 && section.data.number <= STATION_COUNT)
+  .sort((a, b) => a.data.number - b.data.number)
+  .map((section) => ({
+    part: section.data.number,
+    label: partLabel(section.data.number),
+    title: section.data.title,
+    englishTitle: section.data.englishTitle,
+    palette: section.data.palette,
+  }));
+---
+
+<section class="tsuki-concourse" data-concourse data-motion="full" aria-labelledby="tsuki-board-title">
+  <DepartureBoard rows={rows} />
+  <RailLine stations={stations} />
+</section>
+
+<script>
+  import "../../../scripts/tsukinomi/home/concourse";
+</script>

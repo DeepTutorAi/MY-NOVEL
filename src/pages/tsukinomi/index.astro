@@ -1,6 +1,10 @@
 ---
+import { readdirSync } from "node:fs";
+import { join } from "node:path";
 import { getCollection } from "astro:content";
+import Concourse from "../../components/tsukinomi/home/Concourse.astro";
 import TsukinomiBaseLayout from "../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
+import { buildIllustrationCatalog, sectionMeta } from "../../scripts/tsukinomi/home/concourse-core";
 import { withBase } from "../../utils/base-path";
 
 const sections = (await getCollection("tsukinomiSections")).sort(
@@ -20,6 +24,23 @@ const sectionUnits = sections.map((section) => ({
   number: section.data.number,
   title: section.data.title,
 }));
+
+// Illustration catalogue for the passing train: every file with the part it
+// belongs to, so the train can show only frames of parts the reader has read
+// (illustrationsUpTo in concourse-core.ts). Read at build time from public/.
+const ILLUSTRATIONS_PATH = "assets/tsukinomi/images/illustrations";
+let illustrationFiles: string[] = [];
+try {
+  illustrationFiles = readdirSync(join(process.cwd(), "public", ILLUSTRATIONS_PATH)).filter((name) =>
+    name.endsWith(".webp"),
+  );
+} catch {
+  illustrationFiles = [];
+}
+const illustrations = buildIllustrationCatalog(illustrationFiles, sections.map(sectionMeta)).map((entry) => ({
+  src: withBase(`/${ILLUSTRATIONS_PATH}/${entry.file}`),
+  part: entry.part,
+}));
 ---
 
 <TsukinomiBaseLayout
@@ -30,33 +51,46 @@ const sectionUnits = sections.map((section) => ({
   musicCueId="discovery"
   backgroundSlotId="hero-station"
 >
-  <main id="tsukinomi-main" class="tsukinomi-home">
-    <section class="tsukinomi-home-hero" aria-labelledby="tsukinomi-title" transition:name="novel-hero-tsukinomi">
-      <div class="tsukinomi-home-copy">
-        <p class="tsukinomi-kicker">Tsukinomi no Eki</p>
-        <h1 id="tsukinomi-title">สถานีทะเลพระจันทร์</h1>
-        <p>ค่ำฝนพาเด็กชายเข้าสถานีร้าง และพบเธอที่ยังนั่งรอขบวนรถไฟที่มาไม่ถึง</p>
-        <p>เรื่องนี้เดินช้ากว่าเสียงฝนเล็กน้อย อุ่นกว่าความทรงจำเล็กน้อย และปล่อยให้ช่องว่างบางอย่างพูดแทนคำตอบ</p>
-        <div class="tsukinomi-home-actions">
-          <a class="tsukinomi-primary-link" href={startHref}>
-            เริ่ม → ภาค 1
-          </a>
-          <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/sections/")}>สารบัญ</a>
-          <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/characters/")}>ตัวละคร</a>
-          <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/extra/")}>Extra</a>
-        </div>
+  <main id="tsukinomi-main">
+    {/* Page tint (concourse.ts): one fixed layer under the hero and the concourse, so it never lies over text. */}
+    <div class="tsuki-concourse-tint" aria-hidden="true" data-concourse-tint></div>
+    <div class="tsukinomi-home">
+      <section class="tsukinomi-home-hero" aria-labelledby="tsukinomi-title" transition:name="novel-hero-tsukinomi">
+        <div class="tsukinomi-home-copy">
+          <p class="tsukinomi-kicker">Tsukinomi no Eki</p>
+          <h1 id="tsukinomi-title">สถานีทะเลพระจันทร์</h1>
+          <p>ค่ำฝนพาเด็กชายเข้าสถานีร้าง และพบเธอที่ยังนั่งรอขบวนรถไฟที่มาไม่ถึง</p>
+          <p>เรื่องนี้เดินช้ากว่าเสียงฝนเล็กน้อย อุ่นกว่าความทรงจำเล็กน้อย และปล่อยให้ช่องว่างบางอย่างพูดแทนคำตอบ</p>
+          <div class="tsukinomi-home-actions">
+            <a class="tsukinomi-primary-link" href={startHref}>
+              เริ่ม → ภาค 1
+            </a>
+            <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/sections/")}>สารบัญ</a>
+            <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/characters/")}>ตัวละคร</a>
+            <a class="tsukinomi-secondary-link" href={withBase("/tsukinomi/extra/")}>Extra</a>
+          </div>
 
-        <div class="tsukinomi-home-resume" data-tsuki-resume hidden>
-          <span class="tsukinomi-home-resume-label" data-tsuki-resume-label>อ่านค้างไว้</span>
-          <strong data-tsuki-resume-title></strong>
-          <small data-tsuki-resume-detail></small>
-          <div class="tsukinomi-home-resume-actions">
-            <a class="tsukinomi-primary-link" data-tsuki-resume-link href={withBase("/tsukinomi/sections/")}>อ่านต่อ</a>
-            <button type="button" data-tsuki-resume-clear>ล้างตำแหน่ง</button>
+          <div class="tsukinomi-home-resume" data-tsuki-resume hidden>
+            <span class="tsukinomi-home-resume-label" data-tsuki-resume-label>อ่านค้างไว้</span>
+            <strong data-tsuki-resume-title></strong>
+            <small data-tsuki-resume-detail></small>
+            <div class="tsukinomi-home-resume-actions">
+              <a class="tsukinomi-primary-link" data-tsuki-resume-link href={withBase("/tsukinomi/sections/")}>อ่านต่อ</a>
+              <button type="button" data-tsuki-resume-clear>ล้างตำแหน่ง</button>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+        {/* Mount point for the passing train: empty, hidden from assistive technology, never takes a pointer,
+            as wide as the viewport and under the hero copy in paint order (home.css). */}
+        <div
+          class="tsukinomi-home-train-mount"
+          data-train-mount
+          aria-hidden="true"
+          data-illustrations={JSON.stringify(illustrations)}
+        ></div>
+      </section>
+    </div>
+    <Concourse sections={sections} />
   </main>
 
   <script is:inline define:vars={{ resumeBase: withBase("/tsukinomi/sections/"), tocHref: withBase("/tsukinomi/sections/"), units: sectionUnits }}>
