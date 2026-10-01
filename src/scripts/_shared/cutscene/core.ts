@@ -1,12 +1,17 @@
 // Pure logic of the once-per-day part/arc cutscene, shared by Sea and
 // Tsukinomi. It touches no DOM, storage or clock of its own (callers pass
 // `now`), so every rule here runs under node:test. The DOM lifecycle that
-// acts on these rules is runner.ts.
+// acts on these rules is runner.ts (used by Tsukinomi; Sea keeps its own, see
+// the header there). Sea's runner also carries a copy of parseCutsceneParams
+// and shouldPlay, because the Sea contract tests pin those lines in its file;
+// cutscene-core-parity.test.ts holds the copies to the functions below.
 //
-// The no-flash cover in SeaBaseLayout.astro decides "covered or not" before
-// first paint with an inline copy of the cooldown and trigger rules below; a
-// test in src/scripts/sea/cutscene.test.ts pins that copy to this rule, and
-// COOLDOWN_RESET_HOUR must stay equal to the hour it hard-codes.
+// The no-flash covers decide "covered or not" before first paint with an
+// inline copy of the cooldown and trigger rules below: SeaBaseLayout.astro
+// (pinned by src/scripts/sea/cutscene.test.ts) and TsukinomiCutscene.astro
+// (pinned by src/scripts/tsukinomi/cutscene/gate.test.ts). COOLDOWN_RESET_HOUR
+// must stay equal to the hour they hard-code. The Tsukinomi copy also accepts
+// the numeric-millisecond form of a played stamp; Sea's never wrote one.
 //
 // State machine, driven by transition(). Final set of states:
 //
@@ -117,8 +122,9 @@ export interface CutsceneTrigger {
 }
 
 /**
- * Keep in sync with the inline gate in SeaBaseLayout.astro, which applies the
- * same rule before first paint to decide whether to cover the page.
+ * Keep in sync with the inline gates in SeaBaseLayout.astro and
+ * TsukinomiCutscene.astro, which apply the same rule before first paint to
+ * decide whether to cover the page.
  */
 export function shouldPlay(trigger: CutsceneTrigger): boolean {
   if (!trigger.hasEntry) return false;

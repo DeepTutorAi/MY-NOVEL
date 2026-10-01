@@ -82,7 +82,10 @@ describe("Sea rework contract", () => {
     for (const path of SEA_SOURCES) {
       assert.doesNotMatch(read(path), /window\.addEventListener\(\s*["'`]astro:/, path);
     }
+    // The listeners are attached by the shared helper; Sea's own file must stay a wrapper around it.
     assert.match(read("src/scripts/_shared/lifecycle.ts"), /document\.addEventListener\(\s*"astro:/);
+    assert.match(read("src/scripts/sea/lifecycle.ts"), /import \{ onPage \} from "\.\.\/_shared\/lifecycle";/);
+    assert.match(read("src/scripts/sea/lifecycle.ts"), /onPage\(name, \{ bodyClass: "sea-page", registry: "__seaBound" \}, setup\)/);
   });
 
   it("never breaks Thai words anywhere", () => {

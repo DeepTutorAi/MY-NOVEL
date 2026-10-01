@@ -4,116 +4,31 @@
 // covered by the e2e harness, not here.
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { afterEach, beforeEach, describe, it } from "node:test";
+import { afterEach, beforeEach, describe, it, mock } from "node:test";
 
 import { playedStamp } from "./core";
+import { FakeButton, FakeDialog, FakeElement, installFakeDom, type FakeEnv } from "./fake-dom";
 import { createCutsceneRunner, type CutsceneRunnerConfig, type CutsceneSceneHandle } from "./runner";
 
-class FakeElement extends EventTarget {
-  hidden = false;
-  isConnected = true;
-  dataset: Record<string, string> = {};
-  focusCalls = 0;
-  constructor(readonly env: Env) {
-    super();
-  }
-  focus() {
-    this.focusCalls++;
-    this.env.document.activeElement = this;
-  }
-}
-
-class FakeDialog extends FakeElement {
-  open = false;
-  showModalCalls = 0;
-  closeCalls = 0;
-  failToOpen = false;
-  showModal() {
-    this.showModalCalls++;
-    if (this.failToOpen || this.open) throw new Error("InvalidStateError");
-    this.open = true;
-  }
-  close() {
-    this.closeCalls++;
-    this.open = false;
-  }
-}
-
-class FakeDocument extends EventTarget {
-  hidden = false;
-  body = {};
-  activeElement: unknown = this.body;
-}
-
-interface Env {
-  document: FakeDocument;
-  storage: Map<string, string>;
-  replaced: string[];
-  warnings: unknown[][];
-}
-
-const GLOBAL_KEYS = ["document", "localStorage", "location", "history", "matchMedia"] as const;
-const saved = new Map<string, PropertyDescriptor | undefined>();
-const realWarn = console.warn;
-
-function setGlobal(key: string, value: unknown) {
-  if (!saved.has(key)) saved.set(key, Object.getOwnPropertyDescriptor(globalThis, key));
-  Object.defineProperty(globalThis, key, { value, configurable: true, writable: true });
-}
-
-let env: Env;
+let env: FakeEnv;
 let dialog: FakeDialog;
-let skipButton: FakeElement;
-let startButton: FakeElement;
-let location: { href: string; pathname: string; search: string; hash: string };
-let reduced = false;
-let storageBroken: "get" | "set" | null = null;
+let skipButton: FakeButton;
+let startButton: FakeButton;
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 const tick = () => sleep(0);
-
-function setUrl(href: string) {
-  const url = new URL(href);
-  location = { href, pathname: url.pathname, search: url.search, hash: url.hash };
-  setGlobal("location", location);
-}
+const setUrl = (href: string) => env.setUrl(href);
 
 beforeEach(() => {
-  const document = new FakeDocument();
-  env = { document, storage: new Map(), replaced: [], warnings: [] };
+  env = installFakeDom("https://x.test/MY-NOVEL/tsukinomi/part-3/");
   dialog = new FakeDialog(env);
-  skipButton = new FakeElement(env);
-  startButton = new FakeElement(env);
+  skipButton = new FakeButton(env);
+  startButton = new FakeButton(env);
   startButton.hidden = true;
-  reduced = false;
-  storageBroken = null;
-  setGlobal("document", document);
-  setGlobal("localStorage", {
-    getItem: (key: string) => {
-      if (storageBroken === "get") throw new Error("denied");
-      return env.storage.get(key) ?? null;
-    },
-    setItem: (key: string, value: string) => {
-      if (storageBroken === "set") throw new Error("denied");
-      env.storage.set(key, value);
-    },
-  });
-  setGlobal("history", { state: null, replaceState: (_state: unknown, _title: string, url: string) => env.replaced.push(url) });
-  setGlobal("matchMedia", () => ({ matches: reduced }));
-  setUrl("https://x.test/MY-NOVEL/tsukinomi/part-3/");
-  console.warn = (...args: unknown[]) => {
-    env.warnings.push(args);
-  };
 });
 
 afterEach(() => {
-  console.warn = realWarn;
-  for (const key of GLOBAL_KEYS) {
-    const descriptor = saved.get(key);
-    if (descriptor) Object.defineProperty(globalThis, key, descriptor);
-    else delete (globalThis as Record<string, unknown>)[key];
-  }
-  saved.clear();
+  env.restore();
 });
 
 interface Probe {
@@ -226,6 +141,16 @@ describe("createCutsceneRunner: playing", () => {
     runner.skip();
     await runner.settled;
     assert.equal(opener.focusCalls, 1);
+  });
+
+  it("starts a scrolling dialog at the top, whatever the browser scrolled to when it focused a control", async () => {
+    dialog.scrollsOnShow = true;
+    env.reduced = true;
+    const { runner } = make();
+    runner.start();
+    await tick();
+    assert.equal(dialog.scrollTop, 0);
+    runner.destroy();
   });
 
   it("runs the default fade before closing", async () => {
@@ -361,7 +286,7 @@ describe("createCutsceneRunner: when it does not play", () => {
   });
 
   it("survives unavailable storage: it plays, and a write failure is ignored", async () => {
-    storageBroken = "get";
+    env.storageBroken = "get";
     let made = make();
     made.runner.start();
     await tick();
@@ -369,7 +294,7 @@ describe("createCutsceneRunner: when it does not play", () => {
     made.runner.destroy();
 
     env.storage.clear();
-    storageBroken = "set";
+    env.storageBroken = "set";
     made = make();
     made.runner.start();
     await tick();
@@ -393,21 +318,39 @@ describe("createCutsceneRunner: when it does not play", () => {
     assert.match(String(env.warnings[0][0]), /^\[cutscene\] cutscene skipped/);
   });
 
-  it("drops the cutscene when the cover was already lifted, unless forced", async () => {
+  it("drops the cutscene, without downloading it, when the cover was already lifted, unless forced", async () => {
     let made = make();
     made.probe.cover.active = false;
     made.runner.start();
     await tick();
-    assert.equal(made.probe.loads, 1, "the load began while the cover was up...");
-    assert.equal(made.runner.state, "skipped", "...but it is not shown over readable text");
+    assert.equal(made.probe.loads, 0, "the reader is already reading: nothing to fetch");
+    assert.equal(made.runner.state, "skipped");
     assert.equal(dialog.showModalCalls, 0);
+    assert.equal(env.storage.size, 0, "a cutscene that never showed is not recorded as played");
 
     setUrl("https://x.test/a/?cutscene=replay");
     made = make();
     made.probe.cover.active = false;
     made.runner.start();
     await tick();
+    assert.equal(made.probe.loads, 1);
     assert.equal(made.runner.state, "playing");
+  });
+
+  it("drops a scene whose cover lapsed while it was downloading", async () => {
+    const made = make({
+      loadScene: async () => {
+        made.probe.loads++;
+        made.probe.cover.active = false;
+        return { name: "slow" };
+      },
+    });
+    made.runner.start();
+    await tick();
+    assert.equal(made.probe.loads, 1);
+    assert.equal(made.runner.state, "skipped", "it is not shown over text the reader is already reading");
+    assert.equal(dialog.showModalCalls, 0);
+    assert.equal(made.probe.plays, 0);
   });
 
   it("checks the cover again after prepare()", async () => {
@@ -531,6 +474,54 @@ describe("createCutsceneRunner: the tab and the page", () => {
     assert.equal(probe.disposed, 1);
     assert.equal(probe.cover.lifted, 2, "once at open and once at the end, never again");
   });
+
+  it("really removes every listener it attached, on each way out", async () => {
+    // A leaked closure is invisible to the state machine (the late event is a no-op),
+    // so count what is attached instead of dispatching.
+    const detached = () => {
+      assert.equal(env.document.listenerCount(), 0, "document");
+      assert.equal(dialog.listenerCount(), 0, "dialog");
+      assert.equal(skipButton.listenerCount(), 0, "skip button");
+      assert.equal(startButton.listenerCount(), 0, "start button");
+    };
+
+    let made = make();
+    made.runner.start();
+    await tick();
+    assert.ok(env.document.listenerCount("astro:before-swap") === 1 && dialog.listenerCount() > 0, "listening while it plays");
+    made.runner.skip();
+    await made.runner.settled;
+    detached();
+
+    env.storage.clear(); // each run records a play, which would keep the next one from starting
+    made = make();
+    made.runner.start();
+    await tick();
+    env.document.dispatchEvent(new Event("astro:before-swap"));
+    detached();
+
+    env.storage.clear();
+    env.reduced = true;
+    made = make();
+    made.runner.start();
+    await tick();
+    startButton.dispatchEvent(new Event("click"));
+    detached();
+    env.reduced = false;
+
+    env.storage.clear();
+    env.document.hidden = true;
+    made = make();
+    made.runner.start();
+    assert.equal(env.document.listenerCount("visibilitychange"), 1, "waiting for the tab");
+    made.runner.destroy();
+    detached();
+
+    env.storage.set("tsukinomi:cutscene:played:3", playedStamp(new Date()));
+    made = make();
+    made.runner.start();
+    detached();
+  });
 });
 
 describe("createCutsceneRunner: ways to skip", () => {
@@ -578,14 +569,23 @@ describe("createCutsceneRunner: ways to skip", () => {
   });
 
   it("skips on a tap only after the grace period", async () => {
-    const { runner } = make({ tapSkipGraceMs: 40 });
-    runner.start();
-    await tick();
-    dialog.dispatchEvent(new Event("pointerup"));
-    assert.equal(runner.state, "playing", "a tap inside the grace is ignored");
-    await sleep(60);
-    dialog.dispatchEvent(new Event("pointerup"));
-    assert.equal(runner.state, "finished");
+    // The grace is measured with performance.now(); a controlled clock keeps the
+    // test from depending on how loaded the machine is.
+    let clock = 1000;
+    mock.method(performance, "now", () => clock);
+    try {
+      const { runner } = make({ tapSkipGraceMs: 400 });
+      runner.start();
+      await tick();
+      clock += 399;
+      dialog.dispatchEvent(new Event("pointerup"));
+      assert.equal(runner.state, "playing", "a tap inside the grace is ignored");
+      clock += 1;
+      dialog.dispatchEvent(new Event("pointerup"));
+      assert.equal(runner.state, "finished", "a tap exactly at the grace skips");
+    } finally {
+      mock.restoreAll();
+    }
   });
 
   it("skip() acts like the button and is a no-op before the dialog opens", async () => {
@@ -626,11 +626,102 @@ describe("createCutsceneRunner: page-scroll lock", () => {
       dialog.dispatchEvent(event);
       assert.equal(event.defaultPrevented, true, key);
     }
-    for (const key of ["Enter", " ", "Tab", "a"]) {
+    for (const key of ["Enter", "Tab", "a"]) {
       const event = Object.assign(cancelable("keydown"), { key });
       dialog.dispatchEvent(event);
       assert.equal(event.defaultPrevented, false, `${JSON.stringify(key)} keeps working`);
     }
+  });
+
+  it("blocks Space on the dialog itself, where it would scroll the page, but not on a control, where it presses it", async () => {
+    const { runner } = make();
+    runner.start();
+    await tick();
+    const onDialog = Object.assign(cancelable("keydown"), { key: " " });
+    dialog.dispatchEvent(onDialog);
+    assert.equal(onDialog.defaultPrevented, true, "Space with the dialog focused scrolls the page unless blocked");
+
+    const onButton = Object.assign(cancelable("keydown"), { key: " " });
+    Object.defineProperty(onButton, "target", { value: skipButton });
+    dialog.dispatchEvent(onButton);
+    assert.equal(onButton.defaultPrevented, false, "Space on the skip button still presses it");
+  });
+
+  it("lets a dialog that has overflow of its own scroll (a very large text size), and blocks again once it fits", async () => {
+    // The root is locked and the dialog contains its overscroll, so the page behind stays put either way.
+    const { runner } = make();
+    runner.start();
+    await tick();
+    dialog.scrollHeight = 1200;
+    dialog.clientHeight = 800;
+    for (const type of ["wheel", "touchmove"]) {
+      const event = cancelable(type);
+      dialog.dispatchEvent(event);
+      assert.equal(event.defaultPrevented, false, `${type} scrolls the dialog`);
+    }
+    for (const key of ["ArrowDown", "PageDown", "End", " "]) {
+      const event = Object.assign(cancelable("keydown"), { key });
+      dialog.dispatchEvent(event);
+      assert.equal(event.defaultPrevented, false, `${JSON.stringify(key)} scrolls the dialog`);
+    }
+    dialog.scrollHeight = 800;
+    const event = cancelable("wheel");
+    dialog.dispatchEvent(event);
+    assert.equal(event.defaultPrevented, true, "blocked again when the dialog fits");
+    dialog.scrollHeight = 801; // a sub-pixel rounding difference is not overflow
+    const rounding = cancelable("wheel");
+    dialog.dispatchEvent(rounding);
+    assert.equal(rounding.defaultPrevented, true);
+    assert.equal(env.document.documentElement.style.overflow, "hidden", "the page stays locked throughout");
+  });
+
+  it("hides the page scrollbar with overflow:hidden on the root while open, then puts the old value back", async () => {
+    // Wheel and key handlers on the dialog cannot reach a scrollbar thumb drag or a track click.
+    env.document.documentElement.style.overflow = "scroll";
+    const { runner } = make();
+    runner.start();
+    await tick();
+    assert.equal(env.document.documentElement.style.overflow, "hidden");
+    runner.skip();
+    await runner.settled;
+    assert.equal(env.document.documentElement.style.overflow, "scroll");
+  });
+
+  it("releases the root on every way out: abort, a close by the browser, a failed scene", async () => {
+    let made = make();
+    made.runner.start();
+    await tick();
+    env.document.dispatchEvent(new Event("astro:before-swap"));
+    assert.equal(env.document.documentElement.style.overflow, "");
+
+    env.storage.clear(); // each run records a play, which would keep the next one from starting
+    made = make();
+    made.runner.start();
+    await tick();
+    assert.equal(env.document.documentElement.style.overflow, "hidden");
+    dialog.open = false;
+    dialog.dispatchEvent(new Event("close"));
+    assert.equal(env.document.documentElement.style.overflow, "");
+
+    env.storage.clear();
+    made = make({
+      play: () => {
+        throw new Error("canvas lost");
+      },
+    });
+    made.runner.start();
+    await tick();
+    assert.equal(env.document.documentElement.style.overflow, "");
+  });
+
+  it("never touches the root when the cutscene does not open", async () => {
+    dialog.failToOpen = true;
+    env.document.documentElement.style.overflow = "auto";
+    const { runner } = make();
+    runner.start();
+    await tick();
+    assert.equal(runner.state, "skipped");
+    assert.equal(env.document.documentElement.style.overflow, "auto");
   });
 
   it("releases the lock after the dialog closed", async () => {
@@ -647,7 +738,7 @@ describe("createCutsceneRunner: page-scroll lock", () => {
 
 describe("createCutsceneRunner: reduced motion", () => {
   it("shows the static still without loading a scene", async () => {
-    reduced = true;
+    env.reduced = true;
     const { probe, runner } = make();
     runner.start();
     await tick();
@@ -665,7 +756,7 @@ describe("createCutsceneRunner: reduced motion", () => {
   });
 
   it("closes the still at once, without a fade, on the start button", async () => {
-    reduced = true;
+    env.reduced = true;
     const { probe, runner } = make({ fadeOutMs: 5000 });
     runner.start();
     await tick();
@@ -676,7 +767,7 @@ describe("createCutsceneRunner: reduced motion", () => {
   });
 
   it("keeps the skip button visible when there is no start button", async () => {
-    reduced = true;
+    env.reduced = true;
     const { runner } = make({ startButton: undefined });
     runner.start();
     await tick();
@@ -687,7 +778,7 @@ describe("createCutsceneRunner: reduced motion", () => {
   });
 
   it("runs the still's cleanup when it closes", async () => {
-    reduced = true;
+    env.reduced = true;
     let cleaned = 0;
     const { runner } = make({ still: () => () => void cleaned++ });
     runner.start();
@@ -698,7 +789,7 @@ describe("createCutsceneRunner: reduced motion", () => {
 
   it("uses the caller's own reduced-motion test when given", async () => {
     // Sea also treats its own motion switch as reduced motion.
-    reduced = false;
+    env.reduced = false;
     const { probe, runner } = make({ reducedMotion: () => true });
     runner.start();
     await tick();
@@ -707,7 +798,7 @@ describe("createCutsceneRunner: reduced motion", () => {
   });
 
   it("still drops the still when the cover was already lifted, unless forced", async () => {
-    reduced = true;
+    env.reduced = true;
     const { probe, runner } = make();
     probe.cover.active = false;
     runner.start();
@@ -730,6 +821,60 @@ describe("createCutsceneRunner: failing scenes and hooks", () => {
     assert.equal(dialog.open, false);
     assert.deepEqual(probe.closes, [{ reason: "error", still: false }]);
     assert.equal(probe.cover.lifted, 2);
+  });
+
+  it("disposes a scene that signals its end from inside play(), with no fade", async () => {
+    // settle() runs before play() has returned its handle; the handle must still be disposed.
+    let disposed = 0;
+    let paused = 0;
+    const { probe, runner } = make({
+      fadeOutMs: 0,
+      play: (_loaded, ctx) => {
+        ctx.complete();
+        return { pause: () => void paused++, dispose: () => void disposed++ };
+      },
+    });
+    runner.start();
+    await tick();
+    assert.equal(await runner.settled, "finished");
+    assert.equal(disposed, 1);
+    assert.equal(paused, 1, "it is paused too, so its clock does not run under the closing dialog");
+    assert.equal(dialog.open, false);
+    assert.deepEqual(probe.closes, [{ reason: "complete", still: false }]);
+    assert.equal(env.document.documentElement.style.overflow, "");
+  });
+
+  it("pauses now and disposes later a scene that signals its end from inside play() while a fade runs", async () => {
+    let disposed = 0;
+    let paused = 0;
+    const { runner } = make({
+      fadeOutMs: 30,
+      play: (_loaded, ctx) => {
+        ctx.complete();
+        return { pause: () => void paused++, dispose: () => void disposed++ };
+      },
+    });
+    runner.start();
+    await tick();
+    assert.equal(runner.state, "finishing");
+    assert.equal(paused, 1);
+    assert.equal(disposed, 0, "still fading over its last frame");
+    assert.equal(await runner.settled, "finished");
+    assert.equal(disposed, 1);
+    assert.equal(paused, 1);
+  });
+
+  it("disposes the handle of a scene that completes from inside play() and then throws nothing", async () => {
+    // No handle returned at all: nothing to pause or dispose, and no crash.
+    const { runner } = make({
+      fadeOutMs: 0,
+      play: (_loaded, ctx) => {
+        ctx.complete();
+      },
+    });
+    runner.start();
+    await tick();
+    assert.equal(await runner.settled, "finished");
   });
 
   it("keeps closing when the onOpen and onClose hooks throw", async () => {

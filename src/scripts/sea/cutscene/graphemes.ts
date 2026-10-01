@@ -2,29 +2,18 @@
 // tone marks on their base consonant; words group graphemes into the units a
 // line may break between, so a title wraps like text and never mid-word.
 
+// splitGraphemes lives in src/scripts/_shared/cutscene/graphemes.ts, shared with
+// Tsukinomi's cutscene scenes; it is re-exported here so Sea's imports stay as
+// they were.
+import { splitGraphemes } from "../../_shared/cutscene/graphemes";
+
+export { splitGraphemes };
+
 export interface TitleWord {
   text: string;
   graphemes: string[];
   /** Whitespace and punctuation-only segments: kept as plain text between words. */
   gap: boolean;
-}
-
-// Combining Thai signs that belong to the preceding letter (used only when
-// Intl.Segmenter is unavailable): mai han-akat, sara am, upper/lower vowels,
-// tone marks and other diacritics.
-const THAI_MARK = /[ัำ-ฺ็-๎]/;
-
-export function splitGraphemes(text: string): string[] {
-  if (typeof Intl !== "undefined" && "Segmenter" in Intl) {
-    const segmenter = new Intl.Segmenter("th", { granularity: "grapheme" });
-    return Array.from(segmenter.segment(text), (part) => part.segment);
-  }
-  const out: string[] = [];
-  for (const char of text) {
-    if (out.length > 0 && THAI_MARK.test(char)) out[out.length - 1] += char;
-    else out.push(char);
-  }
-  return out;
 }
 
 export function splitWords(text: string): TitleWord[] {
