@@ -141,3 +141,14 @@ Part 5 was measured again after two changes made because of its first figure (4.
 Other gates on the same commit: `pnpm check` 0 errors, 0 warnings, 0 hints; the full unit suite passing; the in-repo e2e (`tsukinomi-e2e.ts`) 16 passed, 0 failed, through the installed Chrome.
 
 Not measured this round: Safari and Firefox; a real phone; audio (Walkman off throughout); the part 3 hold control and pointer paths (only the paths that play by themselves); small-area and red flashes (the part 4 spider lily's red glow is a slow fade, not a flash, but the harness cannot see it).
+
+## Prologue and part 1 rebuilt on the kit (2026-10-14)
+
+At the author's request the R1 prologue and part 1 were rebuilt on the round-two kit, to the same look as parts 2 to 5: the prologue as a Walkman on a lamplit table (reels, the wire pulled out and split, the empty earbud, then the stone steps where the station lamp lights), part 1 as a fogged pane that wipes with the pointer, drops that run down it and three depths of rain. Same harness, browser and method as R2, production build, one run each.
+
+| Target | 1x ms/frame | 4x ms/frame | fps 1x | Flashes per second | Layout (6 viewports) |
+|---|---|---|---|---|---|
+| Prologue | 5.04 | 12.91 | 100 | 0 | ok |
+| Part 1, autumn | 2.57 | 9.21 | 134 | 0 | ok |
+
+Part 1 was measured again after its first figure (11.98 ms at 1x): the fog's self-clearing was cutting its whole clearing out of the fog canvas every frame; it now cuts a new ring only when the clearing has grown by 3 fog pixels. The R1c compositor-only versions and their pure cores (prologue-core.ts, part-1-core.ts) are gone; the rules the new scenes use are in p01-core.ts with their tests. e2e 16/16 on the same build.

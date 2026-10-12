@@ -125,8 +125,14 @@ export interface SceneFrameInfo {
 }
 
 export interface CanvasSceneSpec {
-  /** Seconds from the plate settling to the scene's natural end. */
-  endS: number;
+  /**
+   * Seconds from the plate settling to the scene's natural end, or a function
+   * asked every frame for a scene whose end depends on the reader (the
+   * prologue ends a fixed time after Play). With a function, give maxEndS.
+   */
+  endS: number | (() => number);
+  /** The latest the scene can end, for the safety net; defaults to endS when that is a number. */
+  maxEndS?: number;
   dprCap?: number;
   className?: string;
   /** Called with every new size, and again once the plate settles (image null if it never came). */
@@ -156,6 +162,8 @@ export function runCanvasScene(ctx: TsukiSceneContext, spec: CanvasSceneSpec): T
     resolveDone();
   };
 
+  const endS = () => (typeof spec.endS === "function" ? spec.endS() : spec.endS);
+  const latestEndS = spec.maxEndS ?? (typeof spec.endS === "number" ? spec.endS : 60);
   let image: HTMLImageElement | null = null;
   let ready = false;
   let startedAt = 0;
@@ -174,7 +182,7 @@ export function runCanvasScene(ctx: TsukiSceneContext, spec: CanvasSceneSpec): T
       info.pointer = frame.pointer;
       info.ready = ready;
       spec.render(c, info);
-      if (ready && info.t >= spec.endS) finish();
+      if (ready && info.t >= endS()) finish();
     },
     resize(next) {
       size = { ...next };
@@ -196,7 +204,7 @@ export function runCanvasScene(ctx: TsukiSceneContext, spec: CanvasSceneSpec): T
   });
   loop.start();
 
-  const safety = createRevealClock(READY_TIMEOUT_MS + (spec.endS + 3) * 1000, signal);
+  const safety = createRevealClock(READY_TIMEOUT_MS + (latestEndS + 3) * 1000, signal);
   void safety.done.then(finish);
 
   signal.addEventListener(

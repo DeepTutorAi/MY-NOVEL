@@ -1,957 +1,510 @@
-// The prologue cutscene (design 4.3, row 1): a black screen and a Walkman.
+// The prologue cutscene (design 4.3, row 1): a Walkman in the dark.
 //
-// The reader presses Play, which is the gesture that lets the Walkman make
-// sound. One earphone wire draws itself across the screen to a single earbud;
-// the second earbud stays empty, unplugged: the story's one earphone shared
-// between two people. The epigraph appears as slow subtitles, and when the
-// words reach "จำชื่อ" (remembering a name) a station lamp warms up at some
-// stone steps. If nobody presses Play it starts by itself after 6 seconds,
-// silent (unless the Walkman is already on), because a scene that waits for a
-// click would hold a reader who never makes one.
+// A dark room, a pool of warm light on an old table, and a Walkman lying in
+// it. The reader presses Play, which is the gesture that lets the Walkman make
+// sound: the reels start to turn and its little lamp comes on. The earphone
+// wire is pulled out across the table and splits; one branch rises out of the
+// picture, to someone listening, the other lies on the table and ends in the
+// second earbud, which nobody is wearing (the story's one earphone shared
+// between two people). The epigraph comes up as slow subtitles. Then the room
+// gives way to stone steps at night, where a station lamp stutters and lights.
+// If nobody presses Play it starts by itself after 6 seconds, silent (unless
+// the Walkman is already on), because a scene that waits for a click would
+// hold a reader who never makes one.
 //
-// Everything here follows the contract in ../scene-types.ts. The arithmetic
-// (timeline, subtitle pacing, wire path, layout around the epigraph) is in
-// prologue-core.ts, which node:test can load; this file is the DOM, the canvas
-// and the audio.
-//
-// Nothing here is redrawn every frame. In a browser that rasterises in
-// software, presenting a canvas that changed costs the main thread a fixed
-// amount plus its area whatever was drawn in it (measured: a full-screen canvas
-// with a tiny drawing in it cost about 1.8 ms a frame, a thumbnail-sized one
-// about 0.6), so the frame loop of an earlier version spent most of its time
-// handing a mostly empty screen to the compositor. Every layer is now painted
-// once, when the stage is laid out, and what moves is moved by the compositor:
-//
-//   static canvas   the steps and the lamp post. Painted when the stage is laid
-//                   out, never in a frame loop.
-//   lamp glow       a CSS gradient that fades its opacity in over 3 s.
-//   Walkman         walkman.svg fetched once and inlined. Its two reels and its
-//                   little lamp are lifted out of the drawing into elements of
-//                   their own, so that turning them is an HTML transform.
-//   cassette        cassette-mark.svg as an <img> on the landing, dim until the lamp lights.
-//   wire            one canvas with the whole wire, hidden under a black cover
-//                   that slides off it as the wire is pulled out; the earbud at
-//                   its tip is a small sprite carried along the path by a
-//                   transform animation, with its glow and the empty earbud
-//                   fading in on opacity animations. The animations are
-//                   keyframe lists sampled from the path (prologue-core.ts).
-//   subtitles       the epigraph's own text, one <span> per grapheme cluster, each
-//                   faded in by a CSS animation with its own delay.
-//
-// The scene's clock is the page's own (performance.now(), held while the tab is
-// hidden), the same clock the animations run on, and a frame callback only
-// checks it for the next beat: the subtitles starting, the lamp lighting, the
-// end. It draws nothing.
-//
-// The picture is placed around the epigraph, never over it, from the epigraph's
-// own rectangle (computeLayout). When the reader's text size is so large that the
-// dialog scrolls, the card moves over the stage and nothing can be kept clear of
-// it, so the picture steps aside ("bare") and the subtitles play alone.
+// Drawn on one canvas on the shared kit (kit.ts): the room, the Walkman's body,
+// the night steps are painted once per size; each frame turns the reels,
+// draws the wire as far as it has been pulled, the dust in the light and the
+// lamp. The rules (start, audio plan, timeline, wire path, the lamp's first
+// light) are in p01-core.ts.
 //
 // Audio. Pressing Play is the only gesture: requestPlayFromGesture() runs first
-// in the click handler. The Walkman plays its own tape-click when it switches on,
-// so the scene adds one only if the Walkman was on already. The automatic start
-// asks for no gesture, so it makes sound only when the Walkman is already on.
+// in the click handler. The Walkman plays its own tape-click when it switches
+// on, so the scene adds one only if the Walkman was on already. The automatic
+// start asks for no gesture, so it makes sound only when the Walkman is on.
 //
-// Reduced motion: still() is the finished picture (wire drawn, lamp lit) behind
-// the whole epigraph, with nothing moving and no Play button.
-import { splitGraphemes } from "../../../_shared/cutscene/graphemes";
-import type { TsukiCanvasLoop, TsukiSceneContext, TsukiSceneHandle } from "../scene-types";
+// Reduced motion: still() is the room with the tape in, the wire drawn and
+// the empty earbud on the table, behind the whole epigraph; no Play button.
+import { createNoise2D, createRng, fbm2D, type SceneSize } from "../../../_shared/scene-runtime";
+import type { TsukiSceneContext, TsukiSceneHandle } from "../scene-types";
 import { injectSceneStyles } from "../styles";
+import { drawPetal, drawTextScrim, makeLayer, petalSprites, radialSprite, runCanvasScene, splitGlyphs, stillCanvas, textBox, type Box, type Ctx } from "./kit";
 import {
-  COVER_UNDER_BUD,
-  WALKMAN_VIEWBOX,
-  boundsOf,
-  buildTimeline,
-  computeLayout,
+  PROLOGUE,
+  PROLOGUE_MAX_END_S,
+  clamp,
   createAutoStart,
-  createSceneClock,
-  emptyLayout,
-  SUBTITLE_TEXT_CLASS,
-  emptyFadeSteps,
-  featherFor,
-  glowSteps,
-  glowStartOffset,
-  groupLines,
-  inflate,
-  lampClusterFor,
-  lineSweep,
-  rectHeight,
-  rectWidth,
+  lampLevel,
+  pathUpTo,
+  phase,
+  prologueEnd,
+  smooth,
   startPlan,
-  subtitleSchedule,
-  wireSteps,
+  wireFor,
+  wireProgress,
   type AutoStart,
-  type Bud,
-  type ClusterBox,
-  type Layout,
-  type Rect,
-  type StepsGroup,
-  type SubtitleSchedule,
-  type Timeline,
-  type WireGroup,
-} from "./prologue-core";
-import prologueCss from "./prologue.css?inline";
+  type Point,
+  type Wire,
+} from "./p01-core";
+import css from "./prologue.css?inline";
 
-/** The Play control's label and accessible name: new copy, for the author to approve. */
+const SEED = 0x7030;
 const PLAY_LABEL = "เล่นเทป";
-
-const TAU = Math.PI * 2;
+const WARM = "255, 206, 150";
 const noop = () => {};
-/**
- * The dialog counts as scrolling (the reader's text is too large for the screen) only past this
- * many pixels. The card then moves over the stage; a few pixels of overflow move it too little
- * to reach the picture, which keeps at least 12 px clear of it.
- */
-const SCROLL_TOLERANCE_PX = 4;
 
-// The palette is the assets' own (walkman.svg, cassette-mark.svg) and the site's night colours.
-const INK = {
-  wire: "#a39478",
-  budBody: "#241d14",
-  budLit: "#f0b97a",
-  budDim: "#857559",
-  stoneRiser: "#1a1730",
-  stoneEdge: "#38344f",
-  stoneTread: "#2a2741",
-  stoneTreadEdge: "#4f4b6c",
-  stoneJoint: "rgba(70, 66, 98, 0.55)",
-  iron: "#6b5f4f",
-  shade: "#2b251f",
-  shadeRim: "#8a7c66",
-  bulbOff: "#57472f",
-} as const;
+interface Layout {
+  w: number;
+  h: number;
+  unit: number;
+  /** The table's far edge. */
+  rest: number;
+  walkman: { x: number; y: number; w: number; h: number };
+  jack: Point;
+  /** The two reels' centres and radius. */
+  reels: [Point, Point];
+  reelR: number;
+  led: Point;
+  wire: Wire;
+  /** The pool of lamplight on the table. */
+  pool: Point & { r: number };
+}
 
-// ---------------------------------------------------------------------------
-// Drawing
-// ---------------------------------------------------------------------------
+function layoutOf(w: number, h: number): Layout {
+  const unit = Math.min(w, h);
+  const portrait = h > w;
+  const rest = h * (portrait ? 0.68 : 0.64);
+  const ww = clamp(unit * (portrait ? 0.46 : 0.34), 140, 310);
+  const wh = ww * 0.66;
+  // Low on the table and clear of the controls' row along the bottom.
+  const cy = Math.min(rest + (h - rest) * 0.46, h - 84 - wh / 2);
+  const cx = w * (portrait ? 0.34 : 0.27);
+  const walkman = { x: cx - ww / 2, y: cy - wh / 2, w: ww, h: wh };
+  const jack = { x: walkman.x + ww * 0.97, y: walkman.y + wh * 0.2 };
+  const reelY = walkman.y + wh * 0.47;
+  const reels: [Point, Point] = [
+    { x: walkman.x + ww * 0.34, y: reelY },
+    { x: walkman.x + ww * 0.66, y: reelY },
+  ];
+  return {
+    w,
+    h,
+    unit,
+    rest,
+    walkman,
+    jack,
+    reels,
+    reelR: wh * 0.13,
+    led: { x: walkman.x + ww * 0.88, y: walkman.y + wh * 0.82 },
+    wire: wireFor(jack, w, h, rest),
+    pool: { x: cx + ww * 0.35, y: cy, r: unit * 0.55 },
+  };
+}
 
-function drawStepsAndLamp(c: CanvasRenderingContext2D, steps: StepsGroup): void {
-  const u = steps.unit;
-  c.save();
-  c.lineJoin = "round";
-  c.lineCap = "round";
-
-  steps.levels.forEach((level, index) => {
-    const { riser, tread } = level;
-    const width = rectWidth(riser);
-    const height = rectHeight(riser);
-    c.fillStyle = INK.stoneRiser;
-    c.fillRect(riser.left, riser.top, width, height);
-    // Joints between the blocks of the riser, never in the same place on two steps.
-    c.strokeStyle = INK.stoneJoint;
-    c.lineWidth = 1;
+/** The dark room: a wall in shadow, an old wooden table, the pool of warm light on it. */
+function paintRoom(c: Ctx, l: Layout): void {
+  const { w, h, rest } = l;
+  const wall = c.createLinearGradient(0, 0, 0, rest);
+  wall.addColorStop(0, "#040307");
+  wall.addColorStop(1, "#0d0a10");
+  c.fillStyle = wall;
+  c.fillRect(0, 0, w, rest + 1);
+  // Table: dark wood with its grain, its far edge catching the light.
+  const table = c.createLinearGradient(0, rest, 0, h);
+  table.addColorStop(0, "#1c130d");
+  table.addColorStop(1, "#090605");
+  c.fillStyle = table;
+  c.fillRect(0, rest, w, h - rest);
+  const noise = createNoise2D(SEED);
+  const rng = createRng(SEED + 1);
+  for (let y = rest + 2; y < h; y += 2 + rng() * 3) {
+    c.strokeStyle = `rgba(${rng() < 0.5 ? "70, 46, 30" : "10, 6, 4"}, ${(0.12 + rng() * 0.18).toFixed(3)})`;
+    c.lineWidth = 0.6 + rng();
     c.beginPath();
-    for (let joint = 0; joint < 3; joint++) {
-      const x = riser.left + width * (0.2 + joint * 0.29 + ((index * 0.11 + joint * 0.05) % 0.09));
-      c.moveTo(x, riser.top);
-      c.lineTo(x, riser.bottom);
+    for (let x = 0; x <= w; x += 12) {
+      const yy = y + fbm2D(noise, x / 260, y / 40, 3) * 4;
+      if (x === 0) c.moveTo(x, yy);
+      else c.lineTo(x, yy);
     }
     c.stroke();
-    c.strokeStyle = INK.stoneEdge;
-    c.beginPath();
-    c.moveTo(riser.left + 0.5, riser.bottom);
-    c.lineTo(riser.left + 0.5, riser.top);
-    c.moveTo(riser.right - 0.5, riser.bottom);
-    c.lineTo(riser.right - 0.5, riser.top);
-    c.stroke();
-
-    c.beginPath();
-    c.moveTo(tread[0].x, tread[0].y);
-    for (let corner = 1; corner < tread.length; corner++) c.lineTo(tread[corner].x, tread[corner].y);
-    c.closePath();
-    c.fillStyle = INK.stoneTread;
-    c.fill();
-    c.strokeStyle = INK.stoneTreadEdge;
-    c.stroke();
-  });
-
-  // The lowest step dissolves into the dark instead of ending on a hard line.
-  const level = steps.levels[0];
-  const fadeTop = steps.baseY - rectHeight(level.riser) * 1.5;
-  c.globalCompositeOperation = "destination-out";
-  const fade = c.createLinearGradient(0, fadeTop, 0, steps.baseY);
-  fade.addColorStop(0, "rgba(0, 0, 0, 0)");
-  fade.addColorStop(1, "rgba(0, 0, 0, 0.96)");
-  c.fillStyle = fade;
-  c.fillRect(level.riser.left - 2, fadeTop, rectWidth(level.riser) + 4, steps.baseY - fadeTop + 1);
-  c.globalCompositeOperation = "source-over";
-
-  // The lamp: an iron post on the landing with a shade, and the bulb under it (dark until the lamp lights).
-  const { lamp } = steps;
-  const post = Math.max(1.4, u * 0.13);
-  c.fillStyle = INK.iron;
-  c.fillRect(lamp.x - u * 0.45, lamp.footY - u * 0.16, u * 0.9, u * 0.16);
-  c.strokeStyle = INK.iron;
-  c.lineWidth = post;
+  }
+  c.fillStyle = "rgba(255, 210, 160, 0.12)";
+  c.fillRect(0, rest, w, 1);
+  // The lamplight, from somewhere above and to the left, pooling on the table.
+  c.save();
+  c.translate(l.pool.x, l.pool.y);
+  c.scale(1, 0.45);
+  const pool = c.createRadialGradient(0, 0, 0, 0, 0, l.pool.r);
+  pool.addColorStop(0, `rgba(${WARM}, 0.3)`);
+  pool.addColorStop(0.45, `rgba(${WARM}, 0.1)`);
+  pool.addColorStop(1, `rgba(${WARM}, 0)`);
+  c.fillStyle = pool;
+  c.fillRect(-l.pool.r, -l.pool.r, l.pool.r * 2, l.pool.r * 2);
+  c.restore();
+  const shaft = c.createLinearGradient(0, 0, l.pool.x, l.pool.y);
+  shaft.addColorStop(0, `rgba(${WARM}, 0)`);
+  shaft.addColorStop(1, `rgba(${WARM}, 0.05)`);
+  c.fillStyle = shaft;
   c.beginPath();
-  c.moveTo(lamp.x, lamp.footY - u * 0.14);
-  c.lineTo(lamp.x, lamp.headY + lamp.shadeHeight * 0.6);
-  c.stroke();
-  c.beginPath();
-  c.moveTo(lamp.x - lamp.shadeWidth / 2, lamp.headY + lamp.shadeHeight);
-  c.quadraticCurveTo(lamp.x, lamp.headY - lamp.shadeHeight * 0.7, lamp.x + lamp.shadeWidth / 2, lamp.headY + lamp.shadeHeight);
+  c.moveTo(-w * 0.1, -h * 0.05);
+  c.lineTo(w * 0.25, -h * 0.05);
+  c.lineTo(l.pool.x + l.pool.r * 0.6, l.pool.y);
+  c.lineTo(l.pool.x - l.pool.r * 0.5, l.pool.y);
   c.closePath();
-  c.fillStyle = INK.shade;
   c.fill();
-  c.strokeStyle = INK.shadeRim;
-  c.lineWidth = Math.max(1, u * 0.06);
-  c.stroke();
-  c.beginPath();
-  c.arc(lamp.bulb.x, lamp.bulb.y, lamp.bulbRadius, 0, TAU);
-  c.fillStyle = INK.bulbOff;
-  c.fill();
-  c.restore();
 }
 
-/** One earbud: a small oval with a nozzle at the front, lying along `bud.angle`. */
-function drawBud(c: CanvasRenderingContext2D, bud: Bud, glow: number, alpha: number, lit: boolean): void {
-  const { r } = bud;
+/** The Walkman: brushed metal, the cassette behind its window (reels left out, they turn), keys, jack. */
+function paintWalkman(c: Ctx, l: Layout): void {
+  const { x, y, w, h } = l.walkman;
+  const r = h * 0.09;
+  // Its shadow on the table.
   c.save();
-  c.translate(bud.x, bud.y);
-  c.rotate(bud.angle);
-  c.globalAlpha = alpha;
-  if (glow > 0) {
-    const halo = c.createRadialGradient(0, 0, 0, 0, 0, r * 2.4);
-    halo.addColorStop(0, `rgba(240, 185, 120, ${0.42 * glow})`);
-    halo.addColorStop(1, "rgba(240, 185, 120, 0)");
-    c.fillStyle = halo;
+  c.filter = `blur(${(h * 0.06).toFixed(1)}px)`;
+  c.fillStyle = "rgba(0, 0, 0, 0.7)";
+  c.beginPath();
+  c.ellipse(x + w * 0.52, y + h * 1.0, w * 0.52, h * 0.1, 0, 0, Math.PI * 2);
+  c.fill();
+  c.restore();
+  // The keys along the top edge.
+  const keys = ["#3a3942", "#2e2d35", "#3a3942", "#2e2d35"];
+  keys.forEach((colour, i) => {
+    c.fillStyle = colour;
     c.beginPath();
-    c.arc(0, 0, r * 2.4, 0, TAU);
+    c.roundRect(x + w * (0.12 + i * 0.12), y - h * 0.06, w * 0.1, h * 0.09, 2);
     c.fill();
+  });
+  c.fillStyle = "rgba(224, 138, 76, 0.85)";
+  c.beginPath();
+  c.moveTo(x + w * 0.155, y - h * 0.045);
+  c.lineTo(x + w * 0.185, y - h * 0.02);
+  c.lineTo(x + w * 0.155, y + h * 0.005);
+  c.closePath();
+  c.fill();
+  // Body.
+  const body = c.createLinearGradient(x, y, x, y + h);
+  body.addColorStop(0, "#4a4954");
+  body.addColorStop(0.12, "#2f2e37");
+  body.addColorStop(0.85, "#24232b");
+  body.addColorStop(1, "#18171d");
+  c.fillStyle = body;
+  c.beginPath();
+  c.roundRect(x, y, w, h, r);
+  c.fill();
+  // Brushed metal, faint lines across.
+  c.save();
+  c.beginPath();
+  c.roundRect(x, y, w, h, r);
+  c.clip();
+  const rng = createRng(SEED + 2);
+  for (let yy = y; yy < y + h; yy += 1.5) {
+    c.fillStyle = `rgba(255, 255, 255, ${(rng() * 0.025).toFixed(3)})`;
+    c.fillRect(x, yy, w, 0.7);
   }
-  c.lineWidth = Math.max(1, r * 0.13);
-  c.strokeStyle = lit ? INK.budLit : INK.budDim;
-  c.fillStyle = INK.budBody;
-  // The nozzle, then the body over its root.
+  // Light from the lamp side on the left edge.
+  const edge = c.createLinearGradient(x, 0, x + w * 0.4, 0);
+  edge.addColorStop(0, `rgba(${WARM}, 0.18)`);
+  edge.addColorStop(1, `rgba(${WARM}, 0)`);
+  c.fillStyle = edge;
+  c.fillRect(x, y, w, h);
+  c.restore();
+  c.strokeStyle = "rgba(255, 235, 210, 0.25)";
+  c.lineWidth = 1;
   c.beginPath();
-  if (typeof c.roundRect === "function") c.roundRect(r * 0.55, -r * 0.34, r * 0.85, r * 0.68, r * 0.25);
-  else c.rect(r * 0.55, -r * 0.34, r * 0.85, r * 0.68);
-  c.fill();
+  c.roundRect(x + 0.5, y + 0.5, w - 1, h - 1, r);
   c.stroke();
+  // The cassette window.
+  const win = { x: x + w * 0.1, y: y + h * 0.16, w: w * 0.8, h: h * 0.58 };
+  c.fillStyle = "#0a0a0e";
   c.beginPath();
-  c.ellipse(0, 0, r, r * 0.78, 0, 0, TAU);
+  c.roundRect(win.x, win.y, win.w, win.h, h * 0.04);
   c.fill();
-  c.stroke();
+  // The cassette inside: its label and the tape between the reels.
+  c.fillStyle = "#d8cfb6";
+  c.fillRect(win.x + win.w * 0.06, win.y + win.h * 0.06, win.w * 0.88, win.h * 0.2);
+  c.fillStyle = "rgba(60, 50, 40, 0.55)";
+  c.fillRect(win.x + win.w * 0.1, win.y + win.h * 0.12, win.w * 0.5, 1.2);
+  c.fillRect(win.x + win.w * 0.1, win.y + win.h * 0.18, win.w * 0.32, 1.2);
+  c.fillStyle = "#c97a4a";
+  c.fillRect(win.x + win.w * 0.72, win.y + win.h * 0.1, win.w * 0.16, win.h * 0.1);
+  c.fillStyle = "#2d1b12";
+  c.beginPath();
+  c.roundRect(l.reels[0].x - l.reelR * 1.5, l.reels[0].y - l.reelR * 1.5, l.reels[1].x - l.reels[0].x + l.reelR * 3, l.reelR * 3, l.reelR * 1.5);
+  c.fill();
+  // Glass over it all.
+  const glass = c.createLinearGradient(win.x, win.y, win.x + win.w, win.y + win.h);
+  glass.addColorStop(0, "rgba(255, 255, 255, 0)");
+  glass.addColorStop(0.42, "rgba(255, 255, 255, 0.07)");
+  glass.addColorStop(0.5, "rgba(255, 255, 255, 0.01)");
+  glass.addColorStop(1, "rgba(255, 255, 255, 0)");
+  c.fillStyle = glass;
+  c.beginPath();
+  c.roundRect(win.x, win.y, win.w, win.h, h * 0.04);
+  c.fill();
+  // Its name, engraved.
+  c.fillStyle = "rgba(220, 210, 195, 0.4)";
+  c.font = `600 ${(h * 0.075).toFixed(1)}px "JetBrains Mono", ui-monospace, monospace`;
+  c.textBaseline = "middle";
+  c.fillText("WALKMAN", x + w * 0.1, y + h * 0.84);
+  // The jack on the right edge.
+  c.fillStyle = "#0b0b0e";
+  c.beginPath();
+  c.arc(l.jack.x - w * 0.01, l.jack.y, h * 0.035, 0, Math.PI * 2);
+  c.fill();
+}
+
+/** A reel: a pale hub with six teeth, turned by `angle`. */
+function drawReel(c: Ctx, at: Point, r: number, angle: number): void {
+  c.save();
+  c.translate(at.x, at.y);
+  c.rotate(angle);
+  c.fillStyle = "#e9e3d6";
+  c.beginPath();
+  c.arc(0, 0, r, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = "#1a1418";
+  c.beginPath();
+  c.arc(0, 0, r * 0.45, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = "#e9e3d6";
+  for (let i = 0; i < 6; i++) {
+    c.rotate(Math.PI / 3);
+    c.fillRect(-r * 0.08, -r * 0.45, r * 0.16, r * 0.22);
+  }
   c.restore();
 }
 
-function strokePath(c: CanvasRenderingContext2D, points: ReadonlyArray<{ x: number; y: number }>): void {
+function strokeWire(c: Ctx, points: readonly Point[]): void {
   if (points.length < 2) return;
+  const path = new Path2D();
+  path.moveTo(points[0].x, points[0].y);
+  for (let i = 1; i < points.length; i++) path.lineTo(points[i].x, points[i].y);
+  c.lineCap = "round";
+  c.lineJoin = "round";
+  c.strokeStyle = "#0e0d12";
+  c.lineWidth = 3;
+  c.stroke(path);
+  c.strokeStyle = "rgba(230, 215, 195, 0.45)";
+  c.lineWidth = 1;
+  c.stroke(path);
+}
+
+/** The earbud nobody is wearing, lying on the table, with a faint light of its own. */
+function drawEmptyBud(c: Ctx, at: Point, unit: number, glow: number): void {
+  const r = clamp(unit * 0.014, 6, 12);
+  if (glow > 0) {
+    const g = c.createRadialGradient(at.x, at.y, 0, at.x, at.y, r * 5);
+    g.addColorStop(0, `rgba(${WARM}, ${(0.28 * glow).toFixed(3)})`);
+    g.addColorStop(1, `rgba(${WARM}, 0)`);
+    c.fillStyle = g;
+    c.fillRect(at.x - r * 5, at.y - r * 5, r * 10, r * 10);
+  }
+  c.fillStyle = "#1c1b21";
   c.beginPath();
-  c.moveTo(points[0].x, points[0].y);
-  for (let index = 1; index < points.length; index++) c.lineTo(points[index].x, points[index].y);
+  c.ellipse(at.x, at.y, r, r * 0.85, -0.3, 0, Math.PI * 2);
+  c.fill();
+  c.fillStyle = "#33313b";
+  c.beginPath();
+  c.ellipse(at.x - r * 0.2, at.y - r * 0.15, r * 0.55, r * 0.45, -0.3, 0, Math.PI * 2);
+  c.fill();
+  c.strokeStyle = "rgba(230, 215, 195, 0.5)";
+  c.lineWidth = 1;
+  c.beginPath();
+  c.ellipse(at.x, at.y, r, r * 0.85, -0.3, Math.PI * 1.1, Math.PI * 1.7);
   c.stroke();
 }
 
-/** The wire, whole, as a stroke on a transparent canvas. */
-function drawWirePath(c: CanvasRenderingContext2D, wire: WireGroup): void {
-  c.save();
-  c.lineCap = "round";
-  c.lineJoin = "round";
-  c.strokeStyle = INK.wire;
-  c.lineWidth = wire.lineWidth;
-  strokePath(c, wire.path);
-  c.restore();
+interface Steps {
+  /** Where the lamp's bulb hangs. */
+  bulb: Point;
+  /** The top step, which the lamp lights. */
+  landing: Point & { w: number };
 }
 
-/**
- * The empty earbud with the loose end of its own cable, as it looks fully faded
- * in. The cable is drawn at full strength and the bud a little under it, as it
- * always was; the layer's own opacity then brings both in together.
- */
-function drawEmpty(c: CanvasRenderingContext2D, wire: WireGroup): void {
-  c.save();
-  c.lineCap = "round";
-  c.lineJoin = "round";
-  // Its own loose cable, ending in mid air, then the earbud: left as it is, with nothing to play it.
-  c.strokeStyle = INK.budDim;
-  c.lineWidth = wire.lineWidth;
-  strokePath(c, wire.empty.stub);
-  const end = wire.empty.stub[wire.empty.stub.length - 1];
-  c.fillStyle = INK.wire;
+/** The night outside: stone steps up to the station, a lamp post at the top. */
+function paintSteps(c: Ctx, l: Layout): Steps {
+  const { w, h, unit } = l;
+  const sky = c.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, "#070a18");
+  sky.addColorStop(0.55, "#131833");
+  sky.addColorStop(1, "#0a0b16");
+  c.fillStyle = sky;
+  c.fillRect(0, 0, w, h);
+  const rng = createRng(SEED + 3);
+  for (let i = 0; i < (w * h) / 5000; i++) {
+    c.fillStyle = `rgba(220, 225, 240, ${(0.1 + rng() * 0.5).toFixed(3)})`;
+    c.fillRect(rng() * w, rng() * h * 0.5, rng() < 0.08 ? 1.6 : 0.9, rng() < 0.08 ? 1.6 : 0.9);
+  }
+  // A ridge far off.
+  c.fillStyle = "#0e1124";
   c.beginPath();
-  c.arc(end.x, end.y, wire.lineWidth * 0.9, 0, TAU);
+  c.moveTo(0, h * 0.62);
+  for (let x = 0; x <= w; x += w / 18) c.lineTo(x, h * (0.5 + rng() * 0.08));
+  c.lineTo(w, h);
+  c.lineTo(0, h);
+  c.closePath();
   c.fill();
-  drawBud(c, wire.empty, 0, 0.85, false);
-  c.restore();
-}
-
-/** The reduced-motion still: the finished wire, the earbud at its end glowing, and the empty earbud. */
-function drawFinishedWire(c: CanvasRenderingContext2D, wire: WireGroup): void {
-  drawWirePath(c, wire);
-  drawBud(c, wire.bud, 1, 1, true);
-  drawEmpty(c, wire);
-}
-
-/** What the static canvas holds: the steps and lamp, and in the reduced-motion still the finished wire too. */
-function paintStatic(c: CanvasRenderingContext2D, layout: Layout, still: boolean): void {
-  c.clearRect(0, 0, layout.width, layout.height);
-  if (layout.mode === "bare") return;
-  if (layout.steps) drawStepsAndLamp(c, layout.steps);
-  if (still && layout.wire) drawFinishedWire(c, layout.wire);
-}
-
-// ---------------------------------------------------------------------------
-// The picture's layers
-// ---------------------------------------------------------------------------
-
-/** walkman.svg's own coordinates (viewBox 96 by 72): the two reels, and the little lamp at the bottom right. */
-const WALKMAN_REELS = [
-  { name: "left", selector: ".reel-left", box: { x: 25, y: 20, size: 18 } },
-  { name: "right", selector: ".reel-right", box: { x: 53, y: 20, size: 18 } },
-] as const;
-const WALKMAN_LED = { selector: 'circle[cx="77"]', x: 74, y: 47, size: 6 } as const;
-
-/**
- * Moves the reels and the lamp out of the Walkman's drawing into elements laid
- * over it, at the same place and size, so that turning a reel or breathing the
- * lamp is a transform or an opacity on an HTML element, which the compositor
- * runs, instead of an animation inside the SVG that the main thread paints.
- */
-function liftMovingParts(svg: Element, host: HTMLElement, viewBox: { width: number; height: number }): void {
-  const place = (element: HTMLElement, x: number, y: number, size: number) => {
-    element.style.left = `${(x / viewBox.width) * 100}%`;
-    element.style.top = `${(y / viewBox.height) * 100}%`;
-    element.style.width = `${(size / viewBox.width) * 100}%`;
-    element.style.height = `${(size / viewBox.height) * 100}%`;
-  };
-  for (const reel of WALKMAN_REELS) {
-    const group = svg.querySelector(reel.selector);
-    if (!group) continue;
-    const { x, y, size } = reel.box;
-    const holder = document.createElement("span");
-    holder.className = `tsuki-prologue__reel tsuki-prologue__reel--${reel.name}`;
-    place(holder, x, y, size);
-    const own = document.createElementNS(svg.namespaceURI, "svg");
-    own.setAttribute("viewBox", `${x} ${y} ${size} ${size}`);
-    own.setAttribute("aria-hidden", "true");
-    own.setAttribute("focusable", "false");
-    const moved = group.cloneNode(true) as Element;
-    moved.removeAttribute("class");
-    own.append(moved);
-    holder.append(own);
-    group.remove();
-    host.append(holder);
-  }
-  const lamp = svg.querySelector(WALKMAN_LED.selector);
-  if (lamp) {
-    const fill = lamp.getAttribute("fill") ?? INK.budLit;
-    const dot = document.createElement("span");
-    dot.className = "tsuki-prologue__led";
-    place(dot, WALKMAN_LED.x, WALKMAN_LED.y, WALKMAN_LED.size);
-    dot.style.background = fill;
-    lamp.remove();
-    host.append(dot);
-  }
-}
-
-/** Fetches walkman.svg once and inlines it, so its reels and lamp can be lifted out and move on their own. An <img> is the fallback. */
-async function inlineWalkman(url: string, host: HTMLElement, signal: AbortSignal): Promise<void> {
-  try {
-    const response = await fetch(url, { signal });
-    if (!response.ok) throw new Error(`walkman.svg ${response.status}`);
-    const parsed = new DOMParser().parseFromString(await response.text(), "image/svg+xml");
-    const svg = parsed.documentElement;
-    if (signal.aborted) return;
-    if (svg.nodeName.toLowerCase() !== "svg" || parsed.querySelector("parsererror")) throw new Error("walkman.svg is not an svg");
-    svg.querySelector("title")?.remove();
-    svg.setAttribute("aria-hidden", "true");
-    svg.setAttribute("focusable", "false");
-    const imported = document.importNode(svg, true);
-    host.append(imported);
-    liftMovingParts(imported, host, WALKMAN_VIEWBOX);
-  } catch (error) {
-    if (signal.aborted) return;
-    console.warn("[tsukinomi cutscene] the Walkman could not be inlined, using an image", error);
-    const image = document.createElement("img");
-    image.alt = "";
-    image.src = url;
-    host.append(image);
-  }
-}
-
-interface Picture {
-  readonly layout: () => Layout;
-  /** Sets what the wire's layers must do after the layout changed. Called now and after every relayout. */
-  onLayout(listener: (layout: Layout) => void): void;
-  relayout(): void;
-  /** Starts the frame callback given to mountPicture, once per animation frame, until the picture is disposed. */
-  startFrames(): void;
-  /** The pixel ratio the picture's canvases use. */
-  readonly pixelRatio: () => number;
-  dispose(): void;
-}
-
-/**
- * Builds the layers every mode shares (the steps, the glow, the Walkman, the cassette),
- * places them around the epigraph and keeps them placed when the stage or the text resizes.
- */
-function mountPicture(ctx: TsukiSceneContext, still: boolean, onFrame: () => void = noop): Picture {
-  const { stage, textEl, dialog, controls, signal } = ctx;
-  stage.classList.add("tsuki-prologue");
-  if (still) stage.classList.add("is-still");
-
-  const walkman = document.createElement("div");
-  walkman.className = "tsuki-prologue__walkman";
-  const glow = document.createElement("div");
-  glow.className = "tsuki-prologue__glow";
-  let cassette: HTMLImageElement | null = null;
-  const cassetteUrl = ctx.assets.icons["cassette-mark"];
-  if (cassetteUrl) {
-    cassette = document.createElement("img");
-    cassette.className = "tsuki-prologue__cassette";
-    cassette.alt = "";
-    cassette.decoding = "async";
-    cassette.draggable = false;
-    cassette.src = cassetteUrl;
-  }
-
-  let layout: Layout = emptyLayout(0, 0);
-  let staticContext: CanvasRenderingContext2D | null = null;
-  let lastControls: Rect | null = null;
-  let listener: ((layout: Layout) => void) | null = null;
-  let disposed = false;
-
-  const px = (value: number) => `${Math.round(value * 100) / 100}px`;
-
-  const place = (next: Layout) => {
-    stage.classList.toggle("is-bare", next.mode === "bare");
-    walkman.style.display = next.wire ? "" : "none";
-    if (next.wire) {
-      const box = next.wire.walkman;
-      Object.assign(walkman.style, { left: px(box.left), top: px(box.top), width: px(rectWidth(box)), height: px(rectHeight(box)) });
+  // The steps, rising away up the slope, narrower as they go.
+  const cx = w * (h > w ? 0.62 : 0.66);
+  const bottom = h * 0.98;
+  const top = h * 0.6;
+  const count = 7;
+  let landing = { x: cx, y: top, w: unit * 0.1 };
+  for (let i = 0; i < count; i++) {
+    const k0 = i / count;
+    const k1 = (i + 1) / count;
+    const y0 = bottom + (top - bottom) * k0;
+    const y1 = bottom + (top - bottom) * k1;
+    const half0 = unit * (0.42 - 0.3 * k0 ** 0.8);
+    const half1 = unit * (0.42 - 0.3 * k1 ** 0.8);
+    const riser = (y0 - y1) * 0.45;
+    // Tread.
+    const tread = c.createLinearGradient(0, y1, 0, y0 - riser);
+    tread.addColorStop(0, "#3a3d52");
+    tread.addColorStop(1, "#2a2c3e");
+    c.fillStyle = tread;
+    c.beginPath();
+    c.moveTo(cx - half1, y1);
+    c.lineTo(cx + half1, y1);
+    c.lineTo(cx + half0, y0 - riser);
+    c.lineTo(cx - half0, y0 - riser);
+    c.closePath();
+    c.fill();
+    // Riser in shadow.
+    c.fillStyle = "#15161f";
+    c.fillRect(cx - half0, y0 - riser, half0 * 2, riser);
+    // Worn stone.
+    for (let s = 0; s < 40; s++) {
+      c.fillStyle = `rgba(${rng() < 0.5 ? "150, 155, 175" : "10, 10, 18"}, ${(0.05 + rng() * 0.08).toFixed(3)})`;
+      c.fillRect(cx - half0 + rng() * half0 * 2, y1 + rng() * (y0 - y1), 2 + rng() * 4, 1);
     }
-    glow.style.display = next.steps ? "" : "none";
-    if (cassette) cassette.style.display = next.steps ? "" : "none";
-    const steps = next.steps;
-    if (!steps) return;
-    const zone = steps.zone;
-    Object.assign(glow.style, { left: px(zone.left), top: px(zone.top), width: px(rectWidth(zone)), height: px(rectHeight(zone)) });
-    // The gradients are positioned inside the glow's own box, which is the steps' zone.
-    const set = (name: string, value: number) => glow.style.setProperty(name, px(value));
-    set("--bulb-x", steps.lamp.bulb.x - zone.left);
-    set("--bulb-y", steps.lamp.bulb.y - zone.top);
-    set("--bulb-r", Math.max(2, steps.lamp.bulbRadius * 2.6));
-    set("--halo-x", steps.halo.cx - zone.left);
-    set("--halo-y", steps.halo.cy - zone.top);
-    set("--halo-rx", Math.max(2, steps.halo.rx));
-    set("--halo-ry", Math.max(2, steps.halo.ry));
-    set("--pool-x", steps.pool.cx - zone.left);
-    set("--pool-y", steps.pool.cy - zone.top);
-    set("--pool-rx", Math.max(2, steps.pool.rx));
-    set("--pool-ry", Math.max(2, steps.pool.ry));
-    if (cassette) {
-      const box = steps.cassette;
-      Object.assign(cassette.style, {
-        left: px(box.left),
-        top: px(box.top),
-        width: px(rectWidth(box)),
-        height: px(rectHeight(box)),
-        transform: `rotate(${box.angle}rad)`,
-        transformOrigin: "50% 100%",
-      });
-    }
-  };
-
-  const relayout = () => {
-    if (disposed) return;
-    const origin = stage.getBoundingClientRect();
-    const visible = (box: DOMRect) => box.width > 0 && box.height > 0;
-    const relative = (box: DOMRect): Rect => ({
-      left: box.left - origin.left,
-      top: box.top - origin.top,
-      right: box.right - origin.left,
-      bottom: box.bottom - origin.top,
-    });
-
-    // The epigraph, and in the still the continue button under it: the picture keeps clear of both.
-    let keepOut: Rect | null = null;
-    const textBox = textEl.getBoundingClientRect();
-    if (visible(textBox)) {
-      keepOut = relative(textBox);
-      const start = dialog.querySelector<HTMLElement>("[data-cutscene-start]");
-      const startBox = start && !start.hidden ? start.getBoundingClientRect() : null;
-      if (startBox && visible(startBox)) {
-        const extra = relative(startBox);
-        keepOut = { left: Math.min(keepOut.left, extra.left), top: Math.min(keepOut.top, extra.top), right: Math.max(keepOut.right, extra.right), bottom: Math.max(keepOut.bottom, extra.bottom) };
+    if (i === count - 1) landing = { x: cx, y: y1, w: half1 * 2 };
+    // Grass grown over the ends of the step.
+    c.strokeStyle = "#090a12";
+    c.lineCap = "round";
+    for (const side of [-1, 1]) {
+      const edgeX = cx + side * half0;
+      for (let g = 0; g < 9; g++) {
+        const gx = edgeX + side * (rng() * unit * 0.05 - unit * 0.012);
+        const gh = (unit * 0.02 + rng() * unit * 0.045) * (1 - k0 * 0.5);
+        c.lineWidth = 1 + rng() * 1.2;
+        c.beginPath();
+        c.moveTo(gx, y0 - riser * 0.2);
+        c.quadraticCurveTo(gx + side * gh * 0.3, y0 - gh * 0.6, gx + side * gh * (0.2 + rng() * 0.5), y0 - gh);
+        c.stroke();
       }
     }
-    // Skip and the controls. The controls slot is remembered once measured: it is empty (and
-    // collapsed) after Play goes, and the picture should not move when that happens.
-    const buttons: Rect[] = [];
-    const skip = dialog.querySelector<HTMLElement>("[data-cutscene-skip]")?.getBoundingClientRect();
-    if (skip && visible(skip)) buttons.push(relative(skip));
-    if (controls.childElementCount > 0) {
-      const box = controls.getBoundingClientRect();
-      if (visible(box)) lastControls = relative(box);
-    }
-    if (lastControls) buttons.push(lastControls);
-
-    layout = computeLayout({
-      width: origin.width,
-      height: origin.height,
-      keepOut,
-      buttons,
-      scrolls: dialog.scrollHeight - dialog.clientHeight > SCROLL_TOLERANCE_PX,
-    });
-    place(layout);
-    if (staticContext) paintStatic(staticContext, layout, still);
-    listener?.(layout);
-  };
-
-  // Back to front: the steps, the light on them, the Walkman, the cassette. The wire's layers are added by play().
-  // The loop draws nothing: its canvas is painted when it is resized, and its frames only run onFrame.
-  let pixelRatio = 1;
-  const staticLoop: TsukiCanvasLoop = ctx.createCanvasLoop({
-    className: "tsuki-prologue__canvas",
-    render: () => onFrame(),
-    resize: (size, context) => {
-      staticContext = context;
-      pixelRatio = size.dpr;
-      relayout();
-    },
-  });
-  stage.append(glow, walkman);
-  if (cassette) stage.append(cassette);
-
-  const walkmanUrl = ctx.assets.icons.walkman;
-  if (walkmanUrl) void inlineWalkman(walkmanUrl, walkman, signal);
-
-  relayout();
-  const observer = typeof ResizeObserver === "function" ? new ResizeObserver(relayout) : null;
-  observer?.observe(stage);
-  observer?.observe(textEl);
-
-  return {
-    layout: () => layout,
-    onLayout(next) {
-      listener = next;
-      next(layout);
-    },
-    relayout,
-    startFrames: () => staticLoop.start(),
-    pixelRatio: () => pixelRatio,
-    dispose() {
-      if (disposed) return;
-      disposed = true;
-      observer?.disconnect();
-      staticLoop.destroy();
-      walkman.remove();
-      glow.remove();
-      cassette?.remove();
-      stage.classList.remove("tsuki-prologue", "is-still", "is-ready", "is-playing", "is-lit", "is-bare", "is-held");
-    },
-  };
-}
-
-// ---------------------------------------------------------------------------
-// The wire's layers
-// ---------------------------------------------------------------------------
-
-interface WireLayer {
-  /** Starts the motion, `elapsedMs` into the scene: 0 when it begins, later when the picture is laid out again mid-scene. */
-  run(elapsedMs: number): void;
-  /** Called every frame with the scene's elapsed time: starts the animations that wait for a moment of their own. */
-  tick(elapsedMs: number): void;
-  /** The tab is hidden: stop the animations where they are. */
-  hold(): void;
-  release(): void;
-  dispose(): void;
-}
-
-const round2 = (value: number) => Math.round(value * 100) / 100;
-
-function positioned<T extends HTMLElement>(element: T, box: Rect): T {
-  Object.assign(element.style, {
-    left: `${round2(box.left)}px`,
-    top: `${round2(box.top)}px`,
-    width: `${round2(rectWidth(box))}px`,
-    height: `${round2(rectHeight(box))}px`,
-  });
-  return element;
-}
-
-function layerCanvas(box: Rect, ratio: number, paint: (c: CanvasRenderingContext2D) => void): HTMLCanvasElement {
-  const canvas = document.createElement("canvas");
-  canvas.width = Math.max(1, Math.round(rectWidth(box) * ratio));
-  canvas.height = Math.max(1, Math.round(rectHeight(box) * ratio));
-  canvas.setAttribute("aria-hidden", "true");
-  const c = canvas.getContext("2d");
-  if (c) {
-    c.setTransform(ratio, 0, 0, ratio, -box.left * ratio, -box.top * ratio);
-    paint(c);
   }
-  return canvas;
+  // Mist lying low over the foot of the steps.
+  const mist = c.createLinearGradient(0, h * 0.72, 0, h);
+  mist.addColorStop(0, "rgba(150, 160, 200, 0)");
+  mist.addColorStop(0.6, "rgba(150, 160, 200, 0.1)");
+  mist.addColorStop(1, "rgba(150, 160, 200, 0.18)");
+  c.fillStyle = mist;
+  c.fillRect(0, h * 0.72, w, h * 0.28);
+  // The lamp post at the top of the steps.
+  const postX = cx + landing.w * 0.42;
+  const postTop = top - unit * 0.32;
+  c.fillStyle = "#07080e";
+  c.fillRect(postX - 2, postTop, 4, top - postTop);
+  c.beginPath();
+  c.moveTo(postX - unit * 0.03, postTop + unit * 0.012);
+  c.lineTo(postX - unit * 0.01, postTop - unit * 0.018);
+  c.lineTo(postX + unit * 0.01, postTop - unit * 0.018);
+  c.lineTo(postX + unit * 0.03, postTop + unit * 0.012);
+  c.closePath();
+  c.fill();
+  return { bulb: { x: postX, y: postTop + unit * 0.02 }, landing };
 }
 
-/**
- * The wire drawn whole, once, with the layers that move it on: see the header.
- * Everything is placed in stage coordinates from `wire`; the animations are
- * created paused-free at run() and the two that wait (the glow, the empty
- * earbud) are created paused and started by tick(), so that at any moment only
- * the animations that are really moving exist as running ones.
- */
-function mountWire(stage: HTMLElement, wire: WireGroup, timeline: Timeline, ratio: number): WireLayer {
-  const r = wire.bud.r;
-  const pathBox = boundsOf(wire.path, wire.lineWidth + 2);
-  const reach = r * 2.4;
-  const emptyBox = inflate(boundsOf([...wire.empty.stub, { x: wire.empty.x - reach, y: wire.empty.y - reach }, { x: wire.empty.x + reach, y: wire.empty.y + reach }]), wire.lineWidth + 2);
-
-  // The wire itself and its cover. The cover is black, as the stage is, so while it is over the wire the screen looks empty.
-  const root = positioned(document.createElement("div"), pathBox);
-  root.className = "tsuki-prologue__wire";
-  const wireCanvas = layerCanvas(pathBox, ratio, (c) => drawWirePath(c, wire));
-  wireCanvas.className = "tsuki-prologue__wire-line";
-  const cover = document.createElement("div");
-  cover.className = "tsuki-prologue__cover";
-  const steps = wireSteps(wire);
-  const coverX = (step: { x: number }) => round2(step.x - r * COVER_UNDER_BUD - pathBox.left);
-  cover.style.transform = `translateX(${coverX(steps[0])}px)`;
-  root.append(wireCanvas, cover);
-
-  // The empty earbud and its loose cable.
-  const empty = positioned(document.createElement("div"), emptyBox);
-  empty.className = "tsuki-prologue__empty";
-  empty.style.opacity = "0";
-  empty.append(layerCanvas(emptyBox, ratio, (c) => drawEmpty(c, wire)));
-
-  // The plugged earbud: a halo behind a sprite, both centred on the wrapper's origin, which the transform carries along the wire.
-  const bud = document.createElement("div");
-  bud.className = "tsuki-prologue__bud";
-  bud.style.opacity = "0";
-  const spriteBox: Rect = { left: -reach, top: -reach, right: reach, bottom: reach };
-  const halo = positioned(document.createElement("div"), spriteBox);
-  halo.className = "tsuki-prologue__halo";
-  halo.style.opacity = String(steps[0].glow);
-  // An image, not the canvas it was painted on: a canvas that is carried by an animation is handed to the compositor again every frame.
-  const sprite = document.createElement("img");
-  sprite.alt = "";
-  sprite.draggable = false;
-  sprite.src = layerCanvas(spriteBox, ratio, (c) => drawBud(c, { x: 0, y: 0, angle: 0, r }, 0, 1, true)).toDataURL("image/png");
-  positioned(sprite, spriteBox);
-  sprite.className = "tsuki-prologue__bud-sprite";
-  bud.append(halo, sprite);
-
-  stage.append(root, empty, bud);
-
-  const wireMs = (timeline.wireEnd - timeline.wireStart) * 1000;
-  const wireAt = timeline.wireStart * 1000;
-  const haloAt = wireAt + glowStartOffset() * wireMs;
-  const haloMs = wireAt + wireMs - haloAt;
-  const emptyAt = timeline.emptyStart * 1000;
-  const emptyMs = (timeline.emptyEnd - timeline.emptyStart) * 1000;
-
-  let running = false;
-  let held = false;
-  let disposed = false;
-  const live: Animation[] = [];
-  let haloAnimation: Animation | null = null;
-  let emptyAnimation: Animation | null = null;
-  let haloStarted = false;
-  let emptyStarted = false;
-
-  /** When an animation has finished, its last frame becomes the element's own style and the animation goes. */
-  const settle = (animation: Animation, element: HTMLElement, hide = false) => {
-    animation.finished.then(
-      () => {
-        if (disposed) return;
-        if (hide) element.style.display = "none";
-        else {
-          try {
-            animation.commitStyles();
-          } catch {
-            // an element that is not rendered cannot commit; the animation's fill still holds the frame
-            return;
-          }
-        }
-        animation.cancel();
-        const at = live.indexOf(animation);
-        if (at >= 0) live.splice(at, 1);
-      },
-      () => {},
-    );
-  };
-
-  const animate = (element: HTMLElement, frames: Keyframe[], duration: number, delay: number, start: number | null) => {
-    const animation = element.animate(frames, { duration, delay, fill: "both", easing: "linear" });
-    if (start === null) animation.pause();
-    else animation.currentTime = start;
-    if (held) animation.pause();
-    return animation;
-  };
-
-  return {
-    run(elapsedMs) {
-      if (running || disposed) return;
-      running = true;
-      const coverAnimation = animate(cover, steps.map((step) => ({ offset: step.offset, transform: `translateX(${coverX(step)}px)` })), wireMs, wireAt, elapsedMs);
-      const budAnimation = animate(
-        bud,
-        steps.map((step) => ({ offset: step.offset, transform: `translate(${round2(step.x)}px, ${round2(step.y)}px) rotate(${step.angle.toFixed(4)}rad)`, opacity: step.alpha })),
-        wireMs,
-        wireAt,
-        elapsedMs,
-      );
-      settle(coverAnimation, cover, true);
-      settle(budAnimation, bud);
-      live.push(coverAnimation, budAnimation);
-      haloAnimation = animate(halo, glowSteps().map((step) => ({ offset: step.offset, opacity: step.glow })), haloMs, 0, null);
-      emptyAnimation = animate(empty, emptyFadeSteps().map((step) => ({ offset: step.offset, opacity: step.opacity })), emptyMs, 0, null);
-      settle(haloAnimation, halo);
-      settle(emptyAnimation, empty);
-    },
-    tick(elapsedMs) {
-      if (!running || held || disposed) return;
-      if (!haloStarted && haloAnimation && elapsedMs >= haloAt) {
-        haloStarted = true;
-        haloAnimation.currentTime = elapsedMs - haloAt;
-        haloAnimation.play();
-        live.push(haloAnimation);
-      }
-      if (!emptyStarted && emptyAnimation && elapsedMs >= emptyAt) {
-        emptyStarted = true;
-        emptyAnimation.currentTime = elapsedMs - emptyAt;
-        emptyAnimation.play();
-        live.push(emptyAnimation);
-      }
-    },
-    hold() {
-      held = true;
-      for (const animation of live) animation.pause();
-    },
-    release() {
-      held = false;
-      for (const animation of live) animation.play();
-    },
-    dispose() {
-      if (disposed) return;
-      disposed = true;
-      for (const animation of [...live, haloAnimation, emptyAnimation]) animation?.cancel();
-      live.length = 0;
-      root.remove();
-      empty.remove();
-      bud.remove();
-    },
-  };
+function paintStill(c: Ctx, l: Layout): void {
+  paintRoom(c, l);
+  strokeWire(c, l.wire.trunk);
+  strokeWire(c, l.wire.worn);
+  strokeWire(c, l.wire.empty);
+  paintWalkman(c, l);
+  drawReel(c, l.reels[0], l.reelR, 0.3);
+  drawReel(c, l.reels[1], l.reelR, 1.1);
+  drawEmptyBud(c, l.wire.empty[l.wire.empty.length - 1], l.unit, 0.7);
 }
 
-// ---------------------------------------------------------------------------
-// The subtitles' covers
-// ---------------------------------------------------------------------------
-
-interface SubtitleLayer {
-  tick(elapsedMs: number): void;
-  hold(): void;
-  release(): void;
-  dispose(): void;
+interface Mote {
+  x: number;
+  y: number;
+  r: number;
+  phase: number;
+  speed: number;
 }
-
-/** Each cluster's box, in the origin's coordinates, read from the paragraph's single text node; null when it is not one. */
-function measureClusters(textEl: HTMLElement, clusters: readonly string[], origin: DOMRect): ClusterBox[] | null {
-  const node = textEl.firstChild;
-  if (textEl.childNodes.length !== 1 || !(node instanceof Text) || node.data !== clusters.join("")) return null;
-  const range = document.createRange();
-  const boxes: ClusterBox[] = [];
-  let offset = 0;
-  for (const cluster of clusters) {
-    range.setStart(node, offset);
-    range.setEnd(node, offset + cluster.length);
-    const box = range.getBoundingClientRect();
-    boxes.push({ left: box.left - origin.left, top: box.top - origin.top, right: box.right - origin.left, bottom: box.bottom - origin.top });
-    offset += cluster.length;
-  }
-  return boxes;
-}
-
-/**
- * Room round a line's box that its cover also hides, in ems: a tone mark on a tall letter can rise above
- * the line's own box, and the glow round the text spills out of it. The line spacing leaves more than this
- * empty above and below every line, so the neighbouring line's letters stay clear of it.
- */
-const COVER_PAD_EM = 0.3;
-
-/**
- * Lays a cover over each line of the epigraph and lets each slide off in its
- * time (see "The subtitles' covers" in prologue-core.ts). The animation of a
- * line is made paused and started by tick() when its moment comes, and the
- * line's elements are removed when it is done, so that only the lines that are
- * being revealed are animating. `elapsedMs` is where the scene is now, so that a
- * layer built in the middle of the scene (the text re-wrapped) starts in step.
- * Null when the text cannot be measured; the caller then shows it plainly.
- */
-function mountSubtitles(card: HTMLElement, textEl: HTMLElement, clusters: readonly string[], schedule: SubtitleSchedule, timeline: Timeline, elapsedMs: number, held: boolean): SubtitleLayer | null {
-  const origin = card.getBoundingClientRect();
-  const boxes = measureClusters(textEl, clusters, origin);
-  if (!boxes) return null;
-  const lines = groupLines(boxes, Number.parseFloat(getComputedStyle(textEl).lineHeight) || 0);
-  if (lines.length === 0) return null;
-  const feather = featherFor(lines, schedule.delaysMs, schedule.fadeMs);
-  const pad = (Number.parseFloat(getComputedStyle(textEl).fontSize) || 16) * COVER_PAD_EM;
-
-  interface Cover {
-    wrapper: HTMLElement;
-    animation: Animation;
-    startAt: number;
-    endAt: number;
-    started: boolean;
-  }
-  const covers: Cover[] = [];
-  let disposed = false;
-  let isHeld = held;
-
-  for (const line of lines) {
-    const sweep = lineSweep(line, boxes, schedule.delaysMs, schedule.fadeMs, feather);
-    const startAt = timeline.subtitlesStart * 1000 + sweep.startMs;
-    const endAt = startAt + sweep.durationMs;
-    if (endAt <= elapsedMs) continue;
-    const box: Rect = { left: line.left - pad, top: line.top - pad, right: line.right + pad, bottom: line.bottom + pad };
-    const wrapper = positioned(document.createElement("div"), box);
-    wrapper.className = "tsuki-prologue__line";
-    wrapper.setAttribute("aria-hidden", "true");
-    const cover = document.createElement("div");
-    cover.className = "tsuki-prologue__sweep";
-    const first = sweep.frames[0].x;
-    cover.style.width = `${round2(box.right - first + 2)}px`;
-    cover.style.setProperty("--tsuki-feather", `${round2(feather)}px`);
-    const at = (x: number) => `translateX(${round2(x - box.left)}px)`;
-    cover.style.transform = at(first);
-    wrapper.append(cover);
-    card.append(wrapper);
-    const animation = cover.animate(
-      sweep.frames.map((frame) => ({ offset: Math.min(1, frame.ms / sweep.durationMs), transform: at(frame.x) })),
-      { duration: sweep.durationMs, fill: "both", easing: "linear" },
-    );
-    animation.pause();
-    covers.push({ wrapper, animation, startAt, endAt, started: false });
-  }
-
-  return {
-    tick(now) {
-      if (disposed || isHeld) return;
-      for (const cover of covers) {
-        if (!cover.started && now >= cover.startAt) {
-          cover.started = true;
-          cover.animation.currentTime = now - cover.startAt;
-          cover.animation.play();
-        }
-        if (cover.started && now >= cover.endAt && cover.wrapper.isConnected) {
-          cover.animation.cancel();
-          cover.wrapper.remove();
-        }
-      }
-    },
-    hold() {
-      isHeld = true;
-      for (const cover of covers) if (cover.started && cover.wrapper.isConnected) cover.animation.pause();
-    },
-    release() {
-      isHeld = false;
-      for (const cover of covers) if (cover.started && cover.wrapper.isConnected) cover.animation.play();
-    },
-    dispose() {
-      if (disposed) return;
-      disposed = true;
-      for (const cover of covers) {
-        cover.animation.cancel();
-        cover.wrapper.remove();
-      }
-      covers.length = 0;
-    },
-  };
-}
-
-// ---------------------------------------------------------------------------
-// The scene
-// ---------------------------------------------------------------------------
 
 export function play(ctx: TsukiSceneContext): TsukiSceneHandle {
-  injectSceneStyles(prologueCss, ctx.signal);
-  const { stage, textEl, controls, audio, signal } = ctx;
+  injectSceneStyles(css, ctx.signal);
+  const { stage, textEl, controls, signal, audio } = ctx;
+  const split = splitGlyphs(textEl);
+  textEl.classList.add("tsuki-p0-text");
+  textEl.style.setProperty("--p0-subtitles", `${PROLOGUE.subtitlesMs}ms`);
 
-  let resolveDone: () => void = noop;
-  const done = new Promise<void>((resolve) => {
-    resolveDone = resolve;
-  });
-  let finished = false;
-  let disposed = false;
-  const finish = () => {
-    if (finished) return;
-    finished = true;
-    resolveDone();
+  let l = layoutOf(1, 1);
+  let room: HTMLCanvasElement | null = null;
+  let walkman: HTMLCanvasElement | null = null;
+  let night: HTMLCanvasElement | null = null;
+  let steps: Steps | null = null;
+  let lampGlow: HTMLCanvasElement | null = null;
+  let mote: HTMLCanvasElement | null = null;
+  let petals: HTMLCanvasElement[] = [];
+  let box: Box | null = null;
+  let boxAge = 0;
+  let sceneT = 0;
+  let playAt: number | null = null;
+  let reelAngle = 0;
+  let subtitlesShown = false;
+  const rng = createRng(SEED + 4);
+  const motes: Mote[] = Array.from({ length: 46 }, () => ({ x: rng(), y: rng(), r: 0.5 + rng() * 1.4, phase: rng() * 6.28, speed: 0.2 + rng() * 0.6 }));
+  const drift = Array.from({ length: 10 }, () => ({ x: rng(), y: rng(), size: 7 + rng() * 6, rot: rng() * 6.28, variant: Math.floor(rng() * 4) }));
+
+  const layout = (size: Readonly<SceneSize>) => {
+    l = layoutOf(size.width, size.height);
+    const r = makeLayer(l.w, l.h, size.dpr);
+    paintRoom(r.ctx, l);
+    room = r.canvas;
+    const wk = makeLayer(l.w, l.h, size.dpr);
+    paintWalkman(wk.ctx, l);
+    walkman = wk.canvas;
+    const n = makeLayer(l.w, l.h, size.dpr);
+    steps = paintSteps(n.ctx, l);
+    night = n.canvas;
+    lampGlow = radialSprite(l.unit * 0.42, size.dpr, [
+      [0, "rgba(255, 236, 200, 1)"],
+      [0.05, `rgba(${WARM}, 0.7)`],
+      [0.25, `rgba(${WARM}, 0.18)`],
+      [1, `rgba(${WARM}, 0)`],
+    ]);
+    mote = radialSprite(4, size.dpr, [
+      [0, "rgba(255, 240, 220, 0.9)"],
+      [1, "rgba(255, 240, 220, 0)"],
+    ]);
+    petals = petalSprites(size.dpr);
+    box = null;
   };
 
-  const clusters = splitGraphemes(textEl.textContent ?? "");
-  const schedule = subtitleSchedule(clusters);
-  const timeline = buildTimeline(schedule, lampClusterFor(clusters));
-  const card = textEl.parentElement ?? stage;
-  // Hidden until its covers are in place, so a frame that paints before they are does not show the text early.
-  textEl.classList.add(SUBTITLE_TEXT_CLASS, "is-waiting");
-
-  // --- the clock and the beats: the scene's only frame callback draws nothing ---
-  const clock = createSceneClock();
-  let lit = false;
-  let wireLayer: WireLayer | null = null;
-  let subtitleLayer: SubtitleLayer | null = null;
-  const onFrame = () => {
-    if (!clock.started || finished || disposed) return;
-    const elapsed = clock.elapsedMs();
-    const t = elapsed / 1000;
-    if (!lit && t >= timeline.lampStart) {
-      lit = true;
-      stage.classList.add("is-lit");
-    }
-    if (t >= timeline.end) {
-      finish();
-      return;
-    }
-    wireLayer?.tick(elapsed);
-    subtitleLayer?.tick(elapsed);
-  };
-  const picture = mountPicture(ctx, false, onFrame);
-  picture.onLayout((layout) => {
-    wireLayer?.dispose();
-    wireLayer = layout.wire ? mountWire(stage, layout.wire, timeline, picture.pixelRatio()) : null;
-    if (clock.started) {
-      wireLayer?.run(clock.elapsedMs());
-      if (clock.held) wireLayer?.hold();
-    }
-  });
-
-  // The covers follow the text: laid out again whenever it re-wraps (a resize, a font that arrives late).
-  let textBox = "";
-  const placeSubtitles = () => {
-    if (disposed) return;
-    const box = textEl.getBoundingClientRect();
-    const signature = `${Math.round(box.width)}x${Math.round(box.height)}@${Math.round(box.left)},${Math.round(box.top)}`;
-    if (signature === textBox && subtitleLayer) return;
-    textBox = signature;
-    subtitleLayer?.dispose();
-    subtitleLayer = mountSubtitles(card, textEl, clusters, schedule, timeline, clock.elapsedMs(), clock.held);
-    // Without covers (the text could not be measured) the text is simply there.
-    textEl.classList.remove("is-waiting");
-  };
-  placeSubtitles();
-  const textObserver = typeof ResizeObserver === "function" ? new ResizeObserver(placeSubtitles) : null;
-  textObserver?.observe(textEl);
-  void document.fonts?.ready.then(placeSubtitles);
-  document.fonts?.addEventListener("loadingdone", placeSubtitles, { signal });
-
-  // --- the Play button ---
+  // --- the Play button, and the countdown that starts the tape without it ---
   const playButton = document.createElement("button");
   playButton.type = "button";
   playButton.className = "tsuki-cutscene__control tsuki-prologue__play";
   playButton.textContent = PLAY_LABEL;
   controls.append(playButton);
-  picture.relayout();
-
+  let countdown: AutoStart | null = null;
   let hovering = false;
   let focused = false;
   let pressed = false;
-  let countdown: AutoStart | null = null;
+
+  const startSound = (click: boolean) => {
+    if (click) audio.sfx("tape-click");
+    audio.layerSoundscape("cassette-hiss");
+    audio.setCue("discovery");
+  };
 
   const begin = (pressedPlay: boolean) => {
-    if (clock.started || finished || disposed) return;
+    if (playAt !== null || signal.aborted) return;
     countdown?.cancel();
     const plan = startPlan(pressedPlay, audio.available());
     let gesture: Promise<boolean> | null = null;
@@ -964,35 +517,19 @@ export function play(ctx: TsukiSceneContext): TsukiSceneHandle {
       }
     }
     startSound(plan.ownClick);
-    // The real Walkman switches on synchronously, so everything above already sounded. Should an
-    // implementation switch on later, the cue and the hiss are asked for again when it reports back.
+    // Should the Walkman switch on later than at once, the cue and the hiss are asked for again when it reports back.
     const soundedAtOnce = audio.available();
     gesture
       ?.then((ok) => {
         if (ok && !soundedAtOnce && !signal.aborted) startSound(false);
       })
       .catch(noop);
-
-    // The Play button has done its job. If it holds focus, hand that to Skip before it goes.
-    if (document.activeElement === playButton) dialogSkip()?.focus({ preventScroll: true });
+    // The button has done its job. If it holds focus, hand that to Skip before it goes.
+    if (document.activeElement === playButton) ctx.dialog.querySelector<HTMLElement>("[data-cutscene-skip]")?.focus({ preventScroll: true });
     playButton.remove();
-    picture.relayout();
-
-    stage.classList.add("is-playing");
-    clock.start();
-    wireLayer?.run(0);
-    picture.startFrames();
+    playAt = sceneT;
   };
 
-  const startSound = (click: boolean) => {
-    if (click) audio.sfx("tape-click");
-    audio.layerSoundscape("cassette-hiss");
-    audio.setCue("discovery");
-  };
-  const dialogSkip = () => ctx.dialog.querySelector<HTMLElement>("[data-cutscene-skip]");
-
-  // The countdown holds while the reader is on the Play button (hovering, focused or pressing it),
-  // so the scene does not start under their finger, and restarts when they leave it.
   const engage = () => countdown?.setEngaged(hovering || focused || pressed);
   playButton.addEventListener("click", () => begin(true), { signal });
   playButton.addEventListener("pointerenter", () => ((hovering = true), engage()), { signal });
@@ -1002,65 +539,128 @@ export function play(ctx: TsukiSceneContext): TsukiSceneHandle {
   playButton.addEventListener("focus", () => ((focused = true), engage()), { signal });
   playButton.addEventListener("blur", () => ((focused = false), engage()), { signal });
   countdown = createAutoStart(() => begin(false));
+  signal.addEventListener("abort", () => countdown?.cancel(), { once: true });
 
-  // --- the rest of the lifecycle ---
-  // While the tab is hidden the clock stops, and the animations with it: the page's own clock keeps
-  // running behind a hidden tab, so left alone they would be ahead of the scene when it comes back.
-  const onVisibility = () => {
-    stage.classList.toggle("is-held", document.hidden);
-    if (document.hidden) {
-      clock.hold();
-      wireLayer?.hold();
-      subtitleLayer?.hold();
-    } else {
-      clock.release();
-      wireLayer?.release();
-      subtitleLayer?.release();
-    }
-  };
-  document.addEventListener("visibilitychange", onVisibility);
-  onVisibility();
-  // The runner plays this scene only while motion is allowed; if the reader turns it off now, end gracefully.
-  const reduceQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-  const onReduce = () => {
-    if (reduceQuery.matches) finish();
-  };
-  reduceQuery.addEventListener("change", onReduce);
+  return runCanvasScene(ctx, {
+    endS: () => prologueEnd(playAt),
+    maxEndS: PROLOGUE_MAX_END_S,
+    className: "tsuki-p0-canvas",
+    layout,
+    render(c, info) {
+      const { t, dt, width: w, height: h } = info;
+      sceneT = t;
+      c.clearRect(0, 0, w, h);
+      if (!info.ready || !room || !walkman || !night || !steps || !lampGlow) return;
+      boxAge -= dt;
+      if (!box || boxAge <= 0) {
+        box = textBox(stage, textEl);
+        boxAge = 0.5;
+      }
+      const since = playAt === null ? -1 : t - playAt;
+      if (!subtitlesShown && since >= PROLOGUE.subtitlesStart) {
+        subtitlesShown = true;
+        textEl.classList.add("tsuki-p0-in");
+      }
+      const intro = smooth(phase(t, 0, 1.6));
+      const dissolve = since < 0 ? 0 : smooth(phase(since, PROLOGUE.dissolveStart, PROLOGUE.dissolveEnd));
+      const outro = since < 0 ? 1 : 1 - smooth(phase(since, PROLOGUE.end - 1.6, PROLOGUE.end));
 
-  stage.classList.add("is-ready");
+      // ---- the room ----------------------------------------------------------------
+      if (dissolve < 1) {
+        c.globalAlpha = intro * (1 - dissolve) * outro;
+        c.drawImage(room, 0, 0, w, h);
+        // Dust turning slowly in the lamplight, a little livelier once the tape plays.
+        if (mote) {
+          const lively = since >= 0 ? 1.6 : 1;
+          for (const m of motes) {
+            const mx = l.pool.x + (m.x - 0.5) * l.pool.r * 1.6 + Math.sin(t * 0.2 * lively + m.phase) * 14;
+            const my = l.rest - (l.rest * 0.75) * m.y + ((t * m.speed * 6 * lively) % (l.rest * 0.75));
+            c.globalAlpha = intro * (1 - dissolve) * outro * (0.25 + 0.35 * Math.sin(t * m.speed + m.phase) ** 2);
+            const s = m.r * 3;
+            c.drawImage(mote, mx - s / 2, my - s / 2, s, s);
+          }
+        }
+        c.globalAlpha = intro * (1 - dissolve) * outro;
+        // The wire, pulled out as the tape starts.
+        const pull = wireProgress(since < 0 ? 0 : phase(since, PROLOGUE.wireStart, PROLOGUE.wireEnd));
+        if (pull.trunk > 0) strokeWire(c, pathUpTo(l.wire.trunk, pull.trunk));
+        if (pull.branches > 0) {
+          strokeWire(c, pathUpTo(l.wire.worn, pull.branches));
+          strokeWire(c, pathUpTo(l.wire.empty, pull.branches));
+        }
+        c.drawImage(walkman, 0, 0, w, h);
+        // The reels turn while the tape plays; the little lamp is on.
+        if (since >= PROLOGUE.tapeOn) reelAngle += dt * 2.6;
+        drawReel(c, l.reels[0], l.reelR, reelAngle);
+        drawReel(c, l.reels[1], l.reelR, reelAngle * 0.82 + 0.6);
+        const led = since >= PROLOGUE.tapeOn ? 0.85 + 0.15 * Math.sin(t * 2) : 0.12;
+        c.fillStyle = `rgba(230, 60, 50, ${led.toFixed(3)})`;
+        c.beginPath();
+        c.arc(l.led.x, l.led.y, Math.max(1.6, l.walkman.h * 0.025), 0, Math.PI * 2);
+        c.fill();
+        if (since >= PROLOGUE.tapeOn) {
+          const g = c.createRadialGradient(l.led.x, l.led.y, 0, l.led.x, l.led.y, l.walkman.h * 0.12);
+          g.addColorStop(0, "rgba(230, 60, 50, 0.35)");
+          g.addColorStop(1, "rgba(230, 60, 50, 0)");
+          c.fillStyle = g;
+          c.fillRect(l.led.x - l.walkman.h * 0.12, l.led.y - l.walkman.h * 0.12, l.walkman.h * 0.24, l.walkman.h * 0.24);
+        }
+        // The empty earbud, lying where the wire ends.
+        if (pull.branches > 0.98) {
+          const bud = l.wire.empty[l.wire.empty.length - 1];
+          drawEmptyBud(c, bud, l.unit, (0.55 + 0.25 * Math.sin(t * 0.8)) * smooth(phase(since, PROLOGUE.wireEnd, PROLOGUE.wireEnd + 1.2)));
+        }
+      }
 
-  const dispose = () => {
-    if (disposed) return;
-    disposed = true;
-    countdown?.cancel();
-    document.removeEventListener("visibilitychange", onVisibility);
-    reduceQuery.removeEventListener("change", onReduce);
-    wireLayer?.dispose();
-    wireLayer = null;
-    textObserver?.disconnect();
-    subtitleLayer?.dispose();
-    subtitleLayer = null;
-    textEl.classList.remove(SUBTITLE_TEXT_CLASS, "is-waiting");
-    playButton.remove();
-    picture.dispose();
-    signal.removeEventListener("abort", dispose);
-  };
-  signal.addEventListener("abort", dispose, { once: true });
-
-  return { done, dispose };
+      // ---- the stone steps, where the station lamp lights ------------------------------
+      if (dissolve > 0) {
+        c.globalAlpha = dissolve * outro;
+        c.drawImage(night, 0, 0, w, h);
+        const level = lampLevel(since - PROLOGUE.lampOn);
+        if (level > 0) {
+          const s = lampGlow.width / info.dpr;
+          c.globalCompositeOperation = "lighter";
+          c.globalAlpha = dissolve * outro * level;
+          c.drawImage(lampGlow, steps.bulb.x - s / 2, steps.bulb.y - s / 2, s, s);
+          // The light falling on the top steps.
+          c.save();
+          c.translate(steps.landing.x, steps.landing.y + l.unit * 0.04);
+          c.scale(1, 0.35);
+          const pool = c.createRadialGradient(0, 0, 0, 0, 0, steps.landing.w * 1.4);
+          pool.addColorStop(0, `rgba(${WARM}, 0.35)`);
+          pool.addColorStop(1, `rgba(${WARM}, 0)`);
+          c.fillStyle = pool;
+          c.fillRect(-steps.landing.w * 1.4, -steps.landing.w * 1.4, steps.landing.w * 2.8, steps.landing.w * 2.8);
+          c.restore();
+          c.globalCompositeOperation = "source-over";
+        }
+        // A few petals hanging in the air, as the story has them.
+        for (const p of drift) {
+          const sprite = petals[p.variant];
+          if (!sprite) continue;
+          drawPetal(c, sprite, p.x * w, p.y * h * 0.8 + Math.sin(t * 0.3 + p.rot) * 4, p.size, p.rot + t * 0.05, p.rot, dissolve * outro * 0.7);
+        }
+      }
+      c.globalAlpha = 1;
+      drawTextScrim(c, box, intro * outro);
+    },
+    cleanup() {
+      countdown?.cancel();
+      textEl.classList.remove("tsuki-p0-text", "tsuki-p0-in");
+      textEl.style.removeProperty("--p0-subtitles");
+      split.restore();
+    },
+  });
 }
 
-/** The reduced-motion composition: the finished picture (wire out, lamp lit) behind the whole epigraph, nothing moving. */
 export function still(ctx: TsukiSceneContext): void {
-  injectSceneStyles(prologueCss, ctx.signal);
-  const picture = mountPicture(ctx, true);
-  let done = false;
-  const cleanup = () => {
-    if (done) return;
-    done = true;
-    picture.dispose();
-    ctx.signal.removeEventListener("abort", cleanup);
-  };
-  ctx.signal.addEventListener("abort", cleanup, { once: true });
-  if (ctx.signal.aborted) cleanup();
+  injectSceneStyles(css, ctx.signal);
+  stillCanvas(
+    ctx,
+    (c, size) => {
+      paintStill(c, layoutOf(size.width, size.height));
+      drawTextScrim(c, textBox(ctx.stage, ctx.textEl), 1);
+    },
+    "tsuki-p0-canvas",
+  );
 }
