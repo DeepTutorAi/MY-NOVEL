@@ -1,12 +1,8 @@
-// The placeholder look shared by the neutral fallback scene and the six stub
-// scenes: the part's plate fades in behind the epigraph and the epigraph
-// appears one character at a time (the old per-character blur-in), then holds
-// for a beat and ends. Runtime scales with the epigraph length.
-//
-// The stub modules (prologue.ts, part-1-autumn-rain.ts, ...) are thin wrappers
-// around this. A scene builder replaces its own file wholesale and stops using
-// this module; neutral.ts, the permanent fallback for a part without a scene,
-// keeps using it. Once all six are replaced this file is only neutral's.
+// The look of the neutral fallback scene (neutral.ts), for a part without a
+// scene of its own: the part's plate fades in behind the epigraph and the
+// epigraph appears one character at a time (the old per-character blur-in),
+// then holds for a beat and ends. Runtime scales with the epigraph length.
+// The prologue and parts 1 to 5 have their own scenes and do not use it.
 //
 // Its styles (plate-reveal.css) are loaded as a string and injected while the
 // scene runs (../styles.ts), so they ship with the scene chunk rather than in

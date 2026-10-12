@@ -1,0 +1,30 @@
+/* Look of the part 5 cutscene (part-5-winter-light.ts): the city's ten years
+   and the dawn. The picture is one canvas; this file styles the epigraph.
+
+   The epigraph is visible by default. Only .tsuki-p5-text without .tsuki-p5-in
+   hides it (the first moment of the years); .tsuki-p5-in brings it up letter
+   by letter in about 3 s. Only opacity and colour animate: an offset would make
+   the browser lay the paragraph out again every frame. */
+
+.tsuki-cutscene .tsuki-p5-text:not(.tsuki-p5-in) .tsuki-k-g {
+  opacity: 0;
+}
+
+.tsuki-cutscene .tsuki-p5-text.tsuki-p5-in .tsuki-k-g {
+  animation: tsuki-p5-letter 900ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--i, 0) * 3000ms / var(--n, 1));
+}
+
+@keyframes tsuki-p5-letter {
+  from {
+    opacity: 0;
+    color: rgb(255, 214, 160);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-p5-text .tsuki-k-g {
+    animation: none;
+    opacity: 1;
+  }
+}

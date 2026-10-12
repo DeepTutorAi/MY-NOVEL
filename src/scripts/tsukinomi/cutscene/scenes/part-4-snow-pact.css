@@ -1,0 +1,37 @@
+/* Look of the part 4 cutscene (part-4-snow-pact.ts): the blizzard and the snow
+   that gathers into the letters. The picture is one canvas; this file styles
+   the epigraph.
+
+   The epigraph is visible by default. Only .tsuki-p4-text without .tsuki-p4-in
+   hides it, while the snow is still gathering into its shape; .tsuki-p4-in
+   brings it up over the settled snow in about 3 s, a little blurred at first
+   like breath on cold glass. */
+
+.tsuki-cutscene .tsuki-p4-text:not(.tsuki-p4-in) .tsuki-k-g {
+  opacity: 0;
+}
+
+.tsuki-cutscene .tsuki-p4-text.tsuki-p4-in {
+  animation: tsuki-p4-text 2600ms ease-out backwards;
+}
+
+@keyframes tsuki-p4-text {
+  from {
+    opacity: 0;
+    filter: blur(5px);
+  }
+
+  60% {
+    filter: blur(0.5px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-p4-text .tsuki-k-g {
+    opacity: 1;
+  }
+
+  .tsuki-cutscene .tsuki-p4-text.tsuki-p4-in {
+    animation: none;
+  }
+}

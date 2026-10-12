@@ -115,6 +115,7 @@ import {
   type RainStreak,
   type Rect,
 } from "./part-1-core";
+import { loadPlate } from "./kit";
 import { createRevealClock } from "./plate-core";
 import css from "./part-1-autumn-rain.css?inline";
 
@@ -405,29 +406,6 @@ function drawDroplet(c: CanvasRenderingContext2D, sprite: HTMLCanvasElement, dro
   c.globalAlpha = alpha;
   const radius = drop.radius;
   c.drawImage(sprite, drop.x - radius, drop.y - radius * 1.2, radius * 2, radius * 2.5);
-}
-
-/** Loads the plate; resolves null if it cannot be had. With a timeout it gives up after that many ms. */
-function loadPlate(url: string | null, signal: AbortSignal, timeoutMs: number | null): Promise<HTMLImageElement | null> {
-  if (!url || signal.aborted) return Promise.resolve(null);
-  return new Promise((resolve) => {
-    const image = new Image();
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    const settle = (value: HTMLImageElement | null) => {
-      clearTimeout(timer);
-      signal.removeEventListener("abort", onAbort);
-      resolve(value);
-    };
-    const onAbort = () => settle(null);
-    signal.addEventListener("abort", onAbort, { once: true });
-    if (timeoutMs !== null) timer = setTimeout(() => settle(null), timeoutMs);
-    image.decoding = "async";
-    image.src = url;
-    image.decode().then(
-      () => settle(image),
-      () => settle(null),
-    );
-  });
 }
 
 const overButton = (target: EventTarget | null): boolean => target instanceof Element && target.closest("button") !== null;

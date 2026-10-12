@@ -1,0 +1,37 @@
+/* Look of the part 3 cutscene (part-3-warm-room.ts): the photograph and the
+   sun. The picture is one canvas; this file styles the epigraph and the hold
+   control.
+
+   The epigraph is visible by default. Only .tsuki-p3-text without .tsuki-p3-in
+   hides it (the moment between the dialog opening and the plate arriving);
+   .tsuki-p3-in brings it up warm, line by line, in about 3 s. */
+
+.tsuki-cutscene .tsuki-p3-text:not(.tsuki-p3-in) .tsuki-k-g {
+  opacity: 0;
+}
+
+.tsuki-cutscene .tsuki-p3-text.tsuki-p3-in .tsuki-k-g {
+  animation: tsuki-p3-letter 1100ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 2800ms / var(--n, 1));
+}
+
+@keyframes tsuki-p3-letter {
+  from {
+    opacity: 0;
+    color: rgb(255, 214, 160);
+    text-shadow: 0 0 14px rgba(255, 190, 120, 0.9);
+  }
+}
+
+/* The hold control, pressed: lit like a lamp in the room. */
+.tsuki-cutscene .tsuki-p3-hold[aria-pressed="true"] {
+  border-color: rgb(255, 196, 128);
+  box-shadow: 0 0 0.9rem rgba(255, 190, 120, 0.45);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-p3-text .tsuki-k-g {
+    animation: none;
+    opacity: 1;
+  }
+}

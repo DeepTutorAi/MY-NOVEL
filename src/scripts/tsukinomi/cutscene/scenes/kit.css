@@ -1,0 +1,16 @@
+/* Shared by the canvas cutscenes built on kit.ts (parts 2 to 5); injected as a
+   string by runCanvasScene() and stillCanvas(), like every scene stylesheet.
+
+   While a scene plays the dialog is opaque and covers the screen, so the page's
+   own backdrop behind it cannot be seen, yet the browser would still draw it
+   every frame. It is not rendered for the duration (the same rule as part 1's
+   stylesheet); it is back the moment the runner begins the fade-out. */
+body:has(dialog.tsuki-cutscene[open][data-state="playing"][data-mode="motion"]) .sakura-backdrop {
+  display: none;
+}
+
+/* The epigraph's grapheme spans (splitGlyphs in kit.ts) stay inline, so a Thai
+   line never breaks inside a word; a scene moves them only by relative offsets. */
+.tsuki-cutscene .tsuki-k-g {
+  position: relative;
+}

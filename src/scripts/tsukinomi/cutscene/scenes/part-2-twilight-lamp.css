@@ -1,0 +1,40 @@
+/* Look of the part 2 cutscene (part-2-twilight-lamp.ts): the twilight lamp and
+   the tape dropout. The picture is one canvas; this file styles the epigraph.
+
+   The epigraph is visible by default. Only .tsuki-p2-text without .tsuki-p2-in
+   hides its letters (the moment between the dialog opening and the plate
+   arriving); .tsuki-p2-in fades them in, left to right, in about 2.4 s. The
+   scatter of the dropout is --scatter (0 to 1, set by the scene) times each
+   letter's own --dx/--dy, applied as a relative offset: the lines never re-break. */
+
+.tsuki-cutscene .tsuki-p2-text .tsuki-k-g {
+  left: calc(var(--dx, 0) * var(--scatter, 0) * 1.6em);
+  top: calc(var(--dy, 0) * var(--scatter, 0) * 0.9em);
+  text-shadow:
+    calc(var(--scatter, 0) * 3px) 0 rgba(255, 96, 140, calc(var(--scatter, 0) * 0.55)),
+    calc(var(--scatter, 0) * -3px) 0 rgba(96, 200, 255, calc(var(--scatter, 0) * 0.55)),
+    0 1px 10px rgba(0, 0, 0, 0.85);
+}
+
+.tsuki-cutscene .tsuki-p2-text:not(.tsuki-p2-in) .tsuki-k-g {
+  opacity: 0;
+}
+
+.tsuki-cutscene .tsuki-p2-text.tsuki-p2-in .tsuki-k-g {
+  animation: tsuki-p2-letter 760ms ease-out backwards;
+  animation-delay: calc(var(--i, 0) * 2400ms / var(--n, 1));
+}
+
+@keyframes tsuki-p2-letter {
+  from {
+    opacity: 0;
+    color: rgb(205, 211, 224);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tsuki-cutscene .tsuki-p2-text .tsuki-k-g {
+    animation: none;
+    opacity: 1;
+  }
+}

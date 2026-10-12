@@ -119,3 +119,25 @@ For the author to decide (design section 7 says to report, not to adjust): wheth
 - Small-area and red flashes (a single lit train window, a lamp) and flashes between screencast frames.
 - The home train for a reader part-way through the story (only no marks and all six marked read were looked at, in diagnostics), and a slow network (film frames arriving late).
 - `pnpm sea:verify-dist` and the repository gates other than `pnpm check`, the unit suite and the e2e (not part of this task).
+
+## R2 measurements (round 2)
+
+Parts 2 to 5 and the new home sky (the moon-sea canvas scene that replaced the DOM passing train).
+
+Direction change for this round, at the author's request for a livelier look on a par with the hub's Mothlight and Firefly scenes: the new scenes redraw one canvas every frame from layers painted once per size (the hub's architecture), instead of the compositor-only approach of R1c. The frame budgets in design section 7 are still the author's open decision (see R1c above); the numbers below are reported against them, not tuned to them.
+
+Measured 2026-10-14 on the branch after merging main, production build (`GITHUB_ACTIONS=true`), `astro preview`, same harness (`scene-measure.ts`). Browser: the installed Chrome 154 on Windows, headless (not the software-rendered container Chromium of R1c, so the figures are not comparable with R1c's). One run per target.
+
+| Target | 1x ms/frame | 4x ms/frame | fps 1x | Flashes per second | Layout (6 viewports) | gzip |
+|---|---|---|---|---|---|---|
+| Part 2, twilight lamp | 2.92 | 10.25 | 131 | 0 | ok | scene chunk plus shared kit, about 9 KB |
+| Part 3, warm room | 3.58 | 8.20 | 115 | 0 | ok | about 9 KB |
+| Part 4, snow pact | 1.77 | 7.88 | 139 | 0 | ok | 9.07 KB |
+| Part 5, winter light | 3.74 | 13.19 | 131 | 0 | ok | 8.76 KB before the last change |
+| Home sky | 2.09 | 9.73 | 143 | 0 | ok | moonsea-scene 10.42 KB lazy, concourse 3.27 KB |
+
+Part 5 was measured again after two changes made because of its first figure (4.65 / 17.48): its letters no longer animate an offset (layout every frame), and the season washes are painted once per size and cross-faded instead of a full-screen soft-light fill every frame. Every target ran well above 60 fps at 1x; the 4x figures are over the 6 ms budget for all five, and parts 2, 3, 5 and the home are over 2 ms at 1x.
+
+Other gates on the same commit: `pnpm check` 0 errors, 0 warnings, 0 hints; the full unit suite passing; the in-repo e2e (`tsukinomi-e2e.ts`) 16 passed, 0 failed, through the installed Chrome.
+
+Not measured this round: Safari and Firefox; a real phone; audio (Walkman off throughout); the part 3 hold control and pointer paths (only the paths that play by themselves); small-area and red flashes (the part 4 spider lily's red glow is a slow fade, not a flash, but the harness cannot see it).
