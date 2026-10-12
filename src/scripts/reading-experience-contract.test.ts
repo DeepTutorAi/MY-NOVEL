@@ -161,9 +161,10 @@ describe("shared reading experience contract", () => {
     const mountain = readProjectFile("src/content/tsukinomi/sections/04-mountain.md");
     const tsukiExtra = readProjectFile("src/pages/tsukinomi/extra/index.astro");
 
+    // The author chose the split-face exchange picture for the goodbye (2026-10-14), in the farewell figure's frame.
     assert.match(
       mountain,
-      /ลาก่อนนะครับ คุณคาโอริ[\s\S]{0,600}farewell-haruto-kaori\.(png|webp)/,
+      /ลาก่อนนะครับ คุณคาโอริ[\s\S]{0,600}tsukinomi-illustration--farewell[\s\S]{0,200}section-04-mountain-exchange\.webp/,
     );
     assert.match(tsukiExtra, /thank-you-haruto-hina-kaori\.(png|webp)/);
     assert.match(tsukiExtra, /alternate-future-haruto-kaori\.(png|webp)/);

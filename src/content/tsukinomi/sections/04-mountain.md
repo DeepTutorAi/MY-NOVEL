@@ -2520,7 +2520,7 @@ Kaori: "ดูแลตัวเองด้วยนะคะ คุณฮา�
 Haruto: "ครับ... ลาก่อนนะครับ คุณคาโอริ"
 
 <figure class="tsukinomi-illustration tsukinomi-illustration--farewell">
-  <img src="../../../assets/tsukinomi/images/extra/farewell-haruto-kaori.webp" width="1003" height="1569" alt="ฮารุโตะและคาโอริมองกันทั้งน้ำตาในวินาทีแห่งการจากลา" loading="lazy" decoding="async" />
+  <img src="../../../assets/tsukinomi/images/illustrations/section-04-mountain-exchange.webp" width="1122" height="1402" alt="ภาพแบ่งครึ่งใบหน้าฮารุโตะและคาโอริทั้งน้ำตา ในวินาทีแห่งการจากลา" loading="lazy" decoding="async" />
   <figcaption>คำลาที่ไม่มีมือข้างใดเอื้อมไปแตะกัน</figcaption>
 </figure>
 
