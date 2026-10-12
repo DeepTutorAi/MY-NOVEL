@@ -37,6 +37,7 @@ const epigraphText = epigraphFor(section.data.number);
       data-section-title={section.data.title}
       data-section-palette={section.data.palette}
       data-music-cue={section.data.musicCueId}
+      style={`--tape-divider-mark: url("${withBase("/assets/tsukinomi/icons/tape-divider.svg")}")`}
     >
       <SectionDropcap />
       <slot />

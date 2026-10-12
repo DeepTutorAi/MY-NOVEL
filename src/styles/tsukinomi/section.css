@@ -29,11 +29,14 @@
     var(--tsuki-paper);
 }
 
+/* The reading rail (ReadingProgress.astro, design 4.5): a thin track along the
+   top with a tick where each chapter begins, the drawn progress, and a small
+   lamp riding its head (--rail-progress, 0 to 1, set by the script). */
 .tsukinomi-reading-progress {
   position: fixed;
   inset: 0 0 auto;
   z-index: 30;
-  height: 2px;
+  height: 3px;
   background: rgba(232, 220, 196, 0.07);
   pointer-events: none;
 }
@@ -45,6 +48,34 @@
   background: var(--accent-warm);
   transform: scaleX(0);
   transform-origin: 0 50%;
+}
+
+.tsukinomi-rail-ticks {
+  position: absolute;
+  inset: 0;
+}
+
+.tsukinomi-rail-ticks > i {
+  position: absolute;
+  top: 0;
+  width: 1px;
+  height: 7px;
+  margin-left: -0.5px;
+  background: rgba(232, 220, 196, 0.45);
+}
+
+.tsukinomi-rail-head {
+  position: absolute;
+  top: -2px;
+  left: 0;
+  width: 7px;
+  height: 7px;
+  margin-left: -3.5px;
+  border-radius: 50%;
+  background: #fff1d6;
+  box-shadow: 0 0 8px 2px color-mix(in srgb, var(--accent-warm) 70%, transparent);
+  transform: translateX(calc(var(--rail-progress, 0) * 100vw));
+  opacity: calc(min(1, var(--rail-progress, 0) * 40));
 }
 
 .palette-snow-pact .tsukinomi-reading-progress span {
@@ -81,6 +112,151 @@ article.tsukinomi-section {
 .section-header {
   margin-bottom: 4rem;
   text-align: center;
+}
+
+/* ---- the station-name sign (SectionHeader.astro, design 4.5) ----------------------
+   A pale board with the part's name, its number above and its English name
+   below; a band along the bottom in the part's colour naming the neighbouring
+   stations as links. Text on the board is dark, so it keeps its contrast on the
+   pale paint. */
+.station-sign {
+  --sign-band: #26304a;
+  width: min(100%, 38rem);
+  margin: 0 auto;
+  border-radius: 3px;
+  overflow: hidden;
+  background: linear-gradient(170deg, #eeeae0, #cfcad8);
+  box-shadow:
+    0 1.6rem 3.4rem rgba(4, 3, 10, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.35);
+}
+
+.station-sign[data-palette="twilight"] {
+  --sign-band: #2e2a58;
+}
+
+.station-sign[data-palette="warm-room"] {
+  --sign-band: #5a3424;
+}
+
+.station-sign[data-palette="snow-pact"] {
+  --sign-band: #4a1c24;
+}
+
+.station-sign[data-palette="winter-light"] {
+  --sign-band: #2c3d56;
+}
+
+.station-sign__board {
+  padding: 1.6rem 1.4rem 1.2rem;
+}
+
+.station-sign__board .section-number,
+.palette-twilight .station-sign__board .section-number,
+.palette-winter-light .station-sign__board .section-number,
+.palette-snow-pact .station-sign__board .section-number {
+  color: color-mix(in srgb, var(--sign-band) 80%, #000);
+  font-size: 1.05rem;
+}
+
+.section-header .station-sign__board h1 {
+  color: #17131f;
+  text-shadow: none;
+}
+
+.station-sign__board .section-english {
+  margin-top: 0.55rem;
+  color: #4b4656;
+  letter-spacing: 0.12em;
+}
+
+.station-sign__band {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  border-top: 3px solid color-mix(in srgb, var(--sign-band) 70%, #fff);
+  background: var(--sign-band);
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+}
+
+.station-sign__neighbour {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 44px;
+  padding: 0.35rem 0.9rem;
+  color: #ece7f2;
+  text-align: left;
+  text-decoration: none;
+}
+
+.station-sign__neighbour.is-next {
+  justify-content: flex-end;
+  text-align: right;
+}
+
+a.station-sign__neighbour:hover,
+a.station-sign__neighbour:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+  color: #fff;
+}
+
+a.station-sign__neighbour:focus-visible {
+  outline: 2px solid #fff1d6;
+  outline-offset: -3px;
+}
+
+/* A station's name, not a link in running text: no underline (it wins over global.css's page link rule). */
+.section-header .station-sign a.station-sign__neighbour {
+  text-decoration: none;
+}
+
+/* ---- part to part: the page slides like a train into the next station ----------
+   part-transition.ts marks the root with the direction of the link followed. */
+@media (prefers-reduced-motion: no-preference) {
+  html[data-tsuki-part-nav="next"]::view-transition-old(root) {
+    animation: tsukinomi-depart-left 420ms cubic-bezier(0.55, 0.05, 0.3, 1) both;
+  }
+
+  html[data-tsuki-part-nav="next"]::view-transition-new(root) {
+    animation: tsukinomi-arrive-right 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  html[data-tsuki-part-nav="prev"]::view-transition-old(root) {
+    animation: tsukinomi-depart-right 420ms cubic-bezier(0.55, 0.05, 0.3, 1) both;
+  }
+
+  html[data-tsuki-part-nav="prev"]::view-transition-new(root) {
+    animation: tsukinomi-arrive-left 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+}
+
+@keyframes tsukinomi-depart-left {
+  to {
+    opacity: 0;
+    transform: translateX(-18%);
+  }
+}
+
+@keyframes tsukinomi-arrive-right {
+  from {
+    opacity: 0;
+    transform: translateX(22%);
+  }
+}
+
+@keyframes tsukinomi-depart-right {
+  to {
+    opacity: 0;
+    transform: translateX(18%);
+  }
+}
+
+@keyframes tsukinomi-arrive-left {
+  from {
+    opacity: 0;
+    transform: translateX(-22%);
+  }
 }
 
 .section-number {
@@ -170,13 +346,25 @@ article.tsukinomi-section .tsukinomi-illustration {
   margin: 3.25rem auto;
 }
 
+/* Illustrations as frames of film (design 4.5): the picture sits in a strip of
+   dark film with its sprocket holes down both edges, inside the figure's own
+   width, so its size and place in the text do not change. */
 article.tsukinomi-section .tsukinomi-illustration img {
+  --film: #100d12;
+  --hole: rgba(232, 220, 196, 0.42);
   display: block;
   width: 100%;
   height: auto;
-  border: 1px solid var(--tsuki-line);
-  background: #f7f5f0;
-  box-shadow: 0 1.4rem 3rem rgba(4, 3, 10, 0.2);
+  padding: 0.55rem 1.15rem;
+  border: 0;
+  border-radius: 2px;
+  background:
+    radial-gradient(ellipse 0.24rem 0.17rem at 50% 50%, var(--hole) 92%, transparent 100%) 0.33rem 0 / 0.5rem 0.95rem repeat-y,
+    radial-gradient(ellipse 0.24rem 0.17rem at 50% 50%, var(--hole) 92%, transparent 100%) calc(100% - 0.33rem) 0 / 0.5rem 0.95rem repeat-y,
+    var(--film);
+  box-shadow:
+    0 1.4rem 3rem rgba(4, 3, 10, 0.32),
+    inset 0 0 0 1px rgba(232, 220, 196, 0.06);
 }
 
 article.tsukinomi-section .tsukinomi-illustration figcaption {
@@ -186,6 +374,29 @@ article.tsukinomi-section .tsukinomi-illustration figcaption {
   font-size: 0.72rem;
   line-height: 1.5;
   text-align: center;
+}
+
+/* The frame develops as it comes into view: from a warm, soft, faded print to the picture. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    article.tsukinomi-section .tsukinomi-illustration img {
+      animation: tsukinomi-film-develop 1ms linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 38%;
+    }
+  }
+}
+
+@keyframes tsukinomi-film-develop {
+  from {
+    filter: sepia(0.7) brightness(1.25) contrast(0.8) blur(2px);
+    opacity: 0.35;
+  }
+
+  to {
+    filter: none;
+    opacity: 1;
+  }
 }
 
 article.tsukinomi-section h2 {
@@ -204,13 +415,39 @@ article.tsukinomi-section h2[id^="ch-"] {
   animation-range: entry 0% cover 24%;
 }
 
+/* A chapter begins at a mark of the tape (tape-divider.svg, its URL set on the
+   article by TsukinomiSectionLayout), drawn in the rail's colour with the
+   play-and-pause sign in the part's own. The scene breaks inside a chapter
+   keep their smaller .tape-divider. */
+article.tsukinomi-section h2[id^="ch-"]::before {
+  content: "";
+  display: block;
+  width: 220px;
+  max-width: 100%;
+  height: 28px;
+  margin: 0 auto 1.6rem;
+  background: linear-gradient(90deg, var(--rail) 0 40%, var(--chapter-mark, var(--sakura)) 40% 60%, var(--rail) 60%);
+  -webkit-mask: var(--tape-divider-mark) center / contain no-repeat;
+  mask: var(--tape-divider-mark) center / contain no-repeat;
+  opacity: 0.85;
+}
+
+.palette-twilight article.tsukinomi-section,
+.palette-winter-light article.tsukinomi-section {
+  --chapter-mark: var(--moon);
+}
+
+.palette-snow-pact article.tsukinomi-section {
+  --chapter-mark: var(--sunset-deep);
+}
+
 article.tsukinomi-section .resume-highlight {
   position: relative;
   border-radius: 8px;
   animation: tsukinomi-resume-highlight 3000ms ease-out both;
 }
 
-article.tsukinomi-section .resume-highlight::before {
+article.tsukinomi-section .resume-highlight::after {
   position: absolute;
   inset: -0.45rem -0.7rem;
   z-index: -1;
@@ -348,6 +585,18 @@ article.tsukinomi-section hr {
     font-size: clamp(1.85rem, 8vw, 2.35rem);
   }
 
+  .station-sign__band {
+    grid-template-columns: 1fr;
+  }
+
+  .station-sign__neighbour.is-empty {
+    display: none;
+  }
+
+  .station-sign__neighbour.is-next {
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
   .section-nav {
     gap: 1rem;
   }
@@ -367,7 +616,11 @@ article.tsukinomi-section hr {
     animation: none;
   }
 
-  article.tsukinomi-section .resume-highlight::before {
+  .tsukinomi-rail-head {
+    box-shadow: none;
+  }
+
+  article.tsukinomi-section .resume-highlight::after {
     box-shadow: none;
   }
 }

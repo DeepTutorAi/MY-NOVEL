@@ -1,5 +1,17 @@
 ---
-import type { CollectionEntry } from "astro:content";
+// The section page's header as a station-name sign (駅名標, design 4.5): the
+// part's title large on a pale board, its number above and its English name
+// below, and the coloured band along the bottom naming the neighbouring
+// stations, the previous and the next part, as links. The page's own
+// previous/next controls at the bottom (SectionNav.astro) stay; these are the
+// same two links at the top. Both carry data-part-nav, which part-transition.ts
+// reads to slide the page the right way.
+//
+// The neighbours are found here from the collection, so the page passes only
+// the section (the [slug] route's call is pinned by a contract test).
+import { getCollection, type CollectionEntry } from "astro:content";
+import { partLabel } from "../../../scripts/tsukinomi/home/concourse-core";
+import { withBase } from "../../../utils/base-path";
 import { formatReadingTime } from "../../../utils/reading-time";
 
 interface Props {
@@ -16,12 +28,43 @@ const chapterLinks =
   !isIntro && Number.isFinite(firstChapter) && Number.isFinite(lastChapter) && lastChapter >= firstChapter
     ? Array.from({ length: lastChapter - firstChapter + 1 }, (_, index) => ({ number: firstChapter + index }))
     : [];
+
+const sections = (await getCollection("tsukinomiSections")).sort((a, b) => a.data.number - b.data.number);
+const index = sections.findIndex((entry) => entry.id === section.id);
+const previous = index > 0 ? sections[index - 1] : undefined;
+const next = index >= 0 ? sections[index + 1] : undefined;
+const stationName = (entry: CollectionEntry<"tsukinomiSections">) =>
+  entry.data.number === 0 ? entry.data.title : `${partLabel(entry.data.number)}: ${entry.data.title}`;
 ---
 
 <header class="section-header">
-  <div class="section-number">{isIntro ? "Introduction" : `Section ${roman}`}</div>
-  <div class="section-english">{section.data.englishTitle}</div>
-  <h1>{section.data.title}</h1>
+  <div class="station-sign" data-palette={section.data.palette}>
+    <div class="station-sign__board">
+      <div class="section-number">{isIntro ? "Introduction" : `Section ${roman}`}</div>
+      <h1>{section.data.title}</h1>
+      <div class="section-english">{section.data.englishTitle}</div>
+    </div>
+    <nav class="station-sign__band" aria-label="ภาคก่อนหน้าและภาคถัดไป">
+      {
+        previous ? (
+          <a class="station-sign__neighbour is-previous" href={withBase(`/tsukinomi/sections/${previous.id}/`)} rel="prev" data-part-nav="prev">
+            <span aria-hidden="true">←</span> {stationName(previous)}
+          </a>
+        ) : (
+          <span class="station-sign__neighbour is-empty" aria-hidden="true" />
+        )
+      }
+      {
+        next ? (
+          <a class="station-sign__neighbour is-next" href={withBase(`/tsukinomi/sections/${next.id}/`)} rel="next" data-part-nav="next">
+            {stationName(next)} <span aria-hidden="true">→</span>
+          </a>
+        ) : (
+          <span class="station-sign__neighbour is-empty" aria-hidden="true" />
+        )
+      }
+    </nav>
+  </div>
   <div class="section-range">{section.data.chapterRange} · {formatReadingTime(section.data.readingMinutes)}</div>
   {
     chapterLinks.length > 0 && (
@@ -37,3 +80,7 @@ const chapterLinks =
     )
   }
 </header>
+
+<script>
+  import "../../../scripts/tsukinomi/reading/part-transition";
+</script>

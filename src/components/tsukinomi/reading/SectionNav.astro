@@ -20,7 +20,7 @@ const { previous, next } = Astro.props;
     <div>
       {
         previous ? (
-          <a href={withBase(`/tsukinomi/sections/${previous.id}/`)}>
+          <a href={withBase(`/tsukinomi/sections/${previous.id}/`)} rel="prev" data-part-nav="prev">
             ← {previous.data.number === 0 ? "บทนำ" : `ภาค ${previous.data.number}`}: {previous.data.title}
           </a>
         ) : (
@@ -31,7 +31,7 @@ const { previous, next } = Astro.props;
     <div>
       {
         next ? (
-          <a href={withBase(`/tsukinomi/sections/${next.id}/`)}>
+          <a href={withBase(`/tsukinomi/sections/${next.id}/`)} rel="next" data-part-nav="next">
             {next.data.number === 0 ? "บทนำ" : `ภาค ${next.data.number}`}: {next.data.title} →
           </a>
         ) : (

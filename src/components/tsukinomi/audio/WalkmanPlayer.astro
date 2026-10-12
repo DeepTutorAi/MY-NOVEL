@@ -1,3 +1,21 @@
+---
+// The Walkman panel. Its cassette (design 4.5) lists the five parts as tracks,
+// each with the part's music cue and reading time from the section metadata;
+// pressing a track switches the Walkman to that cue.
+import { getCollection } from "astro:content";
+import { getMusicCue, isMusicCueId } from "../../../data/tsukinomi/music-cues";
+import { partLabel } from "../../../scripts/tsukinomi/home/concourse-core";
+import { formatReadingTime } from "../../../utils/reading-time";
+
+const tracks = (await getCollection("tsukinomiSections"))
+  .sort((a, b) => a.data.number - b.data.number)
+  .flatMap(({ data }) => {
+    const cue = data.musicCueId;
+    if (data.number < 1 || !isMusicCueId(cue)) return [];
+    return [{ cue, part: partLabel(data.number), title: getMusicCue(cue).title, time: formatReadingTime(data.readingMinutes) }];
+  });
+---
+
 <div
   id="tsukinomi-walkman-panel"
   class="walkman-player"
@@ -38,6 +56,25 @@
       </svg>
     </button>
   </div>
+
+  {
+    tracks.length > 0 && (
+      <div class="walkman-cassette">
+        <p class="walkman-cassette-label" aria-hidden="true">Side A</p>
+        <ol class="walkman-tracks" aria-label="เพลงประจำภาค">
+          {tracks.map((track) => (
+            <li>
+              <button class="walkman-track" type="button" data-walkman-track={track.cue} aria-pressed="false">
+                <span class="walkman-track-part">{track.part}</span>
+                <span class="walkman-track-title">{track.title}</span>
+                <span class="walkman-track-time">{track.time}</span>
+              </button>
+            </li>
+          ))}
+        </ol>
+      </div>
+    )
+  }
 
   <label class="walkman-field">
     <span>Music</span>
@@ -131,6 +168,7 @@
       backdropToggle: root?.querySelector("[data-backdrop-toggle]"),
       soundscapeToggles: root?.querySelectorAll("[data-soundscape-toggle]"),
       soundscapeSliders: root?.querySelectorAll("[data-soundscape-volume]"),
+      tracks: root?.querySelectorAll<HTMLButtonElement>("[data-walkman-track]"),
     };
   };
 
@@ -202,7 +240,7 @@
   };
 
   const syncState = () => {
-    const { root, corner, mobileTrigger, play, cue, status, musicSlider, backdropToggle, soundscapeToggles, soundscapeSliders } =
+    const { root, corner, mobileTrigger, play, cue, status, musicSlider, backdropToggle, soundscapeToggles, soundscapeSliders, tracks } =
       getElements();
     const enabled = walkmanAudio.isEnabled();
     const currentCue = getMusicCue(walkmanAudio.getCurrentCue());
@@ -222,6 +260,10 @@
     if (cue instanceof HTMLElement) {
       cue.textContent = currentCue.label;
     }
+
+    tracks?.forEach((track) => {
+      track.setAttribute("aria-pressed", String(track.dataset.walkmanTrack === currentCue.id));
+    });
 
     if (status instanceof HTMLElement) {
       status.textContent = statusText(enabled, currentCue.label);
@@ -328,6 +370,15 @@
     next.addEventListener("click", () => {
       walkmanAudio.nextCue();
       syncState();
+    });
+
+    getElements().tracks?.forEach((track) => {
+      track.addEventListener("click", () => {
+        const id = track.dataset.walkmanTrack;
+        if (!id || !isMusicCueId(id)) return;
+        walkmanAudio.setCue(id);
+        syncState();
+      });
     });
 
     musicSlider.addEventListener("input", () => {
@@ -447,6 +498,87 @@
     opacity: 1;
     pointer-events: auto;
     transform: translateY(0);
+  }
+
+  /* The panel scrolls inside itself on a short screen rather than running off it. */
+  .walkman-player {
+    max-height: calc(100dvh - 7rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+
+  /* The cassette: the five parts as tracks on side A, the current one lit. */
+  .walkman-cassette {
+    margin: 0 0 0.9rem;
+    padding: 0.55rem 0.6rem 0.4rem;
+    border: 1px solid rgba(224, 163, 106, 0.24);
+    border-radius: 6px;
+    background:
+      linear-gradient(180deg, rgba(232, 220, 196, 0.06), transparent 40%),
+      rgba(10, 8, 6, 0.55);
+  }
+
+  .walkman-cassette-label {
+    margin: 0 0 0.3rem;
+    color: var(--sunset);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+  }
+
+  .walkman-tracks {
+    display: grid;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+
+  .walkman-track {
+    display: grid;
+    grid-template-columns: 3.4rem minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 0.5rem;
+    width: 100%;
+    min-height: 44px;
+    padding: 0 0.35rem;
+    border-radius: 4px;
+    color: var(--tsuki-ink-dim);
+    font-size: 0.8rem;
+    text-align: left;
+    cursor: pointer;
+  }
+
+  .walkman-tracks li + li .walkman-track {
+    border-top: 1px dashed rgba(232, 220, 196, 0.1);
+  }
+
+  .walkman-track:hover,
+  .walkman-track:focus-visible {
+    color: var(--tsuki-ink);
+    background: rgba(232, 220, 196, 0.06);
+  }
+
+  .walkman-track[aria-pressed="true"] {
+    color: var(--tsuki-ink);
+  }
+
+  .walkman-track[aria-pressed="true"] .walkman-track-part::before {
+    content: "▶︎ ";
+    color: var(--sunset);
+  }
+
+  .walkman-track-part,
+  .walkman-track-time {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+  }
+
+  .walkman-track-title {
+    overflow: hidden;
+    font-family: var(--font-display-tsukinomi);
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .walkman-player-head {

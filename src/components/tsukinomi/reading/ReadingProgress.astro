@@ -1,5 +1,9 @@
-<div class="tsukinomi-reading-progress" aria-hidden="true">
+<!-- The reading rail (design 4.5): the drawn progress, a tick where each chapter begins
+     (placed by the script from the chapter headings), and a lamp riding the head. -->
+<div class="tsukinomi-reading-progress" aria-hidden="true" data-tsukinomi-rail>
   <span data-tsukinomi-reading-progress></span>
+  <i class="tsukinomi-rail-ticks" data-tsukinomi-rail-ticks></i>
+  <b class="tsukinomi-rail-head"></b>
 </div>
 
 <script>
@@ -37,8 +41,11 @@
       return;
     }
 
+    const rail = document.querySelector("[data-tsukinomi-rail]");
+    const ticks = document.querySelector("[data-tsukinomi-rail-ticks]");
     let ticking = false;
     let lastSavedAt = 0;
+    let tickLayoutKey = "";
     const sectionId = article.dataset.sectionId ?? "";
     const sectionKey = sectionId ? `tsukinomi:reading:section:${sectionId}` : "";
     const enteredAt = Date.now();
@@ -143,9 +150,32 @@
       }
     };
 
+    // A tick on the rail where each chapter begins, in the same scroll fraction the progress uses.
+    // Placed again only when the article's height or the window's changes (text size, fonts, rotation).
+    const placeTicks = () => {
+      if (!(ticks instanceof HTMLElement)) return;
+      const key = `${article.offsetHeight}x${window.innerHeight}`;
+      if (key === tickLayoutKey) return;
+      tickLayoutKey = key;
+      const scrollable = Math.max(1, article.offsetHeight - window.innerHeight);
+      const articleTop = article.getBoundingClientRect().top;
+      const marks = Array.from(article.querySelectorAll<HTMLElement>(':scope > h2[id^="ch-"]')).map((heading) => {
+        // Where the progress stands when the heading has come a third of the way up the screen.
+        const offset = heading.getBoundingClientRect().top - articleTop;
+        const at = Math.min(1, Math.max(0, (offset - window.innerHeight * 0.35) / scrollable));
+        const tick = document.createElement("i");
+        tick.style.left = `${(at * 100).toFixed(3)}%`;
+        return tick;
+      });
+      ticks.replaceChildren(...marks);
+    };
+
     const update = () => {
       const ratio = getRatio();
-      progressBar.style.transform = `scaleX(${Math.max(0, Math.min(1, ratio))})`;
+      const clamped = Math.max(0, Math.min(1, ratio));
+      progressBar.style.transform = `scaleX(${clamped})`;
+      if (rail instanceof HTMLElement) rail.style.setProperty("--rail-progress", clamped.toFixed(4));
+      placeTicks();
       saveProgress(ratio);
       ticking = false;
     };
