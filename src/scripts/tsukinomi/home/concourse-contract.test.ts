@@ -72,31 +72,38 @@ describe("the page keeps its hero", () => {
   });
 });
 
-describe("the mount point for the passing train", () => {
-  const markup = hero(read(PAGE));
-  const mount = /<div\s[^>]*data-train-mount[^>]*><\/div>/.exec(markup)?.[0] ?? "";
+describe("the mount point for the home sky", () => {
+  const page = read(PAGE);
+  const main = page.slice(page.indexOf('<main id="tsukinomi-main"'), page.indexOf("</main>"));
+  const mount = /<div\s[^>]*data-moonsea-mount[^>]*><\/div>/.exec(main)?.[0] ?? "";
 
-  it("is an empty, aria-hidden container inside the hero, after the copy", () => {
-    assert.ok(mount, "an empty <div data-train-mount ...></div> in the hero");
+  it("is an empty, aria-hidden container first in the main landmark, outside the hero and before the tint", () => {
+    assert.ok(mount, "an empty <div data-moonsea-mount ...></div> in main");
     assert.match(mount, /aria-hidden="true"/);
-    assert.match(mount, /class="tsukinomi-home-train-mount"/);
-    assert.ok(markup.indexOf("data-train-mount") > markup.indexOf("tsukinomi-home-copy"));
+    assert.match(mount, /class="tsuki-moonsea"/);
+    assert.ok(!hero(page).includes("data-moonsea-mount"), "not inside the hero");
+    assert.ok(main.indexOf("data-moonsea-mount") < main.indexOf("data-concourse-tint"), "painted under the tint");
   });
 
-  it("is styled to take no pointer, lie under the copy and cover the lower band", () => {
+  it("is styled fixed behind everything, taking no pointer, and so is its canvas", () => {
     const css = read(CSS);
-    const rule = /\.tsukinomi-home-train-mount\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
-    assert.match(rule, /pointer-events:\s*none/);
-    assert.match(rule, /position:\s*absolute/);
+    const rule = /\.tsuki-moonsea\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
+    assert.match(rule, /position:\s*fixed/);
+    assert.match(rule, /inset:\s*0/);
     assert.match(rule, /z-index:\s*0/);
-    assert.match(rule, /width:\s*100vw/);
+    assert.match(rule, /pointer-events:\s*none/);
+    assert.match(css, /\.tsuki-moonsea__canvas\s*\{[^}]*pointer-events:\s*none/);
     assert.match(css, /\.tsukinomi-home-page \.tsukinomi-home-copy\s*\{[^}]*z-index:\s*1/);
   });
 
-  it("is hidden where the train is skipped", () => {
-    const css = read(CSS);
-    const landscape = css.slice(css.indexOf("@media (orientation: landscape) and (max-height: 500px)"));
-    assert.match(landscape, /\.tsukinomi-home-train-mount\s*\{[^}]*display:\s*none/);
+  it("stands in for the sakura backdrop only while it is up", () => {
+    assert.match(read(CSS), /body\.tsuki-moonsea-live \.sakura-backdrop\s*\{[^}]*display:\s*none/);
+    const backdrop = read("src/components/tsukinomi/atmosphere/SakuraTwilightBackdrop.astro");
+    assert.match(backdrop, /classList\.contains\("tsuki-moonsea-live"\)/);
+  });
+
+  it("is started by the concourse script with the furthest part read", () => {
+    assert.match(read(SCRIPT), /startMoonsea\(\{ mount: document\.querySelector<HTMLElement>\("\[data-moonsea-mount\]"\), furthestRead: state\.furthestRead \}\)/);
   });
 });
 
@@ -117,10 +124,10 @@ describe("the stylesheet", () => {
     }
   });
 
-  it("keeps the concourse and the hero above the tint, which is the only fixed layer", () => {
+  it("keeps the concourse and the hero above the sky and the tint, the only fixed layers", () => {
     assert.match(css, /\.tsuki-concourse-tint\s*\{[^}]*position:\s*fixed[^}]*z-index:\s*0/);
     assert.match(css, /\.tsuki-concourse\s*\{[^}]*z-index:\s*1/);
-    assert.equal((css.match(/position:\s*fixed/g) ?? []).length, 1, "only the tint is fixed");
+    assert.equal((css.match(/position:\s*fixed/g) ?? []).length, 2, "only the sky and the tint are fixed");
     assert.match(css, /\.tsuki-concourse-tint\s*\{[^}]*pointer-events:\s*none/);
   });
 
@@ -205,12 +212,10 @@ describe("interface copy", () => {
 });
 
 describe("assets", () => {
-  it("references no asset beyond the illustrations folder the plan lists", () => {
-    for (const path of [...COMPONENTS, SCRIPT, CORE, CSS]) {
+  it("references no asset file: the board, the rail and the sky are drawn, not loaded", () => {
+    for (const path of [...COMPONENTS, SCRIPT, CORE, CSS, PAGE]) {
       const refs = withoutComments(read(path)).match(/\/?assets\/[A-Za-z0-9_\-./]+/g) ?? [];
-      for (const ref of refs) assert.ok(ref.includes("assets/tsukinomi/images/illustrations"), `${path} references ${ref}`);
+      assert.deepEqual(refs, [], path);
     }
-    const page = withoutComments(read(PAGE));
-    assert.match(page, /ILLUSTRATIONS_PATH = "assets\/tsukinomi\/images\/illustrations"/);
   });
 });

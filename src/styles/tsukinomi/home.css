@@ -1,6 +1,6 @@
-/* The /tsukinomi/ home concourse (design 4.4): the hero's train band, the
-   departure board, the rail line and the page tint. Imported by the components
-   under src/components/tsukinomi/home/. Rules are scoped by .tsuki-concourse or
+/* The /tsukinomi/ home: the sky behind everything, the departure board, the
+   rail line and the page tint. Imported by the components under
+   src/components/tsukinomi/home/. Rules are scoped by .tsuki-concourse or
    .tsukinomi-home-page so they win over global.css's `.tsukinomi-page a`.
 
    Every state the script adds is a refinement of a finished picture: with no
@@ -10,56 +10,61 @@
    Layout switches
      wide (default)            horizontal rail
      max-width: 760px          vertical rail, stacked board rows (mobile portrait)
-     SHORT_LANDSCAPE_QUERY     no train band; the board is shown directly
+     SHORT_LANDSCAPE_QUERY     compact hero; the board is shown directly
    SHORT_LANDSCAPE_QUERY is the string in concourse-core.ts (a test keeps them equal). */
 
-/* ---- hero: the band the passing train uses ---------------------------------
-   The band is the lowest part of the first screen, under the hero copy, where
-   the plate's platform is. It replaces the wrapper's old bottom padding, so the
-   copy sits where it always did. */
+/* ---- the sky (moonsea-scene.ts) ------------------------------------------------
+   Empty, aria-hidden, fixed to the viewport behind the hero and the concourse,
+   never takes a pointer (the scene listens on the window). Its canvas is added
+   by the script; until then, and if it never comes, the sakura backdrop shows. */
 
-.tsukinomi-home-page {
-  --tsuki-train-band: clamp(7rem, 18svh, 11rem);
-  /* Distance from the viewport's edge to the home column's edge, to bleed the mount to the edge. */
-  --tsuki-home-inset: max(16px, calc((100vw - 1120px) / 2));
-}
-
-.tsukinomi-home-page .tsukinomi-home {
-  padding-bottom: 0;
-}
-
-.tsukinomi-home-page .tsukinomi-home-hero {
-  position: relative;
-  padding-bottom: var(--tsuki-train-band);
-}
-
-.tsukinomi-home-page .tsukinomi-home-copy {
-  position: relative;
-  z-index: 1;
-}
-
-/* Empty, aria-hidden, never takes a pointer: the passing train fills it. It is
-   as wide as the viewport and lies under the hero copy in paint order. Its top
-   edge stays 0.75rem clear of the copy even when the copy fills the hero. */
-.tsukinomi-home-train-mount {
-  position: absolute;
-  bottom: 0;
-  left: calc(-1 * var(--tsuki-home-inset));
+.tsuki-moonsea {
+  position: fixed;
+  inset: 0;
   z-index: 0;
-  width: 100vw;
-  height: calc(var(--tsuki-train-band) - 0.75rem);
-  overflow: hidden;
   pointer-events: none;
 }
 
-/* The train's canvas (train-scene.ts) fills the mount; it is added for one pass and removed after. */
-.tsukinomi-home-train-mount canvas {
+.tsuki-moonsea__canvas {
   position: absolute;
   inset: 0;
   display: block;
   width: 100%;
   height: 100%;
   pointer-events: none;
+  animation: tsuki-sky-in 1200ms ease-out both;
+}
+
+@keyframes tsuki-sky-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The sky replaces the site-wide backdrop on this page while it is up. */
+body.tsuki-moonsea-live .sakura-backdrop {
+  display: none;
+}
+
+/* The copy stands above the platform, and over the darkened left of the sky. */
+.tsukinomi-home-page .tsukinomi-home {
+  padding-bottom: clamp(4.5rem, 15svh, 9rem);
+}
+
+.tsukinomi-home-page .tsukinomi-home-hero {
+  position: relative;
+}
+
+.tsukinomi-home-page .tsukinomi-home-copy {
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 1px 18px rgba(6, 5, 14, 0.85);
+}
+
+.tsukinomi-home-page .tsukinomi-home h1 {
+  text-shadow:
+    0 0 28px rgba(230, 166, 189, 0.18),
+    0 2px 24px rgba(6, 5, 14, 0.9);
 }
 
 /* Hero actions: 44 px touch targets (global.css makes them 42 px). */
@@ -119,23 +124,73 @@
   gap: 1.1rem;
 }
 
+.tsuki-concourse .tsuki-board {
+  gap: 0;
+}
+
+/* The board's header: its name, the station's own sign, and the time. */
+.tsuki-concourse .tsuki-board-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 1.1rem;
+  padding: 0.75rem 1.2rem;
+  border: 1px solid var(--tsuki-line);
+  border-bottom: 0;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 60%),
+    color-mix(in srgb, #06050c 88%, var(--surface) 12%);
+}
+
 .tsuki-concourse .tsuki-board-title {
   margin: 0;
-  color: var(--concourse-dim);
+  color: var(--concourse-ink);
   font-family: var(--font-mono);
-  font-size: 0.78rem;
+  font-size: 0.82rem;
   font-weight: 400;
   line-height: 1.4;
+  letter-spacing: 0.08em;
+}
+
+.tsuki-concourse .tsuki-board-sign {
+  color: var(--concourse-dim);
+  font-family: var(--font-jp);
+  font-size: 0.82rem;
+  letter-spacing: 0.3em;
+}
+
+.tsuki-concourse .tsuki-board-sign-en {
+  margin-left: 0.4rem;
+  font-family: var(--font-mono);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.tsuki-concourse .tsuki-board-now {
+  margin-left: auto;
+  color: var(--lamp);
+  font-family: var(--font-mono);
+  font-size: 1.02rem;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.12em;
+  text-shadow: 0 0 0.6rem color-mix(in srgb, var(--lamp) 55%, transparent);
 }
 
 .tsuki-concourse .tsuki-board-rows {
+  position: relative;
   display: grid;
   margin: 0;
   padding: 0;
   list-style: none;
   border: 1px solid var(--tsuki-line);
-  background: color-mix(in srgb, var(--bg-night) 78%, var(--surface) 22%);
-  box-shadow: 0 1.4rem 3.4rem rgba(4, 3, 10, 0.4);
+  background:
+    repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.012) 0 1px, transparent 1px 3px),
+    color-mix(in srgb, #07060e 86%, var(--surface) 14%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 1.4rem 3.4rem rgba(4, 3, 10, 0.55),
+    0 0 4rem color-mix(in srgb, var(--lamp) 4%, transparent);
 }
 
 .tsuki-concourse .tsuki-board-row + .tsuki-board-row {
@@ -153,32 +208,91 @@
   text-decoration: none;
 }
 
+.tsuki-concourse a.tsuki-board-link {
+  position: relative;
+  transition: background-color 220ms ease;
+}
+
+/* The row under the pointer lights like the next departure. */
+.tsuki-concourse a.tsuki-board-link::before {
+  content: "";
+  position: absolute;
+  top: 0.7rem;
+  bottom: 0.7rem;
+  left: 0;
+  width: 2px;
+  background: var(--lamp);
+  box-shadow: 0 0 0.8rem var(--lamp);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
 .tsuki-concourse a.tsuki-board-link:hover,
 .tsuki-concourse a.tsuki-board-link:focus-visible {
-  background: color-mix(in srgb, var(--sakura) 7%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--lamp) 9%, transparent), color-mix(in srgb, var(--sakura) 4%, transparent) 60%, transparent);
   color: var(--concourse-ink);
+}
+
+.tsuki-concourse a.tsuki-board-link:hover::before,
+.tsuki-concourse a.tsuki-board-link:focus-visible::before {
+  opacity: 1;
 }
 
 .tsuki-concourse a.tsuki-board-link:focus-visible {
   outline-offset: -3px;
 }
 
-/* The clock cell: amber digits on a split-flap card. */
+/* The clock cell: amber digits, each on its own split-flap card (board-flaps.ts flips them). */
 .tsuki-concourse .tsuki-board-clock {
-  display: inline-block;
-  padding: 0.28rem 0.5rem;
-  border: 1px solid color-mix(in srgb, var(--mist) 14%, transparent);
-  background:
-    linear-gradient(180deg, transparent calc(50% - 0.5px), rgba(0, 0, 0, 0.55) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(0, 0, 0, 0.28)),
-    var(--bg-night);
+  display: inline-flex;
+  gap: 2px;
+  justify-self: start;
   color: var(--lamp);
   font-family: var(--font-mono);
   font-size: 1.28rem;
   line-height: 1.3;
-  letter-spacing: 0.06em;
-  text-align: center;
   font-variant-numeric: tabular-nums;
+  perspective: 240px;
+}
+
+.tsuki-concourse .tsuki-flap {
+  display: inline-block;
+  min-width: 0.95em;
+  padding: 0.22rem 0.08rem;
+  border-radius: 2px;
+  background:
+    linear-gradient(180deg, transparent calc(50% - 0.5px), rgba(0, 0, 0, 0.7) calc(50% - 0.5px) calc(50% + 0.5px), transparent calc(50% + 0.5px)),
+    linear-gradient(180deg, #1d1a28 0 50%, #15131e 50% 100%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 1px 2px rgba(0, 0, 0, 0.6);
+  text-align: center;
+  text-shadow: 0 0 0.5rem color-mix(in srgb, var(--lamp) 45%, transparent);
+  transform-origin: 50% 50%;
+}
+
+/* The colon and the last train's dashes are printed on the board, not cards. */
+.tsuki-concourse .tsuki-flap[data-flap=":"] {
+  min-width: 0.4em;
+  padding-inline: 0;
+  background: none;
+  box-shadow: none;
+}
+
+.tsuki-concourse .tsuki-flap.is-flipping {
+  animation: tsuki-flap 110ms ease-out;
+}
+
+@keyframes tsuki-flap {
+  from {
+    transform: rotateX(-78deg);
+    filter: brightness(1.6);
+  }
+
+  to {
+    transform: none;
+    filter: none;
+  }
 }
 
 .tsuki-concourse .tsuki-board-label {
@@ -495,10 +609,6 @@
 /* ---- mobile portrait: vertical rail, stacked rows ----------------------------------------- */
 
 @media (max-width: 760px) {
-  .tsukinomi-home-page {
-    --tsuki-home-inset: max(12px, calc((100vw - 620px) / 2));
-  }
-
   .tsuki-concourse {
     width: min(100% - 24px, 620px);
     padding-bottom: 7rem;
@@ -617,20 +727,12 @@
   }
 }
 
-/* ---- short landscape: no train, the board is shown directly --------------------------------------
+/* ---- short landscape: a compact hero, the board is shown directly --------------------------------------
    Must equal SHORT_LANDSCAPE_QUERY in concourse-core.ts. */
 
 @media (orientation: landscape) and (max-height: 500px) {
-  .tsukinomi-home-page {
-    --tsuki-train-band: 0px;
-  }
-
   .tsukinomi-home-page .tsukinomi-home {
     padding-bottom: 28px;
-  }
-
-  .tsukinomi-home-train-mount {
-    display: none;
   }
 
   .tsuki-concourse {
@@ -651,6 +753,16 @@
 /* ---- reduced motion: the finished picture, nothing moving --------------------------------------------- */
 
 @media (prefers-reduced-motion: reduce) {
+  .tsuki-moonsea__canvas,
+  .tsuki-concourse .tsuki-flap.is-flipping {
+    animation: none;
+  }
+
+  .tsuki-concourse a.tsuki-board-link,
+  .tsuki-concourse a.tsuki-board-link::before {
+    transition: none;
+  }
+
   .tsuki-concourse .tsuki-board[data-armed] .tsuki-board-row,
   .tsuki-concourse .tsuki-board[data-armed].is-settled .tsuki-board-row {
     opacity: 1;

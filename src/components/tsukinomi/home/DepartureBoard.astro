@@ -5,7 +5,11 @@
 // buildBoardRows() so title, chapter range and reading time are the section
 // metadata as written. The clock cell is decoration (aria-hidden): a screen
 // reader gets the reading time in words, the way the table of contents says it.
-// concourse.ts adds each row's read state and settles the rows into view.
+// Its characters are split-flap cards (data-flap holds each card's own value)
+// that board-flaps.ts flips the first time the board comes into view; the
+// header's station clock (data-board-now) shows the reader's time. Both are
+// aria-hidden decoration. concourse.ts adds each row's read state and settles
+// the rows into view.
 import type { BoardRow } from "../../../scripts/tsukinomi/home/concourse-core";
 import "../../../styles/tsukinomi/home.css";
 import { withBase } from "../../../utils/base-path";
@@ -19,7 +23,11 @@ const TITLE_ID = "tsuki-board-title";
 ---
 
 <div class="tsuki-board" data-board>
-  <h2 class="tsuki-board-title" id={TITLE_ID}>สารบัญ</h2>
+  <div class="tsuki-board-head">
+    <h2 class="tsuki-board-title" id={TITLE_ID}>สารบัญ</h2>
+    <span class="tsuki-board-sign" aria-hidden="true" lang="ja">発車案内 <span class="tsuki-board-sign-en">Departures</span></span>
+    <span class="tsuki-board-now" aria-hidden="true" data-board-now>--:--</span>
+  </div>
   <ol class="tsuki-board-rows" aria-labelledby={TITLE_ID}>
     {
       rows.map((row, index) =>
@@ -32,7 +40,9 @@ const TITLE_ID = "tsuki-board-title";
             style={`--row-index:${index}`}
           >
             <a class="tsuki-board-link" href={withBase(`/tsukinomi/sections/${row.id}/`)}>
-              <span class="tsuki-board-clock" aria-hidden="true">{row.clock}</span>
+              <span class="tsuki-board-clock" aria-hidden="true" data-flaps>
+                {[...row.clock].map((glyph) => <span class="tsuki-flap" data-flap={glyph}>{glyph}</span>)}
+              </span>
               {/* The prologue is titled "บทนำ" like its label: say it once. The span stays, it carries the read lamp. */}
               <span class="tsuki-board-label">{row.label === row.title ? "" : row.label}</span>
               <span class="tsuki-board-name">{row.title}</span>
@@ -48,7 +58,9 @@ const TITLE_ID = "tsuki-board-title";
         ) : (
           <li class="tsuki-board-row is-last" style={`--row-index:${index}`}>
             <div class="tsuki-board-link">
-              <span class="tsuki-board-clock" aria-hidden="true">{row.clock}</span>
+              <span class="tsuki-board-clock" aria-hidden="true">
+                {[...row.clock].map((glyph) => <span class="tsuki-flap" data-flap={glyph}>{glyph}</span>)}
+              </span>
               <span class="tsuki-board-name">{row.title}</span>
             </div>
           </li>
@@ -57,3 +69,7 @@ const TITLE_ID = "tsuki-board-title";
     }
   </ol>
 </div>
+
+<script>
+  import "../../../scripts/tsukinomi/home/board-flaps";
+</script>

@@ -18,13 +18,9 @@ import {
   STATION_COUNT,
   TINT_MAX_ALPHA,
   buildBoardRows,
-  buildIllustrationCatalog,
   deriveReadState,
   formatClock,
-  illustrationPart,
-  illustrationsUpTo,
   markerStation,
-  parseChapterRange,
   parseJson,
   partLabel,
   railProgress,
@@ -345,7 +341,6 @@ describe("deriveReadState", () => {
     assert.equal(state.status[0], "read");
     assert.equal(state.furthestRead, 0);
     assert.equal(markerStation(state.furthestRead), null);
-    assert.deepEqual(illustrationsUpTo(buildIllustrationCatalog(["section-01-a.webp"], SECTIONS), state.furthestRead), []);
   });
 
   it("derives the same state from parsed values as from storage", () => {
@@ -678,138 +673,6 @@ describe("the tint never costs text its contrast", () => {
         assert.ok(contrast(hex("--ink-muted"), tinted) >= 4.5, `ink-muted on ${ground} + ${palette}`);
       }
     }
-  });
-});
-
-// ---- illustrations and the spoiler rule ------------------------------------
-
-describe("parseChapterRange", () => {
-  it("reads the ranges the metadata uses", () => {
-    assert.deepEqual(parseChapterRange("บทที่ 1–3"), { from: 1, to: 3 });
-    assert.deepEqual(parseChapterRange("บทที่ 11–16"), { from: 11, to: 16 });
-    assert.deepEqual(parseChapterRange("บทที่ 7-10"), { from: 7, to: 10 });
-    assert.deepEqual(parseChapterRange("บทที่ 5"), { from: 5, to: 5 });
-  });
-
-  it("answers null for the prologue's range and for nonsense", () => {
-    assert.equal(parseChapterRange("เกริ่นนำ"), null);
-    assert.equal(parseChapterRange(""), null);
-    assert.equal(parseChapterRange("บทที่ 9–2"), null);
-  });
-});
-
-describe("illustration to part mapping", () => {
-  const DIR = "public/assets/tsukinomi/images/illustrations";
-  const files = readdirSync(join(root, DIR)).filter((name) => name.endsWith(".webp"));
-  const catalog = buildIllustrationCatalog(files, SECTIONS);
-
-  it("finds the 18 illustrations", () => {
-    assert.equal(files.length, 18);
-    assert.equal(catalog.length, 18);
-  });
-
-  it("places every one in a part from 1 to 5", () => {
-    for (const entry of catalog) {
-      assert.ok(entry.part !== null && entry.part >= 1 && entry.part <= 5, `${entry.file} -> ${entry.part}`);
-    }
-  });
-
-  it("agrees with the section each one is actually embedded in", () => {
-    for (const entry of catalog) {
-      const hosts = SECTIONS.filter((section) => bodies.get(section.id)!.includes(`illustrations/${entry.file}`));
-      assert.equal(hosts.length, 1, `${entry.file} is embedded in ${hosts.length} sections`);
-      assert.equal(entry.part, hosts[0].number, entry.file);
-    }
-  });
-
-  it("covers every part from 1 to 5 at least once", () => {
-    assert.deepEqual(
-      [...new Set(catalog.map((entry) => entry.part))],
-      [1, 2, 3, 4, 5],
-    );
-  });
-
-  it("derives chapter-NN files from the chapter ranges, not a table", () => {
-    assert.equal(illustrationPart("chapter-03-empty-station.webp", SECTIONS), 1);
-    assert.equal(illustrationPart("chapter-06-microfilm-research-akira-screen.webp", SECTIONS), 2);
-    assert.equal(illustrationPart("chapter-09-river-confession.webp", SECTIONS), 3);
-    assert.equal(illustrationPart("chapter-11-abandoned-village.webp", SECTIONS), 4);
-    assert.equal(illustrationPart("chapter-16-first-frost-no-reflection.webp", SECTIONS), 4);
-    assert.equal(illustrationPart("chapter-17-sketchbook.webp", SECTIONS), 5);
-    // Renumber the ranges and the illustration follows the chapter.
-    const shifted = SECTIONS.map((section) => (section.number === 5 ? { ...section, chapterRange: "บทที่ 16–18" } : section.number === 4 ? { ...section, chapterRange: "บทที่ 11–15" } : section));
-    assert.equal(illustrationPart("chapter-16-first-frost-no-reflection.webp", shifted), 5);
-  });
-
-  it("reads section-0N files by their number and accepts a path", () => {
-    assert.equal(illustrationPart("section-02-rooftop-research.webp", SECTIONS), 2);
-    assert.equal(illustrationPart("/assets/tsukinomi/images/illustrations/section-04-hina.webp", SECTIONS), 4);
-  });
-
-  it("gives null to names it cannot place, and to parts that do not exist", () => {
-    assert.equal(illustrationPart("portrait-haruto.webp", SECTIONS), null);
-    assert.equal(illustrationPart("chapter-99-lost.webp", SECTIONS), null);
-    assert.equal(illustrationPart("section-09-lost.webp", SECTIONS), null);
-    assert.equal(illustrationPart("section-1-short.webp", SECTIONS), null);
-    assert.equal(illustrationPart("", SECTIONS), null);
-  });
-
-  it("orders the catalog by part, then name, with unplaced files last", () => {
-    const sorted = buildIllustrationCatalog(["z-unknown.webp", "section-02-b.webp", "section-01-b.webp", "section-01-a.webp"], SECTIONS);
-    assert.deepEqual(
-      sorted.map((entry) => entry.file),
-      ["section-01-a.webp", "section-01-b.webp", "section-02-b.webp", "z-unknown.webp"],
-    );
-  });
-});
-
-describe("the spoiler rule", () => {
-  const files = readdirSync(join(root, "public/assets/tsukinomi/images/illustrations")).filter((name) => name.endsWith(".webp"));
-  const catalog = buildIllustrationCatalog(files, SECTIONS);
-  const partsOf = (value: number | null | undefined) => [...new Set(illustrationsUpTo(catalog, value).map((entry) => entry.part))];
-
-  it("shows a new reader nothing", () => {
-    assert.deepEqual(illustrationsUpTo(catalog, null), []);
-    assert.deepEqual(illustrationsUpTo(catalog, undefined), []);
-    assert.deepEqual(illustrationsUpTo(catalog, 0), []);
-  });
-
-  it("shows the parts up to the furthest read and none beyond", () => {
-    assert.deepEqual(partsOf(1), [1]);
-    assert.deepEqual(partsOf(2), [1, 2]);
-    assert.deepEqual(partsOf(3), [1, 2, 3]);
-    assert.deepEqual(partsOf(5), [1, 2, 3, 4, 5]);
-    assert.equal(illustrationsUpTo(catalog, 5).length, 18);
-  });
-
-  it("never lets a later part through, whatever the furthest part", () => {
-    for (let furthest = 0; furthest <= 5; furthest += 1) {
-      for (const entry of illustrationsUpTo(catalog, furthest)) {
-        assert.ok(entry.part !== null && entry.part <= furthest, `${entry.file} at ${furthest}`);
-      }
-    }
-  });
-
-  it("never shows an illustration whose part is unknown", () => {
-    const withStray = [...catalog, { file: "stray.webp", part: null }];
-    assert.ok(!illustrationsUpTo(withStray, 5).some((entry) => entry.file === "stray.webp"));
-  });
-
-  it("treats a value that is not a number as nothing read", () => {
-    for (const value of [Number.NaN, Number.NEGATIVE_INFINITY, "3" as unknown as number]) {
-      assert.deepEqual(illustrationsUpTo(catalog, value), [], String(value));
-    }
-  });
-
-  it("follows read, not opened: a reader who has only opened part 3 sees parts 1 and 2", () => {
-    const state = readStateFromStorage(
-      storageOf({
-        [READS_KEY]: JSON.stringify([idOf(1), idOf(2)]),
-        [sectionProgressKey(idOf(3))]: JSON.stringify({ sectionId: idOf(3), progress: 0.5 }),
-      }),
-      UNITS,
-    );
-    assert.deepEqual(partsOf(state.furthestRead), [1, 2]);
   });
 });
 

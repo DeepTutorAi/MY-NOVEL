@@ -9,8 +9,8 @@
 //   rail      draws the rail line as the reader scrolls past it, lights its
 //             stations, and tints the page with the palette of the part under
 //             the line's head (--tint-* on the tint layer, --rail-* on the rail)
-//   mode      publishes data-motion and data-direct on the root so the passing
-//             train reads the same switches
+//   mode      publishes data-motion and data-direct on the root
+//   sky       starts the home sky (moonsea-loader.ts) with the furthest part read
 //
 // Nothing animates without a reason to: under prefers-reduced-motion the board
 // stays in its final state, the rail is fully drawn and the page is untinted;
@@ -36,7 +36,7 @@ import {
   type Palette,
   type ReadUnit,
 } from "./concourse-core";
-import { startTrain } from "./train-loader";
+import { startMoonsea } from "./moonsea-loader";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 /** The board settles once this much of it has come into view. */
@@ -92,7 +92,7 @@ export function setupConcourse(): (() => void) | void {
   const marked = markerStation(state.furthestRead, stations.length);
   if (marked !== null) stations[marked]?.setAttribute("data-marker", "");
 
-  // ---- mode: the switches the train reads too ----------------------------------
+  // ---- mode ----------------------------------------------------------------------
   const reducedQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   const directQuery = window.matchMedia(SHORT_LANDSCAPE_QUERY);
   // Crossing it turns the rail from horizontal (short, stretched over a minimum travel) to vertical.
@@ -190,8 +190,8 @@ export function setupConcourse(): (() => void) | void {
     cleanups.push(() => query.removeEventListener("change", onModeChange));
   }
   applyMode();
-  // The passing train (train-loader.ts): the scene is fetched after first paint and idle, never under reduced motion or in short landscape.
-  cleanups.push(startTrain({ mount: document.querySelector<HTMLElement>("[data-train-mount]"), furthestRead: state.furthestRead }));
+  // The home sky (moonsea-loader.ts): fetched after first paint; its last train lights a carriage per part read.
+  cleanups.push(startMoonsea({ mount: document.querySelector<HTMLElement>("[data-moonsea-mount]"), furthestRead: state.furthestRead }));
 
   // ---- rail: scroll work only while the rail is near the viewport -----------------------
   if (rail && typeof IntersectionObserver !== "undefined") {

@@ -1,10 +1,7 @@
 ---
-import { readdirSync } from "node:fs";
-import { join } from "node:path";
 import { getCollection } from "astro:content";
 import Concourse from "../../components/tsukinomi/home/Concourse.astro";
 import TsukinomiBaseLayout from "../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
-import { buildIllustrationCatalog, sectionMeta } from "../../scripts/tsukinomi/home/concourse-core";
 import { withBase } from "../../utils/base-path";
 
 const sections = (await getCollection("tsukinomiSections")).sort(
@@ -24,23 +21,6 @@ const sectionUnits = sections.map((section) => ({
   number: section.data.number,
   title: section.data.title,
 }));
-
-// Illustration catalogue for the passing train: every file with the part it
-// belongs to, so the train can show only frames of parts the reader has read
-// (illustrationsUpTo in concourse-core.ts). Read at build time from public/.
-const ILLUSTRATIONS_PATH = "assets/tsukinomi/images/illustrations";
-let illustrationFiles: string[] = [];
-try {
-  illustrationFiles = readdirSync(join(process.cwd(), "public", ILLUSTRATIONS_PATH)).filter((name) =>
-    name.endsWith(".webp"),
-  );
-} catch {
-  illustrationFiles = [];
-}
-const illustrations = buildIllustrationCatalog(illustrationFiles, sections.map(sectionMeta)).map((entry) => ({
-  src: withBase(`/${ILLUSTRATIONS_PATH}/${entry.file}`),
-  part: entry.part,
-}));
 ---
 
 <TsukinomiBaseLayout
@@ -52,6 +32,8 @@ const illustrations = buildIllustrationCatalog(illustrationFiles, sections.map(s
   backgroundSlotId="hero-station"
 >
   <main id="tsukinomi-main">
+    {/* The home sky (moonsea-loader.ts): empty, aria-hidden, fixed behind everything, never takes a pointer. */}
+    <div class="tsuki-moonsea" aria-hidden="true" data-moonsea-mount></div>
     {/* Page tint (concourse.ts): one fixed layer under the hero and the concourse, so it never lies over text. */}
     <div class="tsuki-concourse-tint" aria-hidden="true" data-concourse-tint></div>
     <div class="tsukinomi-home">
@@ -80,14 +62,6 @@ const illustrations = buildIllustrationCatalog(illustrationFiles, sections.map(s
             </div>
           </div>
         </div>
-        {/* Mount point for the passing train: empty, hidden from assistive technology, never takes a pointer,
-            as wide as the viewport and under the hero copy in paint order (home.css). */}
-        <div
-          class="tsukinomi-home-train-mount"
-          data-train-mount
-          aria-hidden="true"
-          data-illustrations={JSON.stringify(illustrations)}
-        ></div>
       </section>
     </div>
     <Concourse sections={sections} />

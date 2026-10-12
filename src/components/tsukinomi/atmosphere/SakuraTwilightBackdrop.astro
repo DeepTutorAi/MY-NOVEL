@@ -274,8 +274,11 @@
     context.restore();
   };
 
+  // The home page paints its own sky (moonsea-loader.ts marks the body while it is up); the petals stand down there.
+  const yieldsToHomeSky = () => document.body.classList.contains("tsuki-moonsea-live");
+
   const draw = (now: number) => {
-    if (!canvas || !context || reduceMotion.matches || !motionEnabled || document.hidden || petals.length === 0) {
+    if (!canvas || !context || reduceMotion.matches || !motionEnabled || document.hidden || petals.length === 0 || yieldsToHomeSky()) {
       context?.clearRect(0, 0, width, height);
       if (canvas) {
         canvas.hidden = reduceMotion.matches || !motionEnabled;
@@ -318,7 +321,7 @@
     pause();
     bindCanvas();
 
-    if (!canvas || !context || reduceMotion.matches || !motionEnabled || document.hidden || petals.length === 0) {
+    if (!canvas || !context || reduceMotion.matches || !motionEnabled || document.hidden || petals.length === 0 || yieldsToHomeSky()) {
       context?.clearRect(0, 0, width, height);
       if (canvas) {
         canvas.hidden = reduceMotion.matches || !motionEnabled;

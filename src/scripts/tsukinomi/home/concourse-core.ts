@@ -1,7 +1,7 @@
 // The pure half of the /tsukinomi/ home concourse (design section 4.4): what the
 // departure board lists, what the rail and the page tint do as the reader
-// scrolls, how far the reader has got, and which illustrations the passing
-// train may show. No DOM and no storage access of its own (storage comes in as a
+// scrolls, and how far the reader has got (which also lights the home sky's
+// last train, moonsea-core.ts). No DOM and no storage access of its own (storage comes in as a
 // getItem function), so node --test covers all of it. concourse.ts is the DOM
 // half. The same split as Sea's home-reading-core.
 //
@@ -20,10 +20,8 @@
 // build (records keyed by chapterId, a read list of numbers). Nothing throws; a
 // value that cannot be understood counts as absent.
 //
-// "Furthest read" (the rail marker) and the spoiler rule are both defined on
-// read, not opened: a reader who has only opened part 3 has not seen all of it,
-// so the passing train must not yet show its illustrations. See
-// illustrationsUpTo().
+// "Furthest read" (the rail marker, the lit carriages) is defined on read, not
+// opened: a reader who has only opened part 3 has not finished it.
 //
 // Station maths. The rail has one station per part (parts 1 to 5; the prologue
 // is a board row only), laid out in equal slots, so station i sits at
@@ -39,10 +37,10 @@ import { formatReadingTime } from "../../../utils/reading-time";
 export const STATION_COUNT = 5;
 
 /**
- * The short-landscape rule: below this the passing train is skipped and the
- * board is shown directly. home.css repeats the exact string (a contract test
- * keeps the two equal); the train reads it through matchMedia(). It matches the
- * compact-hero rule in src/styles/tsukinomi/global.css so both flip together.
+ * The short-landscape rule: below this the hero is compact and the board is
+ * shown directly. home.css repeats the exact string (a contract test keeps the
+ * two equal). It matches the compact-hero rule in
+ * src/styles/tsukinomi/global.css so both flip together.
  */
 export const SHORT_LANDSCAPE_QUERY = "(orientation: landscape) and (max-height: 500px)";
 
@@ -431,66 +429,4 @@ export function tintAt(progress: number, count: number = STATION_COUNT): TintSta
   const slots = (p - first) * count;
   const from = Math.min(count - 2, Math.floor(slots + EPSILON));
   return { from, to: from + 1, mix: clamp01(slots - from), strength: 1 };
-}
-
-// ---- illustrations and the spoiler rule -------------------------------------
-
-export interface IllustrationEntry {
-  file: string;
-  /** Part the illustration belongs to, or null when the name or the metadata cannot place it. */
-  part: number | null;
-}
-
-/** First and last chapter of a chapterRange such as "บทที่ 4–6" or "บทที่ 5"; null for "เกริ่นนำ". */
-export function parseChapterRange(range: string): { from: number; to: number } | null {
-  const match = /(\d+)\s*(?:[–—-]\s*(\d+))?/.exec(range);
-  if (!match) return null;
-  const from = Number(match[1]);
-  const to = match[2] === undefined ? from : Number(match[2]);
-  return Number.isFinite(from) && Number.isFinite(to) && from <= to ? { from, to } : null;
-}
-
-/**
- * Part of an illustration file. section-0N-*.webp names its part outright;
- * chapter-NN-*.webp is placed by the part whose chapterRange contains chapter
- * NN, so nothing is hardcoded and a renumbered range moves its illustrations.
- */
-export function illustrationPart(file: string, sections: readonly SectionMeta[]): number | null {
-  const name = file.split("/").pop() ?? file;
-  const bySection = /^section-(\d{2})-/.exec(name);
-  if (bySection) {
-    const part = Number(bySection[1]);
-    return sections.some((section) => section.number === part) ? part : null;
-  }
-  const byChapter = /^chapter-(\d{2})-/.exec(name);
-  if (byChapter) {
-    const chapter = Number(byChapter[1]);
-    for (const section of byNumber(sections)) {
-      const range = parseChapterRange(section.chapterRange);
-      if (range && chapter >= range.from && chapter <= range.to) return section.number;
-    }
-  }
-  return null;
-}
-
-/** Every illustration file with its part, ordered by part and then name. */
-export function buildIllustrationCatalog(files: readonly string[], sections: readonly SectionMeta[]): IllustrationEntry[] {
-  return files
-    .map((file) => ({ file, part: illustrationPart(file, sections) }))
-    .sort((a, b) => (a.part ?? 99) - (b.part ?? 99) || a.file.localeCompare(b.file));
-}
-
-/**
- * The spoiler rule for the passing train: an illustration may be shown only
- * when its part is at or before the furthest part the reader has read. Pass
- * ReadState.furthestRead. A reader with nothing read (null), only the prologue
- * (0) or a value that is not a number sees none; an illustration whose part is
- * unknown is never shown.
- */
-export function illustrationsUpTo(
-  catalog: readonly IllustrationEntry[],
-  furthestRead: number | null | undefined,
-): IllustrationEntry[] {
-  if (typeof furthestRead !== "number" || !Number.isFinite(furthestRead) || furthestRead < 1) return [];
-  return catalog.filter((entry) => entry.part !== null && entry.part >= 1 && entry.part <= furthestRead);
 }
