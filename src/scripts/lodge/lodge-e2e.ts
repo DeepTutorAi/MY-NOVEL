@@ -397,6 +397,58 @@ async function checkCutscenes(browser: Browser): Promise<void> {
   });
 }
 
+const boardCard = (name: string) => `[data-board-card][data-name="${name}"]`;
+const waitBoard = (page: Page) => page.waitForFunction(() => document.querySelector("[data-board]")?.getAttribute("data-board") === "ready");
+
+async function checkBoard(browser: Browser): Promise<void> {
+  await check("Karlsen's board: a suspicion pin persists, and works for the session when storage refuses it", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      await waitBoard(page);
+      await page.click(`${boardCard("Diana Webb")} [data-suspect]`);
+      await page.reload({ waitUntil: "load" });
+      await waitBoard(page);
+      const pressed = await page.$eval(`${boardCard("Diana Webb")} [data-suspect]`, (el) => el.getAttribute("aria-pressed"));
+      assert(pressed === "true", `after reload aria-pressed=${pressed}`);
+    });
+    await withPage(browser, { storageThrows: true }, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      await waitBoard(page);
+      await page.click(`${boardCard("Ben Ross")} [data-suspect]`);
+      const pressed = await page.$eval(`${boardCard("Ben Ross")} [data-suspect]`, (el) => el.getAttribute("aria-pressed"));
+      assert(pressed === "true", "the pin did not toggle without storage");
+    });
+  });
+
+  await check("Karlsen's board stamps what the reader has finished and crosses out what was overturned", async () => {
+    await withPage(browser, { seed: progressSeed(finishedThrough(7)) }, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      await waitBoard(page);
+      const marcus = await page.$$eval(`${boardCard("Marcus Hale")} [data-stamp]`, (nodes) => nodes.map((n) => [n.textContent?.trim(), n.classList.contains("is-superseded")]));
+      assert(JSON.stringify(marcus) === JSON.stringify([["MISSING", true], ["DEAD", true], ["BODY GONE", false]]), JSON.stringify(marcus));
+      const file = await page.$eval(`${boardCard("Diana Webb")} [data-file-number]`, (el) => ({ hidden: (el as HTMLElement).hidden, text: el.textContent?.trim() }));
+      assert(!file.hidden && file.text === "Subject 4", JSON.stringify(file));
+    });
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      await waitBoard(page);
+      assert((await page.$$("[data-stamp]")).length === 0, "a new reader sees stamps");
+      assert(await page.$eval(`${boardCard("Diana Webb")} [data-file-number]`, (el) => (el as HTMLElement).hidden), "a new reader sees file numbers");
+    });
+  });
+
+  await check("the Subject 8 card still unlocks after chapter 17 at 80 percent", async () => {
+    await withPage(browser, { seed: progressSeed({ 16: 0.9 }) }, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      assert(await page.$eval(boardCard("Subject 8"), (el) => (el as HTMLElement).hidden), "Subject 8 shown after chapter 16");
+    });
+    await withPage(browser, { seed: progressSeed({ 17: 0.85 }) }, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      assert(!(await page.$eval(boardCard("Subject 8"), (el) => (el as HTMLElement).hidden)), "Subject 8 hidden after chapter 17");
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -424,6 +476,7 @@ async function main(): Promise<void> {
     await checkLedger(browser);
     await checkCandle(browser);
     await checkCutscenes(browser);
+    await checkBoard(browser);
   } finally {
     await browser.close();
   }

@@ -9,9 +9,9 @@ import { withBase } from "../../utils/base-path";
   description="แนะนำตัวละครหลักและคนสำคัญในฮวิตเวลต์ ลอดจ์"
   bodyClass="characters-page"
 >
-  <main class="characters-shell">
+  <main class="characters-shell board" data-board>
     <header class="characters-hero">
-      <p>Character</p>
+      <p>Case file · Karlsen</p>
       <h1>คนที่เข้ามาในฮวิตเวลต์</h1>
       <span>รู้จักก่อนอ่าน โดยไม่เฉลยคำตอบสุดท้ายของเรื่อง</span>
     </header>
@@ -26,7 +26,9 @@ import { withBase } from "../../utils/base-path";
           <div class="character-grid">
             {group.characters.map((character) => (
               <article
-                class="character-card"
+                class="character-card board-card"
+                data-board-card
+                data-name={character.name}
                 hidden={Boolean(character.revealAfterChapter)}
                 data-character-spoiler={character.revealAfterChapter ? "true" : undefined}
                 data-reveal-after-chapter={character.revealAfterChapter}
@@ -53,10 +55,13 @@ import { withBase } from "../../utils/base-path";
                   ))}
                 </div>
                 <div class="character-copy">
+                  <p class="board-file" data-file-number hidden></p>
                   <h3>{character.name}</h3>
+                  <ul class="board-stamps" data-stamps aria-label={`บันทึกคดีของ ${character.name}`}></ul>
                   <p class="character-role">{character.role}</p>
                   <p><strong>Personality:</strong> {character.personality}</p>
                   <p>{character.story}</p>
+                  <button type="button" class="board-suspect" data-suspect aria-pressed="false">สงสัย</button>
                 </div>
               </article>
             ))}
@@ -67,6 +72,8 @@ import { withBase } from "../../utils/base-path";
   </main>
 
   <script>
+    import { onPage } from "../../scripts/_shared/lifecycle";
+    import { setupBoard } from "../../scripts/lodge/board/board";
     import {
       UNLOCK,
       activeProfileId,
@@ -135,6 +142,11 @@ import { withBase } from "../../utils/base-path";
       try {
         revealUnlockedCards();
       } catch {}
+    });
+
+    onPage("lodge-board", { bodyClass: "characters-page" }, () => {
+      const board = document.querySelector<HTMLElement>("[data-board]");
+      return board ? setupBoard(board) : undefined;
     });
   </script>
 </LodgeBaseLayout>
