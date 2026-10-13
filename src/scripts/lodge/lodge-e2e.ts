@@ -294,6 +294,29 @@ async function checkLedger(browser: Browser): Promise<void> {
   });
 }
 
+async function checkCandle(browser: Browser): Promise<void> {
+  await check("the reader's candle burns down as the chapter is read", async () => {
+    await withPage(browser, { seed: { "hvitveldt:cutscene:played:1": String(Date.now()) } }, async (page) => {
+      await page.goto(url("lodge/chapters/03-morning-without-marcus/"), { waitUntil: "load" });
+      const read = () =>
+        page.$eval(".reader-candle", (el) => ({
+          height: Number(getComputedStyle(el).getPropertyValue("--candle-height")),
+          flame: (el as HTMLElement).dataset.flame,
+          hidden: el.closest(".reader-ambience")?.getAttribute("aria-hidden"),
+        }));
+      await page.waitForFunction(() => getComputedStyle(document.querySelector(".reader-candle")!).getPropertyValue("--candle-height") !== "");
+      const top = await read();
+      await page.evaluate(() => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) / 2));
+      await pause(600);
+      const half = await read();
+      assert(top.hidden === "true", "the candle is not aria-hidden");
+      assert(half.height < top.height - 0.2, `candle ${top.height} -> ${half.height}`);
+      assert(half.flame === "lit", `flame ${half.flame} at half way`);
+      return `${top.height.toFixed(2)} -> ${half.height.toFixed(2)}`;
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -319,6 +342,7 @@ async function main(): Promise<void> {
     await checkWhiteoutNavigation(browser);
     await checkGuestBook(browser);
     await checkLedger(browser);
+    await checkCandle(browser);
   } finally {
     await browser.close();
   }

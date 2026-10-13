@@ -1,4 +1,6 @@
 <script>
+  import { PROGRESS_EVENT } from "../../../scripts/lodge/reading/candle-core";
+
   type LodgeReadingProgressController = {
     destroy: () => void;
   };
@@ -185,9 +187,23 @@
       writeStored(chapterKey, saved);
     };
 
+    // Where each section break (Lodge chapters use rune dividers, not headings) sits through the chapter, on the same scale as getRatio().
+    const sectionMarks = () => {
+      const rect = article.getBoundingClientRect();
+      const scrollable = Math.max(1, rect.height - window.innerHeight);
+      return Array.from(article.querySelectorAll<HTMLElement>(":scope > h2, :scope > .rune-divider"), (heading) =>
+        Math.min(1, Math.max(0, (heading.getBoundingClientRect().top - rect.top - window.innerHeight * 0.5) / scrollable)),
+      );
+    };
+
+    const announce = (ratio: number) => {
+      window.dispatchEvent(new CustomEvent(PROGRESS_EVENT, { detail: { progress: ratio, sectionMarks: sectionMarks() } }));
+    };
+
     const update = () => {
       const ratio = getRatio();
       saveProgress(ratio);
+      announce(ratio);
       ticking = false;
     };
 

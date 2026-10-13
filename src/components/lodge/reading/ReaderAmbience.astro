@@ -1,11 +1,45 @@
 <div class="reader-ambience" aria-hidden="true">
-  <div class="reader-candle">
+  <div class="reader-candle" data-flame="lit">
     <span class="candle-glow"></span>
     <span class="candle-flame"></span>
     <span class="candle-wick"></span>
     <span class="candle-body"></span>
+    <span class="candle-drips" data-candle-drips></span>
   </div>
 </div>
+
+<script>
+  // The candle is the chapter's progress (design 6.5): ReadingProgress.astro
+  // announces how far the reader is and where the sections sit.
+  import { onPage } from "../../../scripts/_shared/lifecycle";
+  import { PROGRESS_EVENT, candleHeight, dripsFor, flameState, type ReadingProgressDetail } from "../../../scripts/lodge/reading/candle-core";
+
+  onPage("lodge-candle", { bodyClass: "chapter-page" }, () => {
+    const candle = document.querySelector<HTMLElement>(".reader-candle");
+    const drips = document.querySelector<HTMLElement>("[data-candle-drips]");
+    if (!candle || !drips) return;
+    let shown = -1;
+    const onProgress = (event: Event) => {
+      const { progress, sectionMarks } = (event as CustomEvent<ReadingProgressDetail>).detail;
+      candle.style.setProperty("--candle-height", candleHeight(progress).toFixed(3));
+      candle.dataset.flame = flameState(progress);
+      const passed = dripsFor(sectionMarks, progress).length;
+      if (passed === shown) return;
+      shown = passed;
+      drips.replaceChildren(
+        ...Array.from({ length: passed }, (_, index) => {
+          const drip = document.createElement("span");
+          drip.className = "candle-drip";
+          drip.style.setProperty("--x", `${((index * 37) % 9) - 4.5}px`);
+          drip.style.setProperty("--len", `${0.35 + ((index * 53) % 5) * 0.12}rem`);
+          return drip;
+        }),
+      );
+    };
+    window.addEventListener(PROGRESS_EVENT, onProgress);
+    return () => window.removeEventListener(PROGRESS_EVENT, onProgress);
+  });
+</script>
 
 <style>
   .reader-ambience {
@@ -19,6 +53,8 @@
   }
 
   .reader-candle {
+    --candle-height: 1;
+    --wax: calc(3.4rem * var(--candle-height));
     position: absolute;
     inset-inline-end: 0;
     inset-block-end: 0;
@@ -29,7 +65,7 @@
   .candle-glow {
     position: absolute;
     inset-inline: 50% auto;
-    inset-block-end: 1.1rem;
+    inset-block-end: calc(var(--wax) - 2.3rem);
     inline-size: 7rem;
     block-size: 7rem;
     border-radius: 50%;
@@ -43,7 +79,7 @@
   .candle-flame {
     position: absolute;
     inset-inline-start: 50%;
-    inset-block-start: 0.65rem;
+    inset-block-end: calc(var(--wax) + 0.42rem);
     inline-size: 0.9rem;
     block-size: 1.65rem;
     border-radius: 60% 40% 55% 45% / 70% 70% 35% 35%;
@@ -61,7 +97,7 @@
   .candle-wick {
     position: absolute;
     inset-inline-start: calc(50% - 1px);
-    inset-block-start: 2.1rem;
+    inset-block-end: var(--wax);
     inline-size: 2px;
     block-size: 0.62rem;
     border-radius: 999px;
@@ -73,7 +109,7 @@
     inset-inline-start: 50%;
     inset-block-end: 0;
     inline-size: 1.45rem;
-    block-size: 3.4rem;
+    block-size: var(--wax);
     border-radius: 0.35rem 0.35rem 0.18rem 0.18rem;
     background:
       linear-gradient(90deg, rgb(93 79 69 / 0.45), rgb(202 188 166 / 0.82) 42%, rgb(118 99 84 / 0.5)),
@@ -82,6 +118,34 @@
       inset -0.25rem 0 0.5rem rgb(0 0 0 / 0.18),
       0 0.6rem 1.4rem rgb(0 0 0 / 0.35);
     transform: translateX(-50%);
+  }
+
+  .candle-drips {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* A wax run left at each section the reader has passed. */
+  :global(.candle-drip) {
+    position: absolute;
+    inset-block-end: calc(var(--wax) - var(--len));
+    inset-inline-start: calc(50% + var(--x));
+    inline-size: 0.22rem;
+    block-size: var(--len);
+    border-radius: 0 0 0.2rem 0.2rem;
+    background: linear-gradient(180deg, rgb(226 214 194 / 0.95), rgb(186 170 148 / 0.9));
+  }
+
+  .reader-candle[data-flame="guttering"] .candle-flame {
+    opacity: 0.55;
+    scale: 0.7;
+  }
+
+  .reader-candle[data-flame="out"] .candle-flame,
+  .reader-candle[data-flame="out"] .candle-glow {
+    opacity: 0;
+    animation: none;
+    transition: opacity 1.4s ease-out;
   }
 
   @keyframes candle-flicker {
