@@ -61,6 +61,8 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
   const rng = createRng(1313);
   const glyphs = Array.from({ length: STEPS + 4 }, () => makeGlyph(rng));
   let grain: HTMLCanvasElement | null = null;
+  /** The torch's dark is soft: drawn at half resolution and scaled up. */
+  let shade: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null = null;
   let manual = 0;
   let step = still ? STEPS : 0;
   let bottomAt: number | null = null;
@@ -94,6 +96,7 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
     if (!layer) return;
     paperGrain(layer.ctx, size.width, size.height, 13, 1.6);
     grain = layer.canvas;
+    shade = makeLayer({ width: Math.ceil(size.width / 2), height: Math.ceil(size.height / 2), dpr: 1 });
   };
 
   const draw = (c: CanvasRenderingContext2D, frame: Readonly<SceneFrame>, moving: boolean) => {
@@ -298,13 +301,18 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
     }
 
     // The torch's circle: outside it the stair is close to black.
-    const reach = Math.min(w, h) * 0.56;
-    const dark = c.createRadialGradient(torch.x, torch.y, reach * 0.35, torch.x, torch.y, reach * 2);
-    dark.addColorStop(0, "rgba(0,0,0,0)");
-    dark.addColorStop(0.5, "rgba(0,0,0,0.42)");
-    dark.addColorStop(1, "rgba(0,0,0,0.8)");
-    c.fillStyle = dark;
-    c.fillRect(0, 0, w, h);
+    if (shade) {
+      const sc = shade.ctx;
+      const reach = Math.min(w, h) * 0.28;
+      const dark = sc.createRadialGradient(torch.x / 2, torch.y / 2, reach * 0.35, torch.x / 2, torch.y / 2, reach * 2);
+      dark.addColorStop(0, "rgba(0,0,0,0)");
+      dark.addColorStop(0.5, "rgba(0,0,0,0.42)");
+      dark.addColorStop(1, "rgba(0,0,0,0.8)");
+      sc.clearRect(0, 0, shade.canvas.width, shade.canvas.height);
+      sc.fillStyle = dark;
+      sc.fillRect(0, 0, shade.canvas.width, shade.canvas.height);
+      c.drawImage(shade.canvas, 0, 0, w, h);
+    }
     if (grain) c.drawImage(grain, 0, 0, w, h);
 
     if (moving) {
