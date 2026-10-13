@@ -202,6 +202,19 @@ const assetBase = withBase("/assets/lodge/images/");
     opacity: 1;
   }
 
+  /* Words a scene sets in Elena's hand (the introduction's "ฉัน"). Inline, so
+     line breaking is unchanged; the drifted one only sits a little off the line. */
+  .lodge-cutscene__g.is-hand {
+    font-family: var(--font-hand);
+    color: var(--graphite-1, #d9d4ca);
+  }
+
+  .lodge-cutscene__g.is-hand.is-drift {
+    position: relative;
+    top: -0.06em;
+    letter-spacing: 0.03em;
+  }
+
   .lodge-cutscene .lodge-cutscene__skip,
   .lodge-cutscene .lodge-cutscene__continue,
   .lodge-cutscene .lodge-cutscene__control {
