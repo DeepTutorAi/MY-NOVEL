@@ -262,6 +262,38 @@ async function checkGuestBook(browser: Browser): Promise<void> {
   });
 }
 
+async function checkLedger(browser: Browser): Promise<void> {
+  await check("GUEST RECORDS lists every chapter with its reading status and ends with the reader's card", async () => {
+    await withPage(browser, { seed: progressSeed({ 1: 1, 2: 0.4 }) }, async (page) => {
+      await page.goto(url("lodge/chapters/"), { waitUntil: "load" });
+      await page.waitForFunction(() => document.querySelector("[data-ledger]")?.getAttribute("data-ledger") === "ready");
+      const rows = await page.$$eval("[data-ledger-row]", (nodes) =>
+        nodes.map((node) => ({
+          id: (node as HTMLElement).dataset.chapterId,
+          status: node.querySelector("[data-ledger-status]")?.textContent?.trim() ?? "",
+          text: node.textContent ?? "",
+          href: node.getAttribute("href") ?? "",
+        })),
+      );
+      assert(rows.length === 19, `${rows.length} rows`);
+      assert(rows.every((row, index) => row.id?.startsWith(String(index).padStart(2, "0"))), "rows are in chapter order");
+      assert(rows.every((row) => row.href.endsWith(`/lodge/chapters/${row.id}/`)), "every row links its chapter");
+      const byId = Object.fromEntries(rows.map((row) => [row.id, row]));
+      assert(byId["01-arrival"].status === "READ", `chapter 1: ${byId["01-arrival"].status}`);
+      assert(byId["02-first-night"].status === "อ่านไป 40%", `chapter 2: ${byId["02-first-night"].status}`);
+      assert(byId["03-morning-without-marcus"].status === "ยังไม่เปิด", `chapter 3: ${byId["03-morning-without-marcus"].status}`);
+      assert(!rows.some((row) => row.text.includes("DEPARTED")), "a chapter row says DEPARTED");
+      const lastIsCard = await page.$eval("main", (main) => {
+        const cards = main.querySelectorAll("[data-guest-card]");
+        const rowsInMain = main.querySelectorAll("[data-ledger-row]");
+        const last = rowsInMain[rowsInMain.length - 1];
+        return cards.length === 1 && Boolean(last.compareDocumentPosition(cards[0]) & Node.DOCUMENT_POSITION_FOLLOWING);
+      });
+      assert(lastIsCard, "the reader's guest card is not the last entry");
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -286,6 +318,7 @@ async function main(): Promise<void> {
     await checkWhiteoutStill(browser);
     await checkWhiteoutNavigation(browser);
     await checkGuestBook(browser);
+    await checkLedger(browser);
   } finally {
     await browser.close();
   }
