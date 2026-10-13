@@ -14,6 +14,8 @@
     "check": "astro check",
     "tsukinomi:e2e": "tsx src/scripts/tsukinomi/tsukinomi-e2e.ts",
     "tsukinomi:measure": "tsx src/scripts/tsukinomi/scene-measure.ts",
+    "lodge:e2e": "tsx src/scripts/lodge/lodge-e2e.ts",
+    "lodge:measure": "tsx src/scripts/tsukinomi/scene-measure.ts --novel lodge",
     "sea:sync": "tsx src/scripts/sea/sync-sea-chapters.ts",
     "sea:verify-dist": "tsx src/scripts/sea/verify-sea-dist.ts"
   },

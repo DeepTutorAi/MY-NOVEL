@@ -26,6 +26,9 @@
 //   --ignore-console re   console errors matching this regular expression are not counted
 //   --home-chunk re   dist chunk-name pattern of the home page's script (default concourse)
 //   --chrome path     Chromium binary (default PUPPETEER_EXECUTABLE_PATH, then /opt/pw-browsers)
+//   --novel id        tsukinomi (default) or lodge; selects the scene targets, the
+//                     cutscene dialog and the home path (pnpm lodge:measure passes lodge).
+//                     Lodge targets: cutscene-0, -1, -6, -13, -18, home, home-scroll, url:<path>
 //
 // Exit code: 0 all budgets met, 2 a budget or layout rule missed, 1 the harness
 // could not measure something (the table still prints every number it has).
@@ -146,22 +149,77 @@ interface Target {
   scroll?: boolean;
 }
 
-const SCENE_TARGETS: Record<string, { part: number; slug: string }> = {
-  prologue: { part: 0, slug: "00-introduction" },
-  "part-1": { part: 1, slug: "01-discovery" },
-  "part-2": { part: 2, slug: "02-reveal" },
-  "part-3": { part: 3, slug: "03-decision" },
-  "part-4": { part: 4, slug: "04-mountain" },
-  "part-5": { part: 5, slug: "05-ten-years" },
-};
-const DEFAULT_TARGETS = ["prologue", "part-1", "part-2", "part-3", "part-4", "part-5", "home"];
+interface NovelProfile {
+  /** Path of the novel's home page below the base URL. */
+  home: string;
+  /** Path prefix of a chapter or section page, before the slug. */
+  pages: string;
+  scenes: Record<string, { part: number; slug: string }>;
+  defaults: string[];
+  /** Targets whose first seconds are not the scene proper. */
+  settle: Record<string, number>;
+  /** The cutscene <dialog>, run by the shared cutscene runner (data-state). */
+  dialog: string;
+  /** Scene sources, for the gzip check. */
+  scenesDir: string;
+  /** Chunk id of a scene, for the gzip check; without it the check reports no chunk. */
+  sceneId?: (part: number) => string;
+}
 
-/**
- * Targets whose first seconds are not the scene proper. The prologue waits for
- * the reader to press Play and starts by itself after 6 s without input (design
- * section 4.3), so its first window opens after that.
- */
-const SETTLE_OVERRIDES: Record<string, number> = { prologue: 7000 };
+const HARNESS_DIR = path.dirname(fileURLToPath(import.meta.url));
+const NOVELS: Record<string, NovelProfile> = {
+  tsukinomi: {
+    home: "tsukinomi/",
+    pages: "tsukinomi/sections/",
+    scenes: {
+      prologue: { part: 0, slug: "00-introduction" },
+      "part-1": { part: 1, slug: "01-discovery" },
+      "part-2": { part: 2, slug: "02-reveal" },
+      "part-3": { part: 3, slug: "03-decision" },
+      "part-4": { part: 4, slug: "04-mountain" },
+      "part-5": { part: 5, slug: "05-ten-years" },
+    },
+    defaults: ["prologue", "part-1", "part-2", "part-3", "part-4", "part-5", "home"],
+    // The prologue waits for the reader to press Play and starts by itself after
+    // 6 s without input (design section 4.3), so its first window opens after that.
+    settle: { prologue: 7000 },
+    dialog: "dialog.tsuki-cutscene",
+    scenesDir: path.join(HARNESS_DIR, "cutscene", "scenes"),
+    sceneId: (part) => registryEntry(part).id,
+  },
+  lodge: {
+    home: "lodge/",
+    pages: "lodge/chapters/",
+    scenes: {
+      "cutscene-0": { part: 0, slug: "00-introduction" },
+      "cutscene-1": { part: 1, slug: "01-arrival" },
+      "cutscene-6": { part: 6, slug: "06-ben-acts-off" },
+      "cutscene-13": { part: 13, slug: "13-into-the-basement" },
+      "cutscene-18": { part: 18, slug: "18-mirror" },
+    },
+    defaults: ["cutscene-0", "cutscene-1", "cutscene-6", "cutscene-13", "cutscene-18", "home"],
+    settle: {},
+    dialog: "dialog.lodge-cutscene",
+    scenesDir: path.join(HARNESS_DIR, "..", "lodge", "cutscene", "scenes"),
+  },
+};
+
+function selectNovel(argv: readonly string[]): NovelProfile {
+  const index = argv.indexOf("--novel");
+  const inline = argv.find((arg) => arg.startsWith("--novel="))?.slice("--novel=".length);
+  const id = inline ?? (index >= 0 ? argv[index + 1] : "tsukinomi");
+  const profile = id ? NOVELS[id] : undefined;
+  if (!profile) {
+    console.error(`scene-measure: unknown --novel "${id}" (${Object.keys(NOVELS).join(", ")})`);
+    process.exit(1);
+  }
+  return profile;
+}
+
+const NOVEL = selectNovel(process.argv.slice(2));
+const SCENE_TARGETS = NOVEL.scenes;
+const DEFAULT_TARGETS = NOVEL.defaults;
+const SETTLE_OVERRIDES = NOVEL.settle;
 
 const DESKTOP = { width: 1280, height: 800 };
 const DESIGN_VIEWPORTS = [
@@ -242,11 +300,11 @@ function parseArgs(argv: readonly string[]): Options {
   const targets: Target[] = [];
   for (const name of (text("targets") ?? DEFAULT_TARGETS.join(",")).split(",").map((n) => n.trim()).filter(Boolean)) {
     const scene = SCENE_TARGETS[name];
-    if (scene) targets.push({ name, kind: "scene", part: scene.part, path: `tsukinomi/sections/${scene.slug}/?cutscene=replay` });
-    else if (name === "home") targets.push({ name, kind: "page", path: "tsukinomi/" });
-    else if (name === "home-scroll") targets.push({ name, kind: "page", path: "tsukinomi/", scroll: true });
+    if (scene) targets.push({ name, kind: "scene", part: scene.part, path: `${NOVEL.pages}${scene.slug}/?cutscene=replay` });
+    else if (name === "home") targets.push({ name, kind: "page", path: NOVEL.home });
+    else if (name === "home-scroll") targets.push({ name, kind: "page", path: NOVEL.home, scroll: true });
     else if (name.startsWith("url:")) targets.push({ name, kind: "page", path: name.slice(4).replace(/^\//, "") });
-    else fail(`unknown target "${name}" (prologue, part-1..part-5, home, home-scroll, url:<path>)`);
+    else fail(`unknown target "${name}" (${Object.keys(SCENE_TARGETS).join(", ")}, home, home-scroll, url:<path>)`);
   }
   if (targets.length === 0) fail("no targets");
 
@@ -339,7 +397,7 @@ globalThis.__name = (fn) => fn;
   const loop = (ts) => {
     if (!m.running) return;
     if (m.watch) {
-      const dialog = document.querySelector("dialog.tsuki-cutscene");
+      const dialog = document.querySelector(${JSON.stringify(NOVEL.dialog)});
       if (!dialog || dialog.dataset.state !== "playing") { m.running = false; return; }
     }
     m.frames += 1;
@@ -405,11 +463,12 @@ async function openSession(browser: Browser, errors: Set<string>, options: Optio
 
 async function waitForPlaying(page: Page, timeout = 45_000): Promise<void> {
   await page.waitForFunction(
-    () => {
-      const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
+    (selector: string) => {
+      const dialog = document.querySelector<HTMLDialogElement>(selector);
       return dialog?.open === true && dialog.dataset.state === "playing";
     },
     { timeout, polling: "raf" },
+    NOVEL.dialog,
   );
 }
 
@@ -417,11 +476,12 @@ async function waitForPlaying(page: Page, timeout = 45_000): Promise<void> {
 async function waitForEnded(page: Page, timeout: number): Promise<boolean> {
   try {
     await page.waitForFunction(
-      () => {
-        const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
+      (selector: string) => {
+        const dialog = document.querySelector<HTMLDialogElement>(selector);
         return dialog !== null && !dialog.open && ["finished", "skipped"].includes(dialog.dataset.state ?? "");
       },
       { timeout, polling: 250 },
+      NOVEL.dialog,
     );
     return true;
   } catch {
@@ -671,9 +731,9 @@ interface LayoutRun {
 }
 
 /** Read inside the page. Kept free of outer names: it is serialised into the browser. */
-function readLayout(): LayoutSnapshot {
+function readLayout(dialogSelector: string): LayoutSnapshot {
   const toBox = (r: DOMRect) => ({ left: r.left, top: r.top, right: r.right, bottom: r.bottom, width: r.width, height: r.height });
-  const dialog = document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene");
+  const dialog = document.querySelector<HTMLDialogElement>(dialogSelector);
   const visible = (el: Element) => {
     const style = getComputedStyle(el);
     const rect = el.getBoundingClientRect();
@@ -713,9 +773,11 @@ async function measureLayout(browser: Browser, target: Target, options: Options,
       const looks = target.kind === "scene" ? [900, 2600] : [900];
       for (const wait of looks) {
         await pause(wait);
-        const stillPlaying = target.kind !== "scene" || (await session.page.evaluate(() => document.querySelector<HTMLDialogElement>("dialog.tsuki-cutscene")?.dataset.state === "playing"));
+        const stillPlaying =
+          target.kind !== "scene" ||
+          (await session.page.evaluate((selector: string) => document.querySelector<HTMLDialogElement>(selector)?.dataset.state === "playing", NOVEL.dialog));
         if (!stillPlaying) break;
-        const snapshot = await session.page.evaluate(readLayout);
+        const snapshot = await session.page.evaluate(readLayout, NOVEL.dialog);
         // Judge against the size asked for, not window.innerWidth: under mobile emulation Chromium widens the
         // layout viewport to fit overflowing content, which would hide exactly the overflow being looked for.
         snapshot.viewport = { width: viewport.width, height: viewport.height };
@@ -747,7 +809,7 @@ interface GzipRun {
   note?: string;
 }
 
-const SCENES_DIR = path.join(path.dirname(fileURLToPath(import.meta.url)), "cutscene", "scenes");
+const SCENES_DIR = NOVEL.scenesDir;
 
 function measureGzip(distDir: string, target: Target, options: Options): GzipRun {
   const astroDir = path.join(distDir, "_astro");
@@ -759,7 +821,8 @@ function measureGzip(distDir: string, target: Target, options: Options): GzipRun
   let cssPattern: RegExp;
   let sourceId: string | null = null;
   if (target.kind === "scene") {
-    sourceId = registryEntry(target.part as number).id;
+    if (!NOVEL.sceneId) return { chunk: [], css: [], imports: [], inlineCssSourceGzipKB: null, totalGzipKB: 0, note: "no scene chunk id for this novel" };
+    sourceId = NOVEL.sceneId(target.part as number);
     jsPattern = chunkNamePattern(sourceId, ["js"]);
     cssPattern = chunkNamePattern(sourceId, ["css"]);
   } else if (target.name === "home" || target.name === "home-scroll") {
@@ -997,7 +1060,7 @@ async function main(): Promise<void> {
   let browser: Browser | null = null;
   if (needsBrowser) {
     const first = options.targets[0];
-    const probe = await fetch(targetUrl(options.base, first.kind === "scene" ? "tsukinomi/" : first.path)).catch(() => null);
+    const probe = await fetch(targetUrl(options.base, first.kind === "scene" ? NOVEL.home : first.path)).catch(() => null);
     if (!probe?.ok) fail(`${options.base} is not reachable (${probe ? probe.status : "no response"}). Start a dev server or serve a build first.`);
     server = (await probe.text()).includes("/@vite/client") ? "dev server" : "no Vite client: a build or a static server";
     browser = await launchBrowser(options);
