@@ -17,7 +17,7 @@ const ENTRIES: Record<SceneChapter, LodgeRegistryEntry> = {
   1: { chapter: 1, id: "headlights", load: () => import("./scenes/headlights") },
   6: { chapter: 6, id: "lamp", load: () => import("./scenes/lamp") },
   13: { chapter: 13, id: "descent", load: () => import("./scenes/descent") },
-  18: { chapter: 18, id: "paper", load: () => import("./scenes/paper") },
+  18: { chapter: 18, id: "mirror", load: () => import("./scenes/mirror") },
 };
 
 export function isSceneChapter(chapter: number): chapter is SceneChapter {
