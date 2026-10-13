@@ -223,16 +223,23 @@ describe("shared reading experience contract", () => {
     // Schema supports number 0
     assert.match(config, /number: z\.number\(\)\.int\(\)\.min\(0\)/);
 
-    // Cutscene Epigraphs defined in layouts and check for has-cutscene / cutscene-overlay
-    assert.match(lodgeChapterLayout, /hasCutscene/);
-    assert.match(lodgeChapterLayout, /cutscene-overlay/);
-    assert.match(lodgeChapterLayout, /typewriter/);
-    assert.match(lodgeChapterLayout, /has-cutscene/);
+    // Lodge's cutscene is a native <dialog> on the shared runner
+    // (src/components/lodge/cutscene), with the epigraphs in
+    // src/scripts/lodge/cutscene/epigraphs.ts; the old in-layout typewriter overlay is gone.
+    const lodgeCutscene = readProjectFile("src/components/lodge/cutscene/LodgeCutscene.astro");
+    const lodgeEpigraphs = readProjectFile("src/scripts/lodge/cutscene/epigraphs.ts");
+    assert.match(lodgeChapterLayout, /<LodgeCutscene chapter=\{chapterNumber\}/);
+    assert.match(lodgeChapterLayout, /epigraphFor\(chapterNumber\)/);
+    assert.doesNotMatch(lodgeChapterLayout, /cutscene-overlay|has-cutscene|typewriter/);
+    assert.match(lodgeCutscene, /<dialog\s+class="lodge-cutscene"/);
+    assert.match(lodgeCutscene, /id="cutscene-text"/);
+    for (const chapter of [0, 1, 6, 13, 18]) {
+      assert.match(lodgeEpigraphs, new RegExp(`\\n  ${chapter}: "`), `Lodge epigraph ${chapter} should be defined`);
+    }
 
     // Tsukinomi's cutscene is no longer in the layout: it is a native <dialog>
     // (src/components/tsukinomi/cutscene), and the epigraph text lives in
-    // src/scripts/tsukinomi/cutscene/epigraphs.ts. Only the Lodge assertions
-    // above still describe the in-layout overlay.
+    // src/scripts/tsukinomi/cutscene/epigraphs.ts.
     const tsukiCutscene = readProjectFile("src/components/tsukinomi/cutscene/TsukinomiCutscene.astro");
     const tsukiEpigraphs = readProjectFile("src/scripts/tsukinomi/cutscene/epigraphs.ts");
     assert.match(tsukiSectionLayout, /<TsukinomiCutscene part=\{section\.data\.number\}/);
