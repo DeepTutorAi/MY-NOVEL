@@ -155,6 +155,53 @@ article.chapter hr {
 
 .journal p {
   margin-block: 1em;
+  /* Every line break inside a journal is the author's (records, lists,
+     letters); without remark-breaks a single newline would become a space. */
+  white-space: pre-line;
+}
+
+/* Three kinds of document (design 6.2), set on the block's opening line. */
+
+/* Elena's notebook: her hand on ruled paper with a faint red margin. */
+.journal--elena {
+  padding: 1lh 1.4em 0 1.6em;
+  border-inline-start: 2px solid rgb(194 75 58 / 0.42);
+  background:
+    repeating-linear-gradient(to bottom, transparent 0 calc(1lh - 1px), rgb(236 231 221 / 0.07) calc(1lh - 1px) 1lh),
+    var(--paper-grain),
+    #1a1916;
+  color: var(--graphite-1);
+  font-family: var(--font-hand);
+  font-size: 1.04em;
+  line-height: 1.9;
+}
+
+.journal--elena p {
+  margin-block: 0 1lh;
+}
+
+/* Someone else's hand: faded ink on older, stained paper. */
+.journal--hand {
+  border-inline-start: none;
+  background:
+    radial-gradient(ellipse 70% 60% at 85% 15%, rgb(120 98 64 / 0.14), transparent 70%),
+    var(--paper-grain),
+    #1f1c18;
+  box-shadow: inset 0 0 0 1px rgb(168 159 142 / 0.12), inset 0 0 2.5em rgb(0 0 0 / 0.35);
+  color: #b8ae9c;
+  font-family: var(--font-thai);
+  font-style: italic;
+  line-height: 1.8;
+}
+
+/* Printed or typed: records, notices, a road sign, an e-mail. */
+.journal--print {
+  border: 1px solid var(--graphite-3);
+  border-block-start: 3px double var(--graphite-3);
+  background: var(--paper-grain), #151412;
+  color: var(--graphite-1);
+  font-family: "JetBrains Mono", var(--font-thai);
+  letter-spacing: 0.02em;
 }
 
 .rune-divider {

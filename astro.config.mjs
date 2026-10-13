@@ -3,27 +3,30 @@ import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
+import { journalClassName } from "./src/plugins/remark-journal-kind.mjs";
 
 const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
 
 // Every container directive (`:::`) in this project is an in-world "journal"
-// box (monospace, bordered). Chapters author the fence in Thai
+// box, of the kind named on its opening line (`{kind=elena|hand|print}`, see
+// src/plugins/remark-journal-kind.mjs). Chapters author the fence in Thai
 // (`:::สมุดบันทึก`); micromark does not treat the non-ASCII name as a directive
 // name, so we match the container directive by node type rather than by name —
 // this avoids Unicode-normalisation or empty-name parsing silently dropping the
 // styling. If a non-journal container directive is ever introduced, special-case
 // it by name here.
 function remarkJournalDirective() {
-  /** @param {any} tree */
-  const transform = (tree) => {
+  /** @param {any} tree @param {any} file */
+  const transform = (tree, file) => {
     visit(tree, (node) => {
       if (node.type !== "containerDirective") {
         return;
       }
 
+      const where = `${file?.path ?? "markdown"}:${node.position?.start.line ?? "?"}`;
       const data = node.data || (node.data = {});
       data.hName = "div";
-      data.hProperties = { className: ["journal"] };
+      data.hProperties = { className: journalClassName(node.attributes, where) };
     });
   };
 
