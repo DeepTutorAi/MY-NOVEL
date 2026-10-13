@@ -184,6 +184,25 @@ async function checkWhiteoutStill(browser: Browser): Promise<void> {
       assert(first === (await snap()), "the canvas changed under reduced motion");
     });
   });
+
+  await check("home whiteout stops drawing once scrolled to blank paper, and resumes above it", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await waitForWhiteout(page);
+      await page.waitForFunction(() => document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.plate === "ready");
+      const snap = () => page.$eval(".lodge-whiteout-canvas", (canvas) => (canvas as HTMLCanvasElement).toDataURL("image/png"));
+      await page.evaluate(() => window.scrollTo({ top: document.documentElement.scrollHeight, behavior: "instant" }));
+      await pause(500);
+      const below = await snap();
+      await pause(800);
+      assert(below === (await snap()), "the faded scene is still being drawn");
+      await page.evaluate(() => window.scrollTo({ top: 0, behavior: "instant" }));
+      await pause(500);
+      const above = await snap();
+      await pause(800);
+      assert(above !== (await snap()), "the scene did not resume at the top");
+    });
+  });
 }
 
 async function checkWhiteoutNavigation(browser: Browser): Promise<void> {
@@ -466,6 +485,27 @@ async function checkBoard(browser: Browser): Promise<void> {
       assert((await page.$$("[data-stamp]")).length === 0, "a new reader sees stamps");
       assert(await page.$eval(`${boardCard("Diana Webb")} [data-file-number]`, (el) => (el as HTMLElement).hidden), "a new reader sees file numbers");
     });
+  });
+
+  await check("Karlsen's board never scrolls sideways (cards leave overflow visible for the pin)", async () => {
+    const sizes = [
+      { width: 375, height: 812 },
+      { width: 667, height: 375 },
+      { width: 700, height: 900 },
+      { width: 760, height: 900 },
+      { width: 812, height: 375 },
+      { width: 1280, height: 800 },
+    ];
+    const wide: string[] = [];
+    for (const viewport of sizes) {
+      await withPage(browser, { viewport, seed: progressSeed(finishedThrough(18)) }, async (page) => {
+        await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+        await waitBoard(page);
+        const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+        if (scrollWidth > viewport.width) wide.push(`${viewport.width}x${viewport.height}: ${scrollWidth}px`);
+      });
+    }
+    assert(wide.length === 0, wide.join(", "));
   });
 
   await check("the Subject 8 card still unlocks after chapter 17 at 80 percent", async () => {

@@ -61,17 +61,6 @@ export function smudge(ctx: CanvasRenderingContext2D, x: number, y: number, r: n
   ctx.fillRect(x - r, y - r, r * 2, r * 2);
 }
 
-/** A snow flake drawn as a short pencil stroke. */
-export function pencilFlake(ctx: CanvasRenderingContext2D, x: number, y: number, len: number, angle: number, alpha: number): void {
-  ctx.strokeStyle = `rgba(236,231,221,${alpha})`;
-  ctx.lineWidth = Math.max(0.6, len * 0.22);
-  ctx.lineCap = "round";
-  ctx.beginPath();
-  ctx.moveTo(x, y);
-  ctx.lineTo(x + Math.cos(angle) * len, y + Math.sin(angle) * len);
-  ctx.stroke();
-}
-
 /** Runs `draw` with destination-out, so whatever it paints is erased from the layer. */
 export function erase(ctx: CanvasRenderingContext2D, draw: () => void): void {
   ctx.save();

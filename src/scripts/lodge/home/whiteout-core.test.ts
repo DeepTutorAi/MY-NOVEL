@@ -2,11 +2,14 @@ import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { createRng } from "../../_shared/scene-runtime";
 import {
+  FLAKE_DEPTHS,
+  FLAKE_TONES,
   FOLLOW_DELAY_S,
   GUST_EVERY_S,
   PRINT_FADE_S,
   STILL_TURN_S,
   STRIDE_PX,
+  flakeStyles,
   followerSteps,
   gustVeil,
   nextGustAt,
@@ -111,5 +114,26 @@ describe("gusts", () => {
     assert.ok(peak > 0.4, "the gust is visible");
     assert.equal(gustVeil(4.9, schedule), 0);
     assert.equal(gustVeil(7.1, schedule), 0);
+  });
+});
+
+describe("flake styles", () => {
+  it("are one per depth and tone, so every flake of a style is drawn in one stroke", () => {
+    const styles = flakeStyles();
+    assert.equal(styles.length, FLAKE_DEPTHS.length * FLAKE_TONES);
+    FLAKE_DEPTHS.forEach((depth, d) => {
+      const tones = styles.slice(d * FLAKE_TONES, (d + 1) * FLAKE_TONES);
+      for (let t = 0; t < FLAKE_TONES; t += 1) {
+        assert.ok(tones[t].alpha > depth.alpha[0] && tones[t].alpha < depth.alpha[1], `depth ${d} tone ${t}: ${tones[t].alpha}`);
+        if (t > 0) assert.ok(tones[t].alpha > tones[t - 1].alpha, "tones rise in alpha");
+        assert.equal(tones[t].width, tones[0].width, "one width per depth");
+        assert.match(tones[t].color, /^rgba\(236,231,221,0\.\d+\)$/);
+      }
+    });
+  });
+
+  it("draw nearer flakes with a thicker pencil, never under 0.6 px", () => {
+    const widths = FLAKE_DEPTHS.map((_, d) => flakeStyles()[d * FLAKE_TONES].width);
+    assert.ok(widths[0] >= 0.6 && widths[0] <= widths[1] && widths[1] < widths[2], widths.join(", "));
   });
 });

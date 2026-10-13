@@ -10,10 +10,13 @@
 import { createNoise2D, createRng, fbm2D, type SceneFrame, type SceneSize } from "../../_shared/scene-runtime";
 import type { DriftLevel } from "../progress-core";
 import { coverRect, luminanceRamp, platePoint, type Rect } from "../canvas/kit-core";
-import { loadPlate, makeLayer, paperGrain, pencilFlake, runLodgeScene, smudge, type LodgeSceneHandle } from "../canvas/kit";
+import { loadPlate, makeLayer, paperGrain, runLodgeScene, smudge, type LodgeSceneHandle } from "../canvas/kit";
 import {
+  FLAKE_DEPTHS,
+  FLAKE_TONES,
   PRINT_FADE_S,
   STRIDE_PX,
+  flakeStyles,
   followerSteps,
   gustLength,
   gustVeil,
@@ -77,17 +80,14 @@ interface Flake {
   x: number;
   y: number;
   depth: 0 | 1 | 2;
+  /** Index into FLAKE_STYLES; flakes are kept sorted by it. */
+  style: number;
   speed: number;
   len: number;
-  alpha: number;
   phase: number;
 }
 
-const DEPTHS = [
-  { share: 0.5, speed: [18, 30], len: [1.2, 2.2], alpha: [0.18, 0.32] },
-  { share: 0.35, speed: [38, 60], len: [2.4, 4.2], alpha: [0.3, 0.5] },
-  { share: 0.15, speed: [80, 120], len: [5, 9], alpha: [0.45, 0.7] },
-] as const;
+const FLAKE_STYLES = flakeStyles();
 
 export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
   const { mount, level } = options;
@@ -114,6 +114,9 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
   let gusts: Gust[] = [];
   let nextGust = 0;
   let destroyed = false;
+  let still = Boolean(options.still);
+  /** Stopped because the reader scrolled past the point where the scene is fully faded. */
+  let pausedBelow = false;
 
   // Footprints: the current stroke of pointer positions, the prints already placed.
   let stroke: PathPoint[] = [];
@@ -125,18 +128,19 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
 
   const wind = level >= 1 ? 1.15 : 1;
 
-  const spawnFlake = (w: number, h: number, anywhere: boolean): Flake => {
+  /** A new flake; a respawned one keeps its depth and style so the batches stay sorted. */
+  const spawnFlake = (w: number, h: number, anywhere: boolean, from?: Flake): Flake => {
     const pick = rng();
-    const depth: 0 | 1 | 2 = pick < DEPTHS[0].share ? 0 : pick < DEPTHS[0].share + DEPTHS[1].share ? 1 : 2;
-    const spec = DEPTHS[depth];
+    const depth: 0 | 1 | 2 = from?.depth ?? (pick < FLAKE_DEPTHS[0].share ? 0 : pick < FLAKE_DEPTHS[0].share + FLAKE_DEPTHS[1].share ? 1 : 2);
+    const spec = FLAKE_DEPTHS[depth];
     const between = (range: readonly [number, number]) => range[0] + rng() * (range[1] - range[0]);
     return {
       x: rng() * w,
       y: anywhere ? rng() * h : -10 - rng() * 40,
       depth,
+      style: from?.style ?? depth * FLAKE_TONES + Math.floor(rng() * FLAKE_TONES),
       speed: between(spec.speed),
       len: between(spec.len),
-      alpha: between(spec.alpha),
       phase: rng() * Math.PI * 2,
     };
   };
@@ -196,7 +200,7 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
     plainBase = flipping ? bakeBase(next, false) : null;
     bakeFigures(next);
     const count = Math.round((w * h) / 2600);
-    flakes = Array.from({ length: count }, () => spawnFlake(w, h, true));
+    flakes = Array.from({ length: count }, () => spawnFlake(w, h, true)).sort((a, b) => a.style - b.style);
   };
 
   /** A plate point, mirrored with the plate in the finale. */
@@ -396,18 +400,30 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
     const veil = moving ? gustVeil(t, gusts) : 0;
     const drift = (14 + veil * 120) * wind;
 
+    // Short pencil strokes, one path per style: a stroke per flake cost about 2 ms a frame.
+    ctx.lineCap = "round";
+    let style = -1;
     for (const flake of flakes) {
       if (moving) {
         const sway = noise(flake.phase, t * 0.2) * 10;
         flake.y += flake.speed * (1 + veil * 0.8) * dt;
         flake.x += (drift * (0.4 + flake.depth * 0.3) + sway) * dt;
-        if (flake.y > h + 10) Object.assign(flake, spawnFlake(w, h, false));
+        if (flake.y > h + 10) Object.assign(flake, spawnFlake(w, h, false, flake));
         if (flake.x > w + 10) flake.x = -10;
         if (flake.x < -10) flake.x = w + 10;
       }
+      if (flake.style !== style) {
+        if (style >= 0) ctx.stroke();
+        style = flake.style;
+        ctx.strokeStyle = FLAKE_STYLES[style].color;
+        ctx.lineWidth = FLAKE_STYLES[style].width;
+        ctx.beginPath();
+      }
       const angle = Math.atan2(flake.speed, drift * (0.4 + flake.depth * 0.3)) + Math.PI;
-      pencilFlake(ctx, flake.x, flake.y, flake.len, angle, flake.alpha);
+      ctx.moveTo(flake.x, flake.y);
+      ctx.lineTo(flake.x + Math.cos(angle) * flake.len, flake.y + Math.sin(angle) * flake.len);
     }
+    if (style >= 0) ctx.stroke();
 
     if (veil > 0) {
       const band = ctx.createLinearGradient(0, 0, w, 0);
@@ -424,6 +440,11 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
     if (fade > 0) {
       ctx.fillStyle = `rgba(14,13,12,${fade * 0.88})`;
       ctx.fillRect(0, 0, w, h);
+    }
+    // Fully faded, the scene is only paper: stop drawing until the reader scrolls back up.
+    if (moving && fade >= 1) {
+      pausedBelow = true;
+      handle.stop();
     }
   };
 
@@ -452,13 +473,20 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
     if (scrollFrame) return;
     scrollFrame = window.requestAnimationFrame(() => {
       scrollFrame = 0;
+      if (pausedBelow && size && window.scrollY < size.height * 0.9) {
+        pausedBelow = false;
+        if (!still) handle.start();
+      }
       handle.redrawStill();
     });
   };
   window.addEventListener("scroll", onScroll, { passive: true });
 
   return {
-    setStill: (still) => handle.setStill(still),
+    setStill: (next) => {
+      still = next;
+      handle.setStill(next);
+    },
     destroy() {
       if (destroyed) return;
       destroyed = true;

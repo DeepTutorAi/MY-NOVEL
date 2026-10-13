@@ -16,6 +16,32 @@ export const GUST_LENGTH_S: readonly [number, number] = [2, 3];
 /** Peak veil opacity. With a rise of at least 1 s the slope stays under 1 per second. */
 const GUST_PEAK = 0.55;
 
+/** Snow by depth: far flakes are small, slow and faint; near ones long, fast and dark. */
+export const FLAKE_DEPTHS = [
+  { share: 0.5, speed: [18, 30], len: [1.2, 2.2], alpha: [0.18, 0.32] },
+  { share: 0.35, speed: [38, 60], len: [2.4, 4.2], alpha: [0.3, 0.5] },
+  { share: 0.15, speed: [80, 120], len: [5, 9], alpha: [0.45, 0.7] },
+] as const;
+/** Alpha steps within a depth. Each depth and tone is one stroke per frame. */
+export const FLAKE_TONES = 3;
+
+export interface FlakeStyle {
+  color: string;
+  alpha: number;
+  width: number;
+}
+
+/** Styles indexed by depth * FLAKE_TONES + tone. */
+export function flakeStyles(): FlakeStyle[] {
+  return FLAKE_DEPTHS.flatMap((depth) => {
+    const width = Math.max(0.6, ((depth.len[0] + depth.len[1]) / 2) * 0.22);
+    return Array.from({ length: FLAKE_TONES }, (_, tone) => {
+      const alpha = Number((depth.alpha[0] + ((tone + 0.5) / FLAKE_TONES) * (depth.alpha[1] - depth.alpha[0])).toFixed(3));
+      return { color: `rgba(236,231,221,${alpha})`, alpha, width };
+    });
+  });
+}
+
 export interface PathPoint {
   x: number;
   y: number;
