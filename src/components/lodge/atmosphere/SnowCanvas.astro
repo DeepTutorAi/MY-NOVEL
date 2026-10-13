@@ -185,10 +185,16 @@
         continue;
       }
 
+      // A short pencil stroke along the direction of fall (the graphite look of the rework).
+      const length = particle.radius * 3.2;
+      const fall = Math.hypot(particle.driftX, particle.driftSpeed) || 1;
       context.beginPath();
-      context.fillStyle = `rgba(236, 231, 221, ${particle.opacity})`;
-      context.arc(particle.x, particle.y, particle.radius, 0, Math.PI * 2);
-      context.fill();
+      context.strokeStyle = `rgba(236, 231, 221, ${particle.opacity})`;
+      context.lineWidth = Math.max(0.6, particle.radius * 0.7);
+      context.lineCap = "round";
+      context.moveTo(particle.x, particle.y);
+      context.lineTo(particle.x - (particle.driftX / fall) * length, particle.y - (particle.driftSpeed / fall) * length);
+      context.stroke();
     }
 
     // Under reduced motion, particles are static — render one frame and stop.

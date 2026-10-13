@@ -20,6 +20,7 @@ const chapters = (await getCollection("chapters")).sort(
   </summary>
   <div class="toc-panel" aria-label="สารบัญ">
     <div class="toc-panel-head">
+      <span class="toc-panel-folder" aria-hidden="true">GUEST RECORDS</span>
       <strong>สารบัญ</strong>
       <a href={withBase("/lodge/chapters/")}>หน้าสารบัญเต็ม</a>
     </div>
@@ -212,7 +213,7 @@ const chapters = (await getCollection("chapters")).sort(
     overflow: auto;
     padding: 1rem;
     border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
-    background: color-mix(in oklab, var(--paper) 92%, black);
+    background: var(--paper-grain), color-mix(in oklab, var(--paper) 92%, black);
     box-shadow: 0 1.5rem 4rem rgb(0 0 0 / 0.42);
     opacity: 0;
     pointer-events: none;
@@ -233,6 +234,15 @@ const chapters = (await getCollection("chapters")).sort(
     gap: 1rem;
     padding-block-end: 0.8rem;
     border-block-end: 1px solid color-mix(in oklab, var(--ink) 10%, transparent);
+  }
+
+  .toc-panel-folder {
+    padding: 0.15rem 0.45rem;
+    border: 1px solid var(--graphite-3);
+    color: var(--graphite-2);
+    font-family: var(--font-mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.2em;
   }
 
   .toc-panel-head strong {
@@ -278,6 +288,7 @@ const chapters = (await getCollection("chapters")).sort(
     gap: 0.65rem;
     align-items: baseline;
     padding: 0.45rem 0.35rem;
+    border-block-end: 1px dashed color-mix(in oklab, var(--ink) 10%, transparent);
     color: inherit;
     text-decoration: none;
   }
