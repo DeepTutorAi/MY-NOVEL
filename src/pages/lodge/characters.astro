@@ -67,6 +67,14 @@ import { withBase } from "../../utils/base-path";
   </main>
 
   <script>
+    import {
+      UNLOCK,
+      activeProfileId,
+      furthestAtLeast,
+      readChapterProgress,
+      storageEntries,
+    } from "../../scripts/lodge/progress-core";
+
     const spoilerUnlockKey = "hvitveldt:characters:subject8-visible";
     const puzzleUnlockKey = "hvitveldt:puzzle-unlocked";
     const lastReadingKey = "hvitveldt:reading:last";
@@ -80,39 +88,11 @@ import { withBase } from "../../utils/base-path";
       }
     };
 
-    const getActiveProfileId = () => {
-      try {
-        return localStorage.getItem("piichan-novels:active-profile-id") || "guest";
-      } catch {
-        return "guest";
-      }
-    };
-
     const getMaxChapterRead = () => {
       const last = parseStored(lastReadingKey);
-      let maxChapter = Number(last?.maxChapterNumber ?? last?.chapterNumber ?? 0);
-      const activeProfile = getActiveProfileId();
-
-      for (let index = 0; index < localStorage.length; index += 1) {
-        const key = localStorage.key(index);
-        if (!key || !key.startsWith("hvitveldt:reading:chapter:")) {
-          continue;
-        }
-        // Only read keys belonging to the active profile (or legacy unsuffixed keys)
-        if (key.includes(":p_") && !key.endsWith(`:${activeProfile}`)) {
-          continue;
-        }
-
-        const saved = parseStored(key);
-        const chapterNumber = Number(saved?.chapterNumber ?? 0);
-        const progress = Number(saved?.progress ?? 0);
-
-        if (Number.isFinite(chapterNumber) && progress >= 0.8) {
-          maxChapter = Math.max(maxChapter, chapterNumber);
-        }
-      }
-
-      return maxChapter;
+      const lastChapter = Number(last?.maxChapterNumber ?? last?.chapterNumber ?? 0);
+      const progress = readChapterProgress(storageEntries(localStorage), activeProfileId(localStorage));
+      return Math.max(Number.isFinite(lastChapter) ? lastChapter : 0, furthestAtLeast(progress, UNLOCK));
     };
 
     const puzzleUnlocked = () => {
