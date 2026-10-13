@@ -793,12 +793,16 @@ pre {
     margin-block-end: 3rem;
   }
 
-  .character-grid {
-    grid-template-columns: 1fr;
-  }
-
   .character-card {
     grid-template-columns: minmax(7rem, 38%) minmax(0, 1fr);
+  }
+}
+
+/* Two cards side by side leave a text column of about 100px below this width;
+   board cards keep overflow visible for their pin, so a long word would widen the page. */
+@media (max-width: 760px) {
+  .character-grid {
+    grid-template-columns: 1fr;
   }
 }
 
