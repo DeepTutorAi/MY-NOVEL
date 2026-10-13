@@ -449,6 +449,71 @@ async function checkBoard(browser: Browser): Promise<void> {
   });
 }
 
+async function checkFinale(browser: Browser): Promise<void> {
+  const guest = JSON.stringify({ name: "สมชาย", signedAt: "2026-10-13T00:00:00.000Z", skipped: false });
+
+  await check("finale: after all 18 chapters the home is mirrored, the card is referred by E. VASQUEZ, the name drifts", async () => {
+    await withPage(browser, { seed: { ...progressSeed(finishedThrough(18)), "hvitveldt:guest": guest } }, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await waitForWhiteout(page);
+      const home = await page.evaluate(() => ({
+        drift: document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.drift,
+        mirrored: document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.mirrored,
+        titleTransform: getComputedStyle(document.querySelector("h1")!).transform,
+        note: (() => {
+          const el = document.querySelector<HTMLElement>("[data-finale-note]");
+          return el && !el.hidden ? el.textContent?.trim() : null;
+        })(),
+        referred: document.querySelector("[data-guest-card] [data-guest-referred]")?.textContent?.trim(),
+        drifted: document.querySelectorAll("[data-guest-card] .hand-g--s").length,
+      }));
+      assert(home.drift === "4" && home.mirrored === "true", JSON.stringify(home));
+      assert(home.titleTransform === "none", `title transform ${home.titleTransform}`);
+      assert(home.note === "รอบถัดไป · กุมภาพันธ์ 2026", `note ${home.note}`);
+      assert(home.referred === "E. VASQUEZ", `referred ${home.referred}`);
+      assert(home.drifted === 1, `${home.drifted} drifted ส in the signature`);
+    });
+  });
+
+  await check("finale: the board pins the reader's card last and remembers whom they suspected", async () => {
+    const seed = { ...progressSeed(finishedThrough(18)), "hvitveldt:guest": guest, "hvitveldt:suspects": JSON.stringify(["Diana Webb"]) };
+    await withPage(browser, { seed }, async (page) => {
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      await waitBoard(page);
+      const board = await page.evaluate(() => {
+        const finale = document.querySelector<HTMLElement>("[data-board-finale]");
+        const line = document.querySelector<HTMLElement>("[data-board-suspected]");
+        return {
+          shown: Boolean(finale && !finale.hidden),
+          cardLast: Boolean(finale?.querySelector("[data-guest-card]")),
+          line: line?.textContent?.trim() ?? "",
+          elena: Array.from(document.querySelectorAll('[data-board-card][data-name="Elena Vasquez"] [data-stamp]')).map((n) => n.textContent?.trim()).pop(),
+        };
+      });
+      assert(board.shown && board.cardLast, JSON.stringify(board));
+      assert(board.line.includes("Diana Webb") && board.line.includes("ไม่เคยสงสัย Elena Vasquez"), board.line);
+      assert(board.elena === "SUBJECT 8", `Elena's last stamp ${board.elena}`);
+    });
+  });
+
+  await check("finale: a reader who skipped to chapter 18 sees none of it", async () => {
+    await withPage(browser, { seed: { ...progressSeed({ 18: 1 }), "hvitveldt:guest": guest } }, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await waitForWhiteout(page);
+      const home = await page.evaluate(() => ({
+        drift: document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.drift,
+        mirrored: document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.mirrored ?? "false",
+        note: document.querySelector<HTMLElement>("[data-finale-note]")?.hidden,
+        referred: document.querySelector("[data-guest-card] [data-guest-referred]")?.textContent?.trim(),
+      }));
+      assert(home.drift === "1" && home.mirrored === "false" && home.note === true && home.referred === "", JSON.stringify(home));
+      await page.goto(url("lodge/characters/"), { waitUntil: "load" });
+      await waitBoard(page);
+      assert(await page.$eval("[data-board-finale]", (el) => (el as HTMLElement).hidden), "the board finale shows");
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -477,6 +542,7 @@ async function main(): Promise<void> {
     await checkCandle(browser);
     await checkCutscenes(browser);
     await checkBoard(browser);
+    await checkFinale(browser);
   } finally {
     await browser.close();
   }

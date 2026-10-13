@@ -9,7 +9,7 @@
 // which sits above it with its own vignette.
 import { createNoise2D, createRng, fbm2D, type SceneFrame, type SceneSize } from "../../_shared/scene-runtime";
 import type { DriftLevel } from "../progress-core";
-import { coverRect, platePoint, type Rect } from "../canvas/kit-core";
+import { coverRect, luminanceRamp, platePoint, type Rect } from "../canvas/kit-core";
 import { loadPlate, makeLayer, paperGrain, pencilFlake, runLodgeScene, smudge, type LodgeSceneHandle } from "../canvas/kit";
 import {
   PRINT_FADE_S,
@@ -34,6 +34,8 @@ export interface MountWhiteoutOptions {
   still: boolean;
   /** The finale's mirrored home (design 8.2). */
   mirrored?: boolean;
+  /** Turn from the plain scene into the mirrored one, once (the first visit after the finale). */
+  flipOnce?: boolean;
   seed?: number;
 }
 
@@ -90,6 +92,11 @@ const DEPTHS = [
 export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
   const { mount, level } = options;
   const mirrored = Boolean(options.mirrored);
+  const FLIP_FROM_S = 0.6;
+  const FLIP_S = 1.5;
+  let flipping = mirrored && Boolean(options.flipOnce) && !options.still;
+  /** The plain scene, kept only while the first flip runs. */
+  let plainBase: HTMLCanvasElement | null = null;
   const rng = createRng(options.seed ?? 20240206);
   const noise = createNoise2D(options.seed ?? 20240206);
 
@@ -149,10 +156,9 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
     ctx.fill();
   };
 
-  const bake = (next: SceneSize) => {
-    size = next;
+  const bakeBase = (next: SceneSize, flip: boolean): HTMLCanvasElement | null => {
     const layer = makeLayer(next);
-    if (!layer) return;
+    if (!layer) return null;
     const { ctx } = layer;
     const { width: w, height: h } = next;
     ctx.fillStyle = "#0e0d0c";
@@ -161,7 +167,7 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
       const cover = coverRect(plate.naturalWidth, plate.naturalHeight, w, h);
       rect = { ...cover, x: (w - cover.w) * FOCUS.x, y: (h - cover.h) * FOCUS.y };
       ctx.save();
-      if (mirrored) {
+      if (flip) {
         ctx.translate(w, 0);
         ctx.scale(-1, 1);
       }
@@ -180,7 +186,14 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
     edges.addColorStop(1, "rgba(14,13,12,0.5)");
     ctx.fillStyle = edges;
     ctx.fillRect(0, 0, w, h);
-    base = layer.canvas;
+    return layer.canvas;
+  };
+
+  const bake = (next: SceneSize) => {
+    size = next;
+    const { width: w, height: h } = next;
+    base = bakeBase(next, mirrored);
+    plainBase = flipping ? bakeBase(next, false) : null;
     bakeFigures(next);
     const count = Math.round((w * h) / 2600);
     flakes = Array.from({ length: count }, () => spawnFlake(w, h, true));
@@ -340,7 +353,21 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
   const draw = (ctx: CanvasRenderingContext2D, frame: Readonly<SceneFrame>, moving: boolean) => {
     const { width: w, height: h, t, dt } = frame;
     ctx.setTransform(frame.dpr, 0, 0, frame.dpr, 0, 0);
-    if (base) ctx.drawImage(base, 0, 0, w, h);
+    if (flipping && plainBase && moving) {
+      const turn = luminanceRamp(t - FLIP_FROM_S, FLIP_S);
+      ctx.drawImage(plainBase, 0, 0, w, h);
+      if (base) {
+        ctx.globalAlpha = turn;
+        ctx.drawImage(base, 0, 0, w, h);
+        ctx.globalAlpha = 1;
+      }
+      if (turn >= 1) {
+        flipping = false;
+        plainBase = null;
+      }
+    } else if (base) {
+      ctx.drawImage(base, 0, 0, w, h);
+    }
     drawLateWindow(ctx);
 
     if (moving) trackPointer(frame);
@@ -352,7 +379,7 @@ export function mountWhiteout(options: MountWhiteoutOptions): WhiteoutHandle {
       steps = steps.filter((step) => t - step.t < PRINT_FADE_S + 1);
       for (const step of steps) {
         const alpha = printAlpha(t - step.t);
-        if (alpha > 0) bootPrint(ctx, step, alpha, printScale(step.y));
+        if (alpha > 0) (mirrored ? barePrint : bootPrint)(ctx, step, alpha, printScale(step.y));
       }
       for (const step of followerSteps(steps, level, t)) {
         const alpha = printAlpha(t - step.t);

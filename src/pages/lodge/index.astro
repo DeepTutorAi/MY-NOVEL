@@ -27,6 +27,7 @@ const chapterUnits = (await getCollection("chapters"))
       <div>
         <h1 id="home-title" class="home-title">ฮวิตเวลต์ ลอดจ์</h1>
         <p class="home-subtitle">บันทึกเจ็ดวัน — ของผู้รอดชีวิตคนเดียว</p>
+        <p class="finale-note" data-finale-note hidden>รอบถัดไป · กุมภาพันธ์ 2026</p>
         <p class="home-meta">18 บท · ประมาณ 14 ชั่วโมงในการอ่าน · เปิดอ่าน, ปิดได้ทุกเมื่อ</p>
         <div class="home-resume" data-resume-card hidden>
           <span data-resume-label>อ่านค้างไว้</span>
@@ -167,9 +168,21 @@ const chapterUnits = (await getCollection("chapters"))
   <script>
     import { onPage } from "../../scripts/_shared/lifecycle";
     import { startWhiteout } from "../../scripts/lodge/home/whiteout-loader";
+    import { lodgeDrift, readFinished } from "../../scripts/lodge/progress-core";
 
     onPage("lodge-whiteout", { bodyClass: "lodge-home" }, () =>
       startWhiteout({ mount: document.querySelector<HTMLElement>("[data-whiteout-mount]") }),
     );
+
+    // The finale's note (design 8.2): only for a reader who finished the book.
+    onPage("lodge-finale-note", { bodyClass: "lodge-home" }, () => {
+      const note = document.querySelector<HTMLElement>("[data-finale-note]");
+      if (!note) return;
+      try {
+        note.hidden = lodgeDrift(readFinished(window.localStorage)) !== 4;
+      } catch {
+        note.hidden = true;
+      }
+    });
   </script>
 </LodgeBaseLayout>

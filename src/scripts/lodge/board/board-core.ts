@@ -19,3 +19,11 @@ export function parseSuspects(raw: string | null, knownNames: readonly string[])
 export function toggleSuspect(list: readonly string[], name: string): string[] {
   return list.includes(name) ? list.filter((item) => item !== name) : [...list, name];
 }
+
+const HOST = "Elena Vasquez";
+
+/** The finale's handwritten line on the board (design 8.2): whom the reader suspected, and Elena. */
+export function suspectedLine(pins: readonly string[]): string {
+  const who = pins.length > 0 ? `คุณเคยสงสัย ${pins.join(", ")}` : "คุณไม่ได้สงสัยใครเลย";
+  return `${who} · ${pins.includes(HOST) ? "และคุณสงสัยถูกคน" : `ไม่เคยสงสัย ${HOST}`}`;
+}

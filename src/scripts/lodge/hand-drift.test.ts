@@ -56,7 +56,7 @@ describe("chapter 18 markup", () => {
   });
 
   it("styles the drift without inline-block or transform, so Thai lines break as before", () => {
-    const css = readFileSync(join(process.cwd(), "src/styles/lodge/chapter.css"), "utf8");
+    const css = readFileSync(join(process.cwd(), "src/styles/lodge/global.css"), "utf8");
     const rules = [...css.matchAll(/([^{}]*\.hand[^{}]*)\{([^}]*)\}/g)];
     assert.ok(rules.length > 0, "no .hand rules");
     for (const [, selector, body] of rules) {

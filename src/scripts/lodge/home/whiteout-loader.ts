@@ -9,6 +9,7 @@
 // aside. If the chunk cannot load or there is no 2D canvas, nothing is mounted
 // and the page keeps the picture and the global snow.
 import { lodgeDrift, readFinished, type DriftLevel } from "../progress-core";
+import { consumeFinaleFlip } from "./finale";
 
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 /** SnowCanvas.astro and AmbientPlayer.astro own this switch. */
@@ -50,6 +51,10 @@ export function startWhiteout({ mount }: { mount: HTMLElement | null }): () => v
   const wantsStill = () => reducedQuery.matches || !readSwitch();
   const level = readLevel();
   mount.dataset.drift = String(level);
+  // The finale (design 8.2): after chapter 18 the scene is the mirror image of itself.
+  const mirrored = level === 4;
+  mount.dataset.mirrored = String(mirrored);
+  const flipOnce = mirrored && consumeFinaleFlip(window.localStorage);
 
   let stopped = false;
   let handle: { setStill(still: boolean): void; destroy(): void } | null = null;
@@ -75,7 +80,7 @@ export function startWhiteout({ mount }: { mount: HTMLElement | null }): () => v
       return;
     }
     if (stopped) return;
-    handle = scene.mountWhiteout({ mount, plateUrl, level, still: wantsStill() });
+    handle = scene.mountWhiteout({ mount, plateUrl, level, still: wantsStill(), mirrored, flipOnce });
     mount.dataset.whiteout = "live";
     document.body.classList.add(LIVE_CLASS);
   };

@@ -114,6 +114,19 @@
   font-style: italic;
 }
 
+/* The finale's handwritten note (design 8.2). */
+.finale-note {
+  margin-block: 1.4rem 0;
+  color: #d9a99f;
+  font-family: var(--font-hand);
+  font-size: 1.15rem;
+  rotate: -2deg;
+}
+
+.finale-note[hidden] {
+  display: none;
+}
+
 .home-meta {
   margin-block-start: 4rem;
   color: var(--ink-dim);
@@ -519,6 +532,24 @@
 
 .board-suspect[aria-pressed="true"]::after {
   content: " ?";
+}
+
+.board-finale[hidden] {
+  display: none;
+}
+
+.board-finale-card {
+  display: grid;
+  gap: 1rem;
+  max-inline-size: 30rem;
+  rotate: 0.8deg;
+}
+
+.board-suspected {
+  margin: 0;
+  color: var(--graphite-1);
+  font-family: var(--font-hand);
+  font-size: 1.05rem;
 }
 
 .board-suspect:focus-visible {

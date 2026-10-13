@@ -1,6 +1,7 @@
 // The optional guest book (design section 5.2) and the guest card it fills,
 // which the GUEST RECORDS page and the finale reuse. The name is reader input:
 // it goes through guest-core.ts and is only ever written with textContent.
+import { driftClusters } from "../../../plugins/hand-drift.mjs";
 import { GUEST_KEY, guestMonthLabel, normalizeGuestName, parseGuestRecord, type GuestRecord } from "../guest-core";
 import type { DriftLevel } from "../progress-core";
 
@@ -38,7 +39,27 @@ export function renderGuestCard(root: HTMLElement, record: GuestRecord | null, l
   const name = root.querySelector<HTMLElement>("[data-guest-name]");
   const month = root.querySelector<HTMLElement>("[data-guest-month]");
   const referred = root.querySelector<HTMLElement>("[data-guest-referred]");
-  if (name) name.textContent = record?.name ?? (record?.skipped ? "GUEST" : BLANK_NAME);
+  if (name) {
+    const text = record?.name ?? (record?.skipped ? "GUEST" : BLANK_NAME);
+    if (level === 4 && record?.name) {
+      // The finale (design 8.2): the reader's own hand drifts as Elena's did by day 5.
+      const hand = document.createElement("span");
+      hand.className = "hand hand--day-5";
+      for (const cluster of driftClusters(text, 5)) {
+        if (!cluster.glyph) {
+          hand.append(cluster.text);
+          continue;
+        }
+        const glyph = document.createElement("span");
+        glyph.className = `hand-g hand-g--${cluster.glyph}`;
+        glyph.textContent = cluster.text;
+        hand.append(glyph);
+      }
+      name.replaceChildren(hand);
+    } else {
+      name.textContent = text;
+    }
+  }
   if (month) month.textContent = guestMonthLabel(record?.signedAt ?? new Date().toISOString());
   if (referred) referred.textContent = level === 4 ? REFERRER : "";
   root.dataset.signed = record ? (record.skipped ? "skipped" : "signed") : "blank";

@@ -1,4 +1,5 @@
 ---
+import GuestCard from "../../components/lodge/home/GuestCard.astro";
 import LodgeBaseLayout from "../../layouts/lodge/LodgeBaseLayout.astro";
 import { characterGroups } from "../../data/lodge/characters";
 import { withBase } from "../../utils/base-path";
@@ -69,6 +70,17 @@ import { withBase } from "../../utils/base-path";
         </section>
       ))
     }
+
+    <section class="character-group board-finale" data-board-finale aria-labelledby="board-finale-title" hidden>
+      <div class="character-group-head">
+        <p>Next round</p>
+        <h2 id="board-finale-title">แขกคนถัดไป</h2>
+      </div>
+      <div class="board-finale-card">
+        <GuestCard />
+        <p class="board-suspected" data-board-suspected></p>
+      </div>
+    </section>
   </main>
 
   <script>
