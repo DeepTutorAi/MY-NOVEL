@@ -249,6 +249,18 @@ async function checkGuestBook(browser: Browser): Promise<void> {
     });
   });
 
+  await check("guest book keeps a pasted emoji name to 40 whole clusters (the field does not cut them)", async () => {
+    const family = "👨‍👩‍👧‍👦";
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await page.$eval("#guest-name", (input, value) => ((input as HTMLInputElement).value = value), family.repeat(45));
+      await page.click("[data-guest-sign]");
+      const shown = await guestName(page);
+      assert(shown === family.repeat(40), `kept ${[...new Intl.Segmenter("th", { granularity: "grapheme" }).segment(shown)].length} clusters, intact: ${shown === family.repeat(40)}`);
+      assert((await page.$eval("#guest-name", (input) => (input as HTMLInputElement).maxLength)) < 0, "the field still caps code units");
+    });
+  });
+
   await check("guest book keeps working when storage refuses writes", async () => {
     await withPage(browser, { storageThrows: true }, async (page) => {
       await page.goto(url("lodge/"), { waitUntil: "load" });
@@ -353,6 +365,22 @@ async function checkCutscenes(browser: Browser): Promise<void> {
     });
   });
 
+  await check("cutscene: opening the notebook by keyboard keeps focus inside the dialog", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/chapters/00-introduction/"), { waitUntil: "domcontentloaded" });
+      await waitPlaying(page);
+      await page.waitForSelector("[data-scene-open]");
+      await page.focus("[data-scene-open]");
+      await page.keyboard.press("Enter");
+      await pause(200);
+      const focused = await page.evaluate(() => {
+        const el = document.activeElement;
+        return { inDialog: Boolean(el?.closest("dialog.lodge-cutscene")), skip: el?.hasAttribute("data-cutscene-skip") ?? false };
+      });
+      assert(focused.inDialog && focused.skip, JSON.stringify(focused));
+    });
+  });
+
   await check("every epigraph chapter opens its cutscene; other chapters do not", async () => {
     await withPage(browser, {}, async (page) => {
       for (const slug of ["00-introduction", "06-ben-acts-off", "13-into-the-basement", "18-mirror"]) {
@@ -426,6 +454,9 @@ async function checkBoard(browser: Browser): Promise<void> {
       await waitBoard(page);
       const marcus = await page.$$eval(`${boardCard("Marcus Hale")} [data-stamp]`, (nodes) => nodes.map((n) => [n.textContent?.trim(), n.classList.contains("is-superseded")]));
       assert(JSON.stringify(marcus) === JSON.stringify([["MISSING", true], ["DEAD", true], ["BODY GONE", false]]), JSON.stringify(marcus));
+      // Crossed out for screen readers too, not only by styling.
+      const struck = await page.$$eval(`${boardCard("Marcus Hale")} [data-stamp].is-superseded`, (nodes) => nodes.length > 0 && nodes.every((n) => n.querySelector("s, del") !== null));
+      assert(struck, "a superseded stamp is crossed out only visually");
       const file = await page.$eval(`${boardCard("Diana Webb")} [data-file-number]`, (el) => ({ hidden: (el as HTMLElement).hidden, text: el.textContent?.trim() }));
       assert(!file.hidden && file.text === "Subject 4", JSON.stringify(file));
     });

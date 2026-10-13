@@ -55,7 +55,9 @@ export function setupBoard(root: HTMLElement): () => void {
           item.dataset.stamp = "";
           if (stamp.superseded) item.classList.add("is-superseded");
           if (stamp.note) item.classList.add("is-note");
-          item.textContent = stamp.stamp;
+          // Overturned stamps are struck through in the markup, so screen readers hear it too.
+          if (stamp.superseded) item.append(Object.assign(document.createElement("s"), { textContent: stamp.stamp }));
+          else item.textContent = stamp.stamp;
           return item;
         }),
       );

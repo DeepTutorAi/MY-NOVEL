@@ -20,22 +20,6 @@ export function platePoint(rect: Rect, u: number, v: number): { x: number; y: nu
   return { x: rect.x + rect.w * u, y: rect.y + rect.h * v };
 }
 
-/** Parallel line segments at `angle` and `spacing` that together cover a w x h box. */
-export function hatchLines(w: number, h: number, spacing: number, angle: number): Array<[number, number, number, number]> {
-  const dx = Math.cos(angle);
-  const dy = Math.sin(angle);
-  const cx = w / 2;
-  const cy = h / 2;
-  const half = Math.hypot(w, h) / 2;
-  const lines: Array<[number, number, number, number]> = [];
-  for (let offset = -half; offset <= half; offset += spacing) {
-    const px = cx - dy * offset;
-    const py = cy + dx * offset;
-    lines.push([px - dx * half, py - dy * half, px + dx * half, py + dy * half]);
-  }
-  return lines;
-}
-
 /**
  * Smoothstep from 0 to 1 over `durationS`. Large luminance changes run through
  * this with durationS >= 1 so they never count as a flash (WCAG 2.3.1).

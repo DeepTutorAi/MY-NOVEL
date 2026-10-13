@@ -90,7 +90,6 @@ export interface LodgeSceneSpec {
   layout(size: Readonly<SceneSize>): void;
   /** Paint one frame. `moving` is false for the still frame (t = 0, no pointer). */
   draw(ctx: CanvasRenderingContext2D, frame: Readonly<SceneFrame>, moving: boolean): void;
-  onPointer?(pointer: Readonly<PointerState>, event: PointerEvent): void;
 }
 
 export interface LodgeSceneHandle extends SceneHandle {
@@ -120,7 +119,6 @@ export function runLodgeScene(spec: LodgeSceneSpec): LodgeSceneHandle {
       spec.layout(next);
       if (still || reduced()) paintStill();
     },
-    onPointer: spec.onPointer,
     reducedMotionFrame(ctx, frame) {
       spec.draw(ctx, frame, false);
     },

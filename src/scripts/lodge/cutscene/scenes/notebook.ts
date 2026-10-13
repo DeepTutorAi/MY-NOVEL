@@ -68,9 +68,14 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
   button.className = "lodge-cutscene__control";
   button.dataset.sceneOpen = "";
   button.textContent = OPEN_LABEL;
+  // A focused control must not vanish under the keyboard: focus goes to the skip button.
+  const retireButton = () => {
+    if (document.activeElement === button) button.closest("dialog")?.querySelector<HTMLElement>("[data-cutscene-skip]")?.focus();
+    button.remove();
+  };
   const onOpen = () => {
     wantsOpen = true;
-    button.remove();
+    retireButton();
   };
   if (!still) {
     button.addEventListener("click", onOpen, { once: true });
@@ -281,7 +286,7 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
     if (moving) {
       if (openedAt === null && (wantsOpen || t >= NOTEBOOK.autoOpenS)) {
         openedAt = t;
-        button.remove();
+        retireButton();
       }
       ctx.reveal.show(openedAt === null ? 0 : notebookReveal(t, openedAt));
       if (openedAt !== null && t - openedAt >= NOTEBOOK.endAfterOpenS && !ended) {

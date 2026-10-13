@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { coverRect, hatchLines, luminanceRamp, platePoint } from "./kit-core";
+import { coverRect, luminanceRamp, platePoint } from "./kit-core";
 
 describe("coverRect", () => {
   it("fills a portrait phone with a wide plate by height and centres it", () => {
@@ -44,22 +44,5 @@ describe("luminanceRamp", () => {
       assert.ok(value - previous <= 0.015 + 1e-9, `step ${i} rose ${value - previous}`);
       previous = value;
     }
-  });
-});
-
-describe("hatchLines", () => {
-  it("covers the box with parallel lines at the requested spacing", () => {
-    const lines = hatchLines(100, 50, 10, Math.PI / 4);
-    // The box spans |w sin a| + |h cos a| across the hatch direction.
-    const across = 100 * Math.sin(Math.PI / 4) + 50 * Math.cos(Math.PI / 4);
-    assert.ok(lines.length >= Math.ceil(across / 10), `${lines.length} lines for a span of ${across.toFixed(1)}`);
-    for (const [x1, y1, x2, y2] of lines) {
-      assert.ok(Math.abs(Math.atan2(y2 - y1, x2 - x1) - Math.PI / 4) < 1e-9, "same angle");
-    }
-    const hitsCentre = lines.some(([x1, y1, x2, y2]) => {
-      const cross = (x2 - x1) * (25 - y1) - (y2 - y1) * (50 - x1);
-      return Math.abs(cross / Math.hypot(x2 - x1, y2 - y1)) <= 5;
-    });
-    assert.ok(hitsCentre, "a line passes within half a spacing of the centre");
   });
 });

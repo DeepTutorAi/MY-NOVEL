@@ -505,7 +505,10 @@
 
 .board-stamp.is-superseded {
   opacity: 0.5;
-  text-decoration: line-through 2px;
+}
+
+.board-stamp s {
+  text-decoration-thickness: 2px;
 }
 
 .board-stamp.is-note {

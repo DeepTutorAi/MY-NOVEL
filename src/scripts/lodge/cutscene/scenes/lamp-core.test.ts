@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { LAMP, autoPath, firelight, inBen, lampRadius, lampReveal, trailAlpha } from "./lamp-core";
+import { LAMP, autoPath, firelight, followLamp, inBen, lampRadius, lampReveal, trailAlpha } from "./lamp-core";
 
 describe("Ben's place on plate 06A", () => {
   it("covers the man on the sofa and not the people beside him", () => {
@@ -51,5 +51,33 @@ describe("timeline", () => {
     assert.equal(lampReveal(0.5), 0);
     assert.equal(lampReveal(LAMP.revealToS), 1);
     assert.ok(LAMP.endS <= 20);
+  });
+});
+
+describe("followLamp (flash safety)", () => {
+  it("moves the light at most two of its own widths per second, however fast the pointer goes", () => {
+    const radius = 100;
+    const step = followLamp({ x: 0, y: 0 }, { x: 1000, y: 0 }, radius, 0.1);
+    assert.ok(Math.abs(step.x - 2 * radius * 2 * 0.1) < 1e-9, `moved ${step.x}`);
+    assert.deepEqual(followLamp({ x: 0, y: 0 }, { x: 10, y: 0 }, radius, 0.1), { x: 10, y: 0 }, "a short move lands");
+  });
+
+  it("cannot light and darken any point more than once a second when the pointer is waved at 4 Hz", () => {
+    const radius = 100;
+    const dt = 1 / 120;
+    let lamp = { x: 0, y: 0 };
+    const point = { x: 0, y: 0 };
+    let lit = true;
+    const switches: number[] = [];
+    for (let t = 0; t < 6; t += dt) {
+      const pointer = { x: Math.sin(t * Math.PI * 8) * 400, y: 0 };
+      lamp = followLamp(lamp, pointer, radius, dt);
+      const now = Math.hypot(lamp.x - point.x, lamp.y - point.y) < radius;
+      if (now !== lit) switches.push(t);
+      lit = now;
+    }
+    for (let i = 0; i + 2 < switches.length; i += 1) {
+      assert.ok(switches[i + 2] - switches[i] >= 1, `a full dark-light-dark cycle in ${(switches[i + 2] - switches[i]).toFixed(2)} s`);
+    }
   });
 });

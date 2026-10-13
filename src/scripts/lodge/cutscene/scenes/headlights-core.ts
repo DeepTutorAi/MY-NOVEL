@@ -10,8 +10,8 @@ export const HEADLIGHTS = {
   lodgeLightAtS: 15,
   lodgeLightRampS: 1.5,
   endS: 19,
-  /** Seconds the beam takes from low to high. */
-  beamSwingS: 0.6,
+  /** Seconds the beam takes from low to high: a large luminance change, so at least 1 s (design 3.3). */
+  beamSwingS: 1,
 } as const;
 
 export const TRUNK_COUNT = 7;

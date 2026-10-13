@@ -8,10 +8,10 @@ describe("beam", () => {
     assert.equal(beamTarget(false), 0.35);
   });
 
-  it("lengthens over 0.6 s and never overshoots", () => {
+  it("lengthens over a full second (a large luminance change, design 3.3) and never overshoots", () => {
     let beam = 0.35;
-    for (let i = 0; i < 30; i += 1) beam = approachBeam(beam, true, 0.01);
-    assert.ok(Math.abs(beam - 0.6) < 1e-9, `after 0.3 s: ${beam}`);
+    for (let i = 0; i < 50; i += 1) beam = approachBeam(beam, true, 0.01);
+    assert.ok(Math.abs(beam - 0.6) < 1e-9, `after 0.5 s: ${beam}`);
     for (let i = 0; i < 100; i += 1) beam = approachBeam(beam, true, 0.01);
     assert.equal(beam, 0.85);
     for (let i = 0; i < 100; i += 1) beam = approachBeam(beam, false, 0.01);

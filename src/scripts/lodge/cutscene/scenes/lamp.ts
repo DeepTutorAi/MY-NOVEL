@@ -7,7 +7,7 @@ import type { SceneFrame, SceneSize } from "../../../_shared/scene-runtime";
 import { erase, loadPlate, makeLayer, paperGrain, runLodgeScene } from "../../canvas/kit";
 import { coverRect, platePoint, type Rect } from "../../canvas/kit-core";
 import type { LodgeSceneContext, LodgeSceneHandle } from "../scene-types";
-import { LAMP, autoPath, firelight, inBen, lampRadius, lampReveal, trailAlpha } from "./lamp-core";
+import { LAMP, autoPath, firelight, followLamp, inBen, lampRadius, lampReveal, trailAlpha } from "./lamp-core";
 
 const PLATE = "chapters/06A.webp";
 const FIRE = { u: 0.72, v: 0.46 };
@@ -29,6 +29,8 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
   let mask: { canvas: HTMLCanvasElement; ctx: CanvasRenderingContext2D } | null = null;
   let trail: TrailPoint[] = [];
   let lastTrailAt = -Infinity;
+  /** Where the lamp is, in stage pixels; it follows its target at a capped speed (flash safety). */
+  let lampAt: { x: number; y: number } | null = null;
   let ended = false;
 
   const bake = (next: SceneSize) => {
@@ -77,7 +79,9 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
 
     // Where the lamp is now: the pointer while one is over the scene, else its own wander.
     const wander = autoPath(t);
-    const here = moving && frame.pointer.active ? toPlate(frame.pointer.x, frame.pointer.y) : moving ? toPlate(wander.x * w, wander.y * h) : { u: 0.44, v: 0.4 };
+    const target = frame.pointer.active ? { x: frame.pointer.x, y: frame.pointer.y } : { x: wander.x * w, y: wander.y * h };
+    lampAt = lampAt === null ? target : followLamp(lampAt, target, radius, frame.dt);
+    const here = moving ? toPlate(lampAt.x, lampAt.y) : { u: 0.44, v: 0.4 };
     if (moving && t - lastTrailAt >= LAMP.trailEveryS) {
       lastTrailAt = t;
       trail.push({ ...here, t });

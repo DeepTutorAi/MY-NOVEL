@@ -1,6 +1,8 @@
 ---
 // The optional guest book on the home page (design section 5.2). Never a gate:
 // the start link above it always works. Behaviour in src/scripts/lodge/home/guest-book.ts.
+// The name field has no maxlength on purpose: it counts UTF-16 code units and
+// would cut an emoji or Thai cluster; normalizeGuestName keeps 40 whole clusters.
 import GuestCard from "./GuestCard.astro";
 ---
 
@@ -10,7 +12,7 @@ import GuestCard from "./GuestCard.astro";
   <GuestCard />
   <form class="guest-book-form" data-guest-form>
     <label for="guest-name">ชื่อ</label>
-    <input id="guest-name" name="guest-name" type="text" autocomplete="off" maxlength="80" spellcheck="false" />
+    <input id="guest-name" name="guest-name" type="text" autocomplete="off" spellcheck="false" />
     <div class="guest-book-buttons">
       <button type="submit" data-guest-sign>เซ็นชื่อ</button>
       <button type="button" data-guest-skip>ข้าม</button>

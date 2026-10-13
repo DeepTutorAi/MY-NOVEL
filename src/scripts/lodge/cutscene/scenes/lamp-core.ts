@@ -44,6 +44,21 @@ export function lampRadius(w: number, h: number): number {
   return long / short > 1.7 ? long * 0.16 : short * LAMP.radius;
 }
 
+/**
+ * The lamp follows the pointer at most two of its own widths per second. A
+ * light that jumped with the pointer could be waved fast enough to light and
+ * darken a large area several times a second (a general flash, WCAG 2.3.1);
+ * at this speed any point changes at most about once a second.
+ */
+export function followLamp(current: { x: number; y: number }, target: { x: number; y: number }, radius: number, dt: number): { x: number; y: number } {
+  const maxStep = 4 * radius * dt;
+  const dx = target.x - current.x;
+  const dy = target.y - current.y;
+  const distance = Math.hypot(dx, dy);
+  if (distance <= maxStep) return { x: target.x, y: target.y };
+  return { x: current.x + (dx / distance) * maxStep, y: current.y + (dy / distance) * maxStep };
+}
+
 /** Slow breathing of the fire's glow, around 1. */
 export function firelight(t: number): number {
   return 1 + 0.04 * Math.sin(t * 0.8) + 0.02 * Math.sin(t * 1.3 + 1);
