@@ -32,7 +32,6 @@ interface Flake {
 
 function scene(ctx: LodgeSceneContext, still: boolean) {
   const rng = createRng(206);
-  let size: SceneSize | null = null;
   let frameLayer: HTMLCanvasElement | null = null;
   let skyLayer: HTMLCanvasElement | null = null;
   let beam = beamTarget(false);
@@ -82,7 +81,6 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
   };
 
   const bake = (next: SceneSize) => {
-    size = next;
     lightKey = -1;
     const { width: w, height: h } = next;
     const sky = makeLayer(next);
@@ -330,7 +328,6 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
     cleanup: () => {
       button.removeEventListener("click", onToggle);
       button.remove();
-      size = null;
     },
   };
 }
