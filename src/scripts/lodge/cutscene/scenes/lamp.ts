@@ -7,7 +7,7 @@ import type { SceneFrame, SceneSize } from "../../../_shared/scene-runtime";
 import { erase, loadPlate, makeLayer, paperGrain, runLodgeScene } from "../../canvas/kit";
 import { coverRect, platePoint, type Rect } from "../../canvas/kit-core";
 import type { LodgeSceneContext, LodgeSceneHandle } from "../scene-types";
-import { LAMP, autoPath, firelight, inBen, lampReveal, trailAlpha } from "./lamp-core";
+import { LAMP, autoPath, firelight, inBen, lampRadius, lampReveal, trailAlpha } from "./lamp-core";
 
 const PLATE = "chapters/06A.webp";
 const FIRE = { u: 0.72, v: 0.46 };
@@ -73,10 +73,11 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
     c.setTransform(frame.dpr, 0, 0, frame.dpr, 0, 0);
     if (base) c.drawImage(base, 0, 0, w, h);
     if (!mask) return;
-    const radius = Math.min(w, h) * LAMP.radius;
+    const radius = lampRadius(w, h);
 
     // Where the lamp is now: the pointer while one is over the scene, else its own wander.
-    const here = moving && frame.pointer.active ? toPlate(frame.pointer.x, frame.pointer.y) : moving ? autoPath(t) : { u: 0.44, v: 0.4 };
+    const wander = autoPath(t);
+    const here = moving && frame.pointer.active ? toPlate(frame.pointer.x, frame.pointer.y) : moving ? toPlate(wander.x * w, wander.y * h) : { u: 0.44, v: 0.4 };
     if (moving && t - lastTrailAt >= LAMP.trailEveryS) {
       lastTrailAt = t;
       trail.push({ ...here, t });

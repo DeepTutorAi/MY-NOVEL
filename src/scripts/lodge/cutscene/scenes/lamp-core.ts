@@ -28,9 +28,20 @@ export function trailAlpha(ageS: number, onBen: boolean): number {
   return Math.min(1, Math.max(0, 1 - ageS / span));
 }
 
-/** Where the light wanders when nobody holds it, in plate fractions. */
-export function autoPath(t: number): { u: number; v: number } {
-  return { u: 0.5 + 0.36 * Math.sin(t * 0.33 - 0.6), v: 0.48 + 0.14 * Math.sin(t * 0.57 + 1) };
+/**
+ * Where the light wanders when nobody holds it, in fractions of the screen (not
+ * of the plate: a narrow screen shows a slice of it). It passes through the
+ * middle, where the crop keeps Ben.
+ */
+export function autoPath(t: number): { x: number; y: number } {
+  return { x: 0.5 + 0.34 * Math.sin(t * 0.33 - 0.6), y: 0.46 + 0.14 * Math.sin(t * 0.57 + 1) };
+}
+
+/** Radius of the light in CSS pixels: from the shorter side, or the longer one on a tall phone. */
+export function lampRadius(w: number, h: number): number {
+  const short = Math.min(w, h);
+  const long = Math.max(w, h);
+  return long / short > 1.7 ? long * 0.16 : short * LAMP.radius;
 }
 
 /** Slow breathing of the fire's glow, around 1. */

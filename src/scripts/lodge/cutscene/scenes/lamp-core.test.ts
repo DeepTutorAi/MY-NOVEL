@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { LAMP, autoPath, firelight, inBen, lampReveal, trailAlpha } from "./lamp-core";
+import { LAMP, autoPath, firelight, inBen, lampRadius, lampReveal, trailAlpha } from "./lamp-core";
 
 describe("Ben's place on plate 06A", () => {
   it("covers the man on the sofa and not the people beside him", () => {
@@ -22,14 +22,21 @@ describe("trailAlpha", () => {
 });
 
 describe("autoPath", () => {
-  it("sweeps the room inside the frame and crosses Ben", () => {
+  it("wanders the screen, not the plate, so a narrow screen still sees it, and crosses the middle where Ben is", () => {
     let crossed = false;
     for (let t = 0; t < 18; t += 0.05) {
-      const { u, v } = autoPath(t);
-      assert.ok(u > 0.08 && u < 0.92 && v > 0.2 && v < 0.8, `${u},${v} at ${t}`);
-      if (inBen(u, v)) crossed = true;
+      const { x, y } = autoPath(t);
+      assert.ok(x > 0.1 && x < 0.9 && y > 0.2 && y < 0.8, `${x},${y} at ${t}`);
+      if (Math.abs(x - 0.5) < 0.06 && y > 0.3 && y < 0.6) crossed = true;
     }
     assert.ok(crossed);
+  });
+});
+
+describe("lampRadius", () => {
+  it("stays large enough on a tall phone screen", () => {
+    assert.ok(lampRadius(390, 844) >= 130);
+    assert.ok(Math.abs(lampRadius(1280, 800) - 192) < 1e-9);
   });
 });
 
