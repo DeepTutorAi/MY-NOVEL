@@ -155,7 +155,8 @@
       return;
     }
 
-    if (!motionEnabled) {
+    // The home page whiteout draws its own snow (whiteout-loader.ts LIVE_CLASS).
+    if (!motionEnabled || document.body.classList.contains("lodge-whiteout-live")) {
       clearCanvas();
       frame = 0;
       return;

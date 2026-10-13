@@ -147,6 +147,68 @@ async function checkChapterReadable(browser: Browser): Promise<void> {
   });
 }
 
+const waitForWhiteout = (page: Page) =>
+  page.waitForFunction(() => document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.whiteout === "live", { timeout: 15_000 });
+
+async function checkWhiteoutLevels(browser: Browser): Promise<void> {
+  await check("home whiteout reports the drift level of the reader's finished chapters", async () => {
+    const seen: string[] = [];
+    for (const [expected, finished] of [
+      ["0", {}],
+      ["2", finishedThrough(5)],
+      ["3", finishedThrough(12)],
+      ["1", { 18: 1 }],
+    ] as const) {
+      await withPage(browser, { seed: progressSeed(finished) }, async (page) => {
+        await page.goto(url("lodge/"), { waitUntil: "load" });
+        await waitForWhiteout(page);
+        const drift = await page.$eval("[data-whiteout-mount]", (el) => (el as HTMLElement).dataset.drift);
+        assert(drift === expected, `expected drift ${expected}, got ${drift}`);
+        seen.push(drift);
+      });
+    }
+    return `levels ${seen.join(", ")}`;
+  });
+}
+
+async function checkWhiteoutStill(browser: Browser): Promise<void> {
+  await check("home whiteout draws one still frame under reduced motion", async () => {
+    await withPage(browser, { reducedMotion: true }, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await waitForWhiteout(page);
+      await page.waitForFunction(() => document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.plate === "ready");
+      await pause(300);
+      const snap = () => page.$eval(".lodge-whiteout-canvas", (canvas) => (canvas as HTMLCanvasElement).toDataURL("image/png").length);
+      const first = await snap();
+      await pause(1500);
+      assert(first === (await snap()), "the canvas changed under reduced motion");
+    });
+  });
+}
+
+async function checkWhiteoutNavigation(browser: Browser): Promise<void> {
+  await check("home whiteout is torn down on soft navigation and rebuilt once on return", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await waitForWhiteout(page);
+      // The top bar's menu also links the contents page, inside a closed <details>.
+      await page.click(`.home-secondary-links a[href$="/lodge/chapters/"]`);
+      await page.waitForFunction(() => location.pathname.endsWith("/lodge/chapters/"));
+      await pause(500);
+      const away = await page.evaluate(() => ({
+        live: document.body.classList.contains("lodge-whiteout-live"),
+        overflow: getComputedStyle(document.body).overflow,
+      }));
+      assert(!away.live, "lodge-whiteout-live is still on the chapters page");
+      assert(away.overflow !== "hidden", "the chapters page cannot scroll");
+      await page.goBack();
+      await page.waitForFunction(() => document.querySelector<HTMLElement>("[data-whiteout-mount]")?.dataset.whiteout === "live");
+      const canvases = await page.$$eval(".lodge-whiteout-canvas", (nodes) => nodes.length);
+      assert(canvases === 1, `${canvases} whiteout canvases after returning`);
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -167,6 +229,9 @@ async function main(): Promise<void> {
   try {
     await checkPagesLoad(browser);
     await checkChapterReadable(browser);
+    await checkWhiteoutLevels(browser);
+    await checkWhiteoutStill(browser);
+    await checkWhiteoutNavigation(browser);
   } finally {
     await browser.close();
   }

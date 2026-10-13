@@ -48,6 +48,37 @@
   width: min(46rem, 100%);
 }
 
+/* The home whiteout (design 5.1): a fixed canvas behind the page. While it is
+   live the static picture it replaces steps aside; the hero vignette stays. */
+.lodge-whiteout {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.lodge-whiteout-canvas {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.lodge-whiteout-live .home-hero-art {
+  visibility: hidden;
+}
+
+/* Over the live scene the vignette only has to hold the copy, not hide the
+   picture: a soft scrim behind the text block. The scene bakes its own side
+   edges and fades to paper by itself as the page scrolls. */
+.lodge-whiteout-live .home-hero::before {
+  background:
+    radial-gradient(ellipse 46% 34% at 50% 46%, rgb(14 13 12 / 0.62), rgb(14 13 12 / 0.34) 62%, transparent 100%);
+}
+
+.lodge-whiteout-live .home-hero::after {
+  background: none;
+}
+
 .home-hero-art {
   position: absolute;
   inset: 0;

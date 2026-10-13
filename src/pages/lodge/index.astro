@@ -14,8 +14,9 @@ const chapterUnits = (await getCollection("chapters"))
 <LodgeBaseLayout
   title="ฮวิตเวลต์ ลอดจ์"
   description="บันทึกเจ็ดวันของผู้รอดชีวิตคนเดียวจากฮวิตเวลต์ ลอดจ์"
-  bodyClass="home-page"
+  bodyClass="home-page lodge-home"
 >
+  <div class="lodge-whiteout" aria-hidden="true" data-whiteout-mount data-plate-url={homeHeroImage}></div>
   <main class="home">
     <section class="home-hero" aria-labelledby="home-title">
       <picture class="home-hero-art" aria-hidden="true" transition:name="novel-hero-lodge">
@@ -159,5 +160,14 @@ const chapterUnits = (await getCollection("chapters"))
 
     initLodgeHome();
     document.addEventListener("astro:page-load", initLodgeHome);
+  </script>
+
+  <script>
+    import { onPage } from "../../scripts/_shared/lifecycle";
+    import { startWhiteout } from "../../scripts/lodge/home/whiteout-loader";
+
+    onPage("lodge-whiteout", { bodyClass: "lodge-home" }, () =>
+      startWhiteout({ mount: document.querySelector<HTMLElement>("[data-whiteout-mount]") }),
+    );
   </script>
 </LodgeBaseLayout>
