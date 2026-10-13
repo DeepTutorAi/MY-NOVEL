@@ -9,8 +9,8 @@
 // which sits above it with its own vignette.
 import { createNoise2D, createRng, fbm2D, type SceneFrame, type SceneSize } from "../../_shared/scene-runtime";
 import type { DriftLevel } from "../progress-core";
-import { coverRect, platePoint, type Rect } from "../scenes/kit-core";
-import { loadPlate, makeLayer, paperGrain, pencilFlake, runLodgeScene, smudge, type LodgeSceneHandle } from "../scenes/kit";
+import { coverRect, platePoint, type Rect } from "../canvas/kit-core";
+import { loadPlate, makeLayer, paperGrain, pencilFlake, runLodgeScene, smudge, type LodgeSceneHandle } from "../canvas/kit";
 import {
   PRINT_FADE_S,
   STRIDE_PX,

@@ -1,7 +1,7 @@
 // Rules of the home page whiteout (design section 5.1): footprints, the
 // follower that retraces them, the shadows at the treeline and the gusts.
 // Pure, so the canon gates and the no-flash limits are tested without a canvas.
-import { luminanceRamp } from "../scenes/kit-core";
+import { luminanceRamp } from "../canvas/kit-core";
 import type { DriftLevel } from "../progress-core";
 
 export const STRIDE_PX = 34;
