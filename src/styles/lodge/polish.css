@@ -279,7 +279,7 @@
   position: relative;
   z-index: 1;
   min-height: calc(100vh - var(--topbar-height));
-  background: rgb(14 13 12 / 0.78);
+  background: var(--paper-grain), rgb(14 13 12 / 0.78);
 }
 
 .puzzle-article {
@@ -564,6 +564,18 @@
   font-weight: 400;
   letter-spacing: 0.12em;
   text-transform: uppercase;
+}
+
+/* Graphite pass on the puzzle map (design 8.3): typed headings, paper cards, charcoal runes. */
+.puzzle-item {
+  padding: 1.25rem 1.4rem;
+  border: 1px solid color-mix(in oklab, var(--ink) 12%, transparent);
+  background: var(--paper-grain), #1a1815;
+}
+
+.puzzle-item .rune,
+.puzzle-rune {
+  color: var(--graphite-3);
 }
 
 .puzzle-gate {
