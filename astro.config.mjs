@@ -3,6 +3,7 @@ import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
+import { remarkHand } from "./src/plugins/remark-hand.mjs";
 import { journalClassName } from "./src/plugins/remark-journal-kind.mjs";
 
 const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
@@ -81,8 +82,8 @@ function remarkNeutralizeStrayDirectives() {
       if (node.type !== "textDirective" && node.type !== "leafDirective") {
         return;
       }
-      // Keep the intentional inline emphasis directives (`:clue[...]` etc.).
-      if (node.type === "textDirective" && EMPHASIS_TONES.has(node.name)) {
+      // Keep the intentional inline directives (`:clue[...]` etc. and Lodge's `:hand[...]`).
+      if (node.type === "textDirective" && (EMPHASIS_TONES.has(node.name) || node.name === "hand")) {
         return;
       }
 
@@ -428,6 +429,7 @@ export default defineConfig({
       remarkDirective,
       remarkJournalDirective,
       remarkEmphasisDirective,
+      remarkHand,
       remarkNeutralizeStrayDirectives,
     ],
     rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers, rehypeSeaScenes, rehypeOpeningDropcap],

@@ -204,6 +204,69 @@ article.chapter hr {
   letter-spacing: 0.02em;
 }
 
+/* Elena's hand drifting (design 6.3, chapter 18): from day 3 "ก" flicks, by
+   day 5 it flicks harder and sits off the line, "ข" gains a stroke and "ส" a
+   tail. Inline-safe only: no inline-block, no transform, so Thai line
+   breaking is unchanged; the extra strokes are absolutely placed pseudo
+   elements on whole grapheme clusters. */
+.hand {
+  color: var(--graphite-1);
+  font-family: var(--font-hand);
+  font-size: 1.08em;
+}
+
+.hand-g {
+  position: relative;
+}
+
+.hand-g::after {
+  position: absolute;
+  background: no-repeat center / contain;
+  content: "";
+  pointer-events: none;
+}
+
+.hand--day-3 .hand-g--k::after,
+.hand--day-4 .hand-g--k::after,
+.hand--day-5 .hand-g--k::after {
+  inset-block-start: -0.18em;
+  inset-inline-end: -0.16em;
+  inline-size: 0.32em;
+  block-size: 0.26em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 16'%3E%3Cpath d='M2 14C8 10 12 4 19 1' fill='none' stroke='%23D9D4CA' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.hand--day-4 .hand-g--k,
+.hand--day-5 .hand-g--k {
+  inset-block-start: -0.06em;
+}
+
+.hand--day-4 .hand-g--k::after,
+.hand--day-5 .hand-g--k::after {
+  inset-block-start: -0.34em;
+  inset-inline-end: -0.3em;
+  inline-size: 0.56em;
+  block-size: 0.44em;
+}
+
+.hand--day-4 .hand-g--kh::after,
+.hand--day-5 .hand-g--kh::after {
+  inset-block-start: 0.02em;
+  inset-inline-start: -0.22em;
+  inline-size: 0.42em;
+  block-size: 0.26em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 12'%3E%3Cpath d='M1 10C6 2 13 2 19 6' fill='none' stroke='%23D9D4CA' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
+.hand--day-4 .hand-g--s::after,
+.hand--day-5 .hand-g--s::after {
+  inset-block-end: -0.3em;
+  inset-inline-end: -0.28em;
+  inline-size: 0.44em;
+  block-size: 0.48em;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20'%3E%3Cpath d='M2 2C10 6 14 12 8 19' fill='none' stroke='%23D9D4CA' stroke-width='2.2' stroke-linecap='round'/%3E%3C/svg%3E");
+}
+
 .rune-divider {
   display: grid;
   place-items: center;
