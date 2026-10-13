@@ -36,6 +36,10 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
   let frameLayer: HTMLCanvasElement | null = null;
   let skyLayer: HTMLCanvasElement | null = null;
   let beam = beamTarget(false);
+  /** Road and beam light only change with the beam: drawn into layers, redrawn when it moves. */
+  let lightKey = -1;
+  let roadLayer: HTMLCanvasElement | null = null;
+  let beamLayer: HTMLCanvasElement | null = null;
   let toggled = false;
   let ended = false;
 
@@ -79,6 +83,7 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
 
   const bake = (next: SceneSize) => {
     size = next;
+    lightKey = -1;
     const { width: w, height: h } = next;
     const sky = makeLayer(next);
     if (sky) {
@@ -218,13 +223,26 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
         if (tree.z < 1.2) tree.z += FAR - 4;
       }
     }
-    if (skyLayer) c.drawImage(skyLayer, 0, 0, w, h);
-    // A faint snow haze where the beam meets the storm near the horizon.
-    const haze = c.createRadialGradient(w / 2, h * 0.34, 0, w / 2, h * 0.34, w * (0.18 + beam * 0.22));
-    haze.addColorStop(0, `rgba(190,186,178,${0.05 + beam * 0.1})`);
-    haze.addColorStop(1, "rgba(190,186,178,0)");
-    c.fillStyle = haze;
-    c.fillRect(0, 0, w, h);
+    const key = Math.round(beam * 200);
+    if (key !== lightKey) {
+      lightKey = key;
+      const road = makeLayer(frame);
+      const lightCone = makeLayer(frame);
+      if (road && lightCone) {
+        // The sky is part of the road layer, one full-screen image fewer per frame.
+        if (skyLayer) road.ctx.drawImage(skyLayer, 0, 0, w, h);
+        // A faint snow haze where the beam meets the storm near the horizon.
+        const haze = road.ctx.createRadialGradient(w / 2, h * 0.34, 0, w / 2, h * 0.34, w * (0.18 + beam * 0.22));
+        haze.addColorStop(0, `rgba(190,186,178,${0.05 + beam * 0.1})`);
+        haze.addColorStop(1, "rgba(190,186,178,0)");
+        road.ctx.fillStyle = haze;
+        road.ctx.fillRect(0, 0, w, h);
+        drawRoad(road.ctx, w, h);
+        drawBeam(lightCone.ctx, w, h);
+        roadLayer = road.canvas;
+        beamLayer = lightCone.canvas;
+      }
+    }
 
     const light = moving ? lodgeLight(t) : 1;
     if (light > 0) {
@@ -240,7 +258,7 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
       }
     }
 
-    drawRoad(c, w, h);
+    if (roadLayer) c.drawImage(roadLayer, 0, 0, w, h);
     // Far to near, so nearer trunks cover further ones.
     const thinShow = moving && trunkVisible(beam) ? luminanceRamp(beam - 0.7, 0.15) : 0;
     const sorted = [...trees].sort((a, b) => b.z - a.z);
@@ -259,10 +277,11 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
       }
       drawTrunk(c, w, h, tree.x, tree.z, tree.height, tree.width, lit(tree.x, tree.z), true);
     }
-    drawBeam(c, w, h);
+    if (beamLayer) c.drawImage(beamLayer, 0, 0, w, h);
 
-    // Snow rushing at the glass, bright where the beam catches it.
-    c.lineCap = "round";
+    // Snow rushing at the glass, bright where the beam catches it. Strokes are
+    // grouped by brightness and width so the whole fall takes a few draw calls.
+    const buckets: number[][] = Array.from({ length: 12 }, () => []);
     for (const flake of flakes) {
       const before = project(flake, w, h);
       if (moving) {
@@ -277,14 +296,23 @@ function scene(ctx: LodgeSceneContext, still: boolean) {
         }
       }
       const after = project(flake, w, h);
-      const glow = 0.12 + lit(flake.x, flake.z) * 0.75;
-      c.strokeStyle = `rgba(236,231,221,${glow})`;
-      c.lineWidth = Math.min(3, 0.6 + after.scale * 0.012);
-      c.beginPath();
-      c.moveTo(after.x, after.y);
-      c.lineTo(moving ? before.x : after.x + 1, moving ? before.y : after.y + 2);
-      c.stroke();
+      const level = Math.min(5, Math.floor(lit(flake.x, flake.z) * 6));
+      const thick = after.scale > 90 ? 1 : 0;
+      buckets[thick * 6 + level].push(after.x, after.y, moving ? before.x : after.x + 1, moving ? before.y : after.y + 2);
     }
+    c.lineCap = "round";
+    buckets.forEach((segments, index) => {
+      if (segments.length === 0) return;
+      const level = index % 6;
+      c.strokeStyle = `rgba(236,231,221,${0.12 + (level / 5) * 0.75})`;
+      c.lineWidth = index >= 6 ? 2.2 : 1.1;
+      c.beginPath();
+      for (let i = 0; i < segments.length; i += 4) {
+        c.moveTo(segments[i], segments[i + 1]);
+        c.lineTo(segments[i + 2], segments[i + 3]);
+      }
+      c.stroke();
+    });
     if (frameLayer) c.drawImage(frameLayer, 0, 0, w, h);
 
     if (moving) {

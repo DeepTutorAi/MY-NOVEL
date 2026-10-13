@@ -192,10 +192,11 @@ const assetBase = withBase("/assets/lodge/images/");
     text-wrap: pretty;
   }
 
-  /* Reveal (scripts/lodge/cutscene/reveal.ts): inline spans, opacity only. */
+  /* Reveal (scripts/lodge/cutscene/reveal.ts): inline spans, opacity only, in
+     steps of about a tenth of a second and without a transition, so the text is
+     repainted ten times a second rather than on every frame. */
   .lodge-cutscene__text[data-reveal] .lodge-cutscene__g {
     opacity: 0;
-    transition: opacity 420ms ease-out;
   }
 
   .lodge-cutscene__text[data-reveal] .lodge-cutscene__g.is-shown {

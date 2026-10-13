@@ -2,7 +2,7 @@
 // leaving textContent exactly as it was, and reveals the spans with opacity.
 // Inline spans and opacity only: no inline-block, no transform, so Thai lines
 // break where they would without the spans.
-import { revealClusters, visibleCount } from "./reveal-core";
+import { revealClusters, shouldStep, visibleCount } from "./reveal-core";
 import type { Reveal } from "./scene-types";
 
 export function createReveal(textEl: HTMLElement, onComplete: () => void): Reveal {
@@ -14,15 +14,18 @@ export function createReveal(textEl: HTMLElement, onComplete: () => void): Revea
     return span;
   });
   textEl.replaceChildren(...spans);
-  textEl.dataset.reveal = "0";
+  // Set once: changing an attribute on the paragraph would restyle every span.
+  textEl.dataset.reveal = "";
   let shown = 0;
+  let steppedAt = -Infinity;
   let completed = false;
   const show = (fraction: number) => {
     const next = visibleCount(fraction, spans.length);
-    if (next === shown) return;
+    const now = performance.now();
+    if (!shouldStep(shown, next, spans.length, now - steppedAt)) return;
+    steppedAt = now;
     for (let i = Math.min(shown, next); i < Math.max(shown, next); i += 1) spans[i].classList.toggle("is-shown", i < next);
     shown = next;
-    textEl.dataset.reveal = String(shown / spans.length);
     if (shown === spans.length && !completed) {
       completed = true;
       onComplete();

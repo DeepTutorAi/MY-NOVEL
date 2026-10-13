@@ -5,7 +5,7 @@ import { join } from "node:path";
 import { describe, it } from "node:test";
 import { EPIGRAPHS, epigraphFor } from "./epigraphs";
 import { SCENE_CHAPTERS, registryEntry } from "./registry";
-import { revealClusters, visibleCount } from "./reveal-core";
+import { REVEAL_STEP_MS, revealClusters, shouldStep, visibleCount } from "./reveal-core";
 
 const sha = (text: string) => createHash("sha256").update(text).digest("hex");
 
@@ -37,6 +37,14 @@ describe("reveal", () => {
       assert.equal(clusters.join(""), text);
       assert.ok(clusters.every((cluster) => !/^[ัิ-ฺ็-๎]/.test(cluster)), "a cluster starts with a combining mark");
     }
+  });
+
+  it("steps at most ten times a second, except to finish", () => {
+    assert.equal(REVEAL_STEP_MS, 100);
+    assert.equal(shouldStep(10, 11, 200, 40), false, "a step too soon waits");
+    assert.equal(shouldStep(10, 11, 200, 100), true);
+    assert.equal(shouldStep(190, 200, 200, 5), true, "reaching the end is never held back");
+    assert.equal(shouldStep(10, 10, 200, 500), false, "nothing to do");
   });
 
   it("shows a share of the clusters, never fewer than none or more than all", () => {
