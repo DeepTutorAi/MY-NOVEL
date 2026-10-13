@@ -9,6 +9,8 @@
 @import "@fontsource/cormorant-garamond/600.css";
 @import "@fontsource/cormorant-garamond/400-italic.css";
 @import "@fontsource/jetbrains-mono/400.css";
+@import "@fontsource/sriracha/thai-400.css";
+@import "@fontsource/sriracha/latin-400.css";
 
 :root {
   --ink: #ECE7DD;
@@ -19,10 +21,19 @@
   --rune: #6E5B3E;
   --warning: #8B3A2E;
 
+  /* Graphite on paper: the one palette of the rework (design 4.5). */
+  --graphite-1: #D9D4CA;
+  --graphite-2: #9C978E;
+  --graphite-3: #5E5A54;
+  --graphite-4: #2B2926;
+  --stamp-red: #8B3A2E;
+  --paper-grain: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.85 0 0 0 0 0.83 0 0 0 0 0.79 0 0 0 0.07 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23g)'/%3E%3C/svg%3E");
+
   --font-thai: "IBM Plex Sans Thai Looped", sans-serif;
   --font-serif: "Crimson Pro", Georgia, serif;
   --font-display: "Cormorant Garamond", serif;
   --font-mono: "JetBrains Mono", monospace;
+  --font-hand: "Sriracha", var(--font-thai);
 
   --measure: clamp(58ch, 50vw, 68ch);
   --reading-size: clamp(17px, calc(1.05vw + 14px), 20px);
