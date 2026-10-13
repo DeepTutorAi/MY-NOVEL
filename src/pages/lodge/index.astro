@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import GuestBook from "../../components/lodge/home/GuestBook.astro";
 import LodgeBaseLayout from "../../layouts/lodge/LodgeBaseLayout.astro";
 import { withBase } from "../../utils/base-path";
 
@@ -46,6 +47,7 @@ const chapterUnits = (await getCollection("chapters"))
         ไฟล์นี้ถูกส่งต่อมาเหมือนของที่ไม่ควรอยู่ในกล่องจดหมายใคร ไม่มีคำอธิบายยาว ไม่มีคำเตือนมากกว่าที่ควรมี มีเพียงชื่อสถานที่ วันที่ และเสียงของคนหนึ่งที่ยังยืนยันว่าเธอเป็นคนเขียนเองทั้งหมด
       </p>
       <a class="home-start" href={withBase("/lodge/chapters/01-arrival/")}>เริ่ม → บทที่ ๑</a>
+      <GuestBook />
       <p class="home-secondary-links">
         หากสนใจ — <a href={withBase("/lodge/chapters/")}>สารบัญ</a> / <a href={withBase("/lodge/characters/")}>Character</a> / <a href={withBase("/lodge/puzzle/")}>แผนที่ปริศนา</a> / <a href={withBase("/lodge/extra/")}>Extra</a>
       </p>

@@ -209,6 +209,59 @@ async function checkWhiteoutNavigation(browser: Browser): Promise<void> {
   });
 }
 
+const guestName = (page: Page) => page.$eval("[data-guest-card] [data-guest-name]", (el) => el.textContent?.trim() ?? "");
+
+async function signGuest(page: Page, name: string): Promise<void> {
+  await page.$eval("#guest-name", (input) => ((input as HTMLInputElement).value = ""));
+  await page.type("#guest-name", name);
+  await page.click("[data-guest-sign]");
+}
+
+async function checkGuestBook(browser: Browser): Promise<void> {
+  await check("guest book: sign, reload, edit, erase and skip", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      assert((await guestName(page)) === "________", "an unsigned card shows a blank line");
+      await signGuest(page, "  เอลีน่า   วาสเกซ ");
+      await page.reload({ waitUntil: "load" });
+      assert((await guestName(page)) === "เอลีน่า วาสเกซ", `signed name after reload: ${await guestName(page)}`);
+      assert(await page.$eval("[data-guest-form]", (el) => (el as HTMLElement).hidden), "the form stays hidden once signed");
+      await page.click("[data-guest-edit]");
+      assert((await page.$eval("#guest-name", (el) => (el as HTMLInputElement).value)) === "เอลีน่า วาสเกซ", "edit prefills the name");
+      await signGuest(page, "ซาร่า");
+      await page.reload({ waitUntil: "load" });
+      assert((await guestName(page)) === "ซาร่า", "the edited name persists");
+      await page.click("[data-guest-erase]");
+      await page.reload({ waitUntil: "load" });
+      assert((await guestName(page)) === "________", "erasing returns the blank card");
+      await page.click("[data-guest-skip]");
+      await page.reload({ waitUntil: "load" });
+      assert((await guestName(page)) === "GUEST", "skipping shows GUEST");
+    });
+  });
+
+  await check("guest book renders a hostile name as text", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await signGuest(page, "<img src=x onerror=alert(1)>");
+      assert((await page.$$("[data-guest-card] img")).length === 0, "markup in the name was parsed");
+      assert((await guestName(page)).startsWith("<img"), "the name is shown literally");
+    });
+  });
+
+  await check("guest book keeps working when storage refuses writes", async () => {
+    await withPage(browser, { storageThrows: true }, async (page) => {
+      await page.goto(url("lodge/"), { waitUntil: "load" });
+      await signGuest(page, "เอลีน่า");
+      const notice = await page.$eval("[data-guest-notice]", (el) => ({ hidden: (el as HTMLElement).hidden, text: el.textContent?.trim() }));
+      assert(!notice.hidden && notice.text === "เบราว์เซอร์ไม่อนุญาตให้บันทึก ชื่อจะหายเมื่อปิดหน้า", `notice: ${JSON.stringify(notice)}`);
+      assert((await guestName(page)) === "เอลีน่า", "the name is kept for the session");
+      await page.click(".home-start");
+      await page.waitForFunction(() => location.pathname.includes("/lodge/chapters/01-arrival/"));
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -232,6 +285,7 @@ async function main(): Promise<void> {
     await checkWhiteoutLevels(browser);
     await checkWhiteoutStill(browser);
     await checkWhiteoutNavigation(browser);
+    await checkGuestBook(browser);
   } finally {
     await browser.close();
   }

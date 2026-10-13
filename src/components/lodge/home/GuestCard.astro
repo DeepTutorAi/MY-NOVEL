@@ -1,0 +1,63 @@
+---
+// The reader's own guest record, in the form of the chapter 3 GUEST RECORDS
+// (design 5.2). Filled by renderGuestCard() in src/scripts/lodge/home/guest-book.ts.
+---
+
+<div class="guest-card" data-guest-card data-signed="blank">
+  <p class="guest-card-line">
+    <span class="guest-card-name" data-guest-name>________</span>, (—) <span data-guest-month></span>
+  </p>
+  <p>PROFESSION: Reader</p>
+  <p>REFERRED BY: <span class="guest-card-hand" data-guest-referred></span></p>
+  <p>DEPARTED:</p>
+  <p>NOTES: Subject 9</p>
+</div>
+
+<style>
+  .guest-card {
+    padding: 1rem 1.15rem;
+    border: 1px solid color-mix(in oklab, var(--ink) 16%, transparent);
+    background: rgb(24 22 19 / 0.82) var(--paper-grain);
+    color: var(--graphite-1);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    line-height: 1.7;
+  }
+
+  .guest-card p {
+    margin: 0;
+  }
+
+  .guest-card-name {
+    display: inline-block;
+  }
+
+  .guest-card-name,
+  .guest-card-hand {
+    color: var(--ink);
+    font-family: var(--font-hand);
+    font-size: 1.2rem;
+    line-height: 1;
+  }
+
+  .guest-card[data-signed="blank"] .guest-card-name {
+    color: var(--graphite-3);
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .guest-card.is-writing .guest-card-name {
+      animation: guest-card-write 1.1s ease-out both;
+    }
+  }
+
+  @keyframes guest-card-write {
+    from {
+      clip-path: inset(0 100% 0 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
+    }
+  }
+</style>
