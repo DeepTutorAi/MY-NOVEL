@@ -103,6 +103,22 @@ article.chapter[data-act="4"] {
   letter-spacing: 0.08em;
 }
 
+.chapter-replay {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  margin-block-start: 0.75rem;
+  color: var(--graphite-2);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+}
+
+.chapter-replay:hover,
+.chapter-replay:focus-visible {
+  color: var(--ink);
+}
+
 .chapter-header .rune {
   margin: 3rem auto 0;
 }

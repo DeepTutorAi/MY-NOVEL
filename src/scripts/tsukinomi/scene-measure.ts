@@ -108,6 +108,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import puppeteer, { type Browser, type BrowserContext, type CDPSession, type Page } from "puppeteer";
 import sharp from "sharp";
+import { registryEntry as lodgeRegistryEntry } from "../lodge/cutscene/registry";
 import { registryEntry } from "./cutscene/registry";
 import {
   BUDGETS,
@@ -201,6 +202,7 @@ const NOVELS: Record<string, NovelProfile> = {
     settle: {},
     dialog: "dialog.lodge-cutscene",
     scenesDir: path.join(HARNESS_DIR, "..", "lodge", "cutscene", "scenes"),
+    sceneId: (part) => lodgeRegistryEntry(part).id,
   },
 };
 

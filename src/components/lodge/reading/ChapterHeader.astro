@@ -2,6 +2,7 @@
 import type { CollectionEntry } from "astro:content";
 import Rune from "../marks/Rune.astro";
 import { formatReadingTime } from "../../../utils/reading-time";
+import { epigraphFor } from "../../../scripts/lodge/cutscene/epigraphs";
 
 interface Props {
   chapter: CollectionEntry<"chapters">;
@@ -9,6 +10,7 @@ interface Props {
 
 const { chapter } = Astro.props;
 const isIntro = chapter.data.number === 0;
+const hasCutscene = epigraphFor(chapter.data.number) !== undefined;
 ---
 
 <header class="chapter-header">
@@ -21,5 +23,6 @@ const isIntro = chapter.data.number === 0;
       <div class="chapter-reading-time">{formatReadingTime(chapter.data.readingMinutes)}</div>
     )
   }
+  {hasCutscene && <a class="chapter-replay" href="?cutscene=replay">เล่นฉากเปิดอีกครั้ง</a>}
   <Rune seed={isIntro ? 13 : chapter.data.number} />
 </header>

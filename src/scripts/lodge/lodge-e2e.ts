@@ -317,6 +317,86 @@ async function checkCandle(browser: Browser): Promise<void> {
   });
 }
 
+const dialogState = (page: Page) =>
+  page.evaluate(() => {
+    const dialog = document.querySelector<HTMLDialogElement>("dialog.lodge-cutscene");
+    return { open: dialog?.open ?? false, state: dialog?.dataset.state ?? "", mode: dialog?.dataset.mode ?? "" };
+  });
+const waitPlaying = (page: Page) =>
+  page.waitForFunction(() => {
+    const dialog = document.querySelector<HTMLDialogElement>("dialog.lodge-cutscene");
+    return dialog?.open === true && (dialog.dataset.state === "playing" || dialog.dataset.mode === "still");
+  });
+const waitClosed = (page: Page) => page.waitForFunction(() => !document.querySelector<HTMLDialogElement>("dialog.lodge-cutscene")?.open);
+
+async function checkCutscenes(browser: Browser): Promise<void> {
+  const { EPIGRAPHS } = await import("./cutscene/epigraphs");
+
+  await check("cutscene opens with the full epigraph as text and skips at once", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/chapters/01-arrival/"), { waitUntil: "domcontentloaded" });
+      await waitPlaying(page);
+      const text = await page.$eval("#cutscene-text", (el) => el.textContent);
+      assert(text === EPIGRAPHS[1], "the epigraph in the DOM differs from the author's text");
+      assert(!(await page.evaluate(() => document.body.innerText.includes("▋"))), "the old blinking caret is still there");
+      await page.click("[data-cutscene-skip]");
+      await waitClosed(page);
+      const focused = await page.evaluate(() => document.activeElement?.tagName);
+      assert(focused === "H1", `focus went to ${focused}`);
+      await page.reload({ waitUntil: "load" });
+      await pause(1500);
+      assert(!(await dialogState(page)).open, "the cutscene played twice on the same day");
+      await page.goto(url("lodge/chapters/01-arrival/", "?cutscene=replay"), { waitUntil: "domcontentloaded" });
+      await waitPlaying(page);
+      await page.keyboard.press("Escape");
+      await waitClosed(page);
+    });
+  });
+
+  await check("every epigraph chapter opens its cutscene; other chapters do not", async () => {
+    await withPage(browser, {}, async (page) => {
+      for (const slug of ["00-introduction", "06-ben-acts-off", "13-into-the-basement", "18-mirror"]) {
+        await page.goto(url(`lodge/chapters/${slug}/`), { waitUntil: "domcontentloaded" });
+        await waitPlaying(page);
+        await page.click("[data-cutscene-skip]");
+        await waitClosed(page);
+      }
+      await page.goto(url("lodge/chapters/02-first-night/"), { waitUntil: "load" });
+      assert(!(await page.$("dialog.lodge-cutscene")), "chapter 2 has a cutscene dialog");
+    });
+  });
+
+  await check("reduced motion shows the still with its continue button", async () => {
+    await withPage(browser, { reducedMotion: true }, async (page) => {
+      await page.goto(url("lodge/chapters/13-into-the-basement/"), { waitUntil: "domcontentloaded" });
+      await waitPlaying(page);
+      const state = await dialogState(page);
+      assert(state.mode === "still", `mode ${state.mode}`);
+      assert(await page.$eval("[data-cutscene-start]", (el) => !(el as HTMLElement).hidden), "no continue button in the still");
+      await page.click("[data-cutscene-start]");
+      await waitClosed(page);
+    });
+  });
+
+  await check("going back mid-cutscene leaves the previous page scrollable and the dialog closed", async () => {
+    await withPage(browser, {}, async (page) => {
+      await page.goto(url("lodge/chapters/"), { waitUntil: "load" });
+      await page.click(`.ledger a[href$="/lodge/chapters/06-ben-acts-off/"]`);
+      await waitPlaying(page);
+      await page.goBack();
+      await page.waitForFunction(() => location.pathname.endsWith("/lodge/chapters/"));
+      await pause(500);
+      const after = await page.evaluate(() => ({
+        overflow: getComputedStyle(document.documentElement).overflow + "/" + getComputedStyle(document.body).overflow,
+        cover: document.documentElement.classList.contains("lodge-cutscene-pending"),
+        open: Boolean(document.querySelector<HTMLDialogElement>("dialog[open]")),
+      }));
+      assert(!after.overflow.includes("hidden"), `overflow ${after.overflow}`);
+      assert(!after.cover && !after.open, JSON.stringify(after));
+    });
+  });
+}
+
 function printTable(): void {
   const width = Math.max(...results.map((result) => result.name.length));
   for (const result of results) console.log(`${result.status.padEnd(5)} ${result.name.padEnd(width)}  ${result.detail}`);
@@ -343,6 +423,7 @@ async function main(): Promise<void> {
     await checkGuestBook(browser);
     await checkLedger(browser);
     await checkCandle(browser);
+    await checkCutscenes(browser);
   } finally {
     await browser.close();
   }

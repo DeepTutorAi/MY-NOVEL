@@ -1,0 +1,267 @@
+---
+// The opening cutscene of a Lodge chapter (design section 7), rendered by
+// LodgeChapterLayout for the five chapters that carry an epigraph. A native
+// <dialog> opened with showModal() by src/scripts/lodge/cutscene/index.ts, so
+// it sits in the top layer above the snow and every other page layer; it has
+// no z-index on purpose.
+//
+// The epigraph is a real paragraph (#cutscene-text) for screen readers; the
+// scene reveals it without replacing its text. The stage is decorative and
+// aria-hidden. "ข้าม" is visible and focused from the first frame; the hidden
+// "เดินทางต่อ" is the reduced-motion still's way on (the runner swaps them).
+// The controls slot holds the scene's own buttons, after Skip in focus order.
+//
+// The inline gate is the no-flash cover: before first paint it decides whether
+// this visit will play the cutscene and, if so, hides the page until the runner
+// opens the dialog. It mirrors shouldPlay() and playedToday() in
+// src/scripts/_shared/cutscene/core.ts; src/scripts/lodge/cutscene/gate.test.ts
+// evaluates the code between the gate markers against core.ts. A 2.5 s safety
+// timer lifts the cover if the scripts never arrive; the adapter restarts it
+// with a budget for the scene chunk once it knows the cutscene will play.
+import { withBase } from "../../../utils/base-path";
+
+interface Props {
+  chapter: number;
+  epigraph: string;
+  /** Accessible name of the dialog (the chapter title). */
+  label: string;
+}
+
+const { chapter, epigraph, label } = Astro.props;
+const assetBase = withBase("/assets/lodge/images/");
+---
+
+<dialog
+  class="lodge-cutscene"
+  data-chapter={chapter}
+  data-asset-base={assetBase}
+  data-state="idle"
+  data-dev={import.meta.env.DEV ? "" : undefined}
+  aria-label={label}
+  aria-describedby="cutscene-text"
+>
+  <div class="lodge-cutscene__stage" data-cutscene-stage aria-hidden="true"></div>
+  <div class="lodge-cutscene__card">
+    <p class="lodge-cutscene__text" id="cutscene-text" data-cutscene-text>{epigraph}</p>
+    <button type="button" class="lodge-cutscene__continue" data-cutscene-start hidden>เดินทางต่อ</button>
+  </div>
+  <button type="button" class="lodge-cutscene__skip" data-cutscene-skip autofocus>ข้าม</button>
+  <div class="lodge-cutscene__controls" data-cutscene-controls></div>
+</dialog>
+
+<script is:inline>
+  (() => {
+    const COVER = "lodge-cutscene-pending";
+    // gate:begin (evaluated by src/scripts/lodge/cutscene/gate.test.ts; plain ES5-style JS, no outer names)
+    function playedToday(stored, now) {
+      var text = typeof stored === "string" ? stored.trim() : "";
+      if (text === "") return false;
+      var at = /^-?\d+$/.test(text) ? Number(text) : Date.parse(text);
+      if (!isFinite(at) || at < 0 || at > 8.64e15) return false;
+      var start = new Date(now.getTime());
+      start.setHours(6, 0, 0, 0);
+      if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 1);
+      var end = new Date(start.getTime());
+      end.setDate(end.getDate() + 1);
+      return at >= start.getTime() && at < end.getTime();
+    }
+    function covers(search, traverse, stored, now, dev) {
+      var params = new URLSearchParams(search);
+      var mode = params.get("cutscene");
+      if (mode === "replay" || (mode === "force" && dev)) return true;
+      return params.get("resume") !== "1" && !traverse && !playedToday(stored, now);
+    }
+    // gate:end
+    if (window.__lodgeCutsceneNav) return;
+    const entry = performance.getEntriesByType("navigation")[0];
+    const nav = (window.__lodgeCutsceneNav = {
+      traverse: document.readyState === "loading" && !!entry && entry.type === "back_forward",
+    });
+    let timer = 0;
+    let waitVisible = null;
+    const disarm = () => {
+      window.clearTimeout(timer);
+      if (waitVisible) document.removeEventListener("visibilitychange", waitVisible);
+      waitVisible = null;
+    };
+    const arm = (ms) => {
+      disarm();
+      const start = () => {
+        timer = window.setTimeout(() => document.documentElement.classList.remove(COVER), ms);
+      };
+      if (!document.hidden) return start();
+      waitVisible = () => {
+        if (document.hidden) return;
+        disarm();
+        start();
+      };
+      document.addEventListener("visibilitychange", waitVisible);
+    };
+    nav.hold = (ms) => {
+      if (document.documentElement.classList.contains(COVER)) arm(ms);
+    };
+    const cover = () => {
+      nav.path = location.pathname;
+      nav.search = location.search;
+      disarm();
+      const dialog = document.querySelector("dialog.lodge-cutscene");
+      if (!dialog) return;
+      let stored = null;
+      try {
+        stored = localStorage.getItem("hvitveldt:cutscene:played:" + dialog.dataset.chapter);
+      } catch (e) {}
+      if (!covers(location.search, nav.traverse, stored, new Date(), dialog.hasAttribute("data-dev"))) return;
+      document.documentElement.classList.add(COVER);
+      arm(2500);
+    };
+    document.addEventListener("astro:before-preparation", (event) => {
+      nav.traverse = event.navigationType === "traverse";
+    });
+    document.addEventListener("astro:after-swap", cover);
+    cover();
+  })();
+</script>
+
+<style is:global>
+  /* No-flash cover while the scene loads; lifted by the runner or by the gate's timeout. */
+  html.lodge-cutscene-pending body::after {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: #0e0d0c;
+    content: "";
+  }
+
+  .lodge-cutscene {
+    inline-size: 100vw;
+    max-inline-size: 100vw;
+    block-size: 100vh;
+    block-size: 100dvh;
+    max-block-size: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: #0e0d0c;
+    color: var(--ink, #ece7dd);
+  }
+
+  .lodge-cutscene[open] {
+    display: grid;
+  }
+
+  .lodge-cutscene::backdrop {
+    background: #0e0d0c;
+  }
+
+  .lodge-cutscene__stage {
+    grid-area: 1 / 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .lodge-cutscene__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .lodge-cutscene__card {
+    grid-area: 1 / 1;
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: clamp(1.4rem, 5vmin, 2.6rem);
+    padding: max(4.25rem, env(safe-area-inset-top)) 1.25rem max(5.5rem, env(safe-area-inset-bottom));
+    background: radial-gradient(ellipse 70% 55% at 50% 50%, rgb(14 13 12 / 0.62), transparent 78%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .lodge-cutscene__text {
+    max-width: min(36rem, 100%);
+    margin: 0;
+    color: var(--ink, #ece7dd);
+    font-family: var(--font-thai);
+    font-size: clamp(1rem, 0.82rem + 1.1vmin, 1.3rem);
+    line-height: 1.95;
+    text-shadow: 0 1px 10px rgb(0 0 0 / 0.9);
+    text-wrap: pretty;
+  }
+
+  /* Reveal (scripts/lodge/cutscene/reveal.ts): inline spans, opacity only. */
+  .lodge-cutscene__text[data-reveal] .lodge-cutscene__g {
+    opacity: 0;
+    transition: opacity 420ms ease-out;
+  }
+
+  .lodge-cutscene__text[data-reveal] .lodge-cutscene__g.is-shown {
+    opacity: 1;
+  }
+
+  .lodge-cutscene .lodge-cutscene__skip,
+  .lodge-cutscene .lodge-cutscene__continue,
+  .lodge-cutscene .lodge-cutscene__control {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.55rem 1.3rem;
+    border: 1px solid rgb(217 212 202 / 0.4);
+    background: rgb(14 13 12 / 0.6);
+    color: var(--ink, #ece7dd);
+    font-family: var(--font-thai);
+    font-size: 0.95rem;
+    letter-spacing: 0.04em;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .lodge-cutscene .lodge-cutscene__skip:hover,
+  .lodge-cutscene .lodge-cutscene__continue:hover,
+  .lodge-cutscene .lodge-cutscene__control:hover,
+  .lodge-cutscene .lodge-cutscene__control[aria-pressed="true"] {
+    border-color: rgb(236 231 221 / 0.85);
+    background: rgb(236 231 221 / 0.12);
+  }
+
+  .lodge-cutscene .lodge-cutscene__skip:focus-visible,
+  .lodge-cutscene .lodge-cutscene__continue:focus-visible,
+  .lodge-cutscene .lodge-cutscene__control:focus-visible {
+    outline: 2px solid #ece7dd;
+    outline-offset: 3px;
+  }
+
+  /* Positioned so they paint above the stage and the card (both positioned). */
+  .lodge-cutscene__skip {
+    position: relative;
+    grid-area: 1 / 1;
+    justify-self: end;
+    align-self: end;
+    margin: 0 max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) 0;
+  }
+
+  .lodge-cutscene__controls {
+    position: relative;
+    grid-area: 1 / 1;
+    justify-self: start;
+    align-self: end;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem 0.6rem;
+    margin: 0 calc(max(16px, env(safe-area-inset-right)) + 5.6rem) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+    pointer-events: none;
+  }
+
+  .lodge-cutscene__controls > * {
+    pointer-events: auto;
+  }
+
+  .lodge-cutscene__skip[hidden],
+  .lodge-cutscene__continue[hidden],
+  .lodge-cutscene__controls:empty,
+  .lodge-cutscene[data-mode="still"] .lodge-cutscene__controls {
+    display: none;
+  }
+</style>
