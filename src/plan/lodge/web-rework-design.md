@@ -289,12 +289,12 @@ Unit tests for the plugin (kind attribute, unknown kind error, `hand` day valida
 | Chapter | Image | Verb | Peak |
 |---|---|---|---|
 | 0 Introduction | A closed notebook on a wooden table in a dark room, window-frame shadow, snow outside, a gold ring beside the notebook | "เปิดสมุด": the cover turns and the epigraph appears on the page | The word "ฉัน" in the epigraph is in Elena's hand; the last "ฉัน" is written slightly differently from the first |
-| 1 Arrival | Driver's view: snow rushing at the windscreen, hatched pine trunks passing, headlights into the storm | "ไฟสูง" (hold, or toggle by button): the beam lengthens and reveals the treeline | With high beams on, seven trunks in the treeline are too thin; with beams off they are gone. The scene ends on the lodge lights far ahead |
+| 1 Arrival | Black, no picture (revised by the author after release: the night-drive scene was removed) | None: the epigraph is revealed on black from 1 s to 11 s | The epigraph is held alone for five seconds before the chapter opens |
 | 6 Cracks | Plate `06A` (Ben hunched in the living room), the room dark with slow firelight | "ส่องไฟ": the light follows the pointer and reveals the room; without a pointer it sweeps on its own | After the light leaves Ben, the brightness there lingers half a second while everywhere else darkens at once |
 | 13 Descent | Ancient stone stair under the lodge in charcoal, carved symbols that catch the torch | "ลงบันได": drag or scroll down one step at a time; button "ลงต่อ" as alternative; the torch follows the pointer and symbols glow faintly as the beam passes | At the bottom, the edge of the beam finds a heap of suitcases and belongings of the vanished |
 | 18 Mirror | A Brooklyn bathroom mirror; the epigraph also appears mirrored in the glass, drawn on canvas | Pointer movement: the reflection follows 0.5 s late; without a pointer it moves on its own | Near the end the reflection moves before the reader and its text finishes first; the two then merge |
 
-Author-confirmed choices: the seven thin trunks in chapter 1 are kept ambiguous (they could be trees), since the text has Elena first see the shadows at the lodge; the chapter 13 symbols are invented drum-style marks, not a real script; the gold ring is shown in the introduction as quiet foreshadowing.
+Author-confirmed choices: chapter 1 was first a night drive with seven thin trunks in the high beam, later replaced by the epigraph on black at the author's request; the chapter 13 symbols are invented drum-style marks, not a real script; the gold ring is shown in the introduction as quiet foreshadowing.
 
 ### 7.4 Tests
 

@@ -14,7 +14,7 @@ export interface LodgeRegistryEntry {
 
 const ENTRIES: Record<SceneChapter, LodgeRegistryEntry> = {
   0: { chapter: 0, id: "notebook", load: () => import("./scenes/notebook") },
-  1: { chapter: 1, id: "headlights", load: () => import("./scenes/headlights") },
+  1: { chapter: 1, id: "dark", load: () => import("./scenes/dark") },
   6: { chapter: 6, id: "lamp", load: () => import("./scenes/lamp") },
   13: { chapter: 13, id: "descent", load: () => import("./scenes/descent") },
   18: { chapter: 18, id: "mirror", load: () => import("./scenes/mirror") },
