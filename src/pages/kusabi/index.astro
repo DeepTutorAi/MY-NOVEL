@@ -7,12 +7,13 @@ import { withBase } from "../../utils/base-path";
 const chapters = await getCollection("kusabiChapters");
 const prologue = chapters.find(c => c.data.number === 0);
 
+// Chapters 1-4 are live: render them from the collection so they are clickable.
+const realChapters = chapters
+  .filter(c => c.data.number >= 1)
+  .sort((a, b) => a.data.number - b.data.number);
+
 // Static list of other chapters for display purposes since they are locked/postponed
 const plannedChapters = [
-  { number: 1, title: "เรียวกังฮิโนะโมริ", englishTitle: "Hinomori Ryokan", summary: "กลุ่มนักเดินทางเดินทางมาถึงเรียวกังท่ามกลางสายฝน และได้ยินข่าวลือเรื่องบ้านร้างบนเขาเป็นครั้งแรก" },
-  { number: 2, title: "ข่าวลือเจ้าสาวบนเขา", englishTitle: "Mountain Bride Rumors", summary: "เรื่องเล่าพื้นบ้านที่แต่ละคนได้ยินในเวอร์ชันที่ขัดแย้งกัน และเงาปริศนาสีขาวริมป่า" },
-  { number: 3, title: "ของที่หาย", englishTitle: "Lost Item", summary: "ของสำคัญของริสะหายไป ก่อนจะถูกพบใกล้ทางขึ้นเขา เป็นแรงผลักดันให้ทุกคนต้องก้าวเข้าไปสำรวจ" },
-  { number: 4, title: "บ้านคุซาบิ", englishTitle: "Kusabi House", summary: "การก้าวข้ามธรณีประตูของบ้านร้างชื้นแฉะ และวินาทีที่ประตูหน้าถูกปิดตายจากด้านนอก" },
   { number: 5, title: "ห้องแรก", englishTitle: "The Audio Room", summary: "กับดักแรกของระบบควบคุมที่บีบบังคับให้พวกเขาเลือกระหว่างเสียงจริงกับเสียงบันทึก" },
   { number: 6, title: "ประตูสองทาง", englishTitle: "The Double Door", summary: "ทางแยกที่บีบให้เลือกระหว่างความปลอดภัยของตนเองกับการย้อนกลับไปช่วยคนอื่น" },
   { number: 7, title: "ศพที่บอกคำตอบ", englishTitle: "The Witness of Guilt", summary: "การเผชิญหน้ากับร่องรอยของเหยื่อกลุ่มเก่า และความลับเบื้องหลังผู้ควบคุมระบบ" },
@@ -72,7 +73,7 @@ const plannedExtras = [
               บทนำ — {prologue.data.thaiTitle || prologue.data.title}
             </span>
             <span class="kusabi-item-meta">
-              เปิดอ่านแล้ว · 3 นาที
+              เปิดอ่านแล้ว · {prologue.data.readingMinutes ?? 3} นาที
             </span>
           </a>
         ) : (
@@ -81,6 +82,22 @@ const plannedExtras = [
             <span class="kusabi-item-meta">Coming Soon</span>
           </div>
         )}
+
+        {/* Live Chapters 1-4 (rendered from the collection) */}
+        {realChapters.map((ch) => (
+          <a
+            class="kusabi-item"
+            data-chapter-id={ch.id}
+            href={withBase(`/kusabi/chapters/${ch.id}/`)}
+          >
+            <span class="kusabi-item-title">
+              บทที่ {ch.data.number} — {ch.data.thaiTitle || ch.data.title}
+            </span>
+            <span class="kusabi-item-meta">
+              เปิดอ่านแล้ว · {ch.data.readingMinutes ?? 3} นาที
+            </span>
+          </a>
+        ))}
 
         {/* Planned Chapters Placeholder */}
         {plannedChapters.map((ch) => (
@@ -115,7 +132,7 @@ const plannedExtras = [
     </section>
   </main>
 
-  <script is:inline define:vars={{ prologueId: prologue?.id, resumeBase: withBase("/kusabi/chapters/") }}>
+  <script is:inline define:vars={{ prologueId: prologue?.id, resumeBase: withBase("/kusabi/chapters/"), prologueTitle: prologue ? (prologue.data.thaiTitle || prologue.data.title) : "" }}>
     const updateReadsAndGlow = () => {
       try {
         // Glow last read chapter
@@ -175,7 +192,7 @@ const plannedExtras = [
             }
             resumeCard.style.display = "flex";
           } else if (lastReadId === prologueId) {
-            resumeTitle.textContent = "บทนำ: เสียงก้องบนเขาคุโระมิโซะ";
+            resumeTitle.textContent = `บทนำ: ${prologueTitle}`;
             resumeLink.href = `${resumeBase}${prologueId}/`;
             resumeLink.textContent = "อ่านต่อ";
             resumeCard.style.display = "flex";
