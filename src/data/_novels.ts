@@ -64,7 +64,7 @@ export const NOVELS = [
     subtitle: "ทริปพักร้อนบนเขาร้างที่มีข่าวลือเรื่องเจ้าสาวภูเขา แต่แท้จริงคือลานทดลองของฆาตกรผู้บิดเบี้ยว",
     mood: "ระทึกขวัญ · จิตวิทยา",
     length: "12 บท · 5 บทเสริม · ประมาณ 16 ชั่วโมง",
-    heroImage: "/assets/kusabi/images/home-hero.webp",
+    heroImage: "/assets/kusabi/images/home-hero-v2.webp",
     heroState: "image",
     accent: "#E53935",
     href: "/kusabi/",

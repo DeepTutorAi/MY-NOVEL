@@ -131,7 +131,7 @@ node --import tsx src/scripts/sea/sea-e2e.ts [baseUrl]   # e2e ด้วย Pupp
 ## 🎐 บ้านคุซาบิบนเขาคุโระมิโซะ — Kusabi
 
 <div align="center">
-<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/kusabi/images/home-hero.webp" alt="บ้านไม้เก่าร้างบนภูเขาในคืนฝนตกหนัก มีหญิงสาวในชุดขาวยืนอยู่กลางหมอก" width="100%"/>
+<img src="https://raw.githubusercontent.com/DeepTutorAi/MY-NOVEL/main/public/assets/kusabi/images/home-hero-v2.webp" alt="บ้านไม้ร้างบนภูเขาท่ามกลางป่าและหมอก" width="100%"/>
 </div>
 
 > ตำนานพื้นบ้านบอกว่าบนยอดเขาคุโระมิโซะมี "เจ้าสาวภูเขา" รอคอยคนหลงทาง
