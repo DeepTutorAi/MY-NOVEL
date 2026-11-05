@@ -2,27 +2,15 @@
 import { getCollection } from "astro:content";
 import KusabiBaseLayout from "../../layouts/kusabi/KusabiBaseLayout.astro";
 import { withBase } from "../../utils/base-path";
+import { chapterLabel, EPILOGUE_NUMBER } from "../../data/kusabi/chapter-label";
 
 // Get collection entries for Kusabi
 const chapters = await getCollection("kusabiChapters");
 const prologue = chapters.find(c => c.data.number === 0);
 
-// Chapters 1-4 are live: render them from the collection so they are clickable.
 const realChapters = chapters
   .filter(c => c.data.number >= 1)
   .sort((a, b) => a.data.number - b.data.number);
-
-// Static list of other chapters for display purposes since they are locked/postponed
-const plannedChapters = [
-  { number: 5, title: "ห้องแรก", englishTitle: "The Audio Room", summary: "กับดักแรกของระบบควบคุมที่บีบบังคับให้พวกเขาเลือกระหว่างเสียงจริงกับเสียงบันทึก" },
-  { number: 6, title: "ประตูสองทาง", englishTitle: "The Double Door", summary: "ทางแยกที่บีบให้เลือกระหว่างความปลอดภัยของตนเองกับการย้อนกลับไปช่วยคนอื่น" },
-  { number: 7, title: "ศพที่บอกคำตอบ", englishTitle: "The Witness of Guilt", summary: "การเผชิญหน้ากับร่องรอยของเหยื่อกลุ่มเก่า และความลับเบื้องหลังผู้ควบคุมระบบ" },
-  { number: 8, title: "ริสะหาย", englishTitle: "The Weight Room", summary: "แรงกดทับและความวุ่นวายของแผนประคองน้ำหนัก นาโอะบาดเจ็บหนัก และความสูญเสียใหญ่" },
-  { number: 9, title: "หลังริสะหาย", englishTitle: "Recovery Sequence", summary: "ช่วงเวลาที่หัวใจสลาย เรียวยะต้องดึงสติของกลุ่มกลับมาจากขอบเหวของความพังทลาย" },
-  { number: 10, title: "เสียงของริสะ", englishTitle: "Risa's Voice", summary: "ริสะถูกคุมขังในห้องพิธีการ คำถามสั้น ๆ ของเธอที่สั่นสะเทือนปมลึกในใจของชิอง" },
-  { number: 11, title: "ชิอง มาโดกะ", englishTitle: "The Final Gambit", summary: "การเผชิญหน้ากับข้อเสนอสุดท้ายของฆาตกรที่เปิดประตูให้หนี แต่เรียกร้องชีวิตคนหนึ่งทดแทน" },
-  { number: 12, title: "บ้านปิดประตูใส่เจ้าของ", englishTitle: "The Climax", summary: "วินาทีล่มสลายของบ้านคุซาบิในคืนพายุคลั่ง จุดจบของปีศาจ และรอยแผลที่ไม่มีวันลบเลือน" }
-];
 
 const plannedExtras = [
   { number: 1, title: "คนที่ยังกลับบ้านได้", summary: "เรื่องราวสามปีก่อนเกิดเหตุ ชิองผู้ยังมีความหวังและเทปเสียงบันทึกคำสัญญา" },
@@ -83,7 +71,6 @@ const plannedExtras = [
           </div>
         )}
 
-        {/* Live Chapters 1-4 (rendered from the collection) */}
         {realChapters.map((ch) => (
           <a
             class="kusabi-item"
@@ -91,22 +78,12 @@ const plannedExtras = [
             href={withBase(`/kusabi/chapters/${ch.id}/`)}
           >
             <span class="kusabi-item-title">
-              บทที่ {ch.data.number} — {ch.data.thaiTitle || ch.data.title}
+              {chapterLabel(ch.data.number)} — {ch.data.thaiTitle || ch.data.title}
             </span>
             <span class="kusabi-item-meta">
               เปิดอ่านแล้ว · {ch.data.readingMinutes ?? 3} นาที
             </span>
           </a>
-        ))}
-
-        {/* Planned Chapters Placeholder */}
-        {plannedChapters.map((ch) => (
-          <div class="kusabi-item" style="opacity: 0.5; cursor: not-allowed;" aria-disabled="true">
-            <span class="kusabi-item-title">
-              บทที่ {ch.number} — {ch.title}
-            </span>
-            <span class="kusabi-item-meta">เร็วๆ นี้</span>
-          </div>
         ))}
       </div>
     </section>
@@ -132,7 +109,7 @@ const plannedExtras = [
     </section>
   </main>
 
-  <script is:inline define:vars={{ prologueId: prologue?.id, resumeBase: withBase("/kusabi/chapters/"), prologueTitle: prologue ? (prologue.data.thaiTitle || prologue.data.title) : "" }}>
+  <script is:inline define:vars={{ prologueId: prologue?.id, resumeBase: withBase("/kusabi/chapters/"), prologueTitle: prologue ? (prologue.data.thaiTitle || prologue.data.title) : "", epilogueNumber: String(EPILOGUE_NUMBER) }}>
     const updateReadsAndGlow = () => {
       try {
         // Glow last read chapter
@@ -181,7 +158,8 @@ const plannedExtras = [
           const lastReadId = saved?.chapterId || localStorage.getItem(LAST_READ_KEY);
           if (saved && typeof saved.chapterId === "string" && typeof saved.chapterTitle === "string") {
             const num = `${saved.chapterNumber ?? ""}`.trim();
-            resumeTitle.textContent = num === "0" ? `บทนำ: ${saved.chapterTitle}` : `บทที่ ${num}: ${saved.chapterTitle}`;
+            const resumeLabel = num === "0" ? "บทนำ" : num === epilogueNumber ? "บทส่งท้าย" : `บทที่ ${num}`;
+            resumeTitle.textContent = `${resumeLabel}: ${saved.chapterTitle}`;
             if (saved.progress >= 0.995) {
               resumeLink.textContent = "อ่านอีกครั้ง";
               resumeLink.href = `${resumeBase}${saved.chapterId}/`;

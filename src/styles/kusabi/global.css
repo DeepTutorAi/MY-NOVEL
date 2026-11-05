@@ -341,6 +341,14 @@ body {
   color: var(--kusabi-ink) !important;
 }
 
+.kusabi-prose img {
+  display: block;
+  width: 100%;
+  max-width: 34rem;
+  height: auto;
+  margin: 2.5rem auto;
+}
+
 /* Explicit fallback for anything inside main content */
 .kusabi-reader-container *,
 .kusabi-toc-container * {

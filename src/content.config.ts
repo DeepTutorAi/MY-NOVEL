@@ -68,7 +68,7 @@ const seaChapters = defineCollection({
 const kusabiChapters = defineCollection({
   loader: glob({ pattern: "**/*.md", base: "./src/content/kusabi/chapters" }),
   schema: z.object({
-    number: z.number().int().min(0).max(12),
+    number: z.number().int().min(0).max(13),
     title: z.string(),
     thaiTitle: z.string().optional(),
     act: z.number().int().min(1).max(3),

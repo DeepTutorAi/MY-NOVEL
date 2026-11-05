@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import KusabiChapterLayout from "../../../layouts/kusabi/KusabiChapterLayout.astro";
 import { withBase } from "../../../utils/base-path";
+import { chapterLabel, EPILOGUE_NUMBER, PROLOGUE_NUMBER } from "../../../data/kusabi/chapter-label";
 
 export async function getStaticPaths() {
   const chapters = (await getCollection("kusabiChapters")).sort(
@@ -30,7 +31,9 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
   <div class="kusabi-reader-container">
     <div class="kusabi-title-section" style="margin-bottom: 4rem;">
       <p class="kusabi-nav-label" style="color: var(--kusabi-accent); font-family: var(--font-mono); margin-bottom: 0.75rem;">
-        {chapter.data.number === 0 ? "บทนำ" : `บทที่ ${chapter.data.number} — ${chapter.data.actTitle}`}
+        {chapter.data.number === PROLOGUE_NUMBER || chapter.data.number === EPILOGUE_NUMBER
+          ? chapterLabel(chapter.data.number)
+          : `${chapterLabel(chapter.data.number)} — ${chapter.data.actTitle}`}
       </p>
       <h1 class="kusabi-title" style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1.5rem;">
         {chapter.data.thaiTitle || chapter.data.title}
@@ -46,7 +49,7 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
       {previous ? (
         <a href={withBase(`/kusabi/chapters/${previous.id}/`)} class="kusabi-nav-button">
           <span class="kusabi-nav-label">← ย้อนกลับ</span>
-          <span class="kusabi-nav-title">{previous.data.number === 0 ? "บทนำ" : `บทที่ ${previous.data.number}`}</span>
+          <span class="kusabi-nav-title">{chapterLabel(previous.data.number)}</span>
         </a>
       ) : (
         <a href={withBase("/kusabi/")} class="kusabi-nav-button">
@@ -58,7 +61,7 @@ const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[
       {next ? (
         <a href={withBase(`/kusabi/chapters/${next.id}/`)} class="kusabi-nav-button" style="text-align: right;">
           <span class="kusabi-nav-label">บทต่อไป →</span>
-          <span class="kusabi-nav-title">{next.data.number === 0 ? "บทนำ" : `บทที่ ${next.data.number}`}</span>
+          <span class="kusabi-nav-title">{chapterLabel(next.data.number)}</span>
         </a>
       ) : (
         <a href={withBase("/kusabi/")} class="kusabi-nav-button" style="text-align: right;">

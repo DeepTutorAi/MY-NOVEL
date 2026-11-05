@@ -155,8 +155,8 @@ import { withBase } from "../../../utils/base-path";
         const raw = localStorage.getItem(SECRET_READS_KEY);
         const arr = raw ? JSON.parse(raw) : [];
         if (Array.isArray(arr)) {
-          // Exclude Chapter 0 (00-introduction) as per specification
-          return arr.filter((id) => id !== "00-introduction").length;
+          // Count main chapters only: the prologue and epilogue are excluded.
+          return arr.filter((id) => id !== "00-introduction" && id !== "13-epilogue").length;
         }
         return 0;
       } catch {

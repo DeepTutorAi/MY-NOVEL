@@ -40,9 +40,10 @@ Minor visual details left without text: leaf-shaped debris on sealed floors (CH0
 
 ## Website status
 
-The site has only chapters 00-04, and their text predates the current drafts. Only the
-broken CH02 image reference was changed on the site. The other images are placed in
-the drafts and will reach the site when the drafts are published.
+Chapters 1-12 and the epilogue are published from the drafts with all 16 images, so
+each website chapter matches its draft as of this pass. Later draft edits must be
+copied to `src/content/kusabi/chapters/` separately. The prologue page was not
+replaced from `00-prologue-v2.md`, and the Extra arc is not published.
 
 The CH10 filename contains the name `shion`. It appears in the image URL before the
 CH11-12 reveal. The alt text does not name him.
