@@ -15,4 +15,8 @@ repo_implementation.md
 .serena/
 .mimosa/
 skills/
-.agents/
+.agents/*
+!.agents/skills/
+.agents/skills/*
+!.agents/skills/ln-character-designer/
+!.agents/skills/ln-scene-composer/
