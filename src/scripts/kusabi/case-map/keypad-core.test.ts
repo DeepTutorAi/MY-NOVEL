@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
-import { MAP_HISTORY, MAP_STOPS, MAP_TAPES, QUIZ_BANK } from "../../../data/kusabi/case-map";
+import { MAP_ARCS, MAP_BEHIND, MAP_FACTS, MAP_FACTS_LATE, MAP_HISTORY, MAP_MIRROR, MAP_NAMES, MAP_QUESTIONS, MAP_SHORT, MAP_STOPS, MAP_TAPES, MAP_TRUTH, MAP_WOUNDS, QUIZ_BANK } from "../../../data/kusabi/case-map";
 import { codeMatches, normalizeAnswer, pickQuestions, pressClear, pressDigit } from "./keypad-core";
 
 describe("answers", () => {
@@ -46,11 +46,34 @@ describe("keypad", () => {
 });
 
 describe("map data", () => {
-  it("numbers the stops in order and keeps pins on the plan", () => {
-    MAP_STOPS.forEach((stop, index) => {
-      assert.equal(stop.no, index + 1);
-      assert.ok(stop.x >= 0 && stop.x <= 100 && stop.y >= 0 && stop.y <= 100, stop.place);
-    });
+  it("numbers the stops in order and puts each in exactly one part of the book", () => {
+    MAP_STOPS.forEach((stop, index) => assert.equal(stop.no, index + 1));
+    assert.deepEqual(MAP_ARCS.flatMap((arc) => arc.stops), MAP_STOPS.map((stop) => stop.no));
+  });
+
+  it("keeps the Extra arc out of what opens right after the epilogue", () => {
+    const early = JSON.stringify([MAP_SHORT, MAP_ARCS, MAP_STOPS, MAP_FACTS, MAP_BEHIND, MAP_WOUNDS, MAP_MIRROR, MAP_QUESTIONS, MAP_NAMES]);
+    for (const secret of ["อายาเมะ", "ฮิราซากะ", "2009", "2010", "ผู้ช่วย", "ห้องเล็ก", "หัวหอม"]) assert.ok(!early.includes(secret), secret);
+    assert.ok(JSON.stringify(MAP_TRUTH).includes("อายาเมะ"));
+    assert.ok(JSON.stringify(MAP_FACTS_LATE).includes("อายาเมะ"));
+  });
+
+  it("answers the author's questions about the group's past and keeps each fact short", () => {
+    const facts = [...MAP_FACTS.flatMap((entry) => entry.facts), ...MAP_FACTS_LATE];
+    for (const topic of ["เรียวยะรู้จักนาโอะก่อนใคร", "ทำไมเธอตกลงคบ", "คำที่เขาไม่พูดอีกเลย", "หนึ่งวันของเขา", "งานอดิเรกที่หมู่บ้านรู้"]) {
+      assert.ok(facts.some((fact) => fact.title === topic), topic);
+    }
+    assert.equal(new Set(facts.map((fact) => fact.title)).size, facts.length);
+    for (const fact of facts) {
+      assert.ok(fact.text.length > 0 && fact.text.length <= 300, fact.title);
+      assert.doesNotMatch(fact.text, /[—–]/, fact.title);
+    }
+  });
+
+  it("does not repeat the details the kb has wrong or the draft leaves to E05", () => {
+    const all = JSON.stringify([MAP_FACTS, MAP_FACTS_LATE, MAP_BEHIND, MAP_WOUNDS, MAP_MIRROR, MAP_QUESTIONS, MAP_NAMES, MAP_TRUTH]);
+    // The kb's count includes deaths the book dropped, and has the assistant die where E03 has him run.
+    for (const stale of ["17 ศพ", "สิบเจ็ดศพ", "ผู้ร่วมทดลอง", "เหยื่อรายแรก"]) assert.ok(!all.includes(stale), stale);
   });
 
   it("lists only the tapes the story shows, not an invented full set", () => {

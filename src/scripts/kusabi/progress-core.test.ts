@@ -130,20 +130,6 @@ describe("unlock table", () => {
     assert.equal(isUnlocked("extra-e03", finished(all, ["e01"])), false);
   });
 
-  it("opens the postcards after the map when E05 is not out", () => {
-    assert.equal(isUnlocked("postcards", finished(all)), false);
-    assert.equal(isUnlocked("postcards", finished(all, [], { caseMap: true })), true);
-    assert.equal(isUnlocked("postcards", finished([], ["e05"])), true);
-  });
-
-  it("opens the sealed file only when everything published is done", () => {
-    const published = ["e01", "e02", "e03", "e04"];
-    assert.equal(isUnlocked("sealed", finished(all, published)), false);
-    assert.equal(isUnlocked("sealed", finished(all, ["e01"], { caseMap: true })), false);
-    assert.equal(isUnlocked("sealed", finished(all.slice(1), published, { caseMap: true })), false);
-    assert.equal(isUnlocked("sealed", finished(all, published, { caseMap: true })), true);
-  });
-
   it("lets the developer shortcut open everything, without publishing E05", () => {
     const progress = finished([], [], { bypass: true });
     assert.equal(unlockedIds(progress).length, Object.keys(UNLOCKS).length);

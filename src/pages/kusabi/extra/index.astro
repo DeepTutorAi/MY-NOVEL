@@ -1,6 +1,7 @@
 ---
 import { getCollection } from "astro:content";
 import { EXTRA_UNITS } from "../../../data/kusabi/units";
+import { MOMENT_GROUPS } from "../../../data/kusabi/unlocks";
 import KusabiBaseLayout from "../../../layouts/kusabi/KusabiBaseLayout.astro";
 import { withBase } from "../../../utils/base-path";
 
@@ -57,17 +58,18 @@ const extraBase = withBase("/kusabi/extra/");
           ))
         }
       </div>
-
-      <div class="postcards" data-postcards hidden>
-        <h3>ส่งมาทีหลัง</h3>
-        <div class="frames frames-wide" data-post-frames></div>
-      </div>
-
-      <div class="sealed" data-sealed>
-        <div class="sealed-file" data-sealed-file>
-          <span class="sealed-label">ยังไม่มีคดี</span>
-        </div>
-        <div class="frames frames-faces" data-sealed-frames hidden></div>
+      <h3>ภาพที่ไม่ได้อยู่ในเล่ม</h3>
+      <p class="room-lead">เปิดเมื่ออ่านบทส่งท้ายและเรื่องเสริมจบ</p>
+      <div class="frames-moments">
+        {
+          MOMENT_GROUPS.flatMap((group) =>
+            group.ratios.map((ratio) => (
+              <button type="button" class="frame frame-moment" data-moment={group.file} style={`--ratio: ${ratio}`} disabled aria-label="ภาพที่ยังไม่เปิด">
+                <span class="frame-label">{group.label}</span>
+              </button>
+            )),
+          )
+        }
       </div>
     </section>
 
@@ -91,6 +93,7 @@ const extraBase = withBase("/kusabi/extra/");
 
   <dialog class="lightbox" data-lightbox aria-label="ภาพขยาย">
     <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" />
+    <p class="lightbox-caption" data-lightbox-caption hidden></p>
     <button type="button" class="kusabi-ghost lightbox-close" data-lightbox-close>ปิด</button>
   </dialog>
 
@@ -230,14 +233,6 @@ const extraBase = withBase("/kusabi/extra/");
       gap: 8px;
     }
 
-    .frames-wide {
-      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-    }
-
-    .frames-faces {
-      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-    }
-
     .frame {
       position: relative;
       display: block;
@@ -249,14 +244,6 @@ const extraBase = withBase("/kusabi/extra/");
       background: repeating-linear-gradient(135deg, #171412 0 6px, #1b1815 6px 12px);
       color: var(--kusabi-ink-dim);
       cursor: default;
-    }
-
-    .frames-wide .frame {
-      aspect-ratio: 3 / 2;
-    }
-
-    .frames-faces .frame {
-      aspect-ratio: 4 / 5;
     }
 
     .frame:not(:disabled) {
@@ -279,34 +266,46 @@ const extraBase = withBase("/kusabi/extra/");
       text-shadow: 0 1px 3px #000;
     }
 
-    /* After CH11 the pictures read as if seen on the old screens. */
-    [data-gallery][data-crt="true"] .frame:not(:disabled)::after {
+    /* Each row shares one height, so no picture loses its edges to a crop. */
+    .frames-moments {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .frame-moment {
+      flex-grow: calc(var(--ratio) * 100);
+      flex-basis: calc(var(--ratio) * 240px);
+      width: auto;
+      max-width: min(100%, calc(var(--ratio) * 420px));
+      aspect-ratio: var(--ratio);
+    }
+
+    .lightbox-caption {
+      margin: 0;
+      padding: 0.6rem 1rem max(0.8rem, env(safe-area-inset-bottom));
+      color: var(--kusabi-ink);
+      font-family: var(--font-hand);
+      font-size: 1.05rem;
+      text-align: center;
+    }
+
+    .lightbox:has(.lightbox-caption:not([hidden])) {
+      align-content: center;
+    }
+
+    .lightbox:has(.lightbox-caption:not([hidden])) img {
+      max-height: calc(100dvh - 4.5rem);
+    }
+
+    /* After CH11 the chapter pictures read as if seen on the old screens. The moments were never on one. */
+    [data-gallery][data-crt="true"] .frame:not(:disabled):not(.frame-moment)::after {
       position: absolute;
       inset: 0;
       background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.16) 0 1px, transparent 1px 3px);
       content: "";
       pointer-events: none;
-    }
-
-    .sealed {
-      margin-top: 1rem;
-    }
-
-    .sealed-file {
-      display: inline-grid;
-      place-items: center;
-      width: 180px;
-      height: 112px;
-      border: 1px solid var(--kusabi-stone-line);
-      background: linear-gradient(180deg, #24201d, #171412);
-    }
-
-    .sealed-label {
-      padding: 0 0.6rem;
-      background: var(--kusabi-label);
-      color: var(--kusabi-label-ink);
-      font-family: var(--font-hand);
-      font-size: 0.95rem;
     }
 
     .behind-table {

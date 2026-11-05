@@ -34,7 +34,7 @@
 - **อามามิยะ นาโอะ (Nao Amamiya):** `public/assets/kusabi/images/characters/drafts-v2/nao-amamiya-draft-v2.png`
 - **ซูซูกิ อากิระ (Suzuki Akira — วัยมหาวิทยาลัย):** `public/assets/tsukinomi/images/extra/suzuki-akira-university-180cm-draft.png`
 - **อาราอิ เรียวะ (Arai Ryoya):** `public/assets/kusabi/images/characters/drafts-v2/arai-ryoya-draft-v2.png`
-- **ซากุระบะ ไคโตะ (Kaito Sakuraba):** `public/assets/kusabi/images/characters/drafts-v2/kaito-sakuraba-draft-v2.png`
+- **ซากุระบะ ไคโตะ (Kaito Sakuraba):** `public/assets/kusabi/images/characters/drafts-v2/kaito-sakuraba-draft-v2.webp`
 - **อาซาฮินะ ริสะ (Risa Asahina):** `public/assets/kusabi/images/characters/drafts-v2/risa-asahina-draft-v2.png`
 - **คุโรซาวะ มิซากิ (Misaki Kurosawa):** `public/assets/kusabi/images/characters/drafts-v2/misaki-kurosawa-draft-v2.png`
 - **ฮิราซากะ อายาเมะ (Ayame Hirasaka):** `public/assets/kusabi/images/characters/drafts-v2/ayame-hirasaka-draft-v2.png`

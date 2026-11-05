@@ -6,13 +6,14 @@
 //   t<N>      opens when chapter N is finished: art and character files
 //   e<N>      opens when Extra N is finished: character notes
 //   x<N>      opens with the unlock of Extra N: its title and summary
-//   post      postcards, sealed: the file with no name
-//   quiz      the keypad questions, map: the story map, history: its Extra part
+//   m<N>      pictures in no chapter, one file per unlock (moments.ts)
+//   quiz     the keypad questions, map: the story plan, history: its Extra part
 import { createHash } from "node:crypto";
 import { getCollection } from "astro:content";
 import { CHARACTER_TIERS } from "./characters";
-import { MAP_HISTORY, MAP_KNOWS, MAP_NIGHT, MAP_STOPS, MAP_TAPES, QUIZ_BANK } from "./case-map";
+import { MAP_ARCS, MAP_BEHIND, MAP_CLUES, MAP_FACTS, MAP_FACTS_LATE, MAP_HISTORY, MAP_KNOWS, MAP_MIRROR, MAP_NAMES, MAP_NIGHT, MAP_QUESTIONS, MAP_SHORT, MAP_STOPS, MAP_TAPES, MAP_TRUTH, MAP_WOUNDS, QUIZ_BANK } from "./case-map";
 import { MUSIC_CUES } from "./audio-cues";
+import { MOMENTS } from "./moments";
 import { answerMessage, normalizeAnswer } from "../../scripts/kusabi/case-map/keypad-core";
 
 export interface GalleryImage {
@@ -26,18 +27,6 @@ const IMAGE_ROOT = "/assets/kusabi/images/";
 function chapterArt(body: string): GalleryImage[] {
   return [...body.matchAll(IMAGE_LINE)].map((match) => ({ alt: match[1], src: `${IMAGE_ROOT}${match[2]}` }));
 }
-
-const POSTCARDS: GalleryImage[] = [
-  { src: `${IMAGE_ROOT}album/a01.webp`, alt: "งานแต่งของริสะกับไคโตะ นาโอะ เรียวยะ และมิซากิปรบมืออยู่ด้านหลัง" },
-  { src: `${IMAGE_ROOT}album/a02.webp`, alt: "มิซากิอุ้มเด็กแฝดสองคน" },
-  { src: `${IMAGE_ROOT}album/a03.webp`, alt: "มิซากิ นาโอะ และเรียวยะนั่งเล่นกับเด็กแฝดบนโซฟา" },
-];
-
-// No names and no story: this file explains nothing, by the author's decision (D5).
-const SEALED: GalleryImage[] = ["s01", "s02", "s03", "s04", "s05"].map((name) => ({
-  src: `${IMAGE_ROOT}album/${name}.webp`,
-  alt: "ภาพใบหน้าในแฟ้มที่ไม่มีป้าย",
-}));
 
 const BEHIND = {
   people: [
@@ -78,7 +67,7 @@ export async function buildVaultFiles(): Promise<Record<string, unknown>> {
     };
   }
 
-  for (const key of ["e1", "e2"]) files[key] = { characters: CHARACTER_TIERS[key] };
+  for (const key of ["e1", "e2", "e3", "e4"]) files[key] = { characters: CHARACTER_TIERS[key] };
 
   for (const extra of extras) {
     files[`x${extra.data.number}`] = {
@@ -91,14 +80,27 @@ export async function buildVaultFiles(): Promise<Record<string, unknown>> {
     };
   }
 
-  files.post = { art: POSTCARDS };
-  files.sealed = { art: SEALED };
+  for (const [file, art] of Object.entries(MOMENTS)) files[file] = { art };
 
   files.quiz = {
     questions: QUIZ_BANK.map(({ answers, ...question }) => ({ ...question, hashes: answers.map(answerHash) })),
   };
-  files.map = { stops: MAP_STOPS, night: MAP_NIGHT, knows: MAP_KNOWS, tapes: MAP_TAPES };
-  files.history = { history: MAP_HISTORY };
+  files.map = {
+    short: MAP_SHORT,
+    arcs: MAP_ARCS,
+    stops: MAP_STOPS,
+    night: MAP_NIGHT,
+    knows: MAP_KNOWS,
+    clues: MAP_CLUES,
+    tapes: MAP_TAPES,
+    facts: MAP_FACTS,
+    behind: MAP_BEHIND,
+    wounds: MAP_WOUNDS,
+    mirror: MAP_MIRROR,
+    questions: MAP_QUESTIONS,
+    names: MAP_NAMES,
+  };
+  files.history = { history: MAP_HISTORY, truth: MAP_TRUTH, facts: MAP_FACTS_LATE };
 
   return files;
 }

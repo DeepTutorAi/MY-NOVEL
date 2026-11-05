@@ -2,19 +2,19 @@
 import KusabiBaseLayout from "../../layouts/kusabi/KusabiBaseLayout.astro";
 import { withBase } from "../../utils/base-path";
 
-// Nothing in this HTML names a room or an event. Questions and the recap come from
+// Nothing in this HTML names a room or an event. Questions and the plan come from
 // the vault after the epilogue is finished (scripts/kusabi/case-map/case-map.ts).
 const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 ---
 
 <KusabiBaseLayout
   title="แผนผัง · บ้านคุซาบิบนเขาคุโระมิโซะ"
-  description="ผังที่ปักหมุดไว้ เปิดได้หลังอ่านจบและตอบคำถามผ่าน"
+  description="โครงเรื่องทั้งเล่มและรายละเอียดที่นิยายไม่ได้เล่า เปิดได้หลังอ่านจบและตอบคำถามผ่าน"
   bodyClass="kusabi-case-map"
 >
   <main class="kusabi-page casemap">
     <header class="kusabi-page-head">
-      <p class="kusabi-kicker">Pinned Plan</p>
+      <p class="kusabi-kicker">Story Plan</p>
       <h1>แผนผัง</h1>
       <p data-map-lead>หน้านี้เฉลยทั้งเรื่อง จึงเปิดให้เฉพาะคนที่อ่านจบแล้ว</p>
     </header>
@@ -54,39 +54,15 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
       <p class="quiz-error" data-keypad-error role="status" hidden>เลขไม่ตรงกับที่ได้มา ลองกดใหม่อีกครั้ง</p>
     </section>
 
-    <section class="map-open" data-map-open hidden aria-label="แผนผังและสรุปเรื่อง">
-      <div class="plan" data-plan data-lifted="false">
-        <svg class="plan-lines" viewBox="0 0 1000 640" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
-          <!-- The house, drawn over itself the way ch11:287 describes. -->
-          <path d="M60 90 L940 92 L938 430 L62 428 Z" stroke-width="2.4" />
-          <path d="M63 88 L938 95 M64 431 L936 428" stroke-width="0.9" opacity="0.6" />
-          <path d="M440 92 L440 428 M560 92 L560 428" stroke-width="1.6" />
-          <path d="M60 240 L440 240 M250 92 L250 240 M250 240 L250 428" stroke-width="1.4" />
-          <path d="M560 180 L938 180 M560 268 L938 268 M820 180 L820 268" stroke-width="1.4" />
-          <path d="M565 176 L930 186 M566 272 L930 264" stroke-width="0.8" opacity="0.55" />
-          <path d="M470 150 h60 M470 170 h60 M470 190 h60 M470 210 h60 M470 230 h60 M470 150 v80 M530 150 v80" stroke-width="1" />
-          <path d="M480 428 L480 452 M520 428 L520 452" stroke-width="1.4" />
-          <path d="M500 452 L500 620" stroke-width="1" stroke-dasharray="3 7" />
-          <!-- Second floor, set apart. -->
-          <path d="M700 12 h200 v66 h-200 Z" stroke-width="1.4" />
-          <path d="M700 40 h-46 l-22 52" stroke-width="0.9" stroke-dasharray="4 5" />
-          <!-- Under the paper: from the hall, behind the wall, to rectangles with no name (ch11:291). -->
-          <g class="plan-under">
-            <path d="M500 240 L500 470 L420 470" stroke-width="1.6" stroke-dasharray="7 5" />
-            <path d="M330 470 h180 v90 h-180 Z" stroke-width="1.8" />
-            <path d="M510 516 L620 536" stroke-width="1.6" stroke-dasharray="7 5" />
-            <path d="M620 490 h160 v92 h-160 Z" stroke-width="1.8" />
-            <path d="M880 320 L880 470 L780 520" stroke-width="1" stroke-dasharray="3 6" />
-          </g>
-        </svg>
-        <div class="plan-pins" data-plan-pins></div>
-        <button type="button" class="plan-lift" data-plan-lift aria-pressed="false">ดึงขอบกระดาษขึ้น</button>
-      </div>
-      <p class="plan-note">ผังนี้วาดตามที่เรื่องเล่า ไม่ได้ระบุสัดส่วนจริง</p>
+    <section class="map-open" data-map-open hidden aria-label="โครงเรื่องและสิ่งที่นิยายไม่ได้เล่า">
+      <section class="map-part map-short">
+        <h2>คำตอบสั้นที่สุด</h2>
+        <ul class="map-lines" data-short></ul>
+      </section>
 
       <section class="map-part">
-        <h2>เส้นทางคืนนั้น</h2>
-        <ol class="stops" data-stops></ol>
+        <h2>โครงเรื่อง</h2>
+        <div class="arcs" data-arcs></div>
       </section>
 
       <div class="map-columns">
@@ -105,11 +81,56 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
         <ul class="ledger" data-ledger></ul>
       </section>
 
-      <section class="map-part" data-history-wrap hidden>
-        <h2>ก่อนคืนนั้น</h2>
-        <ol class="night" data-history></ol>
+      <section class="map-part">
+        <h2>เบาะแสที่วางไว้ตั้งแต่ต้น</h2>
+        <p class="map-lead">ทุกข้ออยู่ในเนื้อเรื่องมาตลอด อ่านรอบแรกอาจผ่านตาไป</p>
+        <ul class="clues" data-clues></ul>
       </section>
-      <p class="plan-note" data-history-hint>ยังมีอีกส่วนหนึ่งของผังนี้ จะเปิดเมื่ออ่านเรื่องเสริมตอนที่ 4 จบ</p>
+
+      <section class="map-only" aria-labelledby="only-here">
+        <header class="map-only-head">
+          <p class="kusabi-kicker">Only Here</p>
+          <h2 id="only-here">สิ่งที่นิยายไม่ได้เล่า</h2>
+          <p class="map-lead">เกร็ดเล็กเกร็ดน้อยจากตรงนี้ลงไปไม่อยู่ในบทไหนเลย และมีแค่ในหน้านี้</p>
+        </header>
+
+        <div data-facts></div>
+
+        <section class="map-part">
+          <h3>อีกฝั่งของเรื่อง: เขาเห็นอะไรในแต่ละช่วง</h3>
+          <ol class="night" data-behind></ol>
+        </section>
+
+        <section class="map-part">
+          <h3>รอยแผลเก่าของทั้งห้าคน</h3>
+          <ul class="night" data-wounds></ul>
+        </section>
+
+        <section class="map-part">
+          <h3>กระจกของเรียวยะ</h3>
+          <ul class="map-lines" data-mirror></ul>
+        </section>
+
+        <section class="map-part">
+          <h3>คำถามที่เรื่องไม่ได้ตอบตรง ๆ</h3>
+          <dl class="answers" data-questions></dl>
+        </section>
+
+        <section class="map-part">
+          <h3>ชื่อ ปี และรอยต่อ</h3>
+          <ul class="map-lines" data-names></ul>
+        </section>
+
+        <section class="map-part" data-history-wrap hidden>
+          <h3>ของที่ติดตัวเขามาจากปี 2009</h3>
+          <div data-facts-late></div>
+          <h3>ความจริงที่เขาหลบ</h3>
+          <ul class="map-lines" data-truth></ul>
+          <h3>ก่อนคืนนั้น</h3>
+          <ol class="night" data-history></ol>
+        </section>
+        <p class="map-lead" data-history-hint>ยังมีอีกส่วนหนึ่ง จะเปิดเมื่ออ่านเรื่องเสริมตอนที่ 4 จบ</p>
+      </section>
     </section>
   </main>
 
@@ -286,105 +307,91 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
       }
     }
 
-    /* The pinned plan: pale paper, pencil, coloured pins. */
-    .plan {
-      position: relative;
-      width: min(100%, 880px);
-      margin: 0 auto;
-      aspect-ratio: 1000 / 640;
-      background:
-        linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.1)),
-        var(--kusabi-label);
-      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
-      color: #38312a;
-    }
-
-    .plan-lines {
-      position: absolute;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-    }
-
-    .plan-under {
-      opacity: 0;
-      transition: opacity 600ms ease;
-    }
-
-    .plan[data-lifted="true"] .plan-under {
-      opacity: 1;
-    }
-
-    .plan-pins {
-      position: absolute;
-      inset: 0;
-    }
-
-    .pin {
-      position: absolute;
-      display: grid;
-      place-items: center;
-      width: 44px;
-      height: 44px;
-      margin: -22px 0 0 -22px;
-      padding: 0;
-      border: 0;
-      background: none;
-      cursor: pointer;
-    }
-
-    .pin span {
-      display: grid;
-      place-items: center;
-      width: 25px;
-      height: 25px;
-      border-radius: 50%;
-      background: #a3261f;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
-      color: #fff;
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-    }
-
-    .pin[aria-pressed="true"] span {
-      background: #1d1a17;
-      outline: 2px solid #a3261f;
-    }
-
-    .pin[hidden] {
-      display: none;
-    }
-
-    .plan-lift {
-      position: absolute;
-      right: 0;
-      bottom: 0;
-      min-height: 44px;
-      padding: 0.3rem 0.8rem;
-      border: 0;
-      background: linear-gradient(315deg, #8e887b 0 18%, #b7b0a2 20%);
-      color: #231e1a;
-      font-family: var(--font-hand);
-      font-size: 0.92rem;
-      cursor: pointer;
-    }
-
-    .plan-note {
-      margin: 0.7rem 0 0;
-      color: var(--kusabi-ink-dim);
-      font-size: 0.8rem;
-      text-align: center;
-    }
-
     .map-part {
       display: grid;
       gap: 0.8rem;
       margin-top: 2.75rem;
     }
 
-    .map-part h2 {
+    .map-part h2,
+    .map-part h3 {
       margin: 0;
       font-size: 1.2rem;
+    }
+
+    .map-part h3 {
+      font-size: 1.05rem;
+    }
+
+    .map-lead {
+      margin: 0;
+      color: var(--kusabi-ink-dim);
+      font-size: 0.88rem;
+    }
+
+    .map-lines {
+      display: grid;
+      gap: 0.55rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.95rem;
+      line-height: 1.7;
+    }
+
+    .map-lines li {
+      padding-left: 0.8rem;
+      border-left: 2px solid var(--kusabi-stone-3);
+    }
+
+    .map-short {
+      margin-top: 0;
+      padding: 1rem 1.1rem;
+      border: 1px solid var(--kusabi-stone-line);
+      background: rgba(22, 19, 17, 0.92);
+    }
+
+    .map-short .map-lines li {
+      border-left-color: var(--kusabi-accent);
+    }
+
+    .arcs {
+      display: grid;
+      gap: 1.75rem;
+    }
+
+    .arc {
+      display: grid;
+      gap: 0.6rem;
+    }
+
+    .arc-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.3rem 0.8rem;
+      align-items: baseline;
+    }
+
+    .arc-title {
+      margin: 0;
+      padding: 0.05rem 0.7rem;
+      background: var(--kusabi-label);
+      color: var(--kusabi-label-ink);
+      font-family: var(--font-hand);
+      font-size: 1.1rem;
+      font-weight: 400;
+      transform: rotate(-0.4deg);
+    }
+
+    .arc-chapters {
+      color: var(--kusabi-ink-dim);
+      font-size: 0.8rem;
+    }
+
+    .arc-what {
+      margin: 0;
+      font-size: 0.95rem;
+      line-height: 1.7;
     }
 
     .stops {
@@ -402,11 +409,6 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
       padding: 0.7rem 0.8rem;
       border: 1px solid var(--kusabi-stone-line);
       background: rgba(22, 19, 17, 0.92);
-      scroll-margin-top: calc(var(--kusabi-topbar-height) + 1rem);
-    }
-
-    .stop[data-active="true"] {
-      border-color: var(--kusabi-accent);
     }
 
     .stop-no {
@@ -464,6 +466,108 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
       font-size: 0.78rem;
     }
 
+    .clues {
+      display: grid;
+      gap: 0;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .clue {
+      display: grid;
+      grid-template-columns: minmax(0, 10rem) minmax(0, 1fr) minmax(0, 1fr);
+      gap: 0.3rem 1rem;
+      padding: 0.6rem 0;
+      border-bottom: 1px solid var(--kusabi-stone-line);
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+
+    .clue p {
+      margin: 0;
+    }
+
+    .clue-what {
+      font-weight: 700;
+    }
+
+    .clue-first {
+      color: var(--kusabi-ink-dim);
+    }
+
+    /* What only this page tells: set apart so nobody takes it for a recap. */
+    .map-only {
+      margin-top: 3.5rem;
+      padding: 1.5rem 1.25rem 1.75rem;
+      border: 1px solid rgba(232, 180, 94, 0.28);
+      border-top: 2px solid var(--kusabi-lamp);
+      background: rgba(28, 22, 16, 0.92);
+    }
+
+    .map-only-head {
+      display: grid;
+      gap: 0.4rem;
+    }
+
+    .map-only-head .kusabi-kicker {
+      color: var(--kusabi-lamp);
+    }
+
+    .map-only-head h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .map-only .map-part:first-of-type {
+      margin-top: 1.75rem;
+    }
+
+    .facts {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+      gap: 1.1rem 2rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .fact {
+      padding-left: 0.8rem;
+      border-left: 2px solid rgba(232, 180, 94, 0.45);
+    }
+
+    .fact-title {
+      margin: 0;
+      color: var(--kusabi-lamp);
+      font-size: 0.95rem;
+      font-weight: 700;
+    }
+
+    .fact-text {
+      margin: 0.2rem 0 0;
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .answers {
+      display: grid;
+      gap: 0.3rem;
+      margin: 0;
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .answers dt {
+      margin-top: 0.5rem;
+      font-weight: 700;
+    }
+
+    .answers dd {
+      margin: 0;
+      color: var(--kusabi-ink-dim);
+    }
+
     .knows li {
       padding-bottom: 0.45rem;
       border-bottom: 1px solid var(--kusabi-stone-line);
@@ -488,32 +592,26 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
       text-align: center;
     }
 
+    @media (max-width: 640px) {
+      .clue {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
     @media (max-width: 560px) {
-      .pin span {
-        width: 20px;
-        height: 20px;
-        font-size: 0.62rem;
-      }
-
-      /* Small enough to leave the last hidden room clear on a phone. */
-      .plan-lift {
-        padding: 0.2rem 0.45rem;
-        font-size: 0.72rem;
-      }
-
       .night li {
         grid-template-columns: minmax(0, 1fr);
         gap: 0;
+      }
+
+      .map-only {
+        padding: 1.25rem 0.9rem 1.5rem;
       }
     }
 
     @media (prefers-reduced-motion: reduce) {
       .keypad[data-wrong="true"] .keypad-panel {
         animation: none;
-      }
-
-      .plan-under {
-        transition: none;
       }
     }
   </style>

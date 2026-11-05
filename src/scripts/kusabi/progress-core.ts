@@ -105,10 +105,6 @@ export function ruleHolds(rule: Rule, progress: KusabiProgress): boolean {
   if ("extra" in rule) return progress.extras.has(rule.extra);
   if ("mainRead" in rule) return progress.mainRead >= rule.mainRead;
   if ("caseMap" in rule) return progress.caseMap;
-  if ("allChapters" in rule) return CHAPTER_UNITS.every((unit) => progress.chapters.has(unit.number));
-  if ("allPublishedExtras" in rule) {
-    return EXTRA_UNITS.filter((unit) => unit.published).every((unit) => progress.extras.has(unit.id));
-  }
   if ("allOf" in rule) return rule.allOf.every((part) => ruleHolds(part, progress));
   return rule.anyOf.some((part) => ruleHolds(part, progress));
 }

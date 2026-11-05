@@ -35,6 +35,12 @@ for (const path of files.filter((file) => /assets[\\/]kusabi|_astro/.test(file))
   if (/50s|draft|shion|killer|adult|boat|wedding|twins|ayame|home-hero/i.test(file)) problems.push(`revealing or retired file: ${file}`);
 }
 
+// Source sheets stay in public/ for the author but never ship (astro.config.mjs), and
+// the pictures of the characters' future are held back by the author's decision.
+for (const file of files.map(name)) {
+  if (/^assets\/kusabi\/images\/(characters\/|extra\/|album\/|home-hero)/.test(file) || /^kusabi\/vault\/(post|sealed)\.json$/.test(file)) problems.push(`source art or held-back file: ${file}`);
+}
+
 // The pages a new reader lands on carry no reveal in their source.
 for (const page of ["kusabi/index.html", "kusabi/characters/index.html", "kusabi/extra/index.html", "kusabi/case-map/index.html", "index.html"]) {
   const path = join(dist, page);

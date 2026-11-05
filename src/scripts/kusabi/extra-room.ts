@@ -5,12 +5,13 @@ import { BYPASS_H2, BYPASS_KEY, extraKey, isFinishedRecord, isUnlocked, parseRec
 import { loadProgress, safeGet, safeSet } from "./progress";
 import { loadVault } from "./vault";
 import { CHAPTER_UNITS, EXTRA_UNITS, MAIN_CHAPTER_COUNT } from "../../data/kusabi/units";
-import type { UnlockId } from "../../data/kusabi/unlocks";
+import { MOMENT_GROUPS, type UnlockId } from "../../data/kusabi/unlocks";
 import { withBase } from "../../utils/base-path";
 
 interface GalleryImage {
   src: string;
   alt: string;
+  caption?: string;
 }
 
 interface ArtFile {
@@ -52,18 +53,15 @@ function openFrame(frame: HTMLButtonElement, item: GalleryImage, signal: AbortSi
       if (!dialog || !big) return;
       big.src = withBase(item.src);
       big.alt = item.alt;
+      const caption = dialog.querySelector<HTMLElement>("[data-lightbox-caption]");
+      if (caption) {
+        caption.textContent = item.caption ?? "";
+        caption.hidden = !item.caption;
+      }
       dialog.showModal();
     },
     { signal },
   );
-}
-
-function newFrame(): HTMLButtonElement {
-  const frame = document.createElement("button");
-  frame.type = "button";
-  frame.className = "frame";
-  frame.disabled = true;
-  return frame;
 }
 
 async function renderExtras(progress: KusabiProgress): Promise<void> {
@@ -112,50 +110,19 @@ async function renderGallery(progress: KusabiProgress, signal: AbortSignal): Pro
   if (!gallery) return;
   if (isUnlocked("voice", progress)) gallery.dataset.crt = "true";
 
-  await Promise.all(
-    CHAPTER_UNITS.map(async (unit) => {
-      if (!isUnlocked(`art-${unit.number}` as UnlockId, progress)) return;
-      const frames = gallery.querySelectorAll<HTMLButtonElement>(`[data-frame="t${unit.number}"]`);
-      if (frames.length === 0) return;
-      const data = await loadVault<ArtFile>(`t${unit.number}`);
-      data.art?.forEach((item, index) => {
-        if (frames[index]) openFrame(frames[index], item, signal);
-      });
-    }),
-  );
+  const fill = async (selector: string, file: string) => {
+    const frames = gallery.querySelectorAll<HTMLButtonElement>(selector);
+    if (frames.length === 0) return;
+    const data = await loadVault<ArtFile>(file);
+    data.art?.forEach((item, index) => {
+      if (frames[index]) openFrame(frames[index], item, signal);
+    });
+  };
 
-  if (isUnlocked("postcards", progress)) {
-    const wrap = gallery.querySelector<HTMLElement>("[data-postcards]");
-    const frames = gallery.querySelector<HTMLElement>("[data-post-frames]");
-    const data = await loadVault<ArtFile>("post");
-    if (wrap && frames) {
-      frames.replaceChildren(
-        ...(data.art ?? []).map((item) => {
-          const frame = newFrame();
-          openFrame(frame, item, signal);
-          return frame;
-        }),
-      );
-      wrap.hidden = false;
-    }
-  }
-
-  if (isUnlocked("sealed", progress)) {
-    const file = gallery.querySelector<HTMLElement>("[data-sealed-file]");
-    const frames = gallery.querySelector<HTMLElement>("[data-sealed-frames]");
-    const data = await loadVault<ArtFile>("sealed");
-    if (file && frames) {
-      frames.replaceChildren(
-        ...(data.art ?? []).map((item) => {
-          const frame = newFrame();
-          openFrame(frame, item, signal);
-          return frame;
-        }),
-      );
-      file.hidden = true;
-      frames.hidden = false;
-    }
-  }
+  await Promise.all([
+    ...CHAPTER_UNITS.filter((unit) => isUnlocked(`art-${unit.number}` as UnlockId, progress)).map((unit) => fill(`[data-frame="t${unit.number}"]`, `t${unit.number}`)),
+    ...MOMENT_GROUPS.filter((group) => isUnlocked(group.unlock, progress)).map((group) => fill(`[data-moment="${group.file}"]`, group.file)),
+  ]);
 }
 
 async function renderBehind(progress: KusabiProgress): Promise<void> {

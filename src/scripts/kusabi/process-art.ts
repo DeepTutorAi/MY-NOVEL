@@ -1,6 +1,7 @@
 // Builds every Kusabi website image that is not a chapter illustration from the
-// untouched sources in output/kusabi-art-source/. Output names are neutral on
-// purpose: a locked picture must not say who it shows.
+// untouched sources in public/assets/kusabi/images/characters/ and extra/moments/. Those
+// folders never reach the build (astro.config.mjs). Output names are neutral on purpose:
+// a locked picture must not say who it shows.
 //
 //   pnpm exec tsx src/scripts/kusabi/process-art.ts
 //
@@ -11,7 +12,6 @@ import { dirname, join } from "node:path";
 import sharp from "sharp";
 
 const ROOT = process.cwd();
-const SOURCE = join(ROOT, "output/kusabi-art-source");
 const PUBLIC = join(ROOT, "public/assets/kusabi/images");
 const ILLUSTRATIONS = join(PUBLIC, "illustrations");
 
@@ -31,33 +31,42 @@ interface Portrait {
 const SHEETS = "characters/drafts-v2";
 const box = (left: number, top: number, width: number, height: number): Box => ({ left, top, width, height });
 
-/** Character file portraits. f01 to f05 are public, the rest load only after their unlock. */
+/**
+ * Character file portraits. f01 to f05 are public, the rest load only after their unlock.
+ * Framing follows f01, the author's reference: the head centred and about 70-75% of the
+ * frame's height, a little space above it, and the neck and shoulders below.
+ */
 const PORTRAITS: Portrait[] = [
   { out: "files/f01.webp", source: `${SHEETS}/arai-ryoya-draft-v2.png`, box: box(500, 680, 320, 400) },
-  { out: "files/f02.webp", source: `${SHEETS}/nao-amamiya-draft-v2.png`, box: box(1015, 20, 264, 330) },
-  { out: "files/f03.webp", source: `${SHEETS}/kaito-sakuraba-draft-v2.png`, box: box(1004, 50, 264, 330) },
+  { out: "files/f02.webp", source: `${SHEETS}/nao-amamiya-draft-v2.png`, box: box(989, 490, 272, 340) },
+  { out: "files/f03.webp", source: `${SHEETS}/kaito-sakuraba-draft-v2.webp`, box: box(1004, 50, 264, 330) },
   { out: "files/f04.webp", source: `${SHEETS}/misaki-kurosawa-draft-v2.png`, box: box(20, 860, 290, 362) },
-  { out: "files/f05.webp", source: `${SHEETS}/risa-asahina-draft-v2.png`, box: box(1162, 0, 264, 330) },
-  { out: "files/f06.webp", source: `${SHEETS}/shion-madoka-caretaker-draft-v2.png`, box: box(975, 28, 264, 330) },
-  { out: "files/f07.webp", source: `${SHEETS}/shion-madoka-killer-draft-v2.png`, box: box(1248, 15, 262, 328) },
-  { out: "files/f08.webp", source: `${SHEETS}/shion-madoka-killer-unmasked-draft-v2.png`, box: box(1060, 5, 420, 525) },
-  { out: "files/f09.webp", source: `${SHEETS}/ayame-hirasaka-draft-v2.png`, box: box(1074, 6, 372, 465) },
-  // The sealed file: faces only, because the sheets' clothes say more than the file may.
-  { out: "album/s01.webp", source: "extra/arai-ryoya-adult-boat-tourist.png", box: box(0, 1030, 208, 250) },
-  { out: "album/s02.webp", source: "extra/kaito-sakuraba-adult-buzz-cut.png", box: box(1014, 16, 232, 290) },
-  { out: "album/s03.webp", source: "extra/misaki-kurosawa-adult-office-center-part.png", box: box(844, 0, 300, 375) },
-  { out: "album/s04.webp", source: "extra/nao-amamiya-adult-boat-tourist.png", box: box(885, 12, 280, 350) },
-  { out: "album/s05.webp", source: "extra/risa-asahina-adult-dress-straight-bangs.png", box: box(945, 0, 300, 375) },
-];
-
-const POSTCARDS: Array<{ out: string; source: string }> = [
-  { out: "album/a01.webp", source: "extra/risa-kaito-wedding-short-hair-special-1dea97b4.png" },
-  { out: "album/a02.webp", source: "extra/misaki-twins-special-aa2d8800.png" },
-  { out: "album/a03.webp", source: "extra/misaki-nao-ryoya-with-twins-age-26-special-b5b78ac1.png" },
+  { out: "files/f05.webp", source: `${SHEETS}/risa-asahina-draft-v2.png`, box: box(1186, 0, 266, 332) },
+  { out: "files/f06.webp", source: `${SHEETS}/shion-madoka-caretaker-draft-v2.png`, box: box(955, 68, 270, 338) },
+  { out: "files/f07.webp", source: `${SHEETS}/shion-madoka-killer-draft-v2.png`, box: box(1224, 18, 308, 385) },
+  { out: "files/f08.webp", source: `${SHEETS}/shion-madoka-killer-unmasked-draft-v2.png`, box: box(1030, 5, 420, 525) },
+  { out: "files/f09.webp", source: `${SHEETS}/ayame-hirasaka-draft-v2.png`, box: box(1043, 6, 384, 480) },
+  { out: "files/f10.webp", source: `${SHEETS}/ryokan-owner-draft-v2.webp`, box: box(1222, 88, 300, 375) },
 ];
 
 const PORTRAIT_WIDTH = 480;
 const PORTRAIT_HEIGHT = 600;
+
+const MOMENT_SOURCES = "extra/moments";
+const MOMENT_WIDTH = 1280;
+
+/** Pictures in no chapter, in the order of src/data/kusabi/moments.ts. */
+const MOMENT_PICTURES = [
+  "cast-03-nao-clip-final",
+  "cast-01-table-photo",
+  "cast-04-kaito-mist",
+  "cast-02-five-pairs",
+  "moment-01-five-minutes",
+  "moment-02-turn-away-cheek-poke",
+  "moment-03-the-tape",
+  "moment-04-onion-feeding-user-approved",
+  "thank-you-sunday-final",
+];
 
 /** The pale sheet paper would glare on the dark pages, so the corners sink into shadow. */
 function vignette(width: number, height: number): Buffer {
@@ -79,7 +88,7 @@ function prepare(path: string) {
 }
 
 async function portrait({ out, source, box: area }: Portrait) {
-  const base = await sharp(join(SOURCE, source))
+  const base = await sharp(join(PUBLIC, source))
     .extract(area)
     .resize(PORTRAIT_WIDTH, PORTRAIT_HEIGHT, { fit: "cover", kernel: "lanczos3" })
     .grayscale()
@@ -91,11 +100,11 @@ async function portrait({ out, source, box: area }: Portrait) {
     .toFile(prepare(join(PUBLIC, out)));
 }
 
-async function postcard({ out, source }: { out: string; source: string }) {
-  await sharp(join(SOURCE, source))
-    .resize({ width: 1400, height: 1400, fit: "inside", withoutEnlargement: true })
-    .linear(0.92, 0)
-    .webp({ quality: 80 })
+async function moment(source: string, index: number) {
+  const out = `gallery/m${String(index + 1).padStart(2, "0")}.webp`;
+  await sharp(join(PUBLIC, MOMENT_SOURCES, `${source}.webp`))
+    .resize({ width: MOMENT_WIDTH, withoutEnlargement: true, kernel: "lanczos3" })
+    .webp({ quality: 82 })
     .toFile(prepare(join(PUBLIC, out)));
 }
 
@@ -120,6 +129,6 @@ async function cover() {
 }
 
 for (const item of PORTRAITS) await portrait(item);
-for (const item of POSTCARDS) await postcard(item);
+await Promise.all(MOMENT_PICTURES.map(moment));
 await cover();
-console.log(`wrote ${PORTRAITS.length} portraits, ${POSTCARDS.length} postcards and the cover set`);
+console.log(`wrote ${PORTRAITS.length} portraits, ${MOMENT_PICTURES.length} gallery pictures and the cover set`);

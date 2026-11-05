@@ -1,5 +1,5 @@
-// The story map page: locked until the epilogue, then four questions, then the
-// keypad, then the map. The questions and the map arrive from the vault, so a
+// The story plan page: locked until the epilogue, then four questions, then the
+// keypad, then the plan. The questions and the plan arrive from the vault, so a
 // reader who has not finished never downloads them.
 import { CASE_MAP_KEY, isUnlocked, sha256Hex, type KusabiProgress } from "../progress-core";
 import { loadProgress, safeSet } from "../progress";
@@ -16,14 +16,30 @@ interface Question {
 }
 
 interface MapFile {
-  stops: Array<{ no: number; x: number; y: number; place: string; chapter: string; text: string; hidden?: boolean }>;
+  short: string[];
+  arcs: Array<{ title: string; chapters: string; what: string; stops: number[] }>;
+  stops: Array<{ no: number; place: string; chapter: string; text: string }>;
   night: Array<{ when: string; what: string }>;
   knows: Array<{ who: string; what: string; chapter: string }>;
+  clues: Array<{ what: string; first: string; then: string }>;
   tapes: Array<{ label: string; what: string; chapter: string }>;
+  facts: Array<{ group: string; facts: Fact[] }>;
+  behind: Array<{ when: string; what: string }>;
+  wounds: Array<{ who: string; what: string }>;
+  mirror: string[];
+  questions: Array<{ q: string; a: string }>;
+  names: string[];
+}
+
+interface Fact {
+  title: string;
+  text: string;
 }
 
 interface HistoryFile {
   history: Array<{ when: string; what: string; chapter: string }>;
+  truth: string[];
+  facts: Fact[];
 }
 
 const el = <T extends HTMLElement = HTMLElement>(selector: string) => document.querySelector<T>(selector);
@@ -35,76 +51,64 @@ function make(tag: string, className?: string, text?: string): HTMLElement {
   return node;
 }
 
-function renderMap(data: MapFile, signal: AbortSignal): void {
-  const plan = el("[data-plan]");
-  const pins = el("[data-plan-pins]");
-  const stops = el("[data-stops]");
-  const lift = el<HTMLButtonElement>("[data-plan-lift]");
-  if (!plan || !pins || !stops || !lift) return;
+/** A plain list of sentences into the list element with this data attribute. */
+function fillLines(selector: string, lines: string[]): void {
+  el(selector)?.replaceChildren(...lines.map((line) => make("li", undefined, line)));
+}
 
-  const pinFor = new Map<number, HTMLButtonElement>();
-  const rowFor = new Map<number, HTMLElement>();
-
-  const select = (no: number, scroll: boolean) => {
-    pinFor.forEach((pin, key) => pin.setAttribute("aria-pressed", String(key === no)));
-    rowFor.forEach((row, key) => {
-      row.dataset.active = String(key === no);
-    });
-    if (scroll) rowFor.get(no)?.scrollIntoView({ block: "nearest" });
-  };
-
-  for (const stop of data.stops) {
-    const pin = document.createElement("button");
-    pin.type = "button";
-    pin.className = "pin";
-    pin.style.left = `${stop.x}%`;
-    pin.style.top = `${stop.y}%`;
-    pin.setAttribute("aria-label", `จุดที่ ${stop.no}: ${stop.place}`);
-    pin.setAttribute("aria-pressed", "false");
-    pin.hidden = stop.hidden === true;
-    pin.append(make("span", undefined, String(stop.no)));
-    pin.addEventListener("click", () => select(stop.no, true), { signal });
-    pins.append(pin);
-    pinFor.set(stop.no, pin);
-
-    const row = make("li", "stop");
-    row.dataset.active = "false";
-    row.hidden = stop.hidden === true;
-    row.append(make("span", "stop-no", String(stop.no).padStart(2, "0")));
-    const copy = make("div");
-    copy.append(make("p", "stop-place", stop.place), make("p", "stop-chapter", stop.chapter), make("p", "stop-text", stop.text));
-    row.append(copy);
-    stops.append(row);
-    rowFor.set(stop.no, row);
-  }
-
-  lift.addEventListener(
-    "click",
-    () => {
-      const lifted = plan.dataset.lifted !== "true";
-      plan.dataset.lifted = String(lifted);
-      lift.setAttribute("aria-pressed", String(lifted));
-      lift.textContent = lifted ? "วางกระดาษลง" : "ดึงขอบกระดาษขึ้น";
-      for (const stop of data.stops) {
-        if (!stop.hidden) continue;
-        pinFor.get(stop.no)?.toggleAttribute("hidden", !lifted);
-        rowFor.get(stop.no)?.toggleAttribute("hidden", !lifted);
-      }
-    },
-    { signal },
+/** A row with a small label beside its text, the shape most of this page is made of. */
+function fillRows<T>(selector: string, rows: T[], label: (row: T) => string, text: (row: T) => string): void {
+  el(selector)?.replaceChildren(
+    ...rows.map((row) => {
+      const item = make("li");
+      item.append(make("small", undefined, label(row)), make("span", undefined, text(row)));
+      return item;
+    }),
   );
+}
 
-  const night = el("[data-night]");
-  night?.replaceChildren(
-    ...data.night.map((entry) => {
-      const row = make("li");
-      row.append(make("small", undefined, entry.when), make("span", undefined, entry.what));
-      return row;
+function factList(facts: Fact[]): HTMLElement {
+  const list = make("ul", "facts");
+  list.append(
+    ...facts.map((fact) => {
+      const item = make("li", "fact");
+      item.append(make("p", "fact-title", fact.title), make("p", "fact-text", fact.text));
+      return item;
+    }),
+  );
+  return list;
+}
+
+function renderMap(data: MapFile): void {
+  fillLines("[data-short]", data.short);
+
+  const stopFor = new Map(data.stops.map((stop) => [stop.no, stop]));
+  el("[data-arcs]")?.replaceChildren(
+    ...data.arcs.map((arc) => {
+      const section = make("section", "arc");
+      const head = make("div", "arc-head");
+      head.append(make("h3", "arc-title", arc.title), make("span", "arc-chapters", arc.chapters));
+      const stops = make("ol", "stops");
+      stops.append(
+        ...arc.stops.flatMap((no) => {
+          const stop = stopFor.get(no);
+          if (!stop) return [];
+          const row = make("li", "stop");
+          row.append(make("span", "stop-no", String(stop.no).padStart(2, "0")));
+          const copy = make("div");
+          copy.append(make("p", "stop-place", stop.place), make("p", "stop-chapter", stop.chapter), make("p", "stop-text", stop.text));
+          row.append(copy);
+          return [row];
+        }),
+      );
+      section.append(head, make("p", "arc-what", arc.what), stops);
+      return section;
     }),
   );
 
-  const knows = el("[data-knows]");
-  knows?.replaceChildren(
+  fillRows("[data-night]", data.night, (entry) => entry.when, (entry) => entry.what);
+
+  el("[data-knows]")?.replaceChildren(
     ...data.knows.map((entry) => {
       const row = make("li");
       row.append(make("strong", undefined, `${entry.who} `), make("span", undefined, entry.what), make("br"), make("small", undefined, entry.chapter));
@@ -112,8 +116,15 @@ function renderMap(data: MapFile, signal: AbortSignal): void {
     }),
   );
 
-  const ledger = el("[data-ledger]");
-  ledger?.replaceChildren(
+  el("[data-clues]")?.replaceChildren(
+    ...data.clues.map((clue) => {
+      const row = make("li", "clue");
+      row.append(make("p", "clue-what", clue.what), make("p", "clue-first", clue.first), make("p", "clue-then", clue.then));
+      return row;
+    }),
+  );
+
+  el("[data-ledger]")?.replaceChildren(
     ...data.tapes.map((entry) => {
       const row = make("li");
       const copy = make("div");
@@ -122,6 +133,23 @@ function renderMap(data: MapFile, signal: AbortSignal): void {
       return row;
     }),
   );
+
+  el("[data-facts]")?.replaceChildren(
+    ...data.facts.map((entry) => {
+      const section = make("section", "map-part");
+      section.append(make("h3", undefined, entry.group), factList(entry.facts));
+      return section;
+    }),
+  );
+
+  fillRows("[data-behind]", data.behind, (entry) => entry.when, (entry) => entry.what);
+  fillRows("[data-wounds]", data.wounds, (entry) => entry.who, (entry) => entry.what);
+  fillLines("[data-mirror]", data.mirror);
+  fillLines("[data-names]", data.names);
+
+  el("[data-questions]")?.replaceChildren(
+    ...data.questions.flatMap((entry) => [make("dt", undefined, entry.q), make("dd", undefined, entry.a)]),
+  );
 }
 
 async function showMap(progress: KusabiProgress, signal: AbortSignal): Promise<void> {
@@ -129,15 +157,17 @@ async function showMap(progress: KusabiProgress, signal: AbortSignal): Promise<v
   el("[data-quiz]")?.toggleAttribute("hidden", true);
   el("[data-keypad]")?.toggleAttribute("hidden", true);
   const lead = el("[data-map-lead]");
-  if (lead) lead.textContent = "ผังที่ปักหมุดไว้ในห้องนั้น กับสรุปว่าคืนนั้นเกิดอะไรขึ้นบ้าง";
-  renderMap(await loadVault<MapFile>("map"), signal);
+  if (lead) lead.textContent = "โครงเรื่องทั้งเล่ม เบาะแสที่วางไว้ และสิ่งที่นิยายไม่ได้เล่า";
+  renderMap(await loadVault<MapFile>("map"));
   if (signal.aborted) return;
   el("[data-map-open]")?.toggleAttribute("hidden", false);
 
   if (isUnlocked("case-map-history", progress)) {
     const data = await loadVault<HistoryFile>("history");
-    const list = el("[data-history]");
-    list?.replaceChildren(
+    if (signal.aborted) return;
+    fillLines("[data-truth]", data.truth);
+    el("[data-facts-late]")?.replaceChildren(factList(data.facts));
+    el("[data-history]")?.replaceChildren(
       ...data.history.map((entry) => {
         const row = make("li");
         const copy = make("div");

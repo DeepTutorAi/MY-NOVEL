@@ -341,7 +341,8 @@ async function main() {
       const source = await html(page);
       assert(!/ชิอง|มาโดกะ|อายาเมะ/.test(source), "secret cast in the HTML");
       assert((await page.$$eval(".entry:not(.is-locked)", (cards) => cards.length)) === 5, "expected five open files");
-      assert(!requests.some((request) => /f0[6-9]\.webp/.test(request)), "a locked portrait was requested");
+      assert(!requests.some((request) => /f(0[6-9]|10)\.webp/.test(request)), "a locked portrait was requested");
+      assert((await page.$$eval('.entry[data-card="nao"] .entry-field[data-empty]', (rows) => rows.length)) === 5, "a guest's rows should start empty");
       assert(!requests.some((request) => /\/vault\//.test(request)), "the vault was asked");
       await noHorizontalScroll(page, "characters");
       await shot(page, "characters-new-reader", true);
@@ -349,35 +350,54 @@ async function main() {
     });
 
     await check("characters: each stage opens only what it should", async () => {
-      const stages: Array<[number, string[], string[]]> = [
-        [1, ["มาโดกะคุง", "เจ้าของเรียวกัง"], ["ชิอง", "คนสวมหน้ากาก", "อายาเมะ"]],
-        [10, ["มาโดกะคุง", "คนสวมหน้ากาก", "หายไปจากทางแยก"], ["ชิอง", "อายาเมะ"]],
-        [11, ["สมุดที่จดพวกเขาไว้", "ยิ้ม", "ขอโทษ", "มาโดกะคุง"], ["ชิอง มาโดกะ", "อายาเมะ"]],
-        [12, ["ชิอง มาโดกะ"], ["อายาเมะ", "มาโดกะคุง"]],
-        [13, ["ชิอง มาโดกะ", "อายาเมะ", "หกเข็ม"], ["ฮิราซากะ"]],
+      const stages: Array<[number, string[], string[], string[]?]> = [
+        [1, ["มาโดกะคุง", "เจ้าของเรียวกัง", "ห้องสุดท้ายฝั่งตะวันออก"], ["ชิอง มาโดกะ", "คนสวมหน้ากาก", "อายาเมะ", "กระดูกหน้าแข้ง"]],
+        [7, ["เคยปล่อยมุกทุกสามวินาที", "เสียงในบ้าน", "บ้านหลังนี้ไม่ฆ่าใครครับ"], ["กระดูกหน้าแข้ง", "หายไปจากทางแยก", "คนสวมหน้ากาก"]],
+        [8, ["กระดูกหน้าแข้ง", "คนที่ชนประตู", "หายไปจากทางแยก"], ["ตู้เก็บของ", "คนสวมหน้ากาก"]],
+        [10, ["มาโดกะคุง", "คนสวมหน้ากาก", "คนที่ถูกแยกออกจากวง", "ตู้เก็บของ"], ["ชิอง มาโดกะ", "อายาเมะ"]],
+        [11, ["สมุดที่จดพวกเขาไว้", "ยิ้ม", "ขอโทษ", "มาโดกะคุง", "ดึงเธอไปทางซ้ายก่อนถาม"], ["ชิอง มาโดกะ", "อายาเมะ"]],
+        [12, ["ชิอง มาโดกะ", "คนที่แกะเชือกเอง", "เจ้าของเสียงในบ้าน"], ["อายาเมะ", "มาโดกะคุง", "หลังจากนั้น"]],
+        [13, ["ชิอง มาโดกะ", "อายาเมะ", "หกเข็ม", "หลังจากนั้น", "เขาไม่รู้เลย"], ["ฮิราซากะ", "ผู้ช่วยวิจัย"]],
+        [13, ["ฮิราซากะ อายาเมะ", "กลับบ้านกันเถอะ"], ["ผู้ช่วยวิจัย", "คู่รักที่มาหลบฝน"], ["e01"]],
+        [13, ["ผู้ช่วยวิจัย", "คำถามสุดท้าย", "คู่รักที่มาหลบฝน"], [], ["e01", "e02", "e03", "e04"]],
       ];
-      for (const [upTo, present, absent] of stages) {
-        const seeded = readerStorage(upTo);
+      for (const [upTo, present, absent, extras = []] of stages) {
+        const seeded = readerStorage(upTo, extras);
         // A returning reader: no merge animation holds the page.
-        seeded["kusabi:secret:seen-files"] = JSON.stringify(["staff", "owner", "mask", "shion", "ayame"]);
+        seeded["kusabi:secret:seen-files"] = JSON.stringify(["staff", "owner", "voice", "mask", "shion", "ayame", "assistant", "couple"]);
         const { context, page } = await openSession(browser, seeded);
         await visit(page, "/kusabi/characters/", 1500);
         const text = await pageText(page);
         for (const word of present) assert(text.includes(word), `after ${upTo}: "${word}" is missing`);
         for (const word of absent) assert(!text.includes(word), `after ${upTo}: "${word}" is showing`);
-        await shot(page, `characters-after-${upTo}`, true);
+        if (upTo >= 12) {
+          assert((await page.$$('[data-card="staff"], [data-card="mask"], [data-card="voice"]')).length === 0, `after ${upTo}: a merged card is still there`);
+        }
+        await shot(page, `characters-after-${upTo}${extras.length > 0 ? `-e${extras.length}` : ""}`, true);
         await context.close();
       }
     });
 
+    await check("characters: what a chapter added is lit once for a returning reader", async () => {
+      const seeded = readerStorage(8);
+      seeded["kusabi:secret:seen-files"] = JSON.stringify(["staff", "owner", "voice", ...Array.from({ length: 7 }, (_, index) => `tier:t${index + 1}`)]);
+      const { context, page } = await openSession(browser, seeded);
+      await visit(page, "/kusabi/characters/", 1200);
+      assert((await page.$$(".is-fresh")).length > 0, "nothing was lit");
+      assert((await page.$$eval(".entry-notes .is-fresh .entry-where", (labels) => labels.every((label) => label.textContent === "บท 8"))), "an old line was lit");
+      await visit(page, "/kusabi/characters/", 1200);
+      assert((await page.$$(".is-fresh")).length === 0, "it stayed lit on the next visit");
+      await context.close();
+    });
+
     await check("characters: the Shion merge plays once on a real first visit", async () => {
       const seeded = readerStorage(12);
-      seeded["kusabi:secret:seen-files"] = JSON.stringify(["staff", "owner", "mask"]);
+      seeded["kusabi:secret:seen-files"] = JSON.stringify(["staff", "owner", "voice", "mask"]);
       const { context, page } = await openSession(browser, seeded);
       await visit(page, "/kusabi/characters/", 500);
-      assert((await page.$$eval(".entry.is-merging", (nodes) => nodes.length)) === 2, "the two cards should merge");
+      assert((await page.$$eval(".entry.is-merging", (nodes) => nodes.length)) === 3, "the three cards should merge");
       await pause(2200);
-      assert((await page.$$eval('[data-card="staff"], [data-card="mask"]', (nodes) => nodes.length)) === 0, "old cards remain");
+      assert((await page.$$eval('[data-card="staff"], [data-card="mask"], [data-card="voice"]', (nodes) => nodes.length)) === 0, "old cards remain");
       assert(await page.$eval('[data-card="shion"]', (node) => !(node as HTMLElement).hidden), "new card hidden");
       await context.close();
     });
@@ -417,29 +437,59 @@ async function main() {
       await context.close();
     });
 
-    await check("gallery: frames open with progress; postcards and the sealed file stay shut", async () => {
+    await check("gallery: frames open with progress and locked pictures stay unrequested", async () => {
       const { context, page, requests } = await openSession(browser, readerStorage(3));
       await visit(page, "/kusabi/extra/#kusabi-gallery", 1500);
       const openFrames = await page.$$eval(".frame:not(:disabled)", (frames) => frames.length);
       assert(openFrames === 4, `expected 4 open pictures after CH3, got ${openFrames}`);
-      assert(!requests.some((request) => /album\/|chapter-1[0-2]|epilogue/.test(request)), "a locked picture was requested");
-      assert(await page.$eval("[data-postcards]", (node) => (node as HTMLElement).hidden), "postcards are visible");
-      assert((await pageText(page)).includes("ยังไม่มีคดี"), "the sealed file's label is missing");
+      assert(!requests.some((request) => /chapter-1[0-2]|epilogue/.test(request)), "a locked picture was requested");
       await context.close();
     });
 
-    await check("gallery: the sealed file opens last and says nothing", async () => {
+    await check("gallery: a finished reader sees chapter art and none of the held-back pictures", async () => {
       const { context, page, requests } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04"], true));
       await visit(page, "/kusabi/extra/#kusabi-gallery", 1800);
-      assert(await page.$eval("[data-sealed-frames]", (node) => !(node as HTMLElement).hidden), "the file did not open");
-      const faces = await page.$$eval("[data-sealed-frames] img", (images) => images.length);
-      assert(faces === 5, `${faces} faces`);
-      const words = await page.$eval("[data-sealed]", (node) => (node as HTMLElement).innerText.trim());
-      assert(words === "", `the sealed file says: ${words}`);
+      const words = await pageText(page);
+      for (const word of ["ส่งมาทีหลัง", "ยังไม่มีคดี"]) assert(!words.includes(word), `"${word}" is showing`);
+      assert((await page.$$(".frame:not(:disabled)")).length === (await page.$$(".frame")).length, "a frame stayed shut");
+      assert(!requests.some((request) => /album\/|vault\/(post|sealed)\.json/.test(request)), "a held-back file was requested");
       assert(!requests.some((request) => FORBIDDEN_FILES.test(request)), "a revealing file name was requested");
+      // Asked from outside the page, so a correct 404 is not counted as a page error.
+      for (const path of ["kusabi/vault/sealed.json", "assets/kusabi/images/characters/drafts-v2/shion-madoka-killer-draft-v2.png", "assets/kusabi/images/extra/risa-kaito-wedding-short-hair-special-1dea97b4.webp", "assets/kusabi/images/extra/moments/cast-01-table-photo.webp", "assets/kusabi/images/home-hero.webp"]) {
+        const answer = await fetch(url(`/${path}`));
+        if (!process.env.KUSABI_E2E_DEV) assert(answer.status === 404, `${path} answered ${answer.status}`);
+      }
       await noHorizontalScroll(page, "gallery");
       await shot(page, "gallery-everything", true);
       await context.close();
+    });
+
+    await check("gallery: pictures outside the book wait for the epilogue, then E01, then E04", async () => {
+      const stages: Array<[number, string[], number]> = [
+        [12, [], 0],
+        [13, [], 4],
+        [13, ["e01"], 8],
+        [13, ["e01", "e02", "e03", "e04"], 9],
+      ];
+      for (const [upTo, extras, expected] of stages) {
+        const { context, page, requests } = await openSession(browser, readerStorage(upTo, extras));
+        await visit(page, "/kusabi/extra/#kusabi-gallery", 1500);
+        const open = await page.$$eval(".frame-moment:not(:disabled)", (frames) => frames.length);
+        assert(open === expected, `after CH${upTo} and ${extras.length} Extras: expected ${expected} open, got ${open}`);
+        assert((await page.$$(".frame-moment")).length === 9, "a frame is missing");
+        if (expected < 4) assert(!requests.some((request) => /vault\/m1\.json|gallery\/m0/.test(request)), "a locked group was requested");
+        if (expected < 8) assert(!requests.some((request) => /vault\/m2\.json|gallery\/m0[5-8]/.test(request)), "the E01 group was requested early");
+        if (expected < 9) assert(!requests.some((request) => /vault\/m3\.json|gallery\/m09/.test(request)), "the last picture was requested early");
+        if (expected === 9) {
+          await page.click(".frame-moment:last-child");
+          await page.waitForSelector("[data-lightbox][open]");
+          const caption = await page.$eval("[data-lightbox-caption]", (node) => (node as HTMLElement).innerText);
+          assert(caption.includes("สัญญาวันอาทิตย์"), `caption was "${caption}"`);
+          await shot(page, "gallery-moment-lightbox", true);
+        }
+        await noHorizontalScroll(page, `gallery after CH${upTo}`);
+        await context.close();
+      }
     });
 
     await check("case map: locked before the epilogue and downloads nothing", async () => {
@@ -510,18 +560,22 @@ async function main() {
       return `code ${digits}`;
     });
 
-    await check("case map: lifting the paper shows the hidden rooms; phone layout holds", async () => {
+    await check("case map: the story plan opens, and the Extra part waits for E04", async () => {
+      const early = await openSession(browser, readerStorage(13, [], true));
+      await visit(early.page, "/kusabi/case-map/", 1300);
+      const before = await pageText(early.page);
+      for (const word of ["คำตอบสั้นที่สุด", "โครงเรื่อง", "บ้านเริ่มทดสอบ", "เบาะแสที่วางไว้", "สิ่งที่นิยายไม่ได้เล่า", "ตกตึก", "เรียวยะรู้จักนาโอะก่อนใคร", "ทำไมเธอตกลงคบ", "ชิองในวันธรรมดา"]) assert(before.includes(word), `missing "${word}"`);
+      assert(!/ฮิราซากะ|ความจริงที่เขาหลบ|หัวหอมเต๋าใหญ่/.test(before), "the Extra part is showing");
+      assert(!early.requests.some((request) => /\/vault\/history/.test(request)), "the Extra part was requested");
+      assert((await early.page.$$(".pin, [data-plan]")).length === 0, "the floor plan is back");
+      await early.context.close();
+
       for (const [name, viewport] of [["desktop", DESKTOP], ["phone", PHONE]] as const) {
         const { context, page } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04"], true), viewport);
         await visit(page, "/kusabi/case-map/", 1300);
-        const before = await page.$$eval(".pin:not([hidden])", (pins) => pins.length);
-        await page.click("[data-plan-lift]");
-        await pause(700);
-        const after = await page.$$eval(".pin:not([hidden])", (pins) => pins.length);
-        assert(before === 10 && after === 12, `pins ${before} then ${after}`);
-        await page.click(".pin:not([hidden])");
-        assert((await page.$$eval('.stop[data-active="true"]', (rows) => rows.length)) === 1, "the pin selected nothing");
         assert(await page.$eval("[data-history-wrap]", (node) => !(node as HTMLElement).hidden), "history is hidden");
+        const opened = await pageText(page);
+        for (const word of ["ความจริงที่เขาหลบ", "หัวหอมเต๋าใหญ่"]) assert(opened.includes(word), `the Extra part did not open: ${word}`);
         await noHorizontalScroll(page, `map ${name}`);
         await page.evaluate(() => scrollTo(0, 0));
         await pause(200);
