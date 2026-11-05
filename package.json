@@ -12,6 +12,7 @@
     "build": "astro build",
     "preview": "astro preview",
     "check": "astro check",
+    "tsukinomi:art": "tsx src/scripts/tsukinomi/process-art.ts",
     "tsukinomi:e2e": "tsx src/scripts/tsukinomi/tsukinomi-e2e.ts",
     "tsukinomi:measure": "tsx src/scripts/tsukinomi/scene-measure.ts",
     "lodge:e2e": "tsx src/scripts/lodge/lodge-e2e.ts",

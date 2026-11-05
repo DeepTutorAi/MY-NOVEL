@@ -20,6 +20,7 @@
   const storageKey = "tsukinomi:reading:last";
   const MIN_TRACKED_PROGRESS = 0.005;
   const COMPLETED_PROGRESS = 0.995;
+  const CHAPTER_END_PROGRESS = 0.98;
 
   const setupTsukinomiReadingProgress = () => {
     progressWindow.__tsukinomiReadingProgress?.destroy();
@@ -170,6 +171,28 @@
       ticks.replaceChildren(...marks);
     };
 
+    // The last chapter finished, for the character page. A chapter is finished when the next
+    // heading comes up to where the reading is, or the part ends. It only ever goes up.
+    const chaptersDoneKey = "tsukinomi:reading:chapters:done";
+    const chapterHeadings = Array.from(article.querySelectorAll<HTMLElement>(':scope > h2[id^="ch-"]'));
+    let chaptersDone = Number(readStored(chaptersDoneKey)) || 0;
+
+    const trackChapters = (ratio: number) => {
+      let done = chaptersDone;
+      for (const [index, heading] of chapterHeadings.entries()) {
+        const chapter = Number(heading.id.slice(3));
+        if (chapter <= done) continue;
+        const next = chapterHeadings[index + 1];
+        const finished = next ? next.getBoundingClientRect().top <= window.innerHeight * 0.35 : ratio >= CHAPTER_END_PROGRESS;
+        if (!finished) break;
+        done = chapter;
+      }
+      if (done === chaptersDone) return;
+      chaptersDone = done;
+      writeStored(chaptersDoneKey, done);
+      document.dispatchEvent(new CustomEvent("tsukinomi:chapter-done", { detail: done }));
+    };
+
     const update = () => {
       const ratio = getRatio();
       const clamped = Math.max(0, Math.min(1, ratio));
@@ -177,6 +200,7 @@
       if (rail instanceof HTMLElement) rail.style.setProperty("--rail-progress", clamped.toFixed(4));
       placeTicks();
       saveProgress(ratio);
+      trackChapters(clamped);
       ticking = false;
     };
 

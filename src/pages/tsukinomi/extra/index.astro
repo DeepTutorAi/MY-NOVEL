@@ -1,545 +1,113 @@
 ---
 import TsukinomiBaseLayout from "../../../layouts/tsukinomi/TsukinomiBaseLayout.astro";
-import { withBase } from "../../../utils/base-path";
-
-const thankYouImage = withBase("/assets/tsukinomi/images/extra/thank-you-haruto-hina-kaori.webp");
-const alternateFutureImage = withBase("/assets/tsukinomi/images/extra/alternate-future-haruto-kaori.webp");
-const kaoriAutumnStyleImage = withBase("/assets/tsukinomi/images/extra/kaori-autumn-style-study.png");
+import { SECTION_IDS, TOTAL_SECTIONS, UNLOCK_THRESHOLD } from "../../../scripts/tsukinomi/station-gates";
+import "../../../styles/tsukinomi/extra-train.css";
 ---
 
 <TsukinomiBaseLayout
   title="ส่วนเสริม — สถานีทะเลพระจันทร์"
-  description="เบื้องหลัง ภาพประกอบ และของแถมของสถานีทะเลพระจันทร์"
+  description="ขบวนพิเศษของสถานีทะเลพระจันทร์ เปิดเมื่ออ่านเรื่องไปไกลพอ"
   bodyClass="tsukinomi-extra-page section-home palette-autumn"
   sectionPalette="autumn"
   backgroundSlotId="hero-station"
 >
-  <main id="tsukinomi-main" class="tsuki-extra">
-    <!-- LOCKED GATE -->
-    <section class="tsuki-extra-gate" data-extra-gate>
-      <div class="gate-card">
-        <div class="lock-icon">🌸</div>
-        <h2>ความทรงจำที่ยังไม่พร้อมเปิดเผย</h2>
-        <p class="gate-desc">
-          พื้นที่พิเศษนี้เปิดเมื่ออ่านอย่างน้อย 4 จาก 5 ภาค โดยแต่ละภาคต้องใช้เวลาอ่านจริงอย่างน้อย 18 นาทีและผ่านเนื้อหาอย่างน้อย 80% รวมทั้งต้องอ่านภาค 5 ให้ผ่านเงื่อนไขด้วย
-        </p>
-        
-        <div class="progress-bar-container">
-          <div class="progress-label">ความคืบหน้าการซึมซับแบบลับของคุณ</div>
-          <div class="progress-track">
-            <div class="progress-fill" data-progress-fill style="width: 0%"></div>
-          </div>
-          <div class="progress-status" data-progress-status>0 / 5 ภาค (0%)</div>
-        </div>
+  <main id="tsukinomi-main" class="xt" data-extra-root>
+    {/* The sky (moonsea-loader.ts): empty, aria-hidden, fixed behind everything, never takes a pointer. */}
+    <div class="tsuki-moonsea" aria-hidden="true" data-moonsea-mount></div>
 
-        <div class="bypass-form">
-          <label for="bypass-password">สิทธิ์เข้าถึงของทีมงาน (Developer Bypass)</label>
-          <div class="bypass-input-group">
-            <input
-              type="password"
-              id="bypass-password"
-              placeholder="กรอกรหัสผ่านเพื่อเรียกคืนความทรงจำ..."
-              data-bypass-input
-            />
-            <button type="button" data-bypass-btn>ปลดล็อค</button>
-          </div>
-          <p class="bypass-error" data-bypass-error hidden>รหัสผ่านไม่ถูกต้อง</p>
+    <section class="xt-gate" data-extra-gate aria-labelledby="xt-title">
+      <p class="xt-kicker">Extra Train · <span lang="ja">臨時列車</span></p>
+      <h1 id="xt-title">ขบวนพิเศษ</h1>
+
+      <div class="xt-board" data-board>
+        <div class="xt-board-head">
+          <span aria-hidden="true" lang="ja">発車案内 <span class="xt-board-en">Departures</span></span>
+          <span aria-hidden="true" data-board-now>--:--</span>
+        </div>
+        <div class="xt-board-row">
+          <span class="xt-flaps" aria-hidden="true">
+            {[..."--:--"].map((glyph) => <span class="xt-flap">{glyph}</span>)}
+          </span>
+          <span class="xt-board-name">ขบวนพิเศษ</span>
+          <span class="xt-board-state">ยังไม่มีกำหนดออก</span>
         </div>
       </div>
-    </section>
 
-    <!-- UNLOCKED PREMIUM CONTENT -->
-    <article class="tsuki-extra-content" data-extra-content hidden>
-      <p class="tsukinomi-kicker">Premium Extra</p>
-      <h1>เบื้องหลังสถานีทะเลพระจันทร์</h1>
-      <p class="tsuki-extra-lead">
-        ยินดีต้อนรับสู่ส่วนบันทึกข้อมูลพิเศษสำหรับผู้ติดตามที่ซึมซับเรื่องราวของ สถานีทะเลพระจันทร์
+      <p class="xt-lead">
+        ขบวนนี้ไม่มีในตารางเวลา จะออกเมื่ออ่านอย่างน้อย {UNLOCK_THRESHOLD} จาก {TOTAL_SECTIONS} ภาค และต้องอ่านภาค {TOTAL_SECTIONS} แล้ว แต่ละภาคนับเมื่ออ่านจริงอย่างน้อย 18 นาที และผ่านเนื้อหาอย่างน้อย 80%
       </p>
 
-      <div class="extra-grid">
-        <section class="extra-card">
-          <h2>🌸 แนวคิดและความเหงาของสองฝั่งเวลา</h2>
-          <p>
-            สถานีทะเลพระจันทร์ มุ่งเน้นการสร้างสภาวะอารมณ์สงบนิ่งแต่อ้างว้าง (Mono-no-aware) การผสมผสานของธีมย้อนยุคอย่างเครื่องเล่นเทป Walkman และจังหวะชีวิตที่ดำเนินไปอย่างช้า ๆ ในสถานีรถไฟชนบทของญี่ปุ่น ช่วยสะท้อนให้เห็นถึงเวลาที่ไหลผ่านตัวละครไปอย่างไม่มีวันกลับ
-          </p>
-        </section>
+      <ol class="xt-route" aria-label="ภาคที่อ่านแล้ว">
+        {
+          SECTION_IDS.map((id, index) => (
+            <li class="xt-stop-mark" data-route-stop={id}>
+              <span class="xt-stop-dot" aria-hidden="true" />
+              ภาค {index + 1}
+            </li>
+          ))
+        }
+      </ol>
+      <p class="xt-count" data-route-count>อ่านแล้ว 0 จาก {TOTAL_SECTIONS} ภาค</p>
+      <p class="xt-error" role="status" data-extra-error hidden>เปิดขบวนนี้ไม่สำเร็จ ลองเปิดหน้านี้อีกครั้ง</p>
 
-        <section class="extra-card">
-          <h2>🎶 รายการเพลงในม้วนเทป Walkman</h2>
-          <table class="audio-ledger-table">
-            <thead>
-              <tr>
-                <th>ภาค</th>
-                <th>ธีมดนตรี</th>
-                <th>อารมณ์เพลง (Mood & Tone)</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>ภาค 1: การค้นพบ (Discovery)</td>
-                <td>Quiet Solitude</td>
-                <td>เสียงเปียโนเดี่ยว เบาบาง อบอุ่นผสมผสานความเหงา</td>
-              </tr>
-              <tr>
-                <td>ภาค 2: การเปิดเผย (Reveal)</td>
-                <td>Distant Twilight</td>
-                <td>แอมเบียนต์ล่องลอยสะท้อนภาพอาทิตย์ตกดิน</td>
-              </tr>
-              <tr>
-                <td>ภาค 3: การตัดสินใจ (Decision)</td>
-                <td>Rainy Nostalgia</td>
-                <td>เสียงเปียโนคลอซาวด์เอฟเฟกต์เม็ดฝนตกกระทบหลังคา</td>
-              </tr>
-              <tr>
-                <td>ภาค 4: ภูเขาแสนไกล (Mountain)</td>
-                <td>Wind in Pines</td>
-                <td>แอมเบียนต์หม่น ทุ้มต่ำ สะท้อนถึงการเดินทางยาวไกล</td>
-              </tr>
-              <tr>
-                <td>ภาค 5: สิบปีถัดมา (Ten Years)</td>
-                <td>Unresolved Ending</td>
-                <td>ท่วงทำนองที่ไม่จบลงตัว ทิ้งความทรงจำที่ละมุนละไม</td>
-              </tr>
-            </tbody>
-          </table>
-        </section>
+      <details class="xt-dev">
+        <summary>ทางลัดผู้พัฒนา</summary>
+        <div class="xt-dev-row">
+          <label for="bypass-password">รหัส</label>
+          <input id="bypass-password" type="password" autocomplete="off" data-bypass-input />
+          <button type="button" data-bypass-btn>ปลดล็อก</button>
+        </div>
+        <p class="xt-error" role="status" data-bypass-error hidden>รหัสไม่ถูกต้อง</p>
+      </details>
+    </section>
 
-        <section class="extra-card">
-          <h2>✉️ บันทึกจากผู้ประพันธ์</h2>
-          <blockquote class="tsuki-quote">
-            "บางครั้งการรอคอยที่ยาวนาน ไม่ใช่เพื่อรอให้ใครบางคนกลับมา แต่เพื่อรอให้ตัวเราเองเข้าใจความหมายของการจากลา... ขอบคุณที่ร่วมเดินทางมากับพวกเราที่สถานีรถไฟแห่งนี้"
-          </blockquote>
-        </section>
+    <div class="xt-run" data-train-run hidden>
+      <section class="xt-view" data-train-view aria-labelledby="xt-train-title">
+        <div class="xt-poles" aria-hidden="true" data-train-poles></div>
+        <div class="xt-track" data-train-track>
+          <div class="xt-seats" aria-hidden="true"></div>
+        </div>
+        <header class="xt-title">
+          <h1 id="xt-train-title">ขบวนพิเศษ</h1>
+          <span class="xt-kicker">Extra Train · <span lang="ja">臨時列車</span></span>
+        </header>
+        <p class="xt-hint" aria-hidden="true">เลื่อนหน้าลงให้รถวิ่ง · แตะภาพเพื่อดูเต็ม</p>
+        <div class="xt-bar" aria-hidden="true"><span data-train-bar></span></div>
+      </section>
+    </div>
 
-        <section class="extra-card extra-gallery" aria-labelledby="extra-gallery-heading">
-          <h2 id="extra-gallery-heading">🖼️ ภาพส่งท้ายหลังอ่านจบ</h2>
-          <p>
-            ภาพทั้งสามเป็นงานพิเศษนอกเนื้อเรื่องหลัก ภาพที่สองเป็นฉากสมมติแบบ alternate future ไม่ใช่ตอนจบหลัก ส่วนภาพที่สามเป็นการทดลองชุดและทรงผมฤดูใบไม้ร่วงของคาโอริ
-          </p>
-          <div class="extra-gallery-grid">
-            <figure>
-              <img
-                src={thankYouImage}
-                width="1122"
-                height="1402"
-                alt="ฮารุโตะ ฮินะ และคาโอริในภาพขอบคุณผู้อ่าน"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>Thank you for reading — ความทรงจำของทั้งสามคน</figcaption>
-            </figure>
-            <figure>
-              <img
-                src={alternateFutureImage}
-                width="1122"
-                height="1402"
-                alt="ภาพสมมติของฮารุโตะและคาโอริในชุดพิธีแต่งงานแบบญี่ปุ่น"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>Alternate future / what-if — ไม่ใช่ตอนจบหลัก</figcaption>
-            </figure>
-            <figure>
-              <img
-                src={kaoriAutumnStyleImage}
-                width="1024"
-                height="1536"
-                alt="คาโอริในคาร์ดิแกนสีครีมบนสะพานท่ามกลางใบไม้สีทองในฤดูใบไม้ร่วง"
-                loading="lazy"
-                decoding="async"
-              />
-              <figcaption>Autumn style study — ทรงผมและเสื้อผ้าแบบทางเลือก นอกเนื้อเรื่องหลัก</figcaption>
-            </figure>
-          </div>
-        </section>
-      </div>
-    </article>
+    <section class="xt-terminal" data-train-terminal aria-labelledby="xt-terminal-title" hidden>
+      <p class="xt-kicker" lang="ja">終点</p>
+      <h2 id="xt-terminal-title">ปลายทาง</h2>
+
+      <h3>แนวคิดและความเหงาของสองฝั่งเวลา</h3>
+      <p data-train-concept></p>
+
+      <h3>รายการเพลงในม้วนเทป Walkman</h3>
+      <ol class="xt-tracks" data-train-tracks></ol>
+
+      <h3>บันทึกจากผู้ประพันธ์</h3>
+      <blockquote class="xt-note" data-train-note></blockquote>
+    </section>
   </main>
 
+  <dialog class="xt-stop" data-train-stop aria-label="ภาพเต็ม">
+    <figure>
+      <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" />
+      <figcaption></figcaption>
+    </figure>
+    <div class="xt-stop-actions">
+      <button type="button" data-stop-step="-1">← ก่อนหน้า</button>
+      <button type="button" data-stop-close>ปิด</button>
+      <button type="button" data-stop-step="1">ถัดไป →</button>
+    </div>
+  </dialog>
+
   <script>
-    const SECRET_READS_KEY = "tsukinomi:reading:secret:reads";
-    const BYPASS_KEY = "tsukinomi:extra-bypassed";
-    // Double hash verification: H2 = sha256(H1)
-    const EXPECTED_H2 = "ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18";
-    const TOTAL_SECTIONS = 5;
-    const UNLOCK_THRESHOLD = 4; // 80% of 5 is 4 sections
-    const REQUIRED_FINAL_SECTION_ID = "05-ten-years";
-    const VALID_SECTION_IDS = new Set([
-      "01-discovery",
-      "02-reveal",
-      "03-decision",
-      "04-mountain",
-      REQUIRED_FINAL_SECTION_ID,
-    ]);
+    import { onPage } from "../../../scripts/_shared/lifecycle";
+    import "../../../scripts/tsukinomi/home/board-flaps";
+    import { setupExtraTrain } from "../../../scripts/tsukinomi/extra-train";
 
-    // SHA-256 helper
-    async function sha256(message: string): Promise<string> {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-    }
-
-    const getSecretReads = (): string[] => {
-      try {
-        const raw = localStorage.getItem(SECRET_READS_KEY);
-        const arr = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(arr)) {
-          return [
-            ...new Set(
-              arr.filter(
-                (id): id is string =>
-                  typeof id === "string" && id !== "00-introduction" && VALID_SECTION_IDS.has(id),
-              ),
-            ),
-          ];
-        }
-        return [];
-      } catch {
-        return [];
-      }
-    };
-
-    const getSecretReadsCount = (): number => getSecretReads().length;
-
-    const checkUnlocked = async (): Promise<boolean> => {
-      const storedH1 = localStorage.getItem(BYPASS_KEY);
-      if (storedH1) {
-        const calculatedH2 = await sha256(storedH1);
-        if (calculatedH2 === EXPECTED_H2) {
-          return true;
-        }
-      }
-      const reads = getSecretReads();
-      return reads.length >= UNLOCK_THRESHOLD && reads.includes(REQUIRED_FINAL_SECTION_ID);
-    };
-
-    const initExtra = async () => {
-      const gate = document.querySelector("[data-extra-gate]");
-      const content = document.querySelector("[data-extra-content]");
-      const fill = document.querySelector("[data-progress-fill]");
-      const status = document.querySelector("[data-progress-status]");
-      const passwordInput = document.querySelector("[data-bypass-input]");
-      const bypassBtn = document.querySelector("[data-bypass-btn]");
-      const bypassError = document.querySelector("[data-bypass-error]");
-
-      if (!gate && !content) return;
-
-      const updateUI = async () => {
-        const readCount = getSecretReadsCount();
-        const percent = Math.round((readCount / TOTAL_SECTIONS) * 100);
-
-        if (fill instanceof HTMLElement) {
-          fill.style.width = `${percent}%`;
-        }
-        if (status) {
-          status.textContent = `${readCount} / ${TOTAL_SECTIONS} ภาค (${percent}%)`;
-        }
-
-        const unlocked = await checkUnlocked();
-        if (unlocked) {
-          gate?.setAttribute("hidden", "");
-          content?.removeAttribute("hidden");
-        } else {
-          gate?.removeAttribute("hidden");
-          content?.setAttribute("hidden", "");
-        }
-      };
-
-      const attemptBypass = async () => {
-        if (passwordInput instanceof HTMLInputElement) {
-          const password = passwordInput.value.trim();
-          const h1 = await sha256(password);
-          const h2 = await sha256(h1);
-          if (h2 === EXPECTED_H2) {
-            localStorage.setItem(BYPASS_KEY, h1);
-            bypassError?.setAttribute("hidden", "");
-            await updateUI();
-          } else {
-            bypassError?.removeAttribute("hidden");
-          }
-        }
-      };
-
-      if (bypassBtn instanceof HTMLButtonElement) {
-        bypassBtn.onclick = attemptBypass;
-      }
-
-      if (passwordInput instanceof HTMLInputElement) {
-        passwordInput.onkeydown = (e) => {
-          if (e.key === "Enter") {
-            attemptBypass();
-          }
-        };
-      }
-
-      await updateUI();
-    };
-
-    initExtra();
-    document.addEventListener("astro:page-load", initExtra);
+    onPage("tsukinomi-extra-train", { bodyClass: "tsukinomi-extra-page" }, () => setupExtraTrain());
   </script>
-
-  <style>
-    .tsuki-extra {
-      max-width: 50rem;
-      margin: 0 auto;
-      padding: calc(var(--tsuki-topbar-height) + 3rem) 1.25rem 5rem;
-    }
-
-    /* LOCKED GATE STYLING */
-    .tsuki-extra-gate {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 3rem 1rem;
-    }
-
-    .gate-card {
-      background: var(--tsuki-surface);
-      border: 1px solid var(--tsuki-line);
-      border-radius: 8px;
-      padding: 3rem 2rem;
-      text-align: center;
-      max-width: 32rem;
-      width: 100%;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-    }
-
-    .lock-icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-    }
-
-    .gate-card h2 {
-      font-family: var(--font-display-tsukinomi);
-      font-weight: 500;
-      font-size: 1.5rem;
-      margin-bottom: 1rem;
-      color: var(--tsuki-ink);
-    }
-
-    .gate-desc {
-      color: var(--tsuki-ink-dim);
-      font-size: 0.95rem;
-      line-height: 1.6;
-      margin-bottom: 2rem;
-    }
-
-    .progress-bar-container {
-      margin-bottom: 2.5rem;
-      text-align: left;
-    }
-
-    .progress-label {
-      font-size: 0.85rem;
-      color: var(--tsuki-ink-dim);
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-track {
-      background: rgba(0, 0, 0, 0.15);
-      border: 1px solid var(--tsuki-line);
-      border-radius: 4px;
-      height: 10px;
-      overflow: hidden;
-      margin-bottom: 0.5rem;
-    }
-
-    .progress-fill {
-      background: var(--tsuki-ink);
-      height: 100%;
-      transition: width 0.4s ease;
-    }
-
-    .progress-status {
-      font-size: 0.85rem;
-      text-align: right;
-      font-family: var(--font-mono);
-      color: var(--tsuki-ink-dim);
-    }
-
-    .bypass-form {
-      border-top: 1px solid var(--tsuki-line);
-      padding-top: 1.5rem;
-      text-align: left;
-    }
-
-    .bypass-form label {
-      display: block;
-      font-size: 0.8rem;
-      color: var(--tsuki-ink-dim);
-      margin-bottom: 0.5rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .bypass-input-group {
-      display: flex;
-      gap: 0.5rem;
-    }
-
-    .bypass-input-group input {
-      flex: 1;
-      background: rgba(0, 0, 0, 0.1);
-      border: 1px solid var(--tsuki-line);
-      border-radius: 4px;
-      color: var(--tsuki-ink);
-      padding: 0.6rem 0.8rem;
-      font-size: 0.9rem;
-    }
-
-    .bypass-input-group button {
-      background: var(--tsuki-ink);
-      color: var(--tsuki-bg);
-      border: none;
-      border-radius: 4px;
-      padding: 0.6rem 1.2rem;
-      font-size: 0.9rem;
-      cursor: pointer;
-      font-weight: 500;
-      transition: opacity 0.2s;
-    }
-
-    .bypass-input-group button:hover {
-      opacity: 0.9;
-    }
-
-    .bypass-error {
-      color: #d32f2f;
-      font-size: 0.85rem;
-      margin-top: 0.5rem;
-    }
-
-    /* CONTENT STYLING */
-    .tsuki-extra-content {
-      animation: fadeIn 0.6s ease forwards;
-    }
-
-    .tsukinomi-kicker {
-      font-family: var(--font-mono);
-      letter-spacing: 0.3em;
-      text-transform: uppercase;
-      color: var(--tsuki-ink-dim);
-      font-size: 0.74rem;
-      text-align: center;
-    }
-
-    .tsuki-extra h1 {
-      margin: 0.45rem 0 1rem;
-      font-family: var(--font-display-tsukinomi);
-      font-weight: 500;
-      font-size: clamp(1.8rem, 5vw, 2.6rem);
-      color: var(--tsuki-ink);
-      text-align: center;
-    }
-
-    .tsuki-extra-lead {
-      color: var(--tsuki-ink-dim);
-      line-height: 1.8;
-      text-align: center;
-      margin-bottom: 3rem;
-    }
-
-    .extra-grid {
-      display: grid;
-      gap: 2rem;
-    }
-
-    .extra-card {
-      background: var(--tsuki-surface);
-      border: 1px solid var(--tsuki-line);
-      border-radius: 6px;
-      padding: 2rem;
-      text-align: left;
-    }
-
-    .extra-card h2 {
-      font-family: var(--font-display-tsukinomi);
-      font-weight: 500;
-      font-size: 1.25rem;
-      color: var(--tsuki-ink);
-      margin-bottom: 1rem;
-      border-bottom: 1px solid var(--tsuki-line);
-      padding-bottom: 0.5rem;
-    }
-
-    .extra-card p {
-      color: var(--tsuki-ink-dim);
-      line-height: 1.7;
-    }
-
-    .extra-gallery {
-      grid-column: 1 / -1;
-    }
-
-    .extra-gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 1.25rem;
-      margin-top: 1.5rem;
-    }
-
-    .extra-gallery figure {
-      margin: 0;
-    }
-
-    .extra-gallery img {
-      display: block;
-      width: 100%;
-      height: auto;
-      border: 1px solid var(--tsuki-line);
-      border-radius: 6px;
-      background: #f7f5f0;
-    }
-
-    .extra-gallery figcaption {
-      margin-top: 0.65rem;
-      color: var(--tsuki-ink-dim);
-      font-family: var(--font-mono);
-      font-size: 0.72rem;
-      line-height: 1.5;
-    }
-
-    @media (max-width: 640px) {
-      .extra-gallery-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    blockquote.tsuki-quote {
-      font-style: italic;
-      color: var(--tsuki-ink);
-      border-left: 3px solid var(--tsuki-ink);
-      padding-left: 1.2rem;
-      margin: 1rem 0;
-    }
-
-    .audio-ledger-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 1rem;
-      font-size: 0.9rem;
-    }
-
-    .audio-ledger-table th, .audio-ledger-table td {
-      border: 1px solid var(--tsuki-line);
-      padding: 0.75rem;
-      text-align: left;
-    }
-
-    .audio-ledger-table th {
-      background: rgba(0, 0, 0, 0.05);
-      color: var(--tsuki-ink);
-    }
-
-    .audio-ledger-table td {
-      color: var(--tsuki-ink-dim);
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
 </TsukinomiBaseLayout>

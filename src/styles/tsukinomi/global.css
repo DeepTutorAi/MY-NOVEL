@@ -398,3 +398,35 @@ body[data-time-of-day="night"] .sakura-backdrop__tint {
     radial-gradient(circle at 18% 92%, rgba(181, 86, 47, 0.08), transparent 34rem);
 }
 
+/* ---- the sky (moonsea-scene.ts) ------------------------------------------------
+   Empty, aria-hidden, fixed to the viewport behind the hero and the concourse,
+   never takes a pointer (the scene listens on the window). Its canvas is added
+   by the script; until then, and if it never comes, the sakura backdrop shows. */
+
+.tsuki-moonsea {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.tsuki-moonsea__canvas {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  animation: tsuki-sky-in 1200ms ease-out both;
+}
+
+@keyframes tsuki-sky-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* The sky replaces the site-wide backdrop on this page while it is up. */
+body.tsuki-moonsea-live .sakura-backdrop {
+  display: none;
+}

@@ -224,13 +224,14 @@ describe("Tsukinomi cutscene contract: old overlay removed", () => {
     assert.doesNotMatch(layout, /<script is:inline[^>]*>[^<]*cutscene/);
   });
 
-  it("leaves the unlock toast and its reveal rule as they were", () => {
+  it("shows the unlock toast once, when a finished chapter opens a new stop", () => {
     const layout = read(SECTION_LAYOUT);
     assert.match(layout, /data-unlock-toast hidden role="status" aria-live="polite"/);
-    assert.match(layout, /const REVEAL_SECTION = 3;/);
-    assert.match(layout, /const SHOWN_KEY = "tsukinomi:characters:toast-shown";/);
-    assert.match(layout, /localStorage\.setItem\("tsukinomi:characters:revealed", "true"\);/);
-    assert.match(layout, /document\.addEventListener\("astro:page-load", setupUnlockToast\);/);
+    assert.match(layout, /document\.addEventListener\("tsukinomi:chapter-done"/);
+    assert.match(layout, /STOP_CHAPTERS\.some\(\(stop\) => stop > shown && stop <= chapter\)/);
+    assert.match(layout, /const SHOWN_KEY = "tsukinomi:characters:toast-chapter";/);
+    // Opening a part no longer opens anyone: the reader has to finish the chapter.
+    assert.doesNotMatch(layout, /tsukinomi:characters:revealed/);
   });
 });
 

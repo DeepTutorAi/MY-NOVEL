@@ -48,8 +48,24 @@ describe("layoutMoonsea", () => {
       assert.ok(l.lamp.y - l.lamp.postHeight > 0, "lamp head on screen");
       assert.ok(l.eaveY > 0 && l.eaveY < l.groundY, "eave between the top and the ground");
       assert.ok(l.lily.y > l.groundY && l.lily.y < height, "the lily is in the foreground");
+      assert.ok(l.lily.y - l.groundY < (height - l.groundY) * 0.4, "the lily is rooted near the lamp's foot, not out on the open floor");
     });
   }
+
+  for (const [width, height] of [[1440, 900], [2560, 1440], [844, 390], [390, 844], [320, 568]] as const) {
+    it(`keeps the open stage in order at ${width}x${height}`, () => {
+      const l = layoutMoonsea(width, height, "open");
+      assert.ok(l.ridgeTops[2] < l.horizonY, "the nearest ridge rises above the sea of cloud");
+      assert.ok(l.horizonY < l.railY - l.carHeight, "a whole carriage fits between the cloud and the rails");
+      assert.ok(l.railY < l.platformY && l.platformY < height, "the track, then the floor");
+      assert.ok(l.moon.x + l.moon.r < width && l.moon.y + l.moon.r < l.ridgeTops[0], "the moon is whole and above the far ridge");
+      assert.equal(l.buildingX, width, "nothing stands in the way of the light on the floor");
+    });
+  }
+
+  it("leaves the home page's picture as it was when no stage is named", () => {
+    assert.deepEqual(layoutMoonsea(1440, 900), layoutMoonsea(1440, 900, "station"));
+  });
 
   it("keeps the left of a wide screen free for the copy: every prop stands right of centre", () => {
     const l = layoutMoonsea(1280, 800);

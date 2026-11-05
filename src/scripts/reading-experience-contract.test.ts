@@ -126,7 +126,7 @@ describe("shared reading experience contract", () => {
     const lodgeProgress = readProjectFile("src/components/lodge/reading/ReadingProgress.astro");
     const tsukiProgress = readProjectFile("src/components/tsukinomi/reading/ReadingProgress.astro");
     const lodgeExtra = readProjectFile("src/pages/lodge/extra/index.astro");
-    const tsukiExtra = readProjectFile("src/pages/tsukinomi/extra/index.astro");
+    const tsukiExtra = readProjectFile("src/scripts/tsukinomi/station-gates.ts");
 
     // Secret tracking keys & conditions
     assert.match(lodgeProgress, /hvitveldt:secret:timers/);
@@ -157,21 +157,21 @@ describe("shared reading experience contract", () => {
     assert.match(tsukiExtra, /tsukinomi:extra-bypassed/);
   });
 
-  it("places the farewell illustration at the canonical goodbye and keeps the two ending extras behind the gate", () => {
+  it("places the farewell illustration at the canonical goodbye and keeps the Extra pictures behind the gate", () => {
     const mountain = readProjectFile("src/content/tsukinomi/sections/04-mountain.md");
     const tsukiExtra = readProjectFile("src/pages/tsukinomi/extra/index.astro");
+    const tsukiVault = readProjectFile("src/data/tsukinomi/vault.ts");
+    const art = readProjectFile("src/scripts/tsukinomi/process-art.ts");
 
     // The author chose the split-face exchange picture for the goodbye (2026-10-14), in the farewell figure's frame.
     assert.match(
       mountain,
       /ลาก่อนนะครับ คุณคาโอริ[\s\S]{0,600}tsukinomi-illustration--farewell[\s\S]{0,200}section-04-mountain-exchange\.webp/,
     );
-    assert.match(tsukiExtra, /thank-you-haruto-hina-kaori\.(png|webp)/);
-    assert.match(tsukiExtra, /alternate-future-haruto-kaori\.(png|webp)/);
-    assert.match(
-      tsukiExtra,
-      /data-extra-content[\s\S]*src=\{thankYouImage\}[\s\S]*src=\{alternateFutureImage\}/,
-    );
+    // The pictures behind the gate are in the vault, never in the page; the thank-you is the last window.
+    assert.doesNotMatch(tsukiExtra, /images\/train|images\/extra/);
+    assert.match(art, /\["t4", "extra\/thank-you-haruto-hina-kaori\.webp"\]/);
+    assert.match(tsukiVault, /\$\{TRAIN\}\/t4\.webp[\s\S]*caption: "ขอบคุณที่ร่วมเดินทาง"/);
   });
 
   it("implements TOC read indicators and device-clock time of day", () => {
@@ -205,7 +205,7 @@ describe("shared reading experience contract", () => {
     const lodgeChapterLayout = readProjectFile("src/layouts/lodge/LodgeChapterLayout.astro");
     const tsukiSectionLayout = readProjectFile("src/layouts/tsukinomi/TsukinomiSectionLayout.astro");
     const lodgeExtra = readProjectFile("src/pages/lodge/extra/index.astro");
-    const tsukiExtra = readProjectFile("src/pages/tsukinomi/extra/index.astro");
+    const tsukiExtra = readProjectFile("src/scripts/tsukinomi/station-gates.ts");
     const lodgeNav = readProjectFile("src/components/lodge/reading/ChapterNav.astro");
     const tsukiNav = readProjectFile("src/components/tsukinomi/reading/SectionNav.astro");
     const lodgeHeader = readProjectFile("src/components/lodge/reading/ChapterHeader.astro");

@@ -1,0 +1,56 @@
+---
+// One person on the route: a half-body portrait with its expressions, a station-name
+// sign, plain facts, and what the chapters add. The script clones the same markup from
+// a <template> for each person the reader reaches, so every prop can be blank.
+import type { PersonCard } from "../../../data/tsukinomi/characters";
+import { withBase } from "../../../utils/base-path";
+
+interface Props {
+  person?: PersonCard;
+  number?: string;
+}
+
+const { person, number = "" } = Astro.props;
+const art = (stem: string) => withBase(`/assets/tsukinomi/images/platform/${stem}.webp`);
+---
+
+<article class="pf-card" data-card={person?.id}>
+  <div class="pf-portrait">
+    <div class="pf-window">
+      <img data-portrait src={person && art(person.art)} alt={person ? `ภาพตัวละคร ${person.name}` : ""} width="360" height="500" decoding="async" />
+      <svg class="pf-ribbon" viewBox="0 0 120 80" aria-hidden="true">
+        <path d="M18 56 C34 22 48 62 60 38 C72 14 88 60 104 26"></path>
+      </svg>
+    </div>
+    <div class="pf-faces" role="group" aria-label="สีหน้า" data-faces>
+      {
+        [1, 2, 3].map((face) => (
+          <button type="button" class="pf-face" data-face={person && art(`${person.art}-face-${face}`)} aria-pressed="false" aria-label={`สีหน้าที่ ${face}`}>
+            <img src={person && art(`${person.art}-face-${face}`)} alt="" width="96" height="96" loading="lazy" decoding="async" />
+          </button>
+        ))
+      }
+    </div>
+  </div>
+
+  <div class="pf-info">
+    <div class="pf-sign">
+      <p class="pf-number" data-field="number">{number}</p>
+      <p class="pf-sign-big" lang="ja" data-field="kanji">{person?.kanji}</p>
+      <h2 class="pf-sign-name" data-field="name">{person?.name}</h2>
+      <p class="pf-sign-romaji" data-field="romaji">{person?.romaji}</p>
+      <p class="pf-sign-band" data-field="role">{person?.role}</p>
+    </div>
+    <dl class="pf-rows" data-rows>
+      {
+        person?.rows.map((row) => (
+          <div class="pf-row" data-row={row.label}>
+            <dt>{row.label}</dt>
+            <dd>{row.value}</dd>
+          </div>
+        ))
+      }
+    </dl>
+    <ol class="pf-log" aria-label="สิ่งที่รู้ตามบทที่อ่าน" data-log></ol>
+  </div>
+</article>

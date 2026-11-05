@@ -1,0 +1,608 @@
+/* The Extra page (src/pages/tsukinomi/extra/index.astro): a departure board until the
+   reader has come far enough, then the inside of a carriage with the night going by.
+   Rules for buttons and inputs start with the page's class: the site's reset
+   (.tsukinomi-page button, .tsukinomi-page input) would otherwise outrank them. */
+
+.xt {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+}
+
+.xt-kicker {
+  margin: 0;
+  color: var(--tsuki-ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+}
+
+.xt-error {
+  margin: 0.8rem 0 0;
+  color: var(--sakura);
+  font-size: 0.88rem;
+}
+
+/* ---- the gate ------------------------------------------------------------------------- */
+
+/* Above the fixed sky: without its own layer the gate is painted under it. */
+.xt-gate {
+  position: relative;
+  z-index: 1;
+  width: min(47.5rem, calc(100% - 2rem));
+  margin: 0 auto;
+  padding: calc(var(--tsuki-topbar-height) + clamp(2rem, 9svh, 6rem)) 0 3rem;
+  text-align: center;
+}
+
+.xt-gate[hidden],
+.xt-run[hidden],
+.xt-terminal[hidden] {
+  display: none;
+}
+
+.xt-gate h1 {
+  margin: 0.4rem 0 1.4rem;
+  color: var(--ink);
+  font-family: var(--font-display-tsukinomi);
+  font-size: clamp(2.2rem, 6vw, 3rem);
+  font-weight: 500;
+}
+
+.xt-board {
+  padding: 0.9rem 1.15rem 1.05rem;
+  border: 1px solid #2c2838;
+  background: #0b0a13;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.6);
+  text-align: left;
+}
+
+.xt-board-head {
+  display: flex;
+  justify-content: space-between;
+  padding-bottom: 0.55rem;
+  color: var(--tsuki-ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+}
+
+.xt-board-en {
+  margin-left: 0.4rem;
+  letter-spacing: 0.1em;
+}
+
+.xt-board-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 0.9rem;
+  padding-top: 0.7rem;
+  border-top: 1px solid #2c2838;
+}
+
+.xt-flaps {
+  display: inline-flex;
+  gap: 2px;
+}
+
+.xt-flap {
+  display: inline-grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 2.2rem;
+  background: linear-gradient(180deg, #1c1a26 49%, #000 49%, #000 51%, #1c1a26 51%);
+  color: #e8b98c;
+  font-family: var(--font-mono);
+  font-size: 1.05rem;
+}
+
+.xt-board-name {
+  color: var(--ink);
+  font-family: var(--font-display-tsukinomi);
+  font-size: 1.2rem;
+}
+
+.xt-board-state {
+  color: #e8b98c;
+  font-size: 0.98rem;
+}
+
+.xt-lead {
+  max-width: 38rem;
+  margin: 1.5rem auto 0;
+  color: #d9d4e0;
+  font-size: 0.95rem;
+  line-height: 1.85;
+}
+
+.xt-route {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  max-width: 34rem;
+  margin: 1.7rem auto 0;
+  padding: 0;
+  list-style: none;
+}
+
+.xt-route::before {
+  position: absolute;
+  top: 0.55rem;
+  right: 1.8rem;
+  left: 1.8rem;
+  height: 2px;
+  background: #4a4560;
+  content: "";
+}
+
+.xt-stop-mark {
+  position: relative;
+  width: 3.6rem;
+  color: var(--tsuki-ink-dim);
+  font-size: 0.78rem;
+}
+
+.xt-stop-dot {
+  display: block;
+  width: 1.2rem;
+  height: 1.2rem;
+  margin: 0 auto 0.4rem;
+  border: 2px solid #4a4560;
+  border-radius: 50%;
+  background: #14111d;
+}
+
+.xt-stop-mark[data-read] {
+  color: #ffe9c6;
+}
+
+.xt-stop-mark[data-read] .xt-stop-dot {
+  border-color: #ffd396;
+  background: #ffd396;
+  box-shadow: 0 0 14px rgba(255, 211, 150, 0.8);
+}
+
+.xt-count {
+  margin: 0.8rem 0 0;
+  color: var(--tsuki-ink-dim);
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.xt-dev {
+  margin-top: 2.2rem;
+  color: var(--tsuki-ink-dim);
+  font-size: 0.82rem;
+}
+
+.xt-dev summary {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  cursor: pointer;
+}
+
+.xt-dev-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.xt .xt-dev-row input,
+.xt .xt-dev-row button {
+  min-height: 44px;
+  padding: 0 0.75rem;
+  border: 1px solid var(--tsuki-line);
+  background: rgba(8, 6, 18, 0.7);
+  color: var(--ink);
+  font: inherit;
+}
+
+.xt-dev-row button {
+  cursor: pointer;
+}
+
+/* ---- the carriage --------------------------------------------------------------------- */
+
+.xt-run {
+  --xt-wall: #1d1a26;
+  --xt-top: 7.4rem;
+  --xt-bottom: 11.5rem;
+  --xt-win-h: calc(100svh - var(--xt-top) - var(--xt-bottom));
+  --xt-pier: clamp(1.1rem, 3vw, 2.8rem);
+  position: relative;
+  z-index: 1;
+}
+
+.xt-view {
+  position: sticky;
+  top: 0;
+  height: 100svh;
+  overflow: hidden;
+}
+
+/* A telegraph pole goes by outside, faster than the mountains. */
+.xt-poles {
+  position: absolute;
+  inset: 0 -1200px 0 0;
+  background: repeating-linear-gradient(90deg, transparent 0 1188px, rgba(8, 6, 14, 0.92) 1188px 1200px);
+  will-change: transform;
+}
+
+.xt-track {
+  position: absolute;
+  inset: 0 auto 0 0;
+  display: flex;
+  min-width: 100%;
+  will-change: transform;
+}
+
+.xt-bay {
+  position: relative;
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  justify-content: center;
+  width: calc(min(calc(var(--xt-win-h) * var(--ar)), 84vw) + 2 * var(--xt-pier));
+  padding-block: var(--xt-top) var(--xt-bottom);
+}
+
+/* The glass is a hole in the wall: the wall is the window's own huge shadow, clipped by its bay. */
+.xt-window {
+  position: relative;
+  flex: none;
+  width: min(calc(var(--xt-win-h) * var(--ar)), 84vw);
+  height: calc(min(calc(var(--xt-win-h) * var(--ar)), 84vw) / var(--ar));
+  border-radius: 26px 26px 16px 16px;
+  box-shadow: 0 0 0 4000px var(--xt-wall), inset 0 0 0 9px #2e2a39, inset 0 0 0 10px rgba(255, 255, 255, 0.14);
+}
+
+.xt .xt-pic {
+  position: absolute;
+  inset: 9px;
+  display: block;
+  padding: 0;
+  overflow: hidden;
+  border: 0;
+  border-radius: 18px 18px 9px 9px;
+  background: #e9e6e0;
+  cursor: zoom-in;
+}
+
+.xt-pic img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 30%;
+}
+
+/* The glass catches a little of the carriage's light. */
+.xt-pic::after {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.12), transparent 28%, transparent 72%, rgba(255, 255, 255, 0.05));
+  content: "";
+  pointer-events: none;
+}
+
+.xt-pic:focus-visible {
+  outline: 3px solid #ffd396;
+  outline-offset: 2px;
+}
+
+.xt-plate {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  margin: 0.6rem 0 0;
+  color: #d9d4e0;
+  font-size: 0.86rem;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.xt-car {
+  display: inline-block;
+  margin-right: 0.55rem;
+  padding: 0 0.5rem;
+  background: #d6d2dc;
+  color: #191522;
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+}
+
+/* The luggage rack above and the seat backs below run the length of the carriage. */
+.xt-track::before {
+  position: absolute;
+  top: 6.2rem;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: 5px;
+  background: linear-gradient(180deg, #5b5666, #27232f);
+  content: "";
+}
+
+.xt-seats {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1;
+  height: calc(var(--xt-bottom) - 3.7rem);
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='176' height='120'%3E%3Cdefs%3E%3ClinearGradient id='s' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%233a2f42'/%3E%3Cstop offset='1' stop-color='%23161219'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect x='12' y='6' width='152' height='160' rx='24' fill='url(%23s)'/%3E%3C/svg%3E") 0 100% / 176px 100% repeat-x;
+  pointer-events: none;
+}
+
+.xt-title {
+  position: absolute;
+  top: calc(var(--tsuki-topbar-height) + 0.65rem);
+  left: clamp(1rem, 3vw, 2.75rem);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.8rem;
+}
+
+.xt-title h1 {
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-display-tsukinomi);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.xt-hint {
+  position: absolute;
+  right: 5.5rem;
+  bottom: 1.2rem;
+  margin: 0;
+  color: #d9d4e0;
+  font-size: 0.8rem;
+  transition: opacity 500ms ease;
+}
+
+.xt[data-moving="true"] .xt-hint {
+  opacity: 0;
+}
+
+.xt-bar {
+  position: absolute;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  height: 2px;
+  background: rgba(205, 211, 224, 0.14);
+}
+
+.xt-bar span {
+  display: block;
+  height: 100%;
+  background: #ffd396;
+  transform: scaleX(0);
+  transform-origin: 0 50%;
+}
+
+/* ---- the end of the line --------------------------------------------------------------- */
+
+.xt-terminal {
+  position: relative;
+  z-index: 1;
+  padding: clamp(2.5rem, 8svh, 5rem) max(1.25rem, calc((100% - 46rem) / 2)) 5rem;
+  background: linear-gradient(180deg, rgba(10, 8, 18, 0.96), rgba(10, 8, 18, 0.88));
+}
+
+.xt-terminal h2 {
+  margin: 0.3rem 0 0;
+  color: var(--ink);
+  font-family: var(--font-display-tsukinomi);
+  font-size: 2rem;
+  font-weight: 500;
+}
+
+.xt-terminal h3 {
+  margin: 2.4rem 0 0.7rem;
+  color: #e8b98c;
+  font-family: var(--font-display-tsukinomi);
+  font-size: 1.08rem;
+  font-weight: 500;
+}
+
+.xt-terminal p {
+  margin: 0;
+  color: #d9d4e0;
+  line-height: 1.85;
+}
+
+.xt-tracks {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid #2c2838;
+  background: #0b0a13;
+}
+
+.xt-track-row {
+  display: grid;
+  grid-template-columns: 11rem 12rem minmax(0, 1fr);
+  gap: 0.8rem;
+  padding: 0.7rem 0.95rem;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.xt-track-row + .xt-track-row {
+  border-top: 1px solid #2c2838;
+}
+
+.xt-track-part {
+  color: var(--tsuki-ink-dim);
+}
+
+.xt-track-title {
+  color: #ffe9c6;
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+}
+
+.xt-track-mood {
+  color: #d9d4e0;
+}
+
+.xt-note {
+  margin: 0;
+  padding-left: 1.1rem;
+  border-left: 2px solid var(--sakura);
+  color: var(--ink);
+  font-family: var(--font-display-tsukinomi);
+  line-height: 1.95;
+}
+
+/* ---- stopped at a picture ------------------------------------------------------------------ */
+
+.xt-stop {
+  width: min(100vw, 70rem);
+  max-width: 100vw;
+  height: 100svh;
+  max-height: 100svh;
+  padding: 0.75rem;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+}
+
+.xt-stop[open] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.xt-stop::backdrop {
+  background: rgba(6, 5, 14, 0.94);
+}
+
+.xt-stop figure {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 0;
+  margin: 0;
+}
+
+.xt-stop img {
+  flex: 1;
+  min-height: 0;
+  max-width: 100%;
+  object-fit: contain;
+}
+
+.xt-stop figcaption {
+  padding-top: 0.45rem;
+  font-size: 0.9rem;
+}
+
+.xt-stop-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.xt-stop .xt-stop-actions button {
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: 1px solid var(--tsuki-line);
+  background: rgba(8, 6, 18, 0.8);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.88rem;
+  cursor: pointer;
+}
+
+.xt-stop-actions button:focus-visible {
+  outline: 2px solid #ffd396;
+  outline-offset: 2px;
+}
+
+/* ---- phones ------------------------------------------------------------------------------- */
+
+@media (max-width: 720px) {
+  .xt-run {
+    --xt-top: 6.6rem;
+    --xt-bottom: 6.6rem;
+  }
+
+  .xt-track::before {
+    top: 5.4rem;
+  }
+
+  .xt-seats {
+    height: 2.4rem;
+  }
+
+  .xt-hint {
+    right: 1rem;
+    bottom: 0.7rem;
+    left: 1rem;
+    text-align: center;
+    font-size: 0.74rem;
+  }
+
+  .xt-board-row {
+    grid-template-columns: auto 1fr;
+  }
+
+  .xt-board-state {
+    grid-column: 1 / -1;
+  }
+
+  .xt-track-row {
+    grid-template-columns: 1fr;
+    gap: 0.1rem;
+  }
+}
+
+@media (max-height: 520px) and (orientation: landscape) {
+  .xt-run {
+    --xt-top: 5.2rem;
+    --xt-bottom: 2.6rem;
+  }
+
+  .xt-track::before,
+  .xt-seats,
+  .xt-hint {
+    display: none;
+  }
+
+  .xt-title {
+    top: calc(var(--tsuki-topbar-height) + 0.2rem);
+  }
+
+  .xt-plate {
+    margin-top: 0.25rem;
+    font-size: 0.78rem;
+  }
+}
+
+/* Reduced motion: no scroll-driven carriage. The row is an ordinary one to swipe or scroll. */
+@media (prefers-reduced-motion: reduce) {
+  .xt-view {
+    position: relative;
+    overflow-x: auto;
+  }
+
+  .xt-poles,
+  .xt-bar,
+  .xt-hint {
+    display: none;
+  }
+}

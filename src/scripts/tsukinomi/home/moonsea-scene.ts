@@ -47,6 +47,7 @@ import {
   scrollVeil,
   trainNoseX,
   type MoonseaLayout,
+  type MoonseaStage,
 } from "./moonsea-core";
 
 const TAU = Math.PI * 2;
@@ -77,11 +78,17 @@ export interface MoonseaOptions {
   /** Draw the still and never start the loop (the reader switched backdrop motion off). */
   still?: boolean;
   seed?: number;
+  /** The home page's station (the default), or the same night with the platform cleared. */
+  stage?: MoonseaStage;
+  /** Let the last train pass (the default). Off inside the Extra train. */
+  train?: boolean;
 }
 
 export interface MoonseaHandle {
   /** Switches between the moving scene and the still (the reader's motion switch). */
   setStill(still: boolean): void;
+  /** Snow falls in place of the petals: the winter of part 5. */
+  setSnow(snow: boolean): void;
   destroy(): void;
 }
 
@@ -154,7 +161,7 @@ interface Baked {
   trainSpill: HTMLCanvasElement;
   trainLength: number;
   headlight: { x: number; y: number };
-  lampBulb: { x: number; y: number };
+  lampBulb: { x: number; y: number } | null;
   lampGlow: HTMLCanvasElement;
   lampPool: HTMLCanvasElement;
   stars: Star[];
@@ -444,21 +451,18 @@ function paintCloudSea(c: Ctx, l: MoonseaLayout, noise: (x: number, y: number) =
   c.drawImage(tex, 0, top, w, depth);
   c.restore();
 
-  // The moon's road across the cloud, kept below the cloud's top.
+  // The moon's road across the cloud: fades out inside the cloud, so it has no edge.
+  const roadReach = depth * 0.46;
+  const roadRadius = moon.r * 2.6;
   c.save();
-  c.beginPath();
-  c.rect(0, top, w, depth);
-  c.clip();
-  c.translate(moon.x, top);
-  c.scale(1, depth / (moon.r * 5));
-  const road = c.createRadialGradient(0, 0, 0, 0, 0, moon.r * 5);
-  road.addColorStop(0, rgba(MOONLIGHT, 0.38));
-  road.addColorStop(0.3, rgba(MOONLIGHT, 0.14));
+  c.translate(moon.x, top + roadReach);
+  c.scale(1, roadReach / roadRadius);
+  const road = c.createRadialGradient(0, 0, 0, 0, 0, roadRadius);
+  road.addColorStop(0, rgba(MOONLIGHT, 0.26));
+  road.addColorStop(0.45, rgba(MOONLIGHT, 0.1));
   road.addColorStop(1, rgba(MOONLIGHT, 0));
   c.fillStyle = road;
-  c.beginPath();
-  c.ellipse(0, 0, moon.r * 2.2, moon.r * 5, 0, 0, TAU);
-  c.fill();
+  c.fillRect(-roadRadius, -roadRadius, roadRadius * 2, roadRadius * 2);
   c.restore();
 
   // The cloud's top catches the moon in a soft band.
@@ -571,7 +575,156 @@ function paintTrack(c: Ctx, l: MoonseaLayout, rng: () => number): void {
   }
 }
 
-function paintForeground(c: Ctx, l: MoonseaLayout, rng: () => number): { bulb: { x: number; y: number } } {
+/**
+ * The moon stands behind the station, so what stands on the platform throws its
+ * shadow toward the reader, and always a little to the left: straight down, a
+ * post's shadow reads as the post going on through the floor.
+ */
+function shadowLean(l: MoonseaLayout, x: number): number {
+  return ((x - l.moon.x) / l.width - 0.3) * 1.6;
+}
+
+function castShadow(c: Ctx, l: MoonseaLayout, x: number, y: number, width: number, height: number, strength: number): void {
+  const reach = Math.min(height * 0.6, (l.height - y) * 0.9);
+  if (reach <= 0) return;
+  const lean = shadowLean(l, x) * reach;
+  const fall = c.createLinearGradient(0, y, 0, y + reach);
+  fall.addColorStop(0, `rgba(3, 2, 8, ${strength})`);
+  fall.addColorStop(1, "rgba(3, 2, 8, 0)");
+  c.fillStyle = fall;
+  c.beginPath();
+  c.moveTo(x - width / 2, y);
+  c.lineTo(x + width / 2, y);
+  c.lineTo(x + width / 2 + lean + width * 0.08, y + reach);
+  c.lineTo(x - width / 2 + lean - width * 0.08, y + reach);
+  c.closePath();
+  c.fill();
+}
+
+/** The dark where a thing meets the ground. */
+function contactShadow(c: Ctx, x: number, y: number, rx: number, ry: number, strength: number): void {
+  c.save();
+  c.translate(x, y);
+  c.scale(1, ry / rx);
+  const dark = c.createRadialGradient(0, 0, 0, 0, 0, rx);
+  dark.addColorStop(0, `rgba(2, 1, 6, ${strength})`);
+  dark.addColorStop(1, "rgba(2, 1, 6, 0)");
+  c.fillStyle = dark;
+  c.fillRect(-rx, -rx, rx * 2, rx * 2);
+  c.restore();
+}
+
+function paintCrack(c: Ctx, x: number, y: number, length: number, rng: () => number): void {
+  const points: Array<[number, number]> = [[x, y]];
+  const dir = rng() < 0.5 ? -1 : 1;
+  let px = x;
+  let py = y;
+  for (let i = 0; i < 5; i++) {
+    px += (dir * length) / 5;
+    py += (rng() - 0.45) * length * 0.16;
+    points.push([px, py]);
+  }
+  const trace = (dy: number) => {
+    c.beginPath();
+    points.forEach(([ax, ay], i) => (i === 0 ? c.moveTo(ax, ay + dy) : c.lineTo(ax, ay + dy)));
+    c.stroke();
+  };
+  c.lineWidth = 1;
+  c.strokeStyle = "rgba(3, 2, 7, 0.75)";
+  trace(0);
+  c.strokeStyle = rgba(MOONLIGHT, 0.05);
+  trace(1);
+}
+
+/** Weeds coming up where the abandoned platform's joints have opened. */
+function paintTuft(c: Ctx, x: number, y: number, size: number, rng: () => number): void {
+  c.lineWidth = 1;
+  const blades = 3 + Math.floor(rng() * 4);
+  for (let i = 0; i < blades; i++) {
+    const bx = x + (i - blades / 2) * size * 0.16;
+    c.strokeStyle = rng() < 0.5 ? "rgba(46, 60, 44, 0.85)" : "rgba(30, 40, 32, 0.9)";
+    c.beginPath();
+    c.moveTo(bx, y);
+    c.quadraticCurveTo(bx, y - size * 0.6, bx + (rng() - 0.5) * size * 0.9, y - size * (0.6 + rng() * 0.5));
+    c.stroke();
+  }
+}
+
+/**
+ * Flagstones in perspective, a worn safety line and the moon's sheen: what tells
+ * the eye that the band under the track is a floor the props can stand on.
+ */
+function paintPaving(c: Ctx, l: MoonseaLayout, floorTop: number, rng: () => number): void {
+  const { width: w, height: h, carHeight } = l;
+  const vanishX = w * 0.6;
+  const vanishY = l.horizonY - h * 0.45;
+  const towardVanish = (x: number, y: number, targetY: number) => vanishX + (x - vanishX) * ((targetY - vanishY) / (y - vanishY));
+
+  // Courses, widening toward the reader.
+  const courses = [floorTop];
+  for (let step = carHeight * 0.24; courses[courses.length - 1] < h; step *= 1.3) {
+    courses.push(courses[courses.length - 1] + step);
+  }
+  c.lineWidth = 1;
+  for (let r = 0; r + 1 < courses.length; r++) {
+    const top = courses[r];
+    const bottom = courses[r + 1];
+    const slab = carHeight * (1.3 + (r / courses.length) * 1.1);
+    for (let x = -slab * (2 + rng()); x < w + slab; ) {
+      const next = x + slab * (0.75 + rng() * 0.5);
+      c.fillStyle = rng() < 0.4 ? rgba(MOONLIGHT, 0.008 + rng() * 0.03) : `rgba(3, 2, 8, ${(0.03 + rng() * 0.12).toFixed(3)})`;
+      c.beginPath();
+      c.moveTo(towardVanish(x, bottom, top), top);
+      c.lineTo(towardVanish(next, bottom, top), top);
+      c.lineTo(next, bottom);
+      c.lineTo(x, bottom);
+      c.closePath();
+      c.fill();
+      c.strokeStyle = "rgba(4, 3, 9, 0.6)";
+      c.beginPath();
+      c.moveTo(next, bottom);
+      c.lineTo(towardVanish(next, bottom, top), top);
+      c.stroke();
+      x = next;
+    }
+    c.fillStyle = "rgba(4, 3, 9, 0.6)";
+    c.fillRect(0, bottom, w, 1);
+    c.fillStyle = rgba(MOONLIGHT, 0.05);
+    c.fillRect(0, bottom + 1, w, 1);
+  }
+
+  // The safety line, nearly gone.
+  const lineY = floorTop + (h - floorTop) * 0.13;
+  const lineHeight = Math.max(2, carHeight * 0.055);
+  for (let x = -rng() * 40; x < w; ) {
+    const run = carHeight * (0.5 + rng() * 2.4);
+    c.fillStyle = rgba(MOONLIGHT, 0.05 + rng() * 0.11);
+    c.fillRect(x, lineY, run, lineHeight);
+    x += run + (rng() < 0.3 ? carHeight * rng() * 0.8 : 0);
+  }
+
+  // The moon on damp stone.
+  const sheenR = w * 0.3;
+  c.save();
+  c.translate(l.moon.x, floorTop + (h - floorTop) * 0.18);
+  c.scale(1, ((h - floorTop) * 0.6) / sheenR);
+  const sheen = c.createRadialGradient(0, 0, 0, 0, 0, sheenR);
+  sheen.addColorStop(0, rgba(MOONLIGHT, 0.09));
+  sheen.addColorStop(1, rgba(MOONLIGHT, 0));
+  c.fillStyle = sheen;
+  c.fillRect(-sheenR, -sheenR, sheenR * 2, sheenR * 2);
+  c.restore();
+
+  for (let i = 0; i < Math.round(w / 240); i++) {
+    paintCrack(c, rng() * w, floorTop + rng() * (h - floorTop), carHeight * (0.5 + rng() * 1.2), rng);
+  }
+  for (let i = 0; i < Math.round(w / 170); i++) {
+    const r = 1 + Math.floor(rng() * (courses.length - 2));
+    paintTuft(c, rng() * w, courses[r], carHeight * (0.1 + rng() * 0.1) * (0.7 + r / courses.length), rng);
+  }
+}
+
+function paintForeground(c: Ctx, l: MoonseaLayout, rng: () => number, detail: () => number, stage: MoonseaStage): { bulb: { x: number; y: number } | null } {
   const { width: w, height: h, platformY, carHeight } = l;
 
   // Platform: a coping of old stone, then the worn surface.
@@ -593,11 +746,12 @@ function paintForeground(c: Ctx, l: MoonseaLayout, rng: () => number): { bulb: {
     c.stroke();
   }
   const surface = c.createLinearGradient(0, platformY + coping, 0, h);
-  surface.addColorStop(0, "#14111d");
-  surface.addColorStop(0.5, "#0d0b15");
-  surface.addColorStop(1, "#06050b");
+  surface.addColorStop(0, "#2b2635");
+  surface.addColorStop(0.45, "#201c29");
+  surface.addColorStop(1, "#14121a");
   c.fillStyle = surface;
   c.fillRect(0, platformY + coping, w, h - platformY - coping);
+  paintPaving(c, l, platformY + coping, detail);
   // Worn speckle.
   for (let i = 0; i < (w * (h - platformY)) / 900; i++) {
     const x = rng() * w;
@@ -616,11 +770,13 @@ function paintForeground(c: Ctx, l: MoonseaLayout, rng: () => number): { bulb: {
     c.fill();
   }
 
+  if (stage === "open") return { bulb: null };
+
   paintBuilding(c, l, rng);
   paintBench(c, l);
   if (l.sign) paintSign(c, l);
   const bulb = paintLampPost(c, l);
-  paintLily(c, l, rng);
+  paintLily(c, l, rng, detail);
   return { bulb };
 }
 
@@ -638,6 +794,16 @@ function paintBuilding(c: Ctx, l: MoonseaLayout, rng: () => number): void {
     c.lineTo(x, groundY);
     c.stroke();
   }
+  // Its foot: a course of stone where the boards stop, and the shadow it throws on the platform.
+  const plinth = carHeight * 0.16;
+  const wallWidth = w - buildingX + 2;
+  c.fillStyle = "#231e2b";
+  c.fillRect(buildingX, groundY - plinth, wallWidth, plinth);
+  c.fillStyle = rgba(MOONLIGHT, 0.1);
+  c.fillRect(buildingX, groundY - plinth, wallWidth, 1);
+  c.fillStyle = "rgba(3, 2, 8, 0.7)";
+  c.fillRect(buildingX, groundY - 1.5, wallWidth, 1.5);
+  castShadow(c, l, buildingX + wallWidth / 2, groundY, wallWidth, l.height, 0.55);
   // A glassless window with the dark waiting room behind it.
   const winW = Math.min((w - buildingX) * 0.42, carHeight * 1.4);
   if (winW > 12) {
@@ -682,9 +848,17 @@ function paintBuilding(c: Ctx, l: MoonseaLayout, rng: () => number): void {
   c.moveTo(eaveLeft - 6, eaveY);
   c.lineTo(eaveLeft + carHeight * 0.4, roofTop + carHeight * 0.25);
   c.stroke();
-  c.fillStyle = "#0d0a14";
+  const eavePost = carHeight * 0.1;
   for (const px of [eaveLeft + carHeight * 0.3, buildingX - carHeight * 0.2]) {
-    c.fillRect(px, eaveY, carHeight * 0.1, groundY - eaveY);
+    castShadow(c, l, px + eavePost / 2, groundY, eavePost * 1.6, groundY - eaveY, 0.5);
+    contactShadow(c, px + eavePost / 2, groundY, eavePost * 2.6, eavePost * 0.8, 0.75);
+    c.fillStyle = "#0d0a14";
+    c.fillRect(px, eaveY, eavePost, groundY - eaveY);
+    // A footing stone.
+    c.fillStyle = "#2a2533";
+    c.fillRect(px - eavePost * 0.5, groundY - carHeight * 0.07, eavePost * 2, carHeight * 0.07);
+    c.fillStyle = rgba(MOONLIGHT, 0.14);
+    c.fillRect(px - eavePost * 0.5, groundY - carHeight * 0.07, eavePost * 2, 1);
   }
   // The clock, stopped at 7:14.
   if (clock) {
@@ -724,20 +898,83 @@ function paintBuilding(c: Ctx, l: MoonseaLayout, rng: () => number): void {
 }
 
 function paintBench(c: Ctx, l: MoonseaLayout): void {
-  const { bench, carHeight } = l;
-  const seatY = bench.y - carHeight * 0.48;
-  const left = bench.x - bench.width / 2;
-  c.fillStyle = "#0c0a13";
-  // Legs.
-  for (const fx of [0.1, 0.86]) c.fillRect(left + bench.width * fx, seatY, carHeight * 0.07, bench.y - seatY);
-  // Seat and backrest slats.
-  for (let i = 0; i < 3; i++) c.fillRect(left, seatY - i * carHeight * 0.075, bench.width, carHeight * 0.05);
-  for (let i = 0; i < 2; i++) c.fillRect(left, seatY - carHeight * (0.36 + i * 0.12), bench.width, carHeight * 0.06);
-  c.fillRect(left + bench.width * 0.12, seatY - carHeight * 0.5, carHeight * 0.05, carHeight * 0.5);
-  c.fillRect(left + bench.width * 0.84, seatY - carHeight * 0.5, carHeight * 0.05, carHeight * 0.5);
-  c.fillStyle = rgba(MOONLIGHT, 0.14);
-  c.fillRect(left, seatY - carHeight * 0.48, bench.width, 1);
-  c.fillRect(left, seatY - carHeight * 0.15, bench.width, 1);
+  const { bench, carHeight: u } = l;
+  const w = bench.width;
+  const left = bench.x - w / 2;
+  const footY = bench.y;
+  // Seen from above the seat, like the rest of the platform: the rear feet stand higher on the screen.
+  const depth = u * 0.2;
+  const rearY = footY - depth;
+  const seatFrontY = footY - u * 0.44;
+  const seatBackY = seatFrontY - depth;
+  const backTop = seatBackY - u * 0.52;
+  const inset = w * 0.015;
+  const legW = Math.max(2, u * 0.07);
+  const ends = [left + w * 0.08, left + w * 0.92];
+
+  castShadow(c, l, bench.x, footY - depth * 0.5, w * 0.96, u * 1.1, 0.5);
+  for (const x of ends) {
+    contactShadow(c, x, footY, legW * 2.8, legW * 0.9, 0.8);
+    contactShadow(c, x, rearY, legW * 2.2, legW * 0.7, 0.65);
+  }
+
+  // The iron ends: rear legs running up into the backrest.
+  c.fillStyle = "#0b0911";
+  for (const x of ends) c.fillRect(x - legW / 2, backTop, legW, rearY - backTop);
+
+  // Backrest slats, dark from this side, their top edges catching the moon.
+  for (let i = 0; i < 3; i++) {
+    const y = backTop + u * (0.04 + i * 0.16);
+    c.fillStyle = "#1b1722";
+    c.fillRect(left + inset, y, w - inset * 2, u * 0.11);
+    c.fillStyle = rgba(MOONLIGHT, 0.26);
+    c.fillRect(left + inset, y, w - inset * 2, 1);
+  }
+
+  // The seat from above: three boards narrowing toward the back.
+  for (let i = 0; i < 3; i++) {
+    const y0 = seatBackY + (depth * i) / 3;
+    const y1 = seatBackY + (depth * (i + 1)) / 3 - 1;
+    const near0 = inset * (1 - i / 3);
+    const near1 = inset * (1 - (i + 1) / 3);
+    const board = c.createLinearGradient(left, 0, left + w, 0);
+    board.addColorStop(0, "#37313f");
+    board.addColorStop(1, "#4a3f42");
+    c.fillStyle = board;
+    c.beginPath();
+    c.moveTo(left + near0, y0);
+    c.lineTo(left + w - near0, y0);
+    c.lineTo(left + w - near1, y1);
+    c.lineTo(left + near1, y1);
+    c.closePath();
+    c.fill();
+  }
+  // Its front edge, then the front legs in front of everything.
+  c.fillStyle = "#14111a";
+  c.fillRect(left, seatFrontY - 1, w, u * 0.06);
+  c.fillStyle = "#0b0911";
+  for (const x of ends) {
+    c.fillRect(x - legW / 2, seatFrontY, legW, footY - seatFrontY);
+    c.fillRect(x - legW, footY - 2, legW * 2, 2);
+  }
+
+  // Armrests, from the backrest to above the front legs.
+  c.strokeStyle = "#0b0911";
+  c.lineWidth = Math.max(2, u * 0.05);
+  c.lineCap = "round";
+  for (const x of ends) {
+    c.beginPath();
+    c.moveTo(x, seatBackY - u * 0.24);
+    c.quadraticCurveTo(x, seatFrontY - u * 0.26, x, seatFrontY);
+    c.stroke();
+  }
+  c.lineCap = "butt";
+
+  // The lamp is to the right: its warmth on the end that faces it.
+  const warm = ends[1] + legW / 2 - 1;
+  c.fillStyle = rgba(LAMP, 0.14);
+  c.fillRect(warm, seatFrontY, 1, footY - seatFrontY);
+  c.fillRect(warm, backTop, 1, rearY - backTop);
 }
 
 function paintSign(c: Ctx, l: MoonseaLayout): void {
@@ -749,9 +986,20 @@ function paintSign(c: Ctx, l: MoonseaLayout): void {
   const boardBottom = sign.y - carHeight * 0.95;
   const left = sign.x - boardW / 2;
   const top = boardBottom - boardH;
-  c.fillStyle = "#0b0912";
-  c.fillRect(left + boardW * 0.12, top, 3, sign.y - top);
-  c.fillRect(left + boardW * 0.88 - 3, top, 3, sign.y - top);
+  const postW = Math.max(3, carHeight * 0.07);
+  for (const px of [left + boardW * 0.12, left + boardW * 0.88 - postW]) {
+    castShadow(c, l, px + postW / 2, sign.y, postW * 1.8, sign.y - top, 0.5);
+    contactShadow(c, px + postW / 2, sign.y, postW * 2.8, postW, 0.8);
+    c.fillStyle = "#17131e";
+    c.fillRect(px, top, postW, sign.y - top);
+    c.fillStyle = rgba(MOONLIGHT, 0.14);
+    c.fillRect(px + postW - 1, top, 1, sign.y - top);
+    // Set in a block of concrete.
+    c.fillStyle = "#2a2533";
+    c.fillRect(px - postW * 0.7, sign.y - carHeight * 0.09, postW * 2.4, carHeight * 0.09);
+    c.fillStyle = rgba(MOONLIGHT, 0.14);
+    c.fillRect(px - postW * 0.7, sign.y - carHeight * 0.09, postW * 2.4, 1);
+  }
   // Board, pale in the moonlight, its paint gone at the corners.
   const face = c.createLinearGradient(left, top, left + boardW, boardBottom);
   face.addColorStop(0, "#bdb8c6");
@@ -782,6 +1030,8 @@ function paintLampPost(c: Ctx, l: MoonseaLayout): { x: number; y: number } {
   const { lamp, carHeight } = l;
   const topY = lamp.y - lamp.postHeight;
   const thick = Math.max(3, carHeight * 0.075);
+  castShadow(c, l, lamp.x, lamp.y, thick * 1.8, lamp.postHeight, 0.55);
+  contactShadow(c, lamp.x, lamp.y, thick * 3.6, thick * 1.3, 0.85);
   c.fillStyle = "#0a0810";
   c.fillRect(lamp.x - thick / 2, topY, thick, lamp.postHeight);
   c.fillRect(lamp.x - thick * 1.4, lamp.y - carHeight * 0.22, thick * 2.8, carHeight * 0.22);
@@ -809,9 +1059,50 @@ function paintLampPost(c: Ctx, l: MoonseaLayout): { x: number; y: number } {
   return { x: lamp.x - reach, y: shadeY + carHeight * 0.24 };
 }
 
-function paintLily(c: Ctx, l: MoonseaLayout, rng: () => number): void {
+function paintLily(c: Ctx, l: MoonseaLayout, rng: () => number, detail: () => number): void {
   const { lily, carHeight } = l;
   const scale = carHeight / 60;
+  // The paving has broken open here, and the stems come up through heaped earth.
+  const gapW = 27 * scale;
+  const gapH = 7.5 * scale;
+  const edge: Array<[number, number]> = [];
+  for (let i = 0; i < 16; i++) {
+    const a = (i / 16) * TAU;
+    const r = 0.66 + detail() * 0.5;
+    edge.push([lily.x + Math.cos(a) * gapW * r, lily.y + Math.sin(a) * gapH * r]);
+  }
+  c.beginPath();
+  edge.forEach(([x, y], i) => (i === 0 ? c.moveTo(x, y) : c.lineTo(x, y)));
+  c.closePath();
+  c.fillStyle = "#120d0e";
+  c.fill();
+  // The near lip of the broken stone faces the moon.
+  c.lineWidth = 1;
+  c.strokeStyle = rgba(MOONLIGHT, 0.2);
+  c.beginPath();
+  edge.slice(0, 9).forEach(([x, y], i) => (i === 0 ? c.moveTo(x, y) : c.lineTo(x, y)));
+  c.stroke();
+  c.save();
+  c.translate(lily.x, lily.y - gapH * 0.15);
+  c.scale(1, 0.34);
+  const earth = c.createRadialGradient(0, 0, 0, 0, 0, gapW * 0.8);
+  earth.addColorStop(0, "rgba(66, 50, 44, 0.85)");
+  earth.addColorStop(1, "rgba(66, 50, 44, 0)");
+  c.fillStyle = earth;
+  c.fillRect(-gapW, -gapW, gapW * 2, gapW * 2);
+  c.restore();
+  for (let i = 0; i < 14; i++) {
+    const a = detail() * TAU;
+    const r = detail() * 0.8;
+    c.fillStyle = detail() < 0.5 ? "rgba(92, 74, 64, 0.55)" : "rgba(10, 7, 8, 0.7)";
+    c.beginPath();
+    c.ellipse(lily.x + Math.cos(a) * gapW * r, lily.y + Math.sin(a) * gapH * r, (0.8 + detail() * 1.4) * scale, (0.5 + detail() * 0.7) * scale, 0, 0, TAU);
+    c.fill();
+  }
+  paintCrack(c, lily.x + gapW * 0.8, lily.y + gapH * 0.2, carHeight * 0.9, detail);
+  paintCrack(c, lily.x - gapW * 0.8, lily.y - gapH * 0.2, carHeight * 0.7, detail);
+  paintTuft(c, lily.x - gapW * 0.72, lily.y + gapH * 0.3, carHeight * 0.2, detail);
+  paintTuft(c, lily.x + gapW * 0.7, lily.y + gapH * 0.45, carHeight * 0.17, detail);
   const glow = c.createRadialGradient(lily.x, lily.y - 18 * scale, 0, lily.x, lily.y - 18 * scale, 60 * scale);
   glow.addColorStop(0, rgba(HIGAN, 0.22));
   glow.addColorStop(1, rgba(HIGAN, 0));
@@ -821,10 +1112,17 @@ function paintLily(c: Ctx, l: MoonseaLayout, rng: () => number): void {
     const fx = lily.x + (f - 2) * 9 * scale + (rng() - 0.5) * 6 * scale;
     const stemH = (26 + rng() * 22) * scale;
     const fy = lily.y - stemH;
-    c.strokeStyle = "#1c2a1e";
+    const baseX = fx + (rng() - 0.5) * 4;
+    const baseY = lily.y + (detail() - 0.5) * gapH;
     c.lineWidth = 1.4 * scale + 0.4;
+    c.strokeStyle = "rgba(2, 1, 6, 0.45)";
     c.beginPath();
-    c.moveTo(fx + (rng() - 0.5) * 4, lily.y + 4);
+    c.moveTo(baseX, baseY);
+    c.lineTo(baseX + shadowLean(l, baseX) * stemH * 0.3, baseY + stemH * 0.3);
+    c.stroke();
+    c.strokeStyle = "#3a5234";
+    c.beginPath();
+    c.moveTo(baseX, baseY);
     c.quadraticCurveTo(fx + (rng() - 0.5) * 8 * scale, lily.y - stemH * 0.5, fx, fy);
     c.stroke();
     // Six curling petals and long stamens, the spider lily's shape.
@@ -1058,6 +1356,8 @@ function spawnPetal(p: Petal | null, l: MoonseaLayout, rng: () => number, anywhe
 export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
   const { mount } = options;
   const seed = options.seed ?? SEED;
+  const stage = options.stage ?? "station";
+  const trainRuns = options.train !== false;
   const lit = litCarriages(options.furthestRead);
   const canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
@@ -1068,6 +1368,8 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
   let petalSprites: HTMLCanvasElement[] = [];
   let starSprite: HTMLCanvasElement | null = null;
   let glowDot: HTMLCanvasElement | null = null;
+  let snowDot: HTMLCanvasElement | null = null;
+  let snowing = false;
   let petals: Petal[] = [];
   const rings: Ring[] = [];
   let meteor: Meteor | null = null;
@@ -1085,7 +1387,7 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
   let destroyed = false;
 
   const bake = (size: Readonly<SceneSize>) => {
-    const l = layoutMoonsea(size.width, size.height);
+    const l = layoutMoonsea(size.width, size.height, stage);
     const dpr = size.dpr;
     const rng = createRng(seed);
     const noise = createNoise2D(seed);
@@ -1101,7 +1403,8 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
     paintTrack(track.ctx, l, rng);
 
     const fore = makeLayer(l.width, l.height, dpr);
-    const { bulb } = paintForeground(fore.ctx, l, rng);
+    // Its own stream, so the details of the floor do not move the train's or the glints'.
+    const { bulb } = paintForeground(fore.ctx, l, rng, createRng(seed ^ 0x2f0a), stage);
 
     // The copy's side of the screen is kept dark, and the edges fall away.
     const veil = makeLayer(l.width, l.height, dpr);
@@ -1194,6 +1497,11 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
       [0, rgba(LAMP, 0.9)],
       [0.35, rgba(LAMP, 0.25)],
       [1, rgba(LAMP, 0)],
+    ]);
+    snowDot = radialSprite(6, dpr, [
+      [0, "rgba(255, 255, 255, 0.95)"],
+      [0.4, rgba(MIST, 0.45)],
+      [1, rgba(MIST, 0)],
     ]);
     const wanted = petalCount(l.width, l.height);
     const prng = createRng(seed ^ 0x9e37);
@@ -1325,7 +1633,7 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
     ctx.drawImage(b.mistNear, w - nearShift, nearY, w, nearH);
     ctx.globalAlpha = 1;
     let trainU = -1;
-    if (moving) {
+    if (moving && trainRuns) {
       const since = t - passStart;
       if (since >= PASS_SECONDS) passStart = t + nextPassDelay(simRng());
       else if (since >= 0) trainU = since / PASS_SECONDS;
@@ -1381,41 +1689,44 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
       ctx.restore();
     }
 
-    // The lamp: a steady hum, a stutter when time stops.
-    let lampLevel = 0.92 + 0.05 * Math.sin(wt * 2.3) + 0.03 * Math.sin(wt * 7.1);
-    if (freezeStart >= 0) {
-      const since = t - freezeStart;
-      if (since < 0.5) lampLevel *= since % 0.16 < 0.08 ? 0.35 : 1;
-    }
-    const pool = b.lampPool.width / frame.dpr;
-    ctx.globalCompositeOperation = "lighter";
-    ctx.globalAlpha = lampLevel;
-    ctx.save();
-    ctx.translate(b.lampBulb.x, l.groundY);
-    ctx.scale(1, 0.32);
-    ctx.drawImage(b.lampPool, -pool / 2, -pool / 2, pool, pool);
-    ctx.restore();
-    const glow = b.lampGlow.width / frame.dpr;
-    ctx.drawImage(b.lampGlow, b.lampBulb.x - glow / 2, b.lampBulb.y - glow / 2, glow, glow);
-    ctx.globalAlpha = 1;
-    ctx.globalCompositeOperation = "source-over";
-    ctx.fillStyle = `rgba(255, 240, 210, ${(0.6 + lampLevel * 0.4).toFixed(3)})`;
-    ctx.beginPath();
-    ctx.arc(b.lampBulb.x, b.lampBulb.y - l.carHeight * 0.03, Math.max(1.5, l.carHeight * 0.05), 0, TAU);
-    ctx.fill();
-
-    // Moths around the lamp.
-    ctx.fillStyle = "rgba(246, 236, 220, 0.75)";
-    for (let i = 0; i < MOTHS; i++) {
-      const a = wt * (1.3 + i * 0.37) + i * 1.7;
-      const rx = l.carHeight * (0.45 + i * 0.12);
-      const ry = l.carHeight * (0.25 + i * 0.05);
-      const mx = b.lampBulb.x + Math.cos(a) * rx + Math.sin(a * 2.3) * 4;
-      const my = b.lampBulb.y + l.carHeight * 0.15 + Math.sin(a * 1.1) * ry;
-      const flap = 0.6 + 0.4 * Math.abs(Math.sin(wt * 22 + i));
+    const bulb = b.lampBulb;
+    if (bulb) {
+      // The lamp: a steady hum, a stutter when time stops.
+      let lampLevel = 0.92 + 0.05 * Math.sin(wt * 2.3) + 0.03 * Math.sin(wt * 7.1);
+      if (freezeStart >= 0) {
+        const since = t - freezeStart;
+        if (since < 0.5) lampLevel *= since % 0.16 < 0.08 ? 0.35 : 1;
+      }
+      const pool = b.lampPool.width / frame.dpr;
+      ctx.globalCompositeOperation = "lighter";
+      ctx.globalAlpha = lampLevel;
+      ctx.save();
+      ctx.translate(bulb.x, l.groundY);
+      ctx.scale(1, 0.32);
+      ctx.drawImage(b.lampPool, -pool / 2, -pool / 2, pool, pool);
+      ctx.restore();
+      const glow = b.lampGlow.width / frame.dpr;
+      ctx.drawImage(b.lampGlow, bulb.x - glow / 2, bulb.y - glow / 2, glow, glow);
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = "source-over";
+      ctx.fillStyle = `rgba(255, 240, 210, ${(0.6 + lampLevel * 0.4).toFixed(3)})`;
       ctx.beginPath();
-      ctx.ellipse(mx, my, 1.8 * flap + 0.4, 1, 0, 0, TAU);
+      ctx.arc(bulb.x, bulb.y - l.carHeight * 0.03, Math.max(1.5, l.carHeight * 0.05), 0, TAU);
       ctx.fill();
+
+      // Moths around the lamp.
+      ctx.fillStyle = "rgba(246, 236, 220, 0.75)";
+      for (let i = 0; i < MOTHS; i++) {
+        const a = wt * (1.3 + i * 0.37) + i * 1.7;
+        const rx = l.carHeight * (0.45 + i * 0.12);
+        const ry = l.carHeight * (0.25 + i * 0.05);
+        const mx = bulb.x + Math.cos(a) * rx + Math.sin(a * 2.3) * 4;
+        const my = bulb.y + l.carHeight * 0.15 + Math.sin(a * 1.1) * ry;
+        const flap = 0.6 + 0.4 * Math.abs(Math.sin(wt * 22 + i));
+        ctx.beginPath();
+        ctx.ellipse(mx, my, 1.8 * flap + 0.4, 1, 0, 0, TAU);
+        ctx.fill();
+      }
     }
 
     // ---- petals ------------------------------------------------------------------------------
@@ -1443,6 +1754,12 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
         petal.rot += petal.spin * step;
         petal.tumble += petal.tumbleSpeed * step;
         if (petal.y > h + 24 || petal.x < -40 || petal.x > w + 60) spawnPetal(petal, l, simRng, false);
+      }
+      if (snowing && snowDot) {
+        const d = petal.size * 0.7;
+        ctx.globalAlpha = petal.alpha * 0.85;
+        ctx.drawImage(snowDot, petal.x - d / 2, petal.y - d / 2, d, d);
+        continue;
       }
       const sprite = petalSprites[petal.variant];
       if (!sprite) continue;
@@ -1487,7 +1804,7 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
     ctx.drawImage(b.veil.canvas, 0, 0, w, h);
     const scroll = typeof window !== "undefined" ? window.scrollY : 0;
     lastScroll = scroll;
-    const veilAlpha = scrollVeil(scroll, h);
+    const veilAlpha = stage === "open" ? 0 : scrollVeil(scroll, h);
     if (veilAlpha > 0.002) {
       ctx.fillStyle = `rgba(6, 5, 14, ${veilAlpha.toFixed(3)})`;
       ctx.fillRect(0, 0, w, h);
@@ -1572,6 +1889,15 @@ export function mountMoonsea(options: MoonseaOptions): MoonseaHandle {
       } else {
         scene.start();
       }
+    },
+    setSnow(next: boolean) {
+      if (destroyed || next === snowing) return;
+      snowing = next;
+      if (!still || !baked) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
+      const l = baked.layout;
+      drawFrame(ctx, { t: 0, dt: 0, width: l.width, height: l.height, dpr: canvas.width / l.width, pointer: STILL_POINTER }, false);
     },
     destroy() {
       if (destroyed) return;

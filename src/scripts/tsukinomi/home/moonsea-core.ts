@@ -8,7 +8,7 @@
 // (a valley filled with cloud that the moon lights like water), three ridges
 // of the Northern Alps, the track, the last train when it passes, and the
 // abandoned platform in the foreground with its lamp, its station sign, the
-// eave with the clock stopped at 7:14, and a spider lily by the steps. The
+// eave with the clock stopped at 7:14, and a spider lily at the lamp's foot. The
 // left of a wide screen and the lower middle of a tall one stay calm and dark:
 // the hero copy lies there.
 
@@ -36,6 +36,12 @@ export interface Point {
   x: number;
   y: number;
 }
+
+/**
+ * "station" is the home page's picture. "open" is the same night with the platform
+ * cleared, for the pages that stand people or a carriage in front of it.
+ */
+export type MoonseaStage = "station" | "open";
 
 export interface MoonseaLayout {
   width: number;
@@ -75,23 +81,24 @@ export function clamp(value: number, lo: number, hi: number): number {
   return value < lo ? lo : value > hi ? hi : value;
 }
 
-export function layoutMoonsea(width: number, height: number): MoonseaLayout {
+export function layoutMoonsea(width: number, height: number, stage: MoonseaStage = "station"): MoonseaLayout {
+  const open = stage === "open";
   const w = Math.max(1, width);
   const h = Math.max(1, height);
   const portrait = h > w * 1.1;
   const compact = w < 760;
   const unit = Math.min(w, h);
 
-  const horizonY = h * (portrait ? 0.5 : 0.585);
-  const railY = h * (portrait ? 0.79 : 0.775);
+  const horizonY = h * (portrait ? (open ? 0.42 : 0.5) : 0.585);
+  const railY = h * (portrait ? (open ? 0.64 : 0.79) : 0.775);
   const carHeight = clamp(unit * 0.085, 30, 66);
   const platformY = railY + carHeight * 0.18;
   const groundY = platformY + (h - platformY) * (portrait ? 0.5 : 0.42);
 
   const moonR = clamp(unit * (portrait ? 0.085 : 0.078), 24, 78);
   const moon = {
-    x: w * (portrait ? 0.7 : 0.735),
-    y: h * (portrait ? 0.14 : 0.205),
+    x: w * (portrait ? (open ? 0.84 : 0.7) : open ? 0.86 : 0.735),
+    y: h * (portrait ? (open ? 0.1 : 0.14) : 0.205),
     r: moonR,
   };
 
@@ -104,13 +111,13 @@ export function layoutMoonsea(width: number, height: number): MoonseaLayout {
   // Narrow landscape screens push the props right, clear of the title.
   const postHeight = clamp(groundY - h * (portrait ? 0.46 : 0.36), carHeight * 2.4, h * 0.6);
   const lamp = { x: w * (portrait ? 0.86 : compact ? 0.79 : 0.665), y: groundY, postHeight };
-  const buildingX = w * (portrait ? 0.93 : compact ? 0.88 : 0.83);
+  const buildingX = open ? w : w * (portrait ? 0.93 : compact ? 0.88 : 0.83);
   const eaveY = groundY - postHeight * (portrait ? 0.92 : 0.86);
   const sign = compact || portrait ? null : { x: w * 0.755, y: groundY, width: clamp(unit * 0.17, 96, 170) };
   const clock = compact || portrait ? null : { x: buildingX + w * 0.05, y: eaveY + carHeight * 0.55, r: clamp(unit * 0.026, 10, 22) };
   const bench = { x: w * (portrait ? 0.62 : compact ? 0.66 : 0.555), y: groundY, width: clamp(unit * 0.15, 70, 150) };
-  // The spider lily grows at the lamp's foot, where its light reaches it.
-  const lily = { x: lamp.x + carHeight * (portrait ? -1.2 : 1.1), y: h - (h - groundY) * 0.3 };
+  // The spider lily grows out of the broken paving at the lamp's foot, where its light reaches it.
+  const lily = { x: lamp.x + carHeight * (portrait ? -1 : 0.85), y: groundY + (h - groundY) * 0.22 };
 
   return {
     width: w,

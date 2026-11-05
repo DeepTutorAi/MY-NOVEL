@@ -46,8 +46,8 @@ const epigraphText = epigraphFor(section.data.number);
 
   <div class="tsuki-unlock-toast" data-unlock-toast hidden role="status" aria-live="polite">
     <div class="tsuki-unlock-copy">
-      <strong>🔓 ปลดล็อกตัวละครลับ</strong>
-      <span>มีตัวละครใหม่ปรากฏในหน้าตัวละครแล้ว</span>
+      <strong>🔓 ป้ายใหม่เปิดแล้ว</strong>
+      <span>มีตัวละครเพิ่มในหน้าตัวละคร</span>
     </div>
     <a class="tsuki-unlock-go" href={withBase("/tsukinomi/characters/")}>ดู →</a>
     <button class="tsuki-unlock-close" type="button" data-unlock-close aria-label="ปิด">✕</button>
@@ -60,45 +60,36 @@ const epigraphText = epigraphFor(section.data.number);
 </script>
 
 <script>
-  const setupUnlockToast = () => {
-    const REVEAL_SECTION = 3;
-    const SHOWN_KEY = "tsukinomi:characters:toast-shown";
+  import { STOP_CHAPTERS } from "../../scripts/tsukinomi/station-gates";
+
+  const SHOWN_KEY = "tsukinomi:characters:toast-chapter";
+
+  // Shown once, when the chapter just finished opens a stop the reader has not been told about.
+  document.addEventListener("tsukinomi:chapter-done", (event) => {
     const toast = document.querySelector("[data-unlock-toast]");
-    if (!(toast instanceof HTMLElement)) {
-      return;
+    if (!(toast instanceof HTMLElement)) return;
+    const chapter = (event as CustomEvent<number>).detail;
+    try {
+      const shown = Number(localStorage.getItem(SHOWN_KEY)) || 0;
+      if (chapter <= shown) return;
+      localStorage.setItem(SHOWN_KEY, String(chapter));
+      if (!STOP_CHAPTERS.some((stop) => stop > shown && stop <= chapter)) return;
+    } catch {
+      return; // localStorage blocked: silently skip the toast
     }
+    toast.hidden = false;
+    window.setTimeout(() => toast.classList.add("is-visible"), 30);
+  });
 
-    const article = document.querySelector("article.tsukinomi-section");
-    const sectionNumber = Number(article?.getAttribute("data-section-number") ?? 0);
-
-    if (sectionNumber >= REVEAL_SECTION) {
-      try {
-        if (localStorage.getItem(SHOWN_KEY) !== "true") {
-          localStorage.setItem("tsukinomi:characters:revealed", "true");
-          localStorage.setItem(SHOWN_KEY, "true");
-          window.setTimeout(() => {
-            toast.hidden = false;
-            window.setTimeout(() => toast.classList.add("is-visible"), 30);
-          }, 1400);
-        }
-      } catch {
-        // localStorage blocked — silently skip the toast
-      }
-    }
-
-    toast.querySelector("[data-unlock-close]")?.addEventListener(
-      "click",
-      () => {
-        toast.classList.remove("is-visible");
-        window.setTimeout(() => {
-          toast.hidden = true;
-        }, 220);
-      },
-      { once: true },
-    );
-  };
-
-  document.addEventListener("astro:page-load", setupUnlockToast);
+  document.addEventListener("click", (event) => {
+    if (!(event.target instanceof Element) || !event.target.closest("[data-unlock-close]")) return;
+    const toast = event.target.closest<HTMLElement>("[data-unlock-toast]");
+    if (!toast) return;
+    toast.classList.remove("is-visible");
+    window.setTimeout(() => {
+      toast.hidden = true;
+    }, 220);
+  });
 </script>
 
 <style is:global>

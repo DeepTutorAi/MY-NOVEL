@@ -14,6 +14,8 @@
 // startMoonsea() returns the teardown for concourse.ts's onPage cleanups: it
 // cancels a pending start, destroys the scene and removes every listener.
 
+import type { MoonseaStage } from "./moonsea-core";
+
 const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
 /** The Walkman panel's backdrop-motion switch (SakuraTwilightBackdrop.astro, WalkmanPlayer.astro). */
 export const MOTION_STORAGE_KEY = "tsukinomi:motion:backdrop";
@@ -23,6 +25,10 @@ export const LIVE_CLASS = "tsuki-moonsea-live";
 export interface StartMoonseaOptions {
   mount: HTMLElement | null;
   furthestRead: number | null;
+  stage?: MoonseaStage;
+  train?: boolean;
+  /** Called once the scene is up, for a page that changes its weather. */
+  onReady?: (scene: { setSnow(snow: boolean): void }) => void;
 }
 
 /** The reader's backdrop-motion switch: on unless it was explicitly turned off. Unreadable storage counts as on. */
@@ -42,14 +48,14 @@ const canDraw = () => {
   }
 };
 
-export function startMoonsea({ mount, furthestRead }: StartMoonseaOptions): () => void {
+export function startMoonsea({ mount, furthestRead, stage, train, onReady }: StartMoonseaOptions): () => void {
   if (!mount || !canDraw()) return () => {};
   const reducedQuery = window.matchMedia(REDUCED_MOTION_QUERY);
   const readSwitch = () => motionSwitchOn((key) => window.localStorage.getItem(key));
   const wantsStill = () => reducedQuery.matches || !readSwitch();
 
   let stopped = false;
-  let handle: { setStill(still: boolean): void; destroy(): void } | null = null;
+  let handle: { setStill(still: boolean): void; setSnow(snow: boolean): void; destroy(): void } | null = null;
 
   const onMotionChange = () => handle?.setStill(wantsStill());
   window.addEventListener(MOTION_EVENT, onMotionChange);
@@ -72,7 +78,8 @@ export function startMoonsea({ mount, furthestRead }: StartMoonseaOptions): () =
       return;
     }
     if (stopped) return;
-    handle = scene.mountMoonsea({ mount, furthestRead, still: wantsStill() });
+    handle = scene.mountMoonsea({ mount, furthestRead, still: wantsStill(), stage, train });
+    onReady?.(handle);
     mount.dataset.moonsea = "live";
     document.body.classList.add(LIVE_CLASS);
   };

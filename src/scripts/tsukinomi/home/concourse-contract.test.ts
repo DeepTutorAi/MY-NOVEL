@@ -86,7 +86,7 @@ describe("the mount point for the home sky", () => {
   });
 
   it("is styled fixed behind everything, taking no pointer, and so is its canvas", () => {
-    const css = read(CSS);
+    const css = read(CSS) + read("src/styles/tsukinomi/global.css");
     const rule = /\.tsuki-moonsea\s*\{([^}]*)\}/.exec(css)?.[1] ?? "";
     assert.match(rule, /position:\s*fixed/);
     assert.match(rule, /inset:\s*0/);
@@ -97,7 +97,7 @@ describe("the mount point for the home sky", () => {
   });
 
   it("stands in for the sakura backdrop only while it is up", () => {
-    assert.match(read(CSS), /body\.tsuki-moonsea-live \.sakura-backdrop\s*\{[^}]*display:\s*none/);
+    assert.match(read("src/styles/tsukinomi/global.css"), /body\.tsuki-moonsea-live \.sakura-backdrop\s*\{[^}]*display:\s*none/);
     const backdrop = read("src/components/tsukinomi/atmosphere/SakuraTwilightBackdrop.astro");
     assert.match(backdrop, /classList\.contains\("tsuki-moonsea-live"\)/);
   });
@@ -127,7 +127,7 @@ describe("the stylesheet", () => {
   it("keeps the concourse and the hero above the sky and the tint, the only fixed layers", () => {
     assert.match(css, /\.tsuki-concourse-tint\s*\{[^}]*position:\s*fixed[^}]*z-index:\s*0/);
     assert.match(css, /\.tsuki-concourse\s*\{[^}]*z-index:\s*1/);
-    assert.equal((css.match(/position:\s*fixed/g) ?? []).length, 2, "only the sky and the tint are fixed");
+    assert.equal((css.match(/position:\s*fixed/g) ?? []).length, 1, "only the tint is fixed here; the sky's rule is in global.css");
     assert.match(css, /\.tsuki-concourse-tint\s*\{[^}]*pointer-events:\s*none/);
   });
 
