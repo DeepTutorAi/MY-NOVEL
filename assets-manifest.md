@@ -31,8 +31,18 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/sea/images/hero-sea.webp` | Generated locally by author | Project-owned generated asset | None | alternative hero cover |
 | `public/assets/sea/images/hero-sea-v2.webp` | Generated locally by author | Project-owned generated asset | None | final hero cover (sky-ocean above Elaris) |
 | `public/assets/sea/images/ceiling-plate.webp` | Cropped locally from `hub-sea-dark-adventure.webp` by `src/scripts/sea/make-ceiling-plate.ts` (sharp, box x 170-1250, y 134-376) | Project-owned generated asset | None | home hero water-ceiling texture and still fallback (water, whale and fish only) |
-| `public/assets/kusabi/images/home-hero.webp` | Generated locally by author | Project-owned generated asset | None | legacy kusabi hero cover |
-| `public/assets/kusabi/images/home-hero-v2.webp` | Generated with image generation from a text brief | Project-owned generated asset | None | kusabi hero cover |
+| `output/kusabi-art-source/legacy/home-hero.webp` | Generated locally by author; moved out of `public/` on 2026-11-05 | Project-owned generated asset | None | retired kusabi hero (wooden house, no longer canon) |
+| `output/kusabi-art-source/legacy/home-hero-v2.webp` | Generated with image generation from a text brief; moved out of `public/` on 2026-11-05 | Project-owned generated asset | None | retired kusabi hero (wooden house, no longer canon) |
+| `output/kusabi-art-source/characters/` | Character sheets moved out of `public/` on 2026-11-05, unchanged | Project-owned generated asset | None | source only, not deployed |
+| `output/kusabi-art-source/extra/` | Special and adult sheets and the fifties poses, moved out of `public/` on 2026-11-05, unchanged | Project-owned generated asset | None | source only, not deployed; `*-50s-poses` are not used anywhere |
+| `public/assets/kusabi/images/cover/plate.webp` | Graded from `illustrations/chapter-03-european-manor-reference.webp` by `src/scripts/kusabi/process-art.ts` | Project-owned generated asset | None | home scene plate |
+| `public/assets/kusabi/images/cover/card.webp` | Cropped and graded from the same illustration by `process-art.ts` | Project-owned generated asset | None | hub card |
+| `public/assets/kusabi/images/cover/og.jpg` | Cropped and graded from the same illustration by `process-art.ts` | Project-owned generated asset | None | social preview |
+| `public/assets/kusabi/images/files/f01-f09.webp` | Face crops from `output/kusabi-art-source/characters/drafts-v2/` by `process-art.ts`; neutral names on purpose | Project-owned generated asset | None | character files; f06-f09 load only after their unlock |
+| `public/assets/kusabi/images/album/a01-a03.webp` | Resized from the three `*-special-*` sheets in `output/kusabi-art-source/extra/` by `process-art.ts` | Project-owned generated asset | None | gallery postcards, after their unlock |
+| `public/assets/kusabi/images/album/s01-s05.webp` | Face crops from the five `*-adult-*` sheets in `output/kusabi-art-source/extra/` by `process-art.ts` | Project-owned generated asset | None | sealed file, after everything else is finished; no caption by design |
+| `public/assets/kusabi/images/illustrations/chapter-10-risa-captive.webp` | Renamed from `chapter-10-risa-shion-ots-frontal-selected.webp`, pixels unchanged | Project-owned generated asset | None | CH10 illustration |
+| `public/assets/kusabi/images/illustrations/chapter-12-seated-player.webp` | Renamed from `chapter-12-shion-seated-player-beside-approved.webp`, pixels unchanged | Project-owned generated asset | None | CH12 illustration |
 | `public/assets/_shared/images/pages_into_stars.webp` | Generated locally by author | Project-owned generated asset | None | background stars texture |
 
 

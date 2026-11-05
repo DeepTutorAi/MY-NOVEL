@@ -1,0 +1,132 @@
+---
+// The close of a chapter: the tape's label with a stamp once it counts as heard,
+// and the way on. The next link never shows the next title; those can spoil.
+interface LinkTo {
+  href: string;
+  label: string;
+  detail: string;
+}
+
+interface Props {
+  label: string;
+  previous?: LinkTo;
+  next?: LinkTo;
+}
+
+const { label, previous, next } = Astro.props;
+---
+
+<aside class="tape-end" aria-label="จบม้วนนี้">
+  <div class="end-paper">
+    <span>{label}</span>
+    <span class="end-stamp" data-end-stamp hidden>ฟังแล้ว</span>
+  </div>
+  <p class="end-click">เทปหยุดหมุน</p>
+  <nav class="end-nav" aria-label="นำทางเนื้อเรื่อง">
+    {
+      previous ? (
+        <a class="end-link" href={previous.href}>
+          <small>{previous.detail}</small>
+          <span>{previous.label}</span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+    {
+      next && (
+        <a class="end-link end-next" href={next.href}>
+          <small>{next.detail}</small>
+          <span>{next.label}</span>
+        </a>
+      )
+    }
+  </nav>
+</aside>
+
+<style>
+  .tape-end {
+    display: grid;
+    gap: 1rem;
+    justify-items: center;
+    width: min(100%, var(--measure));
+    margin: 5rem auto 0;
+    padding-top: 2.5rem;
+    border-top: 1px solid var(--kusabi-stone-line);
+  }
+
+  .end-paper {
+    position: relative;
+    min-width: min(100%, 16rem);
+    padding: 0.5rem 1.5rem;
+    background: var(--kusabi-label);
+    color: var(--kusabi-label-ink);
+    font-family: var(--font-hand);
+    font-size: 1.2rem;
+    text-align: center;
+    transform: rotate(-0.5deg);
+  }
+
+  .end-stamp {
+    position: absolute;
+    right: -0.6rem;
+    bottom: -0.8rem;
+    padding: 0 0.45rem;
+    border: 2px solid var(--kusabi-accent);
+    background: rgba(216, 209, 194, 0.85);
+    color: #b3241f;
+    font-family: var(--font-thai);
+    font-size: 0.78rem;
+    font-weight: 700;
+    line-height: 1.6;
+    transform: rotate(-7deg);
+  }
+
+  .end-click {
+    margin: 0.4rem 0 0;
+    color: var(--kusabi-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+  }
+
+  .end-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: space-between;
+    width: 100%;
+    margin-top: 1.25rem;
+  }
+
+  .end-link {
+    display: grid;
+    gap: 0.1rem;
+    min-height: 44px;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid var(--kusabi-stone-line);
+    color: var(--kusabi-ink);
+    text-decoration: none;
+    transition: border-color 160ms;
+  }
+
+  .end-link:hover {
+    border-color: rgba(236, 230, 230, 0.6);
+  }
+
+  .end-link small {
+    color: var(--kusabi-ink-dim);
+    font-size: 0.74rem;
+  }
+
+  .end-next {
+    margin-left: auto;
+    background: var(--kusabi-label);
+    border-color: var(--kusabi-label);
+    color: var(--kusabi-label-ink);
+    text-align: right;
+  }
+
+  .end-next small {
+    color: #5c5147;
+  }
+</style>

@@ -36,7 +36,16 @@
   let height = 0;
   let frame = 0;
   let particles: RainParticle[] = [];
-  let motionEnabled = !reduceMotion.matches;
+  const MOTION_KEY = "kusabi:motion:backdrop";
+  const readMotion = () => {
+    if (reduceMotion.matches) return false;
+    try {
+      return window.localStorage.getItem(MOTION_KEY) !== "false";
+    } catch {
+      return true;
+    }
+  };
+  let motionEnabled = readMotion();
 
   type RainParticle = {
     x: number;
@@ -66,7 +75,7 @@
     context?.clearRect(0, 0, width, height);
   };
 
-  const isHome = () => document.body.classList.contains("kusabi-home-page") || document.body.classList.contains("kusabi-shell") || document.body.classList.contains("kusabi-toc-page");
+  const isHome = () => document.body.classList.contains("kusabi-home");
 
   const particleCap = () => {
     if (mobile.matches) {
@@ -216,7 +225,9 @@
   // Lifecycle
   document.addEventListener("astro:page-load", () => {
     bindCanvas();
+    motionEnabled = readMotion();
     if (canvas) {
+      prevWidth = 0;
       resize();
       window.addEventListener("resize", resize);
       window.addEventListener("kusabi:motion-change" as any, handleMotionChange);

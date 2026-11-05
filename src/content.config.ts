@@ -86,8 +86,11 @@ const kusabiExtras = defineCollection({
     number: z.number().int().min(1).max(5),
     title: z.string(),
     slug: z.string(),
+    dateline: z.string().optional(),
     summary: z.string().optional(),
+    wordsThai: z.number().int().optional(),
     readingMinutes: z.number().int().optional(),
+    draft: z.boolean().default(false),
   }),
 });
 

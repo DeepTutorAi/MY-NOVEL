@@ -17,7 +17,11 @@
     "lodge:e2e": "tsx src/scripts/lodge/lodge-e2e.ts",
     "lodge:measure": "tsx src/scripts/tsukinomi/scene-measure.ts --novel lodge",
     "sea:sync": "tsx src/scripts/sea/sync-sea-chapters.ts",
-    "sea:verify-dist": "tsx src/scripts/sea/verify-sea-dist.ts"
+    "sea:verify-dist": "tsx src/scripts/sea/verify-sea-dist.ts",
+    "kusabi:sync": "tsx src/scripts/kusabi/sync-extras.ts",
+    "kusabi:art": "tsx src/scripts/kusabi/process-art.ts",
+    "kusabi:e2e": "tsx src/scripts/kusabi/kusabi-e2e.ts",
+    "kusabi:verify-dist": "tsx src/scripts/kusabi/verify-kusabi-dist.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",

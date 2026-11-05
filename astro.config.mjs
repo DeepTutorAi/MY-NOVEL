@@ -246,6 +246,41 @@ function hasClass(node, className) {
 // without "##" headings. Runs after rehypeStoryDividers (which creates the
 // .current-divider nodes) and keeps ids set explicitly with {#id}. Exported
 // for the unit test in src/scripts/sea/sea-ui-contract.test.ts.
+/**
+ * Kusabi prose: a paragraph holding only "◇" is a scene break, and a paragraph
+ * holding only an image is a figure.
+ */
+export function rehypeKusabiProse() {
+  /**
+   * @param {any} tree
+   * @param {any} file
+   */
+  const transform = (tree, file) => {
+    const sourcePath = String(file?.path || file?.history?.[0] || "").replaceAll("\\", "/");
+    if (!sourcePath.includes("/src/content/kusabi/")) return;
+    visit(tree, "element", (node) => {
+      if (node.tagName !== "p") return;
+      const children = (node.children || []).filter((/** @type {any} */ child) => !(child.type === "text" && !child.value.trim()));
+      if (children.length !== 1) return;
+      const only = children[0];
+      if (only.type === "text" && only.value.trim() === "◇") {
+        node.tagName = "div";
+        node.properties = { className: ["kusabi-divider"], ariaHidden: "true" };
+        node.children = [
+          { type: "element", tagName: "span", properties: { className: ["kusabi-line"] }, children: [] },
+          { type: "element", tagName: "span", properties: { className: ["kusabi-mark"] }, children: [{ type: "text", value: "◇" }] },
+          { type: "element", tagName: "span", properties: { className: ["kusabi-line"] }, children: [] },
+        ];
+      } else if (only.type === "element" && only.tagName === "img") {
+        node.tagName = "figure";
+        node.properties = { className: ["kusabi-figure"] };
+      }
+    });
+  };
+
+  return transform;
+}
+
 export function rehypeSeaScenes() {
   /**
    * @param {any} tree
@@ -432,7 +467,7 @@ export default defineConfig({
       remarkHand,
       remarkNeutralizeStrayDirectives,
     ],
-    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers, rehypeSeaScenes, rehypeOpeningDropcap],
+    rehypePlugins: [rehypeHeadingIds, rehypeStoryDividers, rehypeKusabiProse, rehypeSeaScenes, rehypeOpeningDropcap],
   },
   vite: {
     plugins: [tailwindcss()],

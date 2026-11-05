@@ -1,0 +1,75 @@
+---
+interface Props {
+  /** Small line above the title, e.g. "ม้วนที่ 08 · บ้านเริ่มทดสอบ". */
+  eyebrow: string;
+  title: string;
+  minutes?: number;
+  dateline?: string;
+  hasCutscene?: boolean;
+}
+
+const { eyebrow, title, minutes, dateline, hasCutscene = false } = Astro.props;
+---
+
+<header class="tape-header">
+  <p class="kusabi-kicker">{eyebrow}</p>
+  <h1 class="tape-heading"><span class="tape-heading-paper">{title}</span></h1>
+  <p class="tape-sub">
+    {dateline && <span>{dateline}</span>}
+    {minutes !== undefined && <span>ประมาณ {minutes} นาที</span>}
+    {hasCutscene && <a href="?cutscene=replay">เล่นฉากเปิดอีกครั้ง</a>}
+  </p>
+</header>
+
+<style>
+  .tape-header {
+    display: grid;
+    gap: 0.9rem;
+    justify-items: center;
+    max-width: var(--measure);
+    margin: 0 auto 3.5rem;
+    text-align: center;
+  }
+
+  .tape-heading {
+    margin: 0;
+    font-size: inherit;
+    font-weight: 400;
+  }
+
+  .tape-heading-paper {
+    display: inline-block;
+    padding: 0.3rem 1.3rem;
+    background: var(--kusabi-label);
+    color: var(--kusabi-label-ink);
+    font-family: var(--font-hand);
+    font-size: clamp(1.5rem, 4vw, 2.1rem);
+    line-height: 1.45;
+    transform: rotate(-0.6deg);
+  }
+
+  .tape-sub {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1rem;
+    justify-content: center;
+    margin: 0;
+    color: var(--kusabi-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+  }
+
+  .tape-sub a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin-block: -0.7rem;
+    color: var(--kusabi-ink-dim);
+    font-family: var(--font-thai);
+    text-underline-offset: 0.25em;
+  }
+
+  .tape-sub a:hover {
+    color: var(--kusabi-ink);
+  }
+</style>

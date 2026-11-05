@@ -15,13 +15,14 @@ interface Props {
   ogImage?: string;
 }
 
-const { title, description, bodyClass, showTopBar = true, ogImage = "/og.jpg" } = Astro.props;
+const { title, description, bodyClass, showTopBar = true, ogImage = "/assets/kusabi/images/cover/og.jpg" } = Astro.props;
 const canonical = Astro.url.href;
 const resolvedOgImage = new URL(withBase(ogImage), Astro.site ?? Astro.url).href;
 const faviconLit = withBase("/favicon.svg");
 const faviconPng = withBase("/favicon.png");
+const path = Astro.url.pathname;
 
-const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
+const bodyClasses = ["kusabi-site", bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
   .filter(Boolean)
   .join(" ");
 ---
@@ -49,6 +50,7 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
     <meta name="twitter:description" content={description} />
     <meta name="twitter:image" content={resolvedOgImage} />
     <ClientRouter />
+    <slot name="head" />
     <!-- Immediate Reading Settings Restoration to prevent FOUC -->
     <script is:inline>
       (function() {
@@ -56,17 +58,17 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
           const size = localStorage.getItem("kusabi:settings:font-size") || "normal";
           const height = localStorage.getItem("kusabi:settings:line-height") || "normal";
           const palette = localStorage.getItem("kusabi:settings:palette") || "abyssal";
-          
+
           document.documentElement.setAttribute("data-palette", palette);
-          
+
           let sizeVal = "18px";
           if (size === "small") sizeVal = "15px";
           else if (size === "large") sizeVal = "22px";
           else if (size === "xl") sizeVal = "26px";
-          
+
           let heightVal = "1.85";
           if (height === "loose") heightVal = "2.25";
-          
+
           document.documentElement.style.setProperty("--reading-size", sizeVal);
           document.documentElement.style.setProperty("--line-height-body", heightVal);
         } catch(e) {}
@@ -80,14 +82,28 @@ const bodyClasses = [bodyClass, showTopBar ? "has-topbar" : "no-topbar"]
     {showTopBar && (
       <header class="kusabi-topbar">
         <a href={withBase("/kusabi/")} class="kusabi-topbar-mark">KUSABI</a>
-        <nav class="kusabi-topbar-nav">
-          <a href={withBase("/")} class="kusabi-topbar-link" data-astro-reload>HUB</a>
-          <a href={withBase("/kusabi/characters/")} class="kusabi-topbar-link">CHARACTER</a>
+        <nav class="kusabi-topbar-nav" aria-label="เมนูเรื่องบ้านคุซาบิ">
+          <a href={withBase("/")} class="kusabi-topbar-link" data-astro-reload>ฮับ</a>
+          <a
+            href={withBase("/kusabi/characters/")}
+            class="kusabi-topbar-link"
+            aria-current={path.includes("/kusabi/characters") ? "page" : undefined}
+          >ตัวละคร</a>
+          <a
+            href={withBase("/kusabi/extra/")}
+            class="kusabi-topbar-link"
+            aria-current={path.includes("/kusabi/extra") ? "page" : undefined}
+          >ส่วนเสริม</a>
+          <a
+            href={withBase("/kusabi/case-map/")}
+            class="kusabi-topbar-link"
+            aria-current={path.includes("/kusabi/case-map") ? "page" : undefined}
+          >แผนผัง</a>
           <button class="kusabi-topbar-link kusabi-audio-btn" type="button" data-tape-panel-trigger aria-label="ตั้งค่าการอ่านและเสียง">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="kusabi-settings-icon" style="width: 14px; height: 14px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <circle cx="12" cy="12" r="3"></circle>
               <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-            </svg>SETTINGS
+            </svg><span class="kusabi-settings-word">ตั้งค่า</span>
           </button>
         </nav>
       </header>

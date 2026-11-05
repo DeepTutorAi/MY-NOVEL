@@ -1,0 +1,225 @@
+---
+// The opening cutscene of a chapter, a native <dialog> opened by the shared
+// runner through src/scripts/kusabi/cutscene/index.ts. The epigraph is a real
+// paragraph for screen readers; the stage is decorative. The inline gate hides
+// the page before first paint on a visit that will play, and mirrors shouldPlay()
+// and playedToday() in _shared/cutscene/core.ts; cutscene-gate.test.ts evaluates
+// the code between the markers against core.ts.
+interface Props {
+  chapter: number;
+  epigraph: string;
+  label: string;
+}
+
+const { chapter, epigraph, label } = Astro.props;
+---
+
+<dialog
+  class="kusabi-cutscene"
+  data-chapter={chapter}
+  data-state="idle"
+  data-dev={import.meta.env.DEV ? "" : undefined}
+  aria-label={label}
+  aria-describedby="cutscene-text"
+>
+  <div class="kusabi-cutscene__stage" data-cutscene-stage aria-hidden="true"></div>
+  <div class="kusabi-cutscene__card">
+    <p class="kusabi-cutscene__text" id="cutscene-text" data-cutscene-text>{epigraph}</p>
+    <button type="button" class="kusabi-cutscene__button" data-cutscene-start hidden>เดินทางต่อ</button>
+  </div>
+  <button type="button" class="kusabi-cutscene__button kusabi-cutscene__skip" data-cutscene-skip autofocus>ข้าม</button>
+  <div class="kusabi-cutscene__controls" data-cutscene-controls></div>
+</dialog>
+
+<script is:inline>
+  (() => {
+    const COVER = "kusabi-cutscene-pending";
+    // gate:begin (evaluated by src/scripts/kusabi/cutscene/cutscene-gate.test.ts; plain ES5-style JS, no outer names)
+    function playedToday(stored, now) {
+      var text = typeof stored === "string" ? stored.trim() : "";
+      if (text === "") return false;
+      var at = /^-?\d+$/.test(text) ? Number(text) : Date.parse(text);
+      if (!isFinite(at) || at < 0 || at > 8.64e15) return false;
+      var start = new Date(now.getTime());
+      start.setHours(6, 0, 0, 0);
+      if (start.getTime() > now.getTime()) start.setDate(start.getDate() - 1);
+      var end = new Date(start.getTime());
+      end.setDate(end.getDate() + 1);
+      return at >= start.getTime() && at < end.getTime();
+    }
+    function covers(search, traverse, stored, now, dev) {
+      var params = new URLSearchParams(search);
+      var mode = params.get("cutscene");
+      if (mode === "replay" || (mode === "force" && dev)) return true;
+      return params.get("resume") !== "1" && !traverse && !playedToday(stored, now);
+    }
+    // gate:end
+    if (window.__kusabiCutsceneNav) return;
+    const entry = performance.getEntriesByType("navigation")[0];
+    const nav = (window.__kusabiCutsceneNav = {
+      traverse: document.readyState === "loading" && !!entry && entry.type === "back_forward",
+    });
+    let timer = 0;
+    let waitVisible = null;
+    const disarm = () => {
+      window.clearTimeout(timer);
+      if (waitVisible) document.removeEventListener("visibilitychange", waitVisible);
+      waitVisible = null;
+    };
+    const arm = (ms) => {
+      disarm();
+      const start = () => {
+        timer = window.setTimeout(() => document.documentElement.classList.remove(COVER), ms);
+      };
+      if (!document.hidden) return start();
+      waitVisible = () => {
+        if (document.hidden) return;
+        disarm();
+        start();
+      };
+      document.addEventListener("visibilitychange", waitVisible);
+    };
+    nav.hold = (ms) => {
+      if (document.documentElement.classList.contains(COVER)) arm(ms);
+    };
+    const cover = () => {
+      nav.path = location.pathname;
+      nav.search = location.search;
+      disarm();
+      const dialog = document.querySelector("dialog.kusabi-cutscene");
+      if (!dialog) return;
+      let stored = null;
+      try {
+        stored = localStorage.getItem("kusabi:cutscene:played:" + dialog.dataset.chapter);
+      } catch (e) {}
+      if (!covers(location.search, nav.traverse, stored, new Date(), dialog.hasAttribute("data-dev"))) return;
+      document.documentElement.classList.add(COVER);
+      arm(2500);
+    };
+    document.addEventListener("astro:before-preparation", (event) => {
+      nav.traverse = event.navigationType === "traverse";
+    });
+    document.addEventListener("astro:after-swap", cover);
+    cover();
+  })();
+</script>
+
+<style is:global>
+  html.kusabi-cutscene-pending body::after {
+    position: fixed;
+    inset: 0;
+    z-index: 2147483647;
+    background: #080606;
+    content: "";
+  }
+
+  .kusabi-cutscene {
+    inline-size: 100vw;
+    max-inline-size: 100vw;
+    block-size: 100vh;
+    block-size: 100dvh;
+    max-block-size: 100dvh;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    background: #080606;
+    color: var(--kusabi-ink);
+  }
+
+  .kusabi-cutscene[open] {
+    display: grid;
+  }
+
+  .kusabi-cutscene::backdrop {
+    background: #080606;
+  }
+
+  .kusabi-cutscene__stage {
+    grid-area: 1 / 1;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kusabi-cutscene__canvas {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  .kusabi-cutscene__card {
+    grid-area: 1 / 1;
+    position: relative;
+    display: grid;
+    align-content: center;
+    justify-items: center;
+    gap: clamp(1.4rem, 5vmin, 2.6rem);
+    padding: max(4.25rem, env(safe-area-inset-top)) 1.25rem max(5.5rem, env(safe-area-inset-bottom));
+    background: radial-gradient(ellipse 70% 55% at 50% 50%, rgba(8, 6, 6, 0.6), transparent 78%);
+    text-align: center;
+    pointer-events: none;
+  }
+
+  .kusabi-cutscene__text {
+    max-width: min(34rem, 100%);
+    margin: 0;
+    color: var(--kusabi-ink);
+    font-family: var(--font-thai);
+    font-size: clamp(1.05rem, 0.86rem + 1.1vmin, 1.35rem);
+    line-height: 1.95;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.95);
+    text-wrap: pretty;
+  }
+
+  /* Opacity in steps, without a transition, so Thai lines never reflow and the
+     text repaints about ten times a second instead of on every frame. */
+  .kusabi-cutscene__text[data-reveal] .kusabi-cutscene__g {
+    opacity: 0;
+  }
+
+  .kusabi-cutscene__text[data-reveal] .kusabi-cutscene__g.is-shown {
+    opacity: 1;
+  }
+
+  .kusabi-cutscene__button {
+    min-width: 44px;
+    min-height: 44px;
+    padding: 0.55rem 1.3rem;
+    border: 1px solid rgba(216, 209, 194, 0.42);
+    background: rgba(8, 6, 6, 0.62);
+    color: var(--kusabi-ink);
+    font-family: var(--font-thai);
+    font-size: 0.95rem;
+    cursor: pointer;
+    pointer-events: auto;
+  }
+
+  .kusabi-cutscene__button:hover {
+    border-color: rgba(236, 230, 230, 0.85);
+  }
+
+  .kusabi-cutscene__skip {
+    position: relative;
+    grid-area: 1 / 1;
+    justify-self: end;
+    align-self: end;
+    margin: 0 max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) 0;
+  }
+
+  .kusabi-cutscene__controls {
+    position: relative;
+    grid-area: 1 / 1;
+    justify-self: start;
+    align-self: end;
+    margin: 0 0 max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  }
+
+  .kusabi-cutscene__skip[hidden],
+  .kusabi-cutscene__button[hidden],
+  .kusabi-cutscene__controls:empty,
+  .kusabi-cutscene[data-mode="still"] .kusabi-cutscene__controls {
+    display: none;
+  }
+</style>

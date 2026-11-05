@@ -7,7 +7,7 @@
 The existing character and costume direction is based on the Shion Madoka
 murderer costume draft at:
 
-`public/assets/kusabi/images/characters/drafts/shion-madoka-killer-draft-v1.png`
+`output/kusabi-art-source/characters/drafts/shion-madoka-killer-draft-v1.png`
 
 The linework below was separately approved as PASS on 2026-09-23 from a
 text-only Arai Ryoya study using the written Tsukinomi style direction. No
@@ -65,59 +65,59 @@ in the story files.
 
 The approved Arai Ryoya, Nao Amamiya, Kaito Sakuraba, Risa Asahina, Misaki
 Kurosawa, Ayame Hirasaka, and Shion Madoka version 2 drafts are stored in the separate
-`public/assets/kusabi/images/characters/drafts-v2/` directory. Their version 1
+`output/kusabi-art-source/characters/drafts-v2/` directory. Their version 1
 drafts remain in `drafts/` unchanged.
 
 - Arai Ryoya, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/arai-ryoya-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/arai-ryoya-draft-v2.png`
   — ordinary university student with guarded eyes and a composed, confident
   presence. Version 1 remains at
-  `public/assets/kusabi/images/characters/drafts/arai-ryoya-draft-v1.png`.
+  `output/kusabi-art-source/characters/drafts/arai-ryoya-draft-v1.png`.
 - Nao Amamiya, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/nao-amamiya-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/nao-amamiya-draft-v2.png`
   — lively summer-travel look with a camera and sling bag, one small understated
   hoop earring, and a brief unguarded flicker beneath his usual joking manner.
   Version 1 remains at
-  `public/assets/kusabi/images/characters/drafts/nao-amamiya-draft-v1.png`.
+  `output/kusabi-art-source/characters/drafts/nao-amamiya-draft-v1.png`.
 - Kaito Sakuraba, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/kaito-sakuraba-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/kaito-sakuraba-draft-v2.png`
   — short hair, a capable and approachable presence, and casual summer-travel
   clothes. Version 1 remains at
-  `public/assets/kusabi/images/characters/drafts/kaito-sakuraba-draft-v1.png`.
+  `output/kusabi-art-source/characters/drafts/kaito-sakuraba-draft-v1.png`.
 - Risa Asahina, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/risa-asahina-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/risa-asahina-draft-v2.png`
   — monochrome manga linework, long softly curled hair, sunglasses, delicate
   asymmetrical earrings, and a casual early-2010s summer-travel look. Her prior
   drafts remain in `drafts/` as earlier studies.
 - Misaki Kurosawa, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/misaki-kurosawa-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/misaki-kurosawa-draft-v2.png`
   — short dark bob, a direct guarded gaze, and practical summer-travel styling.
   Version 1 remains at
-  `public/assets/kusabi/images/characters/drafts/misaki-kurosawa-draft-v1.png`.
+  `output/kusabi-art-source/characters/drafts/misaki-kurosawa-draft-v1.png`.
 - Ayame Hirasaka, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/ayame-hirasaka-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/ayame-hirasaka-draft-v2.png`
   — clean grayscale shoujo / light-novel anime rendering; long straight black
   hair, ivory field blouse, muted gray long skirt, shoulder bag, and cassette
   player. Her gentle beauty stays human, sincere, and quietly strong. Version 1
   remains at
-  `public/assets/kusabi/images/characters/drafts/ayame-hirasaka-draft-v1.png`.
-- Unnamed ryokan owner: `public/assets/kusabi/images/characters/drafts/ryokan-owner-draft-v1.png`
+  `output/kusabi-art-source/characters/drafts/ayame-hirasaka-draft-v1.png`.
+- Unnamed ryokan owner: `output/kusabi-art-source/characters/drafts/ryokan-owner-draft-v1.png`
   — mature, middle-aged woman with dark hair touched with silver and gathered
   into a low bun; practical charcoal-indigo kimono and apron, room keys, and a
   guest ledger. Her welcoming expression carries a restrained, watchful unease.
   Her exact name and age remain unspecified in this visual reference.
 - Shion Madoka, ordinary ryokan-helper appearance, version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/shion-madoka-caretaker-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/shion-madoka-caretaker-draft-v2.png`
   — quiet, tied-back dark hair, glasses, kimono-style work clothes, and gently
   closed eyes; a visual proposal for his normalcy persona. Version 1 remains at
-  `public/assets/kusabi/images/characters/drafts/shion-madoka-caretaker-draft-v1.png`.
+  `output/kusabi-art-source/characters/drafts/shion-madoka-caretaker-draft-v1.png`.
 - Shion Madoka, murderer guise, masked version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/shion-madoka-killer-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/shion-madoka-killer-draft-v2.png`
   — primary horror silhouette with the old wooden mask and long black wig.
   Version 1 remains at
-  `public/assets/kusabi/images/characters/drafts/shion-madoka-killer-draft-v1.png`.
+  `output/kusabi-art-source/characters/drafts/shion-madoka-killer-draft-v1.png`.
 - Shion Madoka, murderer guise, unmasked version 2:
-  `public/assets/kusabi/images/characters/drafts-v2/shion-madoka-killer-unmasked-draft-v2.png`
+  `output/kusabi-art-source/characters/drafts-v2/shion-madoka-killer-unmasked-draft-v2.png`
   — rare human reveal with his natural tied-back hair, no glasses, and a quiet,
   unsettling open-eyed gaze. This is a reveal study, not the default horror
   silhouette.

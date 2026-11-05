@@ -1,0 +1,520 @@
+---
+import KusabiBaseLayout from "../../layouts/kusabi/KusabiBaseLayout.astro";
+import { withBase } from "../../utils/base-path";
+
+// Nothing in this HTML names a room or an event. Questions and the recap come from
+// the vault after the epilogue is finished (scripts/kusabi/case-map/case-map.ts).
+const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
+---
+
+<KusabiBaseLayout
+  title="แผนผัง · บ้านคุซาบิบนเขาคุโระมิโซะ"
+  description="ผังที่ปักหมุดไว้ เปิดได้หลังอ่านจบและตอบคำถามผ่าน"
+  bodyClass="kusabi-case-map"
+>
+  <main class="kusabi-page casemap">
+    <header class="kusabi-page-head">
+      <p class="kusabi-kicker">Pinned Plan</p>
+      <h1>แผนผัง</h1>
+      <p data-map-lead>หน้านี้เฉลยทั้งเรื่อง จึงเปิดให้เฉพาะคนที่อ่านจบแล้ว</p>
+    </header>
+
+    <section class="map-locked" data-map-locked>
+      <p>อ่านบทส่งท้ายจบก่อน แล้วแผงตัวเลขของหน้านี้จะเปิดให้ลอง</p>
+      <a class="kusabi-strip" href={withBase("/kusabi/#kusabi-shelf")}>กลับชั้นเทป</a>
+    </section>
+
+    <section class="quiz" data-quiz hidden aria-labelledby="quiz-heading">
+      <h2 id="quiz-heading">ตอบให้ได้สี่ข้อ แต่ละข้อจะให้เลขหนึ่งหลัก</h2>
+      <p class="quiz-lead">ตอบผิดได้ไม่จำกัด ไม่มีอะไรหายไป ถ้าจำไม่ได้ลองกลับไปอ่านตามคำใบ้</p>
+      <ol class="quiz-digits" data-quiz-digits aria-label="เลขที่ได้แล้ว"></ol>
+      <form class="quiz-card" data-quiz-form>
+        <label class="quiz-question" for="quiz-answer" data-quiz-text></label>
+        <div class="quiz-row">
+          <input id="quiz-answer" type="text" autocomplete="off" spellcheck="false" data-quiz-input />
+          <button type="submit" class="kusabi-strip">ตอบ</button>
+        </div>
+        <p class="quiz-error" data-quiz-error role="status" hidden></p>
+      </form>
+    </section>
+
+    <section class="keypad" data-keypad hidden aria-labelledby="keypad-heading">
+      <h2 id="keypad-heading">กดเลขทั้งสี่ตามลำดับบนแผง</h2>
+      <div class="keypad-panel">
+        <div class="keypad-holes" aria-live="polite" data-keypad-holes>
+          <span></span><span></span><span></span><span></span>
+        </div>
+        <div class="keypad-keys">
+          {keys.map((key) => <button type="button" class="key" data-key={key}>{key}</button>)}
+          <button type="button" class="key key-word" data-key-clear>ลบ</button>
+          <button type="button" class="key" data-key="0">0</button>
+          <button type="button" class="key key-word" data-key-enter>กด</button>
+        </div>
+      </div>
+      <p class="quiz-error" data-keypad-error role="status" hidden>เลขไม่ตรงกับที่ได้มา ลองกดใหม่อีกครั้ง</p>
+    </section>
+
+    <section class="map-open" data-map-open hidden aria-label="แผนผังและสรุปเรื่อง">
+      <div class="plan" data-plan data-lifted="false">
+        <svg class="plan-lines" viewBox="0 0 1000 640" aria-hidden="true" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <!-- The house, drawn over itself the way ch11:287 describes. -->
+          <path d="M60 90 L940 92 L938 430 L62 428 Z" stroke-width="2.4" />
+          <path d="M63 88 L938 95 M64 431 L936 428" stroke-width="0.9" opacity="0.6" />
+          <path d="M440 92 L440 428 M560 92 L560 428" stroke-width="1.6" />
+          <path d="M60 240 L440 240 M250 92 L250 240 M250 240 L250 428" stroke-width="1.4" />
+          <path d="M560 180 L938 180 M560 268 L938 268 M820 180 L820 268" stroke-width="1.4" />
+          <path d="M565 176 L930 186 M566 272 L930 264" stroke-width="0.8" opacity="0.55" />
+          <path d="M470 150 h60 M470 170 h60 M470 190 h60 M470 210 h60 M470 230 h60 M470 150 v80 M530 150 v80" stroke-width="1" />
+          <path d="M480 428 L480 452 M520 428 L520 452" stroke-width="1.4" />
+          <path d="M500 452 L500 620" stroke-width="1" stroke-dasharray="3 7" />
+          <!-- Second floor, set apart. -->
+          <path d="M700 12 h200 v66 h-200 Z" stroke-width="1.4" />
+          <path d="M700 40 h-46 l-22 52" stroke-width="0.9" stroke-dasharray="4 5" />
+          <!-- Under the paper: from the hall, behind the wall, to rectangles with no name (ch11:291). -->
+          <g class="plan-under">
+            <path d="M500 240 L500 470 L420 470" stroke-width="1.6" stroke-dasharray="7 5" />
+            <path d="M330 470 h180 v90 h-180 Z" stroke-width="1.8" />
+            <path d="M510 516 L620 536" stroke-width="1.6" stroke-dasharray="7 5" />
+            <path d="M620 490 h160 v92 h-160 Z" stroke-width="1.8" />
+            <path d="M880 320 L880 470 L780 520" stroke-width="1" stroke-dasharray="3 6" />
+          </g>
+        </svg>
+        <div class="plan-pins" data-plan-pins></div>
+        <button type="button" class="plan-lift" data-plan-lift aria-pressed="false">ดึงขอบกระดาษขึ้น</button>
+      </div>
+      <p class="plan-note">ผังนี้วาดตามที่เรื่องเล่า ไม่ได้ระบุสัดส่วนจริง</p>
+
+      <section class="map-part">
+        <h2>เส้นทางคืนนั้น</h2>
+        <ol class="stops" data-stops></ol>
+      </section>
+
+      <div class="map-columns">
+        <section class="map-part">
+          <h2>เวลาในคืนนั้น</h2>
+          <ol class="night" data-night></ol>
+        </section>
+        <section class="map-part">
+          <h2>ใครรู้อะไรเมื่อไร</h2>
+          <ul class="knows" data-knows></ul>
+        </section>
+      </div>
+
+      <section class="map-part">
+        <h2>ม้วนเทปที่เรื่องเล่าถึง</h2>
+        <ul class="ledger" data-ledger></ul>
+      </section>
+
+      <section class="map-part" data-history-wrap hidden>
+        <h2>ก่อนคืนนั้น</h2>
+        <ol class="night" data-history></ol>
+      </section>
+      <p class="plan-note" data-history-hint>ยังมีอีกส่วนหนึ่งของผังนี้ จะเปิดเมื่ออ่านเรื่องเสริมตอนที่ 4 จบ</p>
+    </section>
+  </main>
+
+  <script>
+    import { onPage } from "../../scripts/_shared/lifecycle";
+    import { setupCaseMap } from "../../scripts/kusabi/case-map/case-map";
+
+    onPage("kusabi-case-map", { bodyClass: "kusabi-case-map" }, () => setupCaseMap());
+  </script>
+
+  <style is:global>
+    .map-locked {
+      display: grid;
+      gap: 1rem;
+      justify-items: start;
+      max-width: 34rem;
+    }
+
+    .map-locked p {
+      margin: 0;
+      color: var(--kusabi-ink-dim);
+    }
+
+    .quiz,
+    .keypad {
+      display: grid;
+      gap: 0.9rem;
+      max-width: 34rem;
+    }
+
+    .keypad {
+      margin-top: 1.75rem;
+    }
+
+    .quiz h2,
+    .keypad h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .quiz-lead {
+      margin: 0;
+      color: var(--kusabi-ink-dim);
+      font-size: 0.9rem;
+    }
+
+    .quiz-digits {
+      display: flex;
+      gap: 6px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .quiz-digits li {
+      display: grid;
+      place-items: center;
+      width: 2.6rem;
+      height: 3rem;
+      border: 1px solid var(--kusabi-stone-line);
+      background: rgba(22, 19, 17, 0.9);
+      color: var(--kusabi-ink-dim);
+      font-family: var(--font-mono);
+    }
+
+    .quiz-digits li[data-done="true"] {
+      background: var(--kusabi-label);
+      color: var(--kusabi-label-ink);
+      font-family: var(--font-hand);
+      font-size: 1.3rem;
+    }
+
+    .quiz-card {
+      display: grid;
+      gap: 0.7rem;
+      padding: 1rem;
+      border: 1px solid var(--kusabi-stone-line);
+      background: rgba(22, 19, 17, 0.92);
+    }
+
+    .quiz-question {
+      font-size: 1.02rem;
+      line-height: 1.6;
+    }
+
+    .quiz-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .quiz-row input {
+      flex: 1 1 12rem;
+      min-height: 44px;
+      min-width: 0;
+      padding: 0 0.75rem;
+      border: 1px solid var(--kusabi-stone-3);
+      background: rgba(0, 0, 0, 0.3);
+      color: var(--kusabi-ink);
+      font-family: var(--font-thai);
+      font-size: 1rem;
+    }
+
+    .quiz-error {
+      margin: 0;
+      color: var(--kusabi-accent-bright);
+      font-size: 0.88rem;
+    }
+
+    .keypad-panel {
+      display: grid;
+      gap: 0.8rem;
+      justify-items: center;
+      width: min(100%, 17rem);
+      padding: 1rem;
+      border: 1px solid var(--kusabi-stone-3);
+      background: linear-gradient(180deg, #34302c, #1d1a17);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 12px 30px rgba(0, 0, 0, 0.45);
+    }
+
+    .keypad-holes {
+      display: flex;
+      gap: 8px;
+    }
+
+    .keypad-holes span {
+      display: grid;
+      place-items: center;
+      width: 2.5rem;
+      height: 2.5rem;
+      border-radius: 50%;
+      background: #0b0908;
+      box-shadow: inset 0 2px 4px #000;
+      color: var(--kusabi-lamp);
+      font-family: var(--font-mono);
+    }
+
+    .keypad-keys {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 6px;
+      width: 100%;
+    }
+
+    .key {
+      min-height: 48px;
+      border: 1px solid rgba(0, 0, 0, 0.6);
+      background: linear-gradient(180deg, #4a4540, #2e2a26);
+      color: var(--kusabi-ink);
+      font-family: var(--font-mono);
+      font-size: 1.05rem;
+      cursor: pointer;
+    }
+
+    .key:active {
+      background: #25221f;
+    }
+
+    .key-word {
+      font-family: var(--font-thai);
+      font-size: 0.9rem;
+    }
+
+    .keypad[data-wrong="true"] .keypad-panel {
+      animation: keypad-no 300ms ease-in-out 1;
+    }
+
+    @keyframes keypad-no {
+      25% {
+        transform: translateX(-5px);
+      }
+      75% {
+        transform: translateX(5px);
+      }
+    }
+
+    /* The pinned plan: pale paper, pencil, coloured pins. */
+    .plan {
+      position: relative;
+      width: min(100%, 880px);
+      margin: 0 auto;
+      aspect-ratio: 1000 / 640;
+      background:
+        linear-gradient(180deg, rgba(0, 0, 0, 0.04), rgba(0, 0, 0, 0.1)),
+        var(--kusabi-label);
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      color: #38312a;
+    }
+
+    .plan-lines {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    .plan-under {
+      opacity: 0;
+      transition: opacity 600ms ease;
+    }
+
+    .plan[data-lifted="true"] .plan-under {
+      opacity: 1;
+    }
+
+    .plan-pins {
+      position: absolute;
+      inset: 0;
+    }
+
+    .pin {
+      position: absolute;
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      margin: -22px 0 0 -22px;
+      padding: 0;
+      border: 0;
+      background: none;
+      cursor: pointer;
+    }
+
+    .pin span {
+      display: grid;
+      place-items: center;
+      width: 25px;
+      height: 25px;
+      border-radius: 50%;
+      background: #a3261f;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      color: #fff;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+    }
+
+    .pin[aria-pressed="true"] span {
+      background: #1d1a17;
+      outline: 2px solid #a3261f;
+    }
+
+    .pin[hidden] {
+      display: none;
+    }
+
+    .plan-lift {
+      position: absolute;
+      right: 0;
+      bottom: 0;
+      min-height: 44px;
+      padding: 0.3rem 0.8rem;
+      border: 0;
+      background: linear-gradient(315deg, #8e887b 0 18%, #b7b0a2 20%);
+      color: #231e1a;
+      font-family: var(--font-hand);
+      font-size: 0.92rem;
+      cursor: pointer;
+    }
+
+    .plan-note {
+      margin: 0.7rem 0 0;
+      color: var(--kusabi-ink-dim);
+      font-size: 0.8rem;
+      text-align: center;
+    }
+
+    .map-part {
+      display: grid;
+      gap: 0.8rem;
+      margin-top: 2.75rem;
+    }
+
+    .map-part h2 {
+      margin: 0;
+      font-size: 1.2rem;
+    }
+
+    .stops {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .stop {
+      display: grid;
+      grid-template-columns: 2rem minmax(0, 1fr);
+      gap: 10px;
+      padding: 0.7rem 0.8rem;
+      border: 1px solid var(--kusabi-stone-line);
+      background: rgba(22, 19, 17, 0.92);
+      scroll-margin-top: calc(var(--kusabi-topbar-height) + 1rem);
+    }
+
+    .stop[data-active="true"] {
+      border-color: var(--kusabi-accent);
+    }
+
+    .stop-no {
+      color: var(--kusabi-accent-bright);
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+    }
+
+    .stop-place {
+      margin: 0;
+      font-weight: 700;
+    }
+
+    .stop-chapter {
+      margin: 0;
+      color: var(--kusabi-ink-dim);
+      font-size: 0.76rem;
+    }
+
+    .stop-text {
+      margin: 0.25rem 0 0;
+      font-size: 0.93rem;
+      line-height: 1.7;
+    }
+
+    .map-columns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+      gap: 0 2rem;
+    }
+
+    .night,
+    .knows,
+    .ledger {
+      display: grid;
+      gap: 0.5rem;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      font-size: 0.93rem;
+    }
+
+    .night li {
+      display: grid;
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      gap: 10px;
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid var(--kusabi-stone-line);
+    }
+
+    .night small,
+    .knows small,
+    .ledger small {
+      color: var(--kusabi-ink-dim);
+      font-size: 0.78rem;
+    }
+
+    .knows li {
+      padding-bottom: 0.45rem;
+      border-bottom: 1px solid var(--kusabi-stone-line);
+    }
+
+    .knows strong {
+      font-weight: 700;
+    }
+
+    .ledger li {
+      display: grid;
+      grid-template-columns: 6.5rem minmax(0, 1fr);
+      gap: 12px;
+      align-items: start;
+    }
+
+    .ledger-label {
+      padding: 0 0.5rem;
+      background: var(--kusabi-label);
+      color: var(--kusabi-label-ink);
+      font-family: var(--font-hand);
+      text-align: center;
+    }
+
+    @media (max-width: 560px) {
+      .pin span {
+        width: 20px;
+        height: 20px;
+        font-size: 0.62rem;
+      }
+
+      /* Small enough to leave the last hidden room clear on a phone. */
+      .plan-lift {
+        padding: 0.2rem 0.45rem;
+        font-size: 0.72rem;
+      }
+
+      .night li {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 0;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .keypad[data-wrong="true"] .keypad-panel {
+        animation: none;
+      }
+
+      .plan-under {
+        transition: none;
+      }
+    }
+  </style>
+</KusabiBaseLayout>

@@ -1,0 +1,86 @@
+---
+import { getCollection, render, type CollectionEntry } from "astro:content";
+import EndOfTape from "../../../components/kusabi/reading/EndOfTape.astro";
+import TapeHeader from "../../../components/kusabi/reading/TapeHeader.astro";
+import KusabiChapterLayout from "../../../layouts/kusabi/KusabiChapterLayout.astro";
+import { withBase } from "../../../utils/base-path";
+
+// An entry marked draft (E05 until the author decides) has no page in production.
+export async function getStaticPaths() {
+  const extras = (await getCollection("kusabiExtras"))
+    .filter((extra) => import.meta.env.DEV || !extra.data.draft)
+    .sort((a, b) => a.data.number - b.data.number);
+  return extras.map((extra) => ({
+    params: { slug: extra.data.slug },
+    props: { extra, extras },
+  }));
+}
+
+interface Props {
+  extra: CollectionEntry<"kusabiExtras">;
+  extras: CollectionEntry<"kusabiExtras">[];
+}
+
+const { extra, extras } = Astro.props;
+const { Content } = await render(extra);
+const index = extras.findIndex((item) => item.id === extra.id);
+const previous = index > 0 ? extras[index - 1] : undefined;
+const next = index >= 0 ? extras[index + 1] : undefined;
+const label = `เรื่องเสริม ${extra.data.number}`;
+---
+
+<KusabiChapterLayout
+  title={`${label} · บ้านคุซาบิบนเขาคุโระมิโซะ`}
+  description="เรื่องเสริมของบ้านคุซาบิ เปิดอ่านได้หลังอ่านบทส่งท้ายจบ"
+  unitId={extra.data.slug}
+  unitKind="extra"
+  number={extra.data.number}
+  unitTitle={extra.data.title}
+  musicCueId="go-home"
+  gate={`extra-${extra.data.slug}`}
+>
+  <section slot="gate" class="reader-gate" data-reader-gate>
+    <p class="kusabi-kicker">{label}</p>
+    <h1>ม้วนนี้ยังไม่มีป้าย</h1>
+    <p>เรื่องเสริมเปิดทีละตอน ตอนแรกจะเปิดเมื่ออ่านบทส่งท้ายจบ</p>
+    <a class="kusabi-strip" href={withBase("/kusabi/extra/")}>กลับลิ้นชักล่าง</a>
+  </section>
+
+  <TapeHeader eyebrow={label} title={extra.data.title} dateline={extra.data.dateline} minutes={extra.data.readingMinutes} />
+  <div class="kusabi-prose">
+    <Content />
+  </div>
+  <EndOfTape
+    label={`จบ${label}`}
+    previous={
+      previous
+        ? { href: withBase(`/kusabi/extra/${previous.data.slug}/`), detail: "ม้วนก่อนหน้า", label: `เรื่องเสริม ${previous.data.number}` }
+        : { href: withBase("/kusabi/extra/"), detail: "กลับ", label: "ลิ้นชักล่าง" }
+    }
+    next={
+      next
+        ? { href: withBase(`/kusabi/extra/${next.data.slug}/`), detail: "ม้วนถัดไป", label: `เรื่องเสริม ${next.data.number}` }
+        : { href: withBase("/kusabi/extra/"), detail: "กลับ", label: "ลิ้นชักล่าง" }
+    }
+  />
+
+  <style is:global>
+    .reader-gate {
+      display: grid;
+      gap: 0.8rem;
+      justify-items: start;
+      max-width: 34rem;
+      margin: 4rem auto;
+    }
+
+    .reader-gate h1 {
+      margin: 0;
+      font-size: clamp(1.5rem, 4vw, 2rem);
+    }
+
+    .reader-gate p:not(.kusabi-kicker) {
+      margin: 0;
+      color: var(--kusabi-ink-dim);
+    }
+  </style>
+</KusabiChapterLayout>

@@ -23,9 +23,9 @@ The original PNG files and the earlier chapter 1 window image are kept in
 | `chapter-08-risa-corridor-image2-ln-hiking-pilot.webp` | CH08, at the corner before she vanishes | Loose hair, scarf on her forearm, hiking jacket, corner, boarded end | Risa returns Kaito's jacket at once, so both images hold; woven bag strap named |
 | `chapter-09-staircase-sound-ln-pilot.webp` | CH09, when Kaito asks for the torch | Kaito's open hand, Ryoya beside the pack, torch on the stairs, glasses intact | Stairs are wet from a ceiling leak |
 | `chapter-09-kaito-misaki-argument-window-fixed-pilot.webp` | CH09, after Misaki's accusation | Kaito grips his own collar, Misaki's unfallen tears, bolted boards, iron bed, wallpaper | None |
-| `chapter-10-risa-shion-ots-frontal-selected.webp` | CH10, after the scarf is laid on her lap | Rope, lap scarf, bulb, vent, cloth rail, player with open lid, water glass, face hidden | Jacket and bag removed by the captor; right cheek scraped in the abduction; robe has a faint floral weave and old stains; wig gathered low at the nape |
+| `chapter-10-risa-captive.webp` | CH10, after the scarf is laid on her lap | Rope, lap scarf, bulb, vent, cloth rail, player with open lid, water glass, face hidden | Jacket and bag removed by the captor; right cheek scraped in the abduction; robe has a faint floral weave and old stains; wig gathered low at the nape |
 | `chapter-11-nao-misaki-hidden-corridor-ln-pilot.webp` | CH11, at the foot of the hidden stairs | Brick floor, plaster on one side, timber frame and wires on the other, left leg bandaged | Misaki supports Nao with his hand on the wall while Ryoya walks ahead |
-| `chapter-12-shion-seated-player-beside-approved.webp` | CH12, when the gloved hand slips on the wound | Timber-panelled wall, right glove with mended stitches, wound under the left ribs, player at his hip, real hair | Player lid is closed with an unlabelled blank tape inside; thin blood line from the mouth |
+| `chapter-12-seated-player.webp` | CH12, when the gloved hand slips on the wound | Timber-panelled wall, right glove with mended stitches, wound under the left ribs, player at his hip, real hair | Player lid is closed with an unlabelled blank tape inside; thin blood line from the mouth |
 | `epilogue-hospital-reunion-watercolor-nao-smile-pilot.webp` | Epilogue, after everyone takes their places | Seating, Ryoya without glasses, Misaki's right arm, Kaito's right arm, Risa's wrists, Nao's hand | Dry clothes from the ryokan; plaster on Risa's right cheek; Kaito's head wrap; flower vase and easing rain; Nao's closed-eye smile |
 
 ## Open points the text cannot resolve
@@ -45,5 +45,4 @@ each website chapter matches its draft as of this pass. Later draft edits must b
 copied to `src/content/kusabi/chapters/` separately. The prologue page was not
 replaced from `00-prologue-v2.md`, and the Extra arc is not published.
 
-The CH10 filename contains the name `shion`. It appears in the image URL before the
-CH11-12 reveal. The alt text does not name him.
+The CH10 and CH12 files were renamed on 2026-11-05 (`chapter-10-risa-captive.webp`, `chapter-12-seated-player.webp`) so no image URL names Shion before the reveal.

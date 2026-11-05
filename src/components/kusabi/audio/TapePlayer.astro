@@ -14,7 +14,7 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
   <div class="tape-panel-header">
     <div class="tape-title-block">
       <span class="tape-brand">KUSABI DECK</span>
-      <span class="tape-model">TC-2026 THRILLER</span>
+      <span class="tape-model">TC-2012</span>
     </div>
     <button class="tape-close-btn" type="button" data-tape-close aria-label="ปิดแผงควบคุม">✕</button>
   </div>
@@ -163,33 +163,19 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
     <div class="setting-row flex-row">
       <span class="setting-label">เอฟเฟกต์ฝนและสายฟ้าพื้นหลัง</span>
       <label class="tape-switch">
-        <input type="checkbox" id="kusabi-rain-effect-toggle" checked />
+        <input type="checkbox" id="kusabi-rain-effect-toggle" checked aria-label="เอฟเฟกต์ฝนและสายฟ้าพื้นหลัง" />
+        <span class="switch-slider"></span>
+      </label>
+    </div>
+
+    <div class="setting-row flex-row">
+      <span class="setting-label">ร่องรอยซ่อนระหว่างอ่าน</span>
+      <label class="tape-switch">
+        <input type="checkbox" id="kusabi-marks-toggle" checked aria-label="ร่องรอยซ่อนระหว่างอ่าน" />
         <span class="switch-slider"></span>
       </label>
     </div>
   </div>
-</div>
-
-<!-- Floating Decorative Prop: Japanese Wind Bell (ระดิ่งลมโบราณ) -->
-<div
-  class="kusabi-corner-prop"
-  data-kusabi-bell
-  aria-hidden="true"
->
-  <svg class="kusabi-bell-svg" viewBox="0 0 100 220" width="70" height="154">
-    <!-- hanging thread -->
-    <line x1="50" y1="0" x2="50" y2="40" stroke="#8B1D18" stroke-width="2.5"></line>
-    <!-- bell body -->
-    <path d="M30,80 C30,45 70,45 70,80 L76,92 L24,92 Z" fill="#bfa37a" stroke="#8B1D18" stroke-width="2"></path>
-    <!-- bell clapper / ring loop -->
-    <circle cx="50" cy="92" r="3.5" fill="#ff4a40"></circle>
-    <!-- clapper hanger -->
-    <line x1="50" y1="92" x2="50" y2="125" stroke="#8B1D18" stroke-width="1.5"></line>
-    <!-- paper slip (tanzaku) -->
-    <rect x="42" y="125" width="16" height="55" rx="1.5" fill="#8B1D18" opacity="0.85"></rect>
-    <!-- bell design / tanzaku string details -->
-    <line x1="50" y1="135" x2="50" y2="170" stroke="#ff4a40" stroke-width="1.2" stroke-dasharray="2 4"></line>
-  </svg>
 </div>
 
 <script>
@@ -204,15 +190,14 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
   const LINE_HEIGHT_KEY = "kusabi:settings:line-height";
   const PALETTE_KEY = "kusabi:settings:palette";
   const MOTION_KEY = "kusabi:motion:backdrop";
+  const MARKS_KEY = "kusabi:settings:hidden-marks";
 
   const getElements = () => {
     const root = document.getElementById("kusabi-tape-panel");
-    const corner = document.querySelector("[data-kusabi-bell]");
     const topbarTrigger = document.querySelector("[data-tape-panel-trigger]");
 
     return {
       root,
-      corner,
       topbarTrigger,
       close: root?.querySelector("[data-tape-close]"),
       play: root?.querySelector("[data-tape-play]"),
@@ -224,6 +209,7 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
       cueNum: root?.querySelector("[data-tape-cue-num]"),
       status: root?.querySelector("[data-tape-status]"),
       rainToggle: root?.querySelector("#kusabi-rain-effect-toggle"),
+      marksToggle: root?.querySelector("#kusabi-marks-toggle"),
       soundscapeToggles: root?.querySelectorAll("[data-soundscape-toggle]"),
       soundscapeSliders: root?.querySelectorAll("[data-soundscape-volume]"),
       paletteBtns: root?.querySelectorAll("[data-setting-palette]"),
@@ -234,22 +220,8 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
 
   // Get current page music cue
   const currentPageCue = () => {
-    const article = document.querySelector("article.kusabi-prose");
-    
-    // We can mapping acts or chapters to their cues:
-    // Prologue (0) -> rain-hills
-    // If not found, check dataset.audioCue
-    const dataCue = article instanceof HTMLElement ? article.getAttribute("data-audio-cue") : undefined;
-    if (dataCue) return dataCue;
-
-    const chNum = Number(article instanceof HTMLElement ? article.dataset.chapter : -1);
-    if (chNum === 0) return "rain-hills";
-    if (chNum >= 1 && chNum <= 3) return "bells-fog";
-    if (chNum >= 4 && chNum <= 7) return "audio-room";
-    if (chNum >= 8 && chNum <= 11) return "bride-wedding";
-    if (chNum === 12) return "go-home";
-
-    return "rain-hills";
+    const article = document.querySelector("article[data-audio-cue]");
+    return article?.getAttribute("data-audio-cue") ?? "rain-hills";
   };
 
   const applyCueFromPage = () => {
@@ -263,7 +235,6 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
 
     els.root?.setAttribute("data-playing", String(enabled));
     els.root?.setAttribute("data-audio-status", audioStatus);
-    els.corner?.setAttribute("data-playing", String(enabled));
 
     // Play/Pause icon toggling
     if (els.play instanceof HTMLButtonElement) {
@@ -347,6 +318,10 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
 
     if (els.rainToggle instanceof HTMLInputElement) {
       els.rainToggle.checked = localStorage.getItem(MOTION_KEY) !== "false";
+    }
+
+    if (els.marksToggle instanceof HTMLInputElement) {
+      els.marksToggle.checked = localStorage.getItem(MARKS_KEY) !== "off";
     }
   };
 
@@ -523,6 +498,11 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
       const enabled = (e.target as HTMLInputElement).checked;
       localStorage.setItem(MOTION_KEY, String(enabled));
       window.dispatchEvent(new CustomEvent("kusabi:motion-change", { detail: enabled }));
+    });
+
+    els.marksToggle?.addEventListener("change", (e) => {
+      localStorage.setItem(MARKS_KEY, (e.target as HTMLInputElement).checked ? "on" : "off");
+      window.dispatchEvent(new CustomEvent("kusabi:marks-change"));
     });
   };
 
@@ -1067,57 +1047,6 @@ import { SOUNDSCAPES } from "../../../data/kusabi/audio-cues";
     background: #8B1D18;
     color: #FFFFFF;
     font-weight: bold;
-  }
-
-  /* Corner Floating Decorative Prop (Hanging Brass Bell / Wind Chime) */
-  .kusabi-corner-prop {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    z-index: 90;
-    pointer-events: none;
-    width: 80px;
-    height: 160px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transform-origin: top center;
-    animation: kusabi-bell-sway 6s ease-in-out infinite;
-  }
-
-  .kusabi-bell-svg {
-    display: block;
-    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.5));
-  }
-
-  @keyframes kusabi-bell-sway {
-    0%, 100% { transform: rotate(-5deg); }
-    50% { transform: rotate(5deg); }
-  }
-
-  /* Increase sway speed slightly when playing audio (wind/rain) */
-  .kusabi-corner-prop[data-playing="true"] {
-    animation: kusabi-bell-sway-active 3.5s ease-in-out infinite;
-  }
-
-  @keyframes kusabi-bell-sway-active {
-    0%, 100% { transform: rotate(-8deg); }
-    50% { transform: rotate(8deg); }
-  }
-
-  /* The bell hangs in the right gutter, which only exists beside a full-width
-     column; on narrower or short screens it would hang over the text. */
-  @media (max-width: 1023px), (orientation: landscape) and (max-height: 500px) {
-    .kusabi-corner-prop {
-      display: none;
-    }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .kusabi-corner-prop,
-    .kusabi-corner-prop[data-playing="true"] {
-      animation: none;
-    }
   }
 
   /* Reading settings override styles when applied */

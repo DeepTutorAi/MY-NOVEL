@@ -1,0 +1,218 @@
+---
+// What sits around the text on a reading page: the tape deck that counts
+// progress, the hidden marks, the unlock notice and the picture viewer.
+// None of it moves unless the reader scrolls, so it never competes with the text.
+---
+
+<div class="tape-deck" data-tape-deck role="presentation" aria-hidden="true">
+  <span class="deck-reel deck-reel-left"></span>
+  <span class="deck-digits" data-tape-digits>000</span>
+  <span class="deck-reel deck-reel-right"></span>
+</div>
+
+<div class="drift" data-drift hidden aria-hidden="true">
+  <span class="drift-dot"></span><span data-drift-text></span>
+</div>
+
+<p class="dont-rush" data-dont-rush hidden aria-hidden="true">อย่าเร่ง</p>
+
+<div class="unlock-toast" data-unlock-toast hidden role="status" aria-live="polite">
+  <span class="unlock-text" data-unlock-text></span>
+  <a class="unlock-go" data-unlock-link href="#">ดู</a>
+</div>
+
+<dialog class="lightbox" data-lightbox aria-label="ภาพขยาย">
+  <img src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" alt="" />
+  <button type="button" class="kusabi-ghost lightbox-close" data-lightbox-close>ปิด</button>
+</dialog>
+
+<style>
+  .tape-deck {
+    position: fixed;
+    right: max(16px, env(safe-area-inset-right));
+    bottom: max(16px, env(safe-area-inset-bottom));
+    z-index: 15;
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    padding: 6px 10px;
+    border: 1px solid var(--kusabi-stone-line);
+    background: rgba(14, 10, 10, 0.94);
+    pointer-events: none;
+  }
+
+  .deck-digits {
+    color: var(--kusabi-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    letter-spacing: 0.12em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .deck-reel {
+    --size: calc(20px * var(--reel, 1));
+    position: relative;
+    display: block;
+    width: 20px;
+    height: 20px;
+  }
+
+  .deck-reel::before {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: var(--size);
+    height: var(--size);
+    border: 1px solid var(--kusabi-ink-dim);
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.04);
+    content: "";
+    transform: translate(-50%, -50%);
+  }
+
+  .deck-reel::after {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 6px;
+    height: 6px;
+    background:
+      linear-gradient(var(--kusabi-ink-dim), var(--kusabi-ink-dim)) center / 100% 1px no-repeat,
+      linear-gradient(var(--kusabi-ink-dim), var(--kusabi-ink-dim)) center / 1px 100% no-repeat;
+    content: "";
+    transform: translate(-50%, -50%) rotate(var(--reel-turn, 0deg));
+  }
+
+  .deck-reel-left {
+    --reel: var(--reel-left, 1);
+  }
+
+  .deck-reel-right {
+    --reel: var(--reel-right, 0.58);
+  }
+
+  .drift {
+    position: fixed;
+    top: calc(var(--kusabi-topbar-height) + 10px);
+    left: max(14px, env(safe-area-inset-left));
+    z-index: 14;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--kusabi-ink-dim);
+    font-family: var(--font-mono);
+    font-size: 0.66rem;
+    letter-spacing: 0.08em;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+
+  .drift-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--kusabi-accent);
+    animation: drift-blink 2.8s steps(2, jump-none) infinite;
+  }
+
+  .drift[data-level="3"] .drift-dot {
+    border-radius: 0;
+    background: var(--kusabi-ink-dim);
+    animation: none;
+  }
+
+  @keyframes drift-blink {
+    50% {
+      opacity: 0.25;
+    }
+  }
+
+  .dont-rush {
+    position: fixed;
+    bottom: 22vh;
+    left: 50%;
+    z-index: 16;
+    margin: 0;
+    padding: 0.1rem 1rem;
+    background: var(--kusabi-label);
+    color: var(--kusabi-label-ink);
+    font-family: var(--font-hand);
+    font-size: 1.4rem;
+    opacity: 0;
+    transform: translateX(-50%) rotate(-1.5deg);
+    transition: opacity 400ms ease;
+    pointer-events: none;
+  }
+
+  .dont-rush:global(.is-visible) {
+    opacity: 0.94;
+  }
+
+  /* In the left margin on a wide screen, clear of the text column. */
+  .unlock-toast {
+    position: fixed;
+    bottom: max(16px, env(safe-area-inset-bottom));
+    left: max(16px, env(safe-area-inset-left));
+    z-index: 40;
+    display: flex;
+    gap: 0.9rem;
+    align-items: center;
+    max-width: min(20rem, calc(100vw - 2rem));
+    padding: 0.55rem 0.9rem;
+    border-left: 2px solid var(--kusabi-lamp);
+    background: rgb(12, 10, 9);
+    box-shadow: 0 1rem 2.5rem rgba(0, 0, 0, 0.55);
+    font-size: 0.88rem;
+    opacity: 0;
+    transform: translateY(1rem);
+    transition:
+      opacity 260ms ease,
+      transform 260ms ease;
+  }
+
+  .unlock-toast:global(.is-visible) {
+    opacity: 1;
+    transform: none;
+  }
+
+  .unlock-go {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 0 0.4rem;
+    color: var(--kusabi-lamp);
+    white-space: nowrap;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .drift-dot {
+      animation: none;
+    }
+
+    .dont-rush,
+    .unlock-toast {
+      transition: none;
+    }
+  }
+
+  @media (max-width: 560px) {
+    .unlock-toast {
+      bottom: calc(max(16px, env(safe-area-inset-bottom)) + 40px);
+    }
+
+    .tape-deck {
+      gap: 5px;
+      padding: 3px 7px;
+    }
+
+    .deck-digits {
+      font-size: 0.68rem;
+    }
+
+    .deck-reel {
+      --size: calc(14px * var(--reel, 1));
+      width: 14px;
+      height: 14px;
+    }
+  }
+</style>

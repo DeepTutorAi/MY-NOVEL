@@ -1,14 +1,14 @@
 ---
 import { getCollection, render, type CollectionEntry } from "astro:content";
+import EndOfTape from "../../../components/kusabi/reading/EndOfTape.astro";
+import TapeHeader from "../../../components/kusabi/reading/TapeHeader.astro";
+import { chapterLabel, EPILOGUE_NUMBER, PROLOGUE_NUMBER } from "../../../data/kusabi/chapter-label";
+import { EPIGRAPHS } from "../../../data/kusabi/epigraphs";
 import KusabiChapterLayout from "../../../layouts/kusabi/KusabiChapterLayout.astro";
 import { withBase } from "../../../utils/base-path";
-import { chapterLabel, EPILOGUE_NUMBER, PROLOGUE_NUMBER } from "../../../data/kusabi/chapter-label";
 
 export async function getStaticPaths() {
-  const chapters = (await getCollection("kusabiChapters")).sort(
-    (a, b) => a.data.number - b.data.number,
-  );
-
+  const chapters = (await getCollection("kusabiChapters")).sort((a, b) => a.data.number - b.data.number);
   return chapters.map((chapter) => ({
     params: { slug: chapter.id },
     props: { chapter, chapters },
@@ -22,200 +22,43 @@ interface Props {
 
 const { chapter, chapters } = Astro.props;
 const { Content } = await render(chapter);
-const currentIndex = chapters.findIndex((item) => item.id === chapter.id);
-const previous = currentIndex > 0 ? chapters[currentIndex - 1] : undefined;
-const next = currentIndex >= 0 && currentIndex < chapters.length - 1 ? chapters[currentIndex + 1] : undefined;
+const number = chapter.data.number;
+const index = chapters.findIndex((item) => item.id === chapter.id);
+const previous = index > 0 ? chapters[index - 1] : undefined;
+const next = index >= 0 ? chapters[index + 1] : undefined;
+const label = chapterLabel(number);
+const title = chapter.data.thaiTitle || chapter.data.title;
+const special = number === PROLOGUE_NUMBER || number === EPILOGUE_NUMBER;
+const reelMark = `ม้วนที่ ${String(number).padStart(2, "0")}`;
+const eyebrow = special ? label : `${reelMark} · ${chapter.data.actTitle}`;
 ---
 
-<KusabiChapterLayout chapter={chapter}>
-  <div class="kusabi-reader-container">
-    <div class="kusabi-title-section" style="margin-bottom: 4rem;">
-      <p class="kusabi-nav-label" style="color: var(--kusabi-accent); font-family: var(--font-mono); margin-bottom: 0.75rem;">
-        {chapter.data.number === PROLOGUE_NUMBER || chapter.data.number === EPILOGUE_NUMBER
-          ? chapterLabel(chapter.data.number)
-          : `${chapterLabel(chapter.data.number)} — ${chapter.data.actTitle}`}
-      </p>
-      <h1 class="kusabi-title" style="font-size: clamp(1.8rem, 4vw, 2.5rem); margin-bottom: 1.5rem;">
-        {chapter.data.thaiTitle || chapter.data.title}
-      </h1>
-      <div style="width: 60px; height: 1px; background: var(--kusabi-accent); margin: 0 auto;"></div>
-    </div>
-
-    <div class="kusabi-prose">
-      <Content />
-    </div>
-
-    <nav class="kusabi-reader-nav" aria-label="นำทางเนื้อเรื่อง">
-      {previous ? (
-        <a href={withBase(`/kusabi/chapters/${previous.id}/`)} class="kusabi-nav-button">
-          <span class="kusabi-nav-label">← ย้อนกลับ</span>
-          <span class="kusabi-nav-title">{chapterLabel(previous.data.number)}</span>
-        </a>
-      ) : (
-        <a href={withBase("/kusabi/")} class="kusabi-nav-button">
-          <span class="kusabi-nav-label">← เมนูหลัก</span>
-          <span class="kusabi-nav-title">สารบัญ</span>
-        </a>
-      )}
-
-      {next ? (
-        <a href={withBase(`/kusabi/chapters/${next.id}/`)} class="kusabi-nav-button" style="text-align: right;">
-          <span class="kusabi-nav-label">บทต่อไป →</span>
-          <span class="kusabi-nav-title">{chapterLabel(next.data.number)}</span>
-        </a>
-      ) : (
-        <a href={withBase("/kusabi/")} class="kusabi-nav-button" style="text-align: right;">
-          <span class="kusabi-nav-label">สิ้นสุดบทที่เปิดให้อ่าน →</span>
-          <span class="kusabi-nav-title">กลับสารบัญ</span>
-        </a>
-      )}
-    </nav>
+<KusabiChapterLayout
+  title={`${label}: ${title} · บ้านคุซาบิบนเขาคุโระมิโซะ`}
+  description={chapter.data.summary || `${label} ของบ้านคุซาบิบนเขาคุโระมิโซะ`}
+  unitId={chapter.id}
+  unitKind="chapter"
+  number={number}
+  unitTitle={title}
+  act={chapter.data.act}
+  musicCueId={chapter.data.musicCueId}
+  epigraph={EPIGRAPHS[number]}
+>
+  <TapeHeader eyebrow={eyebrow} title={title} minutes={chapter.data.readingMinutes} hasCutscene={Boolean(EPIGRAPHS[number])} />
+  <div class="kusabi-prose">
+    <Content />
   </div>
-
-  <script
-    is:inline
-    define:vars={{
-      chapterId: chapter.id,
-      chapterNumber: chapter.data.number,
-      chapterTitle: chapter.data.thaiTitle || chapter.data.title,
-    }}
-  >
-    const initKusabiReader = () => {
-      let lastSavedAt = 0;
-      const progressKey = `kusabi:reading:chapter:${chapterId}`;
-      const SECRET_TIME_SEC = 120;
-      const SECRET_SCROLL_PCT = 0.7;
-
-      let activeSeconds = 0;
-      let maxScrollPct = 0;
-
-      try {
-        const raw = localStorage.getItem(progressKey);
-        const saved = raw ? JSON.parse(raw) : null;
-        if (saved) {
-          if (Number.isFinite(saved.activeSeconds)) activeSeconds = saved.activeSeconds;
-          if (Number.isFinite(saved.maxScrollPct)) maxScrollPct = saved.maxScrollPct;
-        }
-      } catch (e) {}
-
-      const saveReadingProgress = (ratio) => {
-        if (!Number.isFinite(ratio) || ratio < 0.005) return;
-        const now = Date.now();
-        if (now - lastSavedAt < 800 && ratio < 0.995) return;
-        lastSavedAt = now;
-
-        const saved = {
-          chapterId,
-          chapterNumber,
-          chapterTitle,
-          path: window.location.pathname,
-          progress: Number(ratio.toFixed(4)),
-          activeSeconds,
-          maxScrollPct: Number(maxScrollPct.toFixed(4)),
-          updatedAt: now,
-        };
-
-        try {
-          localStorage.setItem("kusabi:reading:last", JSON.stringify(saved));
-          localStorage.setItem(progressKey, JSON.stringify(saved));
-          localStorage.setItem("kusabi:reading:last-read", chapterId);
-        } catch (e) {}
-      };
-
-      const updateProgress = () => {
-        const scrollTop = window.scrollY || document.documentElement.scrollTop;
-        const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-        const ratio = scrollMax > 0 ? Math.min(1, Math.max(0, scrollTop / scrollMax)) : 1;
-        if (ratio > maxScrollPct) maxScrollPct = ratio;
-        saveReadingProgress(ratio);
-      };
-
-      const markAsRead = () => {
-        try {
-          // Record to secret read list
-          const rawReads = localStorage.getItem("kusabi:secret:reads");
-          const reads = rawReads ? JSON.parse(rawReads) : [];
-          if (Array.isArray(reads)) {
-            if (!reads.includes(chapterId)) {
-              reads.push(chapterId);
-              localStorage.setItem("kusabi:secret:reads", JSON.stringify(reads));
-            }
-          }
-        } catch (e) {
-          console.error("Error setting localStorage flags:", e);
-        }
-      };
-
-      const checkReadThresholds = () => {
-        if (activeSeconds >= SECRET_TIME_SEC && maxScrollPct >= SECRET_SCROLL_PCT) {
-          markAsRead();
-          return true;
-        }
-        return false;
-      };
-
-      // Count active reading time; pause while the tab is hidden.
-      let secretInterval = 0;
-      const startSecretTimer = () => {
-        if (secretInterval) return;
-        secretInterval = window.setInterval(() => {
-          activeSeconds += 1;
-          if (activeSeconds % 10 === 0 || activeSeconds >= SECRET_TIME_SEC) {
-            saveReadingProgress(maxScrollPct);
-          }
-          checkReadThresholds();
-        }, 1000);
-      };
-      const stopSecretTimer = () => {
-        window.clearInterval(secretInterval);
-        secretInterval = 0;
-      };
-      const handleVisibilityChange = () => {
-        if (document.visibilityState === "hidden") {
-          stopSecretTimer();
-        } else {
-          startSecretTimer();
-        }
-      };
-      document.addEventListener("visibilitychange", handleVisibilityChange);
-
-      const resumeRequested = new URLSearchParams(window.location.search).get("resume") === "1";
-      if (resumeRequested) {
-        try {
-          const raw = localStorage.getItem(progressKey);
-          const saved = raw ? JSON.parse(raw) : null;
-          if (saved && Number.isFinite(saved.progress) && saved.progress > 0.01 && saved.progress < 0.995) {
-            const computeTarget = () => {
-              const scrollMax = document.documentElement.scrollHeight - window.innerHeight;
-              return Math.max(0, scrollMax * saved.progress);
-            };
-            window.scrollTo({ top: computeTarget(), behavior: "auto" });
-            let corrections = 0;
-            const settleAndCorrect = () => {
-              if (Math.abs(window.scrollY - computeTarget()) > 8 && corrections < 5) {
-                corrections += 1;
-                window.scrollTo({ top: computeTarget(), behavior: "auto" });
-                window.setTimeout(settleAndCorrect, 160);
-              }
-            };
-            window.setTimeout(settleAndCorrect, 200);
-          }
-        } catch (e) {}
-      }
-
-      updateProgress();
-      checkReadThresholds();
-      startSecretTimer();
-
-      window.addEventListener("scroll", updateProgress, { passive: true });
-      window.addEventListener("astro:before-swap", () => {
-        window.removeEventListener("scroll", updateProgress);
-        document.removeEventListener("visibilitychange", handleVisibilityChange);
-        stopSecretTimer();
-      }, { once: true });
-    };
-
-    initKusabiReader();
-    document.addEventListener("astro:page-load", initKusabiReader);
-  </script>
+  <EndOfTape
+    label={special ? `จบ${label}` : `จบ${reelMark}`}
+    previous={
+      previous
+        ? { href: withBase(`/kusabi/chapters/${previous.id}/`), detail: "ม้วนก่อนหน้า", label: chapterLabel(previous.data.number) }
+        : { href: withBase("/kusabi/#kusabi-shelf"), detail: "กลับ", label: "ชั้นเทป" }
+    }
+    next={
+      next
+        ? { href: withBase(`/kusabi/chapters/${next.id}/`), detail: "ม้วนถัดไป", label: chapterLabel(next.data.number) }
+        : { href: withBase("/kusabi/extra/"), detail: "ลิ้นชักล่าง", label: "ส่วนเสริม" }
+    }
+  />
 </KusabiChapterLayout>
