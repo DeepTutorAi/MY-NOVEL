@@ -937,7 +937,7 @@ musicCueId: "bride-wedding"
 
 ปลายนิ้วของนาโอะที่กำลังลูบรอยพับแผนที่ชะงักกึก
 
-![นาโอะนึกถึงอากิระขณะถือแผนที่พับ](../../../../public/assets/kusabi/images/illustrations/chapter-02-nao-akira.png)
+![นาโอะนึกถึงอากิระขณะถือแผนที่พับ](../../../../public/assets/kusabi/images/illustrations/chapter-02-nao-akira-shadow-memory-pilot.webp)
 
 ความเงียบปกคลุมโต๊ะอาหารนานกว่าสองวินาที นาโอะไม่สบตากับใคร เขาก้มมองมุมกระดาษที่เหลืองกรอบ แล้วหัวเราะแห้ง ๆ ออกมาคำหนึ่ง
 
