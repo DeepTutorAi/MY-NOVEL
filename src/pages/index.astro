@@ -7,6 +7,21 @@ import ConstellationBackground from "../components/_shared/ConstellationBackgrou
 import MothlightBackground from "../components/_shared/MothlightBackground.astro";
 import FireflyBackground from "../components/_shared/FireflyBackground.astro";
 import PagesStarsBackground from "../components/_shared/PagesStarsBackground.astro";
+import { GUEST_NAMES } from "../data/hub/guest-names";
+import { RETIRED_NAME_HASHES } from "../data/hub/retired-names";
+import guestNamesCore from "../scripts/hub/guest-names-core.mjs?raw";
+
+// The profile script below runs inline, before any bundled module, so the tested
+// name logic is inlined too rather than copied by hand.
+const guestNamesBoot = `(() => {
+${guestNamesCore.replace(/^export /gm, "")}
+  const names = ${JSON.stringify(GUEST_NAMES)};
+  const retired = ${JSON.stringify(RETIRED_NAME_HASHES)};
+  window.__hubGuestNames = {
+    pick: (used) => pickGuestName(names, used, Math.random),
+    migrate: (profiles) => migrateProfiles(profiles, retired, names, Math.random),
+  };
+})();`;
 ---
 
 <HubLayout
@@ -201,7 +216,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    max-width: 160px;
+    max-width: 230px;
   }
 
   .hub-profile-actions {
@@ -571,6 +586,8 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
   }
 </style>
 
+<script is:inline set:html={guestNamesBoot}></script>
+
 <script is:inline>
   (() => {
     const activeProfileNameEl = document.querySelector('[data-profile-name]');
@@ -618,19 +635,6 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
       lastFocusedElement = null;
     };
 
-    const TROLL_NAMES = [
-      "ดูดหีน้ำแตก", "ขี้ทะลวงดาก", "อมไข่สั่นสู้ชีวิต", "กูชื่อไรวะ?", "ตดเปียกในลิฟต์",
-      "ขี้เล็ดกลางห้าง", "จิ๋มกระพือฮือฮา", "หีบินได้", "ควยเหล็กเจ็ดสี", "ดากดำช้ำรัก",
-      "ตูดหมึกอมนิ้ว", "จิบเบียร์เลียตูด", "อมขี้มาพ่น", "ส้นตีนกระแทกปาก", "ไข่เหี่ยวเปรี้ยวเยี่ยว",
-      "ตดไม่มีเสียงแต่ดมแล้วตาย", "หำหดตดหาย", "อมหำช้าง", "ตดอัดกระป๋อง", "เสี้ยนดากอยากโดน",
-      "ควยเรืองแสง", "แรดบินตินถีบ", "หัวควยสี่ทิศ", "เยี่ยวราดรดกางเกง", "ดมตูดหมาแก่งแก้",
-      "อ่างขี้ปลาทอง", "คนบ้าปัญญาอ่อน", "เลียกระป๋องกาว", "น้ำเงี่ยนไหลอาบแก้ม", "อมขี้หมาสู้ชีวิต",
-      "ตดเปียกทะลุกางเกง", "มะเร็งควย", "กระโถนท้องพระโรง", "คูดารูสึกดี", "เลียแคมสะท้านโลกันตร์",
-      "ควยระเบิด", "ดมกลิ่นดากตัวเอง", "ขี้คาตูด", "ดากฉีกถึงหู", "ล้างตูดไม่สะอาด",
-      "ชักว่าวจนไข่แห้ง", "อมท่อไอเสีย", "หน้าควยธรรมชาติ", "เยี่ยวเหนียวเคี้ยวหนึบ", "ส้วมเต็มช้อนกิน",
-      "นิ้วเขี่ยตูดดม", "ขี้เหนียวเคี้ยวเพลิน", "ควยเปียกแดด", "ดมผ้าอนามัยใช้แล้ว", "ดากทองคำฝังเพชร"
-    ];
-
     function getProfiles() {
       try {
         const raw = localStorage.getItem(PROFILES_KEY);
@@ -652,18 +656,8 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
       localStorage.setItem(ACTIVE_KEY, id);
     }
 
-    function getRandomTrollName(profiles) {
-      const usedNames = new Set(profiles.map(p => p.name));
-      const availableNames = TROLL_NAMES.filter(name => !usedNames.has(name));
-      
-      if (availableNames.length > 0) {
-        const randomIndex = Math.floor(Math.random() * availableNames.length);
-        return availableNames[randomIndex];
-      }
-      
-      // Fallback: append random number
-      const baseName = TROLL_NAMES[Math.floor(Math.random() * TROLL_NAMES.length)];
-      return `${baseName} #${Math.floor(Math.random() * 1000)}`;
+    function getRandomGuestName(profiles) {
+      return window.__hubGuestNames.pick(profiles.map((p) => p.name));
     }
 
     function renderAvatar(avatarValue, containerElement) {
@@ -687,13 +681,24 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
       let activeId = getActiveProfileId();
       let profiles = getProfiles();
 
+      // Profiles created before the guest name list changed may carry a retired name.
+      const migrated = window.__hubGuestNames.migrate(profiles);
+      if (migrated.changed) {
+        profiles = migrated.profiles;
+        try {
+          saveProfiles(profiles);
+        } catch (e) {
+          // Storage blocked: the new name still shows for this page view.
+        }
+      }
+
       // Check if we need to auto-initialize guest profile.
       // Use a deterministic "guest" id so existing "*:guest" storage keys stay visible.
       if (!activeId || !profiles.some(p => p.id === activeId)) {
         if (!profiles.some(p => p.id === 'guest')) {
           profiles.push({
             id: 'guest',
-            name: getRandomTrollName(profiles),
+            name: getRandomGuestName(profiles),
             avatar: "👤",
             type: 'guest',
             createdAt: Date.now()
@@ -898,7 +903,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
       addGuestBtn.addEventListener('click', () => {
         const profiles = getProfiles();
         const newGuestId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
-        const name = getRandomTrollName(profiles);
+        const name = getRandomGuestName(profiles);
         
         profiles.push({
           id: newGuestId,
@@ -942,7 +947,7 @@ import PagesStarsBackground from "../components/_shared/PagesStarsBackground.ast
     const OVERRIDE_KEY = "piichan-novels:theme-override";
     const REFERENCE_MONDAY = "2026-01-05T07:00:00+07:00";
     const BACKGROUNDS = [
-      { theme: "constellation", containerId: "constellation-bg-container", key: "DynamicCityBg", label: "ธีม: กลุ่มดาว (กดสลับ)", icon: "🌌" },
+      { theme: "constellation", containerId: "constellation-bg-container", key: "DynamicCityBg", label: "ธีม: สายแสงกลางดาว (กดสลับ)", icon: "🌌" },
       { theme: "mothlight", containerId: "mothlight-bg-container", key: "MothlightBg", label: "ธีม: Mothlight (กดสลับ)", icon: "🦋" },
       { theme: "firefly", containerId: "firefly-bg-container", key: "FireflyBg", label: "ธีม: ป่าหิ่งห้อย (กดสลับ)", icon: "✨" },
       { theme: "pages-stars", containerId: "pages-stars-bg-container", key: "PagesStarsBg", label: "ธีม: หน้าหนังสือกลายเป็นดาว (กดสลับ)", icon: "📖" },

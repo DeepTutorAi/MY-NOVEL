@@ -46,12 +46,14 @@ describe("Fiction hub visual contract", () => {
   });
 
   it("adds restrained shooting stars to the hub background without overwhelming the constellation field", () => {
-    const background = readProjectFile("src/components/_shared/ConstellationBackground.astro");
+    const core = readProjectFile("src/scripts/hub/lightfall-core.ts");
+    const scene = readProjectFile("src/scripts/hub/lightfall-scene.ts");
 
-    assert.match(background, /interface ShootingStar/);
-    assert.match(background, /nextShootingStarAt/);
-    assert.match(background, /drawShootingStar/);
-    assert.match(background, /prefers-reduced-motion: reduce/);
-    assert.match(background, /randomBetween\(5_000, 9_000\)/);
+    assert.match(scene, /interface ShootingStar/);
+    assert.match(scene, /nextShootingStarAt/);
+    assert.match(scene, /drawShootingStar/);
+    assert.match(scene, /reducedMotionFrame/);
+    assert.match(core, /SHOOTING_STAR_MIN_S = 5/);
+    assert.match(core, /SHOOTING_STAR_MAX_S = 9/);
   });
 });

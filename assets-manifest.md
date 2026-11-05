@@ -43,7 +43,6 @@ These are generated or hand-authored, project-owned assets. They are license-saf
 | `public/assets/kusabi/images/album/s01-s05.webp` | Face crops from the five `*-adult-*` sheets in `output/kusabi-art-source/extra/` by `process-art.ts` | Project-owned generated asset | None | sealed file, after everything else is finished; no caption by design |
 | `public/assets/kusabi/images/illustrations/chapter-10-risa-captive.webp` | Renamed from `chapter-10-risa-shion-ots-frontal-selected.webp`, pixels unchanged | Project-owned generated asset | None | CH10 illustration |
 | `public/assets/kusabi/images/illustrations/chapter-12-seated-player.webp` | Renamed from `chapter-12-shion-seated-player-beside-approved.webp`, pixels unchanged | Project-owned generated asset | None | CH12 illustration |
-| `public/assets/_shared/images/pages_into_stars.webp` | Generated locally by author | Project-owned generated asset | None | background stars texture |
 
 
 ## Tsukinomi P6 Image Slots
