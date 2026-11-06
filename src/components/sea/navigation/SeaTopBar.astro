@@ -21,6 +21,7 @@ const isChapter = mode === "chapter";
   <a href={withBase("/sea/")} class="sea-topbar-mark" lang="en">THE SEA</a>
   {context && <p class="sea-topbar-context" title={context}>{context}</p>}
   <nav class="sea-topbar-nav" aria-label="เครื่องมือของทะเลเหนือโลก">
+    <a href={withBase("/")} class="sea-topbar-button" data-astro-reload>ฮับนิยาย</a>
     {isChapter ? (
       <button
         type="button"
@@ -50,7 +51,6 @@ const isChapter = mode === "chapter";
         <circle cx="12" cy="12" r="1.4" fill="currentColor" />
       </svg>
     </button>
-    <a href={withBase("/")} class="sea-topbar-button sea-topbar-hub" lang="en" data-astro-reload>HUB</a>
   </nav>
 </header>
 
@@ -172,11 +172,6 @@ const isChapter = mode === "chapter";
   .sea-topbar :global(.sea-topbar-button:focus-visible) {
     outline: 2px solid var(--accent-cyan);
     outline-offset: 2px;
-  }
-
-  .sea-topbar .sea-topbar-hub {
-    font-family: var(--font-mono);
-    font-size: 0.72rem;
   }
 
   .sea-topbar .sea-topbar-sonar {
