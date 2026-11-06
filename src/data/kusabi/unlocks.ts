@@ -41,8 +41,10 @@ export const UNLOCKS = {
   "extra-e03": { extra: "e02" },
   "extra-e04": { extra: "e03" },
   "extra-e05": { extra: "e04" },
+  // Finished readers go straight to the quiz. Anyone else accepts the spoilers first and gets
+  // questions from the end of the book; passing opens the same map for both.
   "case-map-gate": { chapter: 13 },
-  "case-map": { allOf: [{ chapter: 13 }, { caseMap: true }] },
+  "case-map": { caseMap: true },
   "case-map-history": { allOf: [{ chapter: 13 }, { caseMap: true }, { extra: "e04" }] },
   // Pictures in no chapter. The cast group shows the book's ending, Shion and Ayame need
   // E01, and the thank-you closes the last published Extra.

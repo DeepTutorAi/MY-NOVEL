@@ -37,6 +37,20 @@ export function pickQuestions<T extends { part: number }>(bank: readonly T[], ra
   return picked;
 }
 
+/** For a reader who has not finished: two different questions each from the last two parts. */
+export function pickLateQuestions<T extends { part: number }>(bank: readonly T[], random: () => number): T[] {
+  const picked: T[] = [];
+  for (const part of [3, 4]) {
+    const options = bank.filter((question) => question.part === part);
+    if (options.length < 2) throw new Error(`too few questions for part ${part}`);
+    for (let taken = 0; taken < 2; taken += 1) {
+      const index = Math.min(options.length - 1, Math.floor(random() * options.length));
+      picked.push(...options.splice(index, 1));
+    }
+  }
+  return picked;
+}
+
 export const CODE_LENGTH = 4;
 
 export interface KeypadState {

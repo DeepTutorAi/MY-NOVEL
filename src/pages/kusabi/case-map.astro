@@ -3,28 +3,35 @@ import KusabiBaseLayout from "../../layouts/kusabi/KusabiBaseLayout.astro";
 import { withBase } from "../../utils/base-path";
 
 // Nothing in this HTML names a room or an event. Questions and the plan come from
-// the vault after the epilogue is finished (scripts/kusabi/case-map/case-map.ts).
+// the vault: at once for a finished reader, after accepting the spoilers for anyone
+// else (scripts/kusabi/case-map/case-map.ts).
 const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
 ---
 
 <KusabiBaseLayout
   title="แผนผัง · บ้านคุซาบิบนเขาคุโระมิโซะ"
-  description="โครงเรื่องทั้งเล่มและรายละเอียดที่นิยายไม่ได้เล่า เปิดได้หลังอ่านจบและตอบคำถามผ่าน"
+  description="โครงเรื่องทั้งเล่มและรายละเอียดที่นิยายไม่ได้เล่า เปิดได้เมื่อตอบคำถามผ่าน"
   bodyClass="kusabi-case-map"
 >
   <main class="kusabi-page casemap">
     <header class="kusabi-page-head">
       <p class="kusabi-kicker">Story Plan</p>
       <h1>แผนผัง</h1>
-      <p data-map-lead>หน้านี้เฉลยทั้งเรื่อง จึงเปิดให้เฉพาะคนที่อ่านจบแล้ว</p>
+      <p data-map-lead>หน้านี้เฉลยทั้งเรื่อง และมีเรื่องที่นิยายไม่ได้เล่า</p>
     </header>
 
     <section class="map-locked" data-map-locked>
-      <p>อ่านบทส่งท้ายจบก่อน แล้วแผงตัวเลขของหน้านี้จะเปิดให้ลอง</p>
-      <a class="kusabi-strip" href={withBase("/kusabi/#kusabi-shelf")}>กลับชั้นเทป</a>
+      <p>ยังอ่านไม่จบก็เข้าได้ ถ้ายอมเห็นสปอยล์และตอบคำถามช่วงท้ายของเรื่องได้</p>
+      <label class="map-consent">
+        <input type="checkbox" data-map-consent />
+        <span>ฉันยังอ่านไม่จบ และยอมเห็นสปอยล์</span>
+      </label>
+      <button type="button" class="kusabi-strip" data-map-tease hidden>เปิดแผนผัง</button>
+      <a class="kusabi-ghost" href={withBase("/kusabi/#kusabi-shelf")}>กลับชั้นเทป</a>
     </section>
 
     <section class="quiz" data-quiz hidden aria-labelledby="quiz-heading">
+      <p class="quiz-gotcha" data-quiz-gotcha hidden>อะฮ่า... ก่อนจะเปิดได้ ตอบนี่ให้ได้ก่อน</p>
       <h2 id="quiz-heading">ตอบให้ได้สี่ข้อ แต่ละข้อจะให้เลขหนึ่งหลัก</h2>
       <p class="quiz-lead">ตอบผิดได้ไม่จำกัด ไม่มีอะไรหายไป ถ้าจำไม่ได้ลองกลับไปอ่านตามคำใบ้</p>
       <ol class="quiz-digits" data-quiz-digits aria-label="เลขที่ได้แล้ว"></ol>
@@ -152,6 +159,26 @@ const keys = ["1", "2", "3", "4", "5", "6", "7", "8", "9"];
     .map-locked p {
       margin: 0;
       color: var(--kusabi-ink-dim);
+    }
+
+    .map-consent {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .map-consent input {
+      width: 1.1rem;
+      height: 1.1rem;
+      flex: none;
+      accent-color: var(--kusabi-accent-bright);
+    }
+
+    .quiz-gotcha {
+      margin: 0;
+      color: var(--kusabi-accent-bright);
     }
 
     .quiz,

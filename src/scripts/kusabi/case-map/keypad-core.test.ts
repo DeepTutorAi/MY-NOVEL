@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import { MAP_ARCS, MAP_BEHIND, MAP_FACTS, MAP_FACTS_LATE, MAP_HISTORY, MAP_MIRROR, MAP_NAMES, MAP_QUESTIONS, MAP_SHORT, MAP_STOPS, MAP_TAPES, MAP_TRUTH, MAP_WOUNDS, QUIZ_BANK } from "../../../data/kusabi/case-map";
-import { codeMatches, normalizeAnswer, pickQuestions, pressClear, pressDigit } from "./keypad-core";
+import { CODE_LENGTH, codeMatches, normalizeAnswer, pickLateQuestions, pickQuestions, pressClear, pressDigit } from "./keypad-core";
 
 describe("answers", () => {
   it("ignores spacing, punctuation and Thai digits", () => {
@@ -29,6 +29,14 @@ describe("question bank", () => {
     for (const random of [() => 0, () => 0.999, () => 0.5]) {
       const picked = pickQuestions(QUIZ_BANK, random);
       assert.deepEqual(picked.map((question) => question.part), [1, 2, 3, 4]);
+    }
+  });
+
+  it("asks a reader who has not finished only about the end of the book, with no repeats", () => {
+    for (const random of [() => 0, () => 0.999, () => 0.5, Math.random]) {
+      const picked = pickLateQuestions(QUIZ_BANK, random);
+      assert.deepEqual(picked.map((question) => question.part), [3, 3, 4, 4]);
+      assert.equal(new Set(picked.map((question) => question.id)).size, CODE_LENGTH);
     }
   });
 });

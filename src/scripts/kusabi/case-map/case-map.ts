@@ -1,10 +1,10 @@
-// The story plan page: locked until the epilogue, then four questions, then the
-// keypad, then the plan. The questions and the plan arrive from the vault, so a
-// reader who has not finished never downloads them.
+// The story plan page: four questions, then the keypad, then the plan. A reader who has
+// not finished accepts the spoilers first and is asked about the end of the book. The
+// questions and the plan arrive from the vault, so nobody downloads them before that.
 import { CASE_MAP_KEY, isUnlocked, sha256Hex, type KusabiProgress } from "../progress-core";
 import { loadProgress, safeSet } from "../progress";
 import { loadVault } from "../vault";
-import { answerMessage, codeMatches, CODE_LENGTH, normalizeAnswer, pickQuestions, pressClear, pressDigit } from "./keypad-core";
+import { answerMessage, codeMatches, CODE_LENGTH, normalizeAnswer, pickLateQuestions, pickQuestions, pressClear, pressDigit } from "./keypad-core";
 
 interface Question {
   id: string;
@@ -293,6 +293,24 @@ function runQuiz(questions: Question[], onDone: (digits: number[]) => void, sign
   ask();
 }
 
+/** Resolves when a reader who has not finished ticks the box and presses the button. */
+function acceptSpoilers(signal: AbortSignal): Promise<void> {
+  return new Promise((resolve) => {
+    const consent = el<HTMLInputElement>("[data-map-consent]");
+    const tease = el<HTMLButtonElement>("[data-map-tease]");
+    if (!consent || !tease) return;
+    consent.addEventListener(
+      "change",
+      () => {
+        tease.hidden = !consent.checked;
+      },
+      { signal },
+    );
+    tease.addEventListener("click", () => resolve(), { signal, once: true });
+    signal.addEventListener("abort", () => resolve(), { once: true });
+  });
+}
+
 export function setupCaseMap(): () => void {
   const abort = new AbortController();
   const { signal } = abort;
@@ -304,12 +322,15 @@ export function setupCaseMap(): () => void {
       await showMap(progress, signal);
       return;
     }
-    if (!isUnlocked("case-map-gate", progress)) return;
+    const finished = isUnlocked("case-map-gate", progress);
+    if (!finished) await acceptSpoilers(signal);
+    if (signal.aborted) return;
     el("[data-map-locked]")?.toggleAttribute("hidden", true);
+    el("[data-quiz-gotcha]")?.toggleAttribute("hidden", finished);
     const { questions } = await loadVault<{ questions: Question[] }>("quiz");
     if (signal.aborted) return;
     runQuiz(
-      pickQuestions(questions, Math.random),
+      (finished ? pickQuestions : pickLateQuestions)(questions, Math.random),
       (digits) => {
         runKeypad(
           digits,
@@ -322,6 +343,7 @@ export function setupCaseMap(): () => void {
       },
       signal,
     );
+    if (!finished) el("[data-quiz-input]")?.focus();
   })().catch((error) => console.warn("[kusabi map] did not load", error));
 
   return () => abort.abort();
