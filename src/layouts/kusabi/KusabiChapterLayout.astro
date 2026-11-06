@@ -22,7 +22,7 @@ const { title, description, unitId, unitKind, number, unitTitle, act = 3, musicC
 ---
 
 <KusabiBaseLayout title={title} description={description} bodyClass={`kusabi-reading act-${act}`}>
-  {epigraph && <KusabiCutscene chapter={number} epigraph={epigraph} label={unitTitle} />}
+  {epigraph && <KusabiCutscene chapter={unitKind === "extra" ? unitId : number} epigraph={epigraph} label={unitTitle} narrator={unitKind === "extra"} />}
   <ReaderChrome />
 
   <main class="reader">

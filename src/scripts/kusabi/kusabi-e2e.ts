@@ -98,7 +98,7 @@ async function openSession(browser: Browser, store: Record<string, string>, view
     sessionStorage.setItem("__seeded", "1");
     for (const [key, value] of Object.entries(entries)) localStorage.setItem(`${key}:guest`, value);
     // Cutscenes have their own check below; here they would only cover the page.
-    for (const chapter of [0, 4, 8, 11, 12]) localStorage.setItem(`kusabi:cutscene:played:${chapter}:guest`, new Date().toISOString());
+    for (const chapter of [0, 4, 8, 11, 12, "e01", "e02", "e03", "e04"]) localStorage.setItem(`kusabi:cutscene:played:${chapter}:guest`, new Date().toISOString());
   }, store);
   return { context, page, requests };
 }
@@ -411,6 +411,10 @@ async function main() {
       assert(await page.$eval("article[data-unit-id]", (node) => (node as HTMLElement).hidden), "E01's text is visible");
       assert(await page.$eval("[data-reader-gate]", (node) => !(node as HTMLElement).hidden), "E01's gate is hidden");
       await shot(page, "extra-e01-locked");
+      // Even asked to replay it, a locked Extra shows no scene and leaves no cover.
+      await visit(page, "/kusabi/extra/e01/?cutscene=replay", 1200);
+      assert(await page.$eval("dialog.kusabi-cutscene", (node) => !(node as HTMLDialogElement).open), "a locked reader got the cutscene");
+      assert(await page.evaluate(() => !document.documentElement.classList.contains("kusabi-cutscene-pending")), "the cover stayed up");
       const missing = await page.goto(url("/kusabi/extra/e05/"), { waitUntil: "load", timeout: 60_000 });
       if (!process.env.KUSABI_E2E_DEV) assert(missing?.status() === 404, `E05 answered ${missing?.status()}`);
       await context.close();
@@ -499,6 +503,89 @@ async function main() {
       assert(!requests.some((request) => /\/vault\/(quiz|map|history)/.test(request)), "the quiz or the map was requested");
       await shot(page, "map-locked");
       await context.close();
+    });
+
+    await check("extra cutscene: the voice comes line by line, can be skipped, and is counted apart from chapter 4", async () => {
+      const { context, page } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04"]));
+      await visit(page, "/kusabi/extra/e04/?cutscene=replay", 300);
+      await page.waitForFunction(() => document.querySelector<HTMLDialogElement>("dialog.kusabi-cutscene")?.open === true, { timeout: 15_000 });
+      const before = await page.evaluate(() => localStorage.getItem("kusabi:cutscene:played:4:guest"));
+      await pause(4500);
+      const shown = await page.$$eval(".kusabi-cutscene__g.is-shown", (spans) => spans.length);
+      const total = await page.$$eval(".kusabi-cutscene__g", (spans) => spans.length);
+      assert(shown > 10 && shown < total, `${shown} of ${total} revealed after 4.5s`);
+      const text = await page.$eval("[data-cutscene-text]", (node) => ({ white: getComputedStyle(node).whiteSpace, lines: (node.textContent ?? "").split("\n").length, align: getComputedStyle(node).textAlign }));
+      assert(text.white === "pre-line" && text.lines > 5, `line breaks are lost: ${JSON.stringify(text)}`);
+      await shot(page, "cutscene-e04");
+      await page.click("[data-cutscene-skip]");
+      await page.waitForFunction(() => !document.querySelector<HTMLDialogElement>("dialog.kusabi-cutscene")?.open, { timeout: 5000 });
+      assert(await page.$eval("article[data-unit-id]", (node) => !(node as HTMLElement).hidden), "the chapter did not open");
+      const after = await page.evaluate(() => localStorage.getItem("kusabi:cutscene:played:4:guest"));
+      assert(before === after, "chapter 4's stamp changed");
+      await context.close();
+    });
+
+    await check("extra cutscene: fits a very small phone and a landscape phone, and a still frame", async () => {
+      for (const [name, viewport] of [["small", SMALL_PHONE], ["landscape", PHONE_LANDSCAPE]] as const) {
+        const { context, page } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04"]), viewport);
+        await page.emulateMediaFeatures([{ name: "prefers-reduced-motion", value: "reduce" }]);
+        await visit(page, "/kusabi/extra/e04/?cutscene=replay", 300);
+        await page.waitForFunction(() => document.querySelector<HTMLDialogElement>("dialog.kusabi-cutscene")?.open === true, { timeout: 15_000 });
+        await pause(900);
+        const box = await page.$eval("[data-cutscene-text]", (node) => {
+          const rect = node.getBoundingClientRect();
+          const button = document.querySelector("[data-cutscene-start]")?.getBoundingClientRect();
+          return { top: rect.top, bottom: Math.max(rect.bottom, button?.bottom ?? 0), right: rect.right, height: innerHeight, width: innerWidth };
+        });
+        assert(box.top >= 0 && box.bottom <= box.height && box.right <= box.width, `${name}: the text and its button do not fit ${JSON.stringify(box)}`);
+        await shot(page, `cutscene-e04-${name}`);
+        await context.close();
+      }
+    });
+
+    await check("case map: a reader who has not finished accepts the spoilers, gets late questions, and opens the map", async () => {
+      const { context, page, requests } = await openSession(browser, readerStorage(3));
+      await visit(page, "/kusabi/case-map/", 1000);
+      assert(await page.$eval("[data-map-tease]", (node) => (node as HTMLElement).hidden), "the button shows before the box is ticked");
+      await page.click("[data-map-consent]");
+      assert(await page.$eval("[data-map-tease]", (node) => !(node as HTMLElement).hidden), "the button did not appear");
+      assert(!requests.some((request) => /\/vault\/(quiz|map)/.test(request)), "the quiz was requested before accepting");
+      await shot(page, "map-consent");
+      await page.click("[data-map-tease]");
+      await page.waitForSelector("[data-quiz-text]:not(:empty)", { timeout: 10_000 });
+      assert(await page.$eval("[data-quiz-gotcha]", (node) => !(node as HTMLElement).hidden), "no gotcha line");
+      await shot(page, "map-late-quiz");
+
+      const answers: Record<string, string> = {
+        "จอภาพกี่จอ": "2",
+        "ใต้ชื่อของริสะ": "ยิ้ม",
+        "เรียกชื่ออะไร": "คุณชิอง",
+        "มีชื่อใคร": "อายาเมะ",
+        "มีคำว่าอะไร": "กลับบ้าน",
+        "กี่เข็ม": "หก",
+      };
+      for (let round = 0; round < 4; round += 1) {
+        const question = await page.$eval("[data-quiz-text]", (node) => node.textContent ?? "");
+        const key = Object.keys(answers).find((part) => question.includes(part));
+        assert(key, `not a late question: ${question}`);
+        await page.$eval("[data-quiz-input]", (input) => {
+          (input as HTMLInputElement).value = "";
+        });
+        await page.type("[data-quiz-input]", answers[key]);
+        await page.keyboard.press("Enter");
+        await pause(250);
+      }
+      const digits = await page.$$eval("[data-quiz-digits] li", (items) => items.map((item) => item.textContent).join(""));
+      for (const digit of digits) await page.click(`[data-key="${digit}"]`);
+      await page.click("[data-key-enter]");
+      await pause(1200);
+      assert(await page.$eval("[data-map-open]", (node) => !(node as HTMLElement).hidden), "the map did not open");
+      await shot(page, "map-open-unfinished");
+      await visit(page, "/kusabi/case-map/", 1000);
+      assert(await page.$eval("[data-map-open]", (node) => !(node as HTMLElement).hidden), "the map did not stay open");
+      assert(await page.$eval("[data-history-wrap]", (node) => (node as HTMLElement).hidden), "the history opened without reading the Extras");
+      await context.close();
+      return `code ${digits}`;
     });
 
     await check("case map: wrong answers give a hint, right ones give digits, the keypad opens the map", async () => {
@@ -593,7 +680,7 @@ async function main() {
         ["reader", "/kusabi/chapters/05-the-first-room/"],
         ["side-story", "/kusabi/extra/e01/"],
       ] as const;
-      const sizes = [["phone", PHONE], ["landscape", PHONE_LANDSCAPE], ["small", SMALL_PHONE]] as const;
+      const sizes = [["phone", PHONE], ["landscape", PHONE_LANDSCAPE], ["small", SMALL_PHONE], ["narrow", { ...SMALL_PHONE, width: 360, height: 740 }]] as const;
       const store = readerStorage(13, ["e01", "e02", "e03", "e04"], true);
       for (const [sizeName, viewport] of sizes) {
         const { context, page } = await openSession(browser, store, viewport);

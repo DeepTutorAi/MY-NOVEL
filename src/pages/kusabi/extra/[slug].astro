@@ -2,6 +2,7 @@
 import { getCollection, render, type CollectionEntry } from "astro:content";
 import EndOfTape from "../../../components/kusabi/reading/EndOfTape.astro";
 import TapeHeader from "../../../components/kusabi/reading/TapeHeader.astro";
+import { EXTRA_NARRATION } from "../../../data/kusabi/extra-narration";
 import KusabiChapterLayout from "../../../layouts/kusabi/KusabiChapterLayout.astro";
 import { withBase } from "../../../utils/base-path";
 
@@ -27,6 +28,7 @@ const index = extras.findIndex((item) => item.id === extra.id);
 const previous = index > 0 ? extras[index - 1] : undefined;
 const next = index >= 0 ? extras[index + 1] : undefined;
 const label = `เรื่องเสริม ${extra.data.number}`;
+const narration = EXTRA_NARRATION[extra.data.slug];
 ---
 
 <KusabiChapterLayout
@@ -37,6 +39,7 @@ const label = `เรื่องเสริม ${extra.data.number}`;
   number={extra.data.number}
   unitTitle={extra.data.title}
   musicCueId="go-home"
+  epigraph={narration}
   gate={`extra-${extra.data.slug}`}
 >
   <section slot="gate" class="reader-gate" data-reader-gate>
@@ -46,7 +49,7 @@ const label = `เรื่องเสริม ${extra.data.number}`;
     <a class="kusabi-strip" href={withBase("/kusabi/extra/")}>กลับลิ้นชักล่าง</a>
   </section>
 
-  <TapeHeader eyebrow={label} title={extra.data.title} dateline={extra.data.dateline} minutes={extra.data.readingMinutes} />
+  <TapeHeader eyebrow={label} title={extra.data.title} dateline={extra.data.dateline} minutes={extra.data.readingMinutes} hasCutscene={Boolean(narration)} />
   <div class="kusabi-prose">
     <Content />
   </div>

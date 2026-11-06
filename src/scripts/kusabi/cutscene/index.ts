@@ -4,7 +4,9 @@
 // its numeric values still count as played today.
 import { revealClusters, shouldStep, visibleCount } from "../../lodge/cutscene/reveal-core";
 import { createCutsceneRunner, type CutsceneRunner } from "../../_shared/cutscene/runner";
-import { safeGet } from "../progress";
+import type { UnlockId } from "../../../data/kusabi/unlocks";
+import { isUnlocked } from "../progress-core";
+import { loadProgress, safeGet } from "../progress";
 import { loadSceneFor, type KusabiSceneContext, type KusabiSceneHandle, type KusabiSceneModule } from "./registry";
 
 export const PLAYED_PREFIX = "kusabi:cutscene:played:";
@@ -72,8 +74,8 @@ export function setupKusabiCutscene(): (() => void) | undefined {
   const textEl = dialog?.querySelector<HTMLElement>("[data-cutscene-text]");
   const skipButton = dialog?.querySelector<HTMLElement>("[data-cutscene-skip]");
   const startButton = dialog?.querySelector<HTMLElement>("[data-cutscene-start]");
-  const chapter = Number(dialog?.dataset.chapter);
-  if (!dialog || !stage || !controls || !textEl || !skipButton || !startButton || !Number.isInteger(chapter)) {
+  const sceneId = dialog?.dataset.chapter;
+  if (!dialog || !stage || !controls || !textEl || !skipButton || !startButton || !sceneId) {
     uncover();
     return undefined;
   }
@@ -84,7 +86,7 @@ export function setupKusabiCutscene(): (() => void) | undefined {
   const traversal = nav ? nav.traverse === true : navigation?.type === "back_forward";
 
   let loading: Promise<KusabiSceneModule> | null = null;
-  const loadScene = () => (loading ??= loadSceneFor(chapter));
+  const loadScene = () => (loading ??= loadSceneFor(sceneId));
 
   const clearStage = () => {
     stage.replaceChildren();
@@ -107,7 +109,7 @@ export function setupKusabiCutscene(): (() => void) | undefined {
       next.addEventListener("click", complete, { once: true });
       controls.append(next);
     });
-    const ctx: KusabiSceneContext = { canvas, stage, reveal, complete, signal: abort.signal };
+    const ctx: KusabiSceneContext = { canvas, stage, text: textEl.textContent ?? "", reveal, complete, signal: abort.signal };
     return { ctx, abort };
   };
 
@@ -115,7 +117,7 @@ export function setupKusabiCutscene(): (() => void) | undefined {
     dialog,
     skipButton,
     startButton,
-    playedKey: `${PLAYED_PREFIX}${chapter}`,
+    playedKey: `${PLAYED_PREFIX}${sceneId}`,
     loadScene: () => {
       nav?.hold?.(SCENE_LOAD_BUDGET_MS);
       return loadScene();
@@ -176,8 +178,24 @@ export function setupKusabiCutscene(): (() => void) | undefined {
   });
 
   dialog.addEventListener("close", clearStage);
-  runner.start();
+
+  // An Extra is gated: a reader who reached it by direct link and has not opened it sees no scene.
+  let stopped = false;
+  const gateId = document.querySelector<HTMLElement>("article[data-gate]")?.dataset.gate as UnlockId | undefined;
+  if (gateId) {
+    loadProgress()
+      .then((progress) => {
+        if (stopped) return;
+        if (isUnlocked(gateId, progress)) runner.start();
+        else uncover();
+      })
+      .catch(uncover);
+  } else {
+    runner.start();
+  }
+
   return () => {
+    stopped = true;
     dialog.removeEventListener("close", clearStage);
     runner.destroy();
     uncover();

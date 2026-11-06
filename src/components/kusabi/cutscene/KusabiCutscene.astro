@@ -6,17 +6,21 @@
 // and playedToday() in _shared/cutscene/core.ts; cutscene-gate.test.ts evaluates
 // the code between the markers against core.ts.
 interface Props {
-  chapter: number;
+  /** A chapter's number or an Extra's id. */
+  chapter: number | string;
   epigraph: string;
   label: string;
+  /** Several lines of a narrator's voice rather than one epigraph. */
+  narrator?: boolean;
 }
 
-const { chapter, epigraph, label } = Astro.props;
+const { chapter, epigraph, label, narrator = false } = Astro.props;
 ---
 
 <dialog
   class="kusabi-cutscene"
   data-chapter={chapter}
+  data-narrator={narrator ? "" : undefined}
   data-state="idle"
   data-dev={import.meta.env.DEV ? "" : undefined}
   aria-label={label}
@@ -171,6 +175,42 @@ const { chapter, epigraph, label } = Astro.props;
     line-height: 1.95;
     text-shadow: 0 1px 10px rgba(0, 0, 0, 0.95);
     text-wrap: pretty;
+  }
+
+  /* A voice rather than an epigraph: its own line breaks, read from the left. It scrolls if a
+     very small screen still cannot hold it. */
+  .kusabi-cutscene[data-narrator] {
+    overflow-y: auto;
+  }
+
+  .kusabi-cutscene[data-narrator] .kusabi-cutscene__card {
+    align-content: safe center;
+    background: radial-gradient(ellipse 80% 70% at 42% 50%, rgba(8, 6, 6, 0.72), transparent 82%);
+    text-align: start;
+  }
+
+  .kusabi-cutscene[data-narrator] .kusabi-cutscene__text {
+    width: min(30rem, 100%);
+    line-height: 1.75;
+    white-space: pre-line;
+  }
+
+  @media (max-height: 640px) {
+    .kusabi-cutscene[data-narrator] .kusabi-cutscene__card {
+      gap: 0.9rem;
+      padding-block: 0.75rem;
+    }
+  }
+
+  @media (max-height: 480px) {
+    .kusabi-cutscene[data-narrator] .kusabi-cutscene__card {
+      padding-inline-end: 6rem;
+    }
+
+    .kusabi-cutscene[data-narrator] .kusabi-cutscene__text {
+      font-size: 0.95rem;
+      line-height: 1.55;
+    }
   }
 
   /* Opacity in steps, without a transition, so Thai lines never reflow and the

@@ -14,6 +14,8 @@ export interface SceneTiming {
   revealTo: number;
   /** How long the scene waits for the reader after the text is complete. */
   linger: number;
+  /** Turns the share of the time passed into the share of the text shown. Even if left out. */
+  pace?(fraction: number): number;
 }
 
 export const DEFAULT_TIMING: SceneTiming = { revealFrom: 0.9, revealTo: 6.5, linger: 7 };
@@ -36,7 +38,8 @@ export function playScene(ctx: KusabiSceneContext, draw: DrawScene, timing: Scen
       clock += Math.min((now - last) / 1000, 0.25);
       last = now;
       draw(c, size, clock);
-      ctx.reveal((clock - timing.revealFrom) / (timing.revealTo - timing.revealFrom));
+      const fraction = (clock - timing.revealFrom) / (timing.revealTo - timing.revealFrom);
+      ctx.reveal(timing.pace ? timing.pace(fraction) : fraction);
       if (!ended && clock >= timing.revealTo + timing.linger) {
         ended = true;
         ctx.complete();

@@ -27,7 +27,7 @@ describe("spoilers stay out of the first load", () => {
       const imports = read(path).match(/from "[^"]+"/g) ?? [];
       for (const line of imports) {
         if (/import type/.test(line)) continue;
-        assert.doesNotMatch(line, /data\/kusabi\/(characters|case-map|vault|epigraphs|moments)/, `${path} imports ${line}`);
+        assert.doesNotMatch(line, /data\/kusabi\/(characters|case-map|vault|epigraphs|extra-narration|moments)/, `${path} imports ${line}`);
       }
     }
   });
