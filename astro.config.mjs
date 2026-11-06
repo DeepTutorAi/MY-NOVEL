@@ -457,20 +457,23 @@ function rehypeOpeningDropcap() {
   return transform;
 }
 
-// Kusabi's source art stays in public/, where the author keeps every story's images,
-// but must not ship: a direct URL would show the reveals and the pictures of the
-// characters' future. The site only uses processed copies with neutral names.
+// Source art stays in public/, where the author keeps every story's images, but must
+// not ship: a direct URL would show the reveals and the pictures of the characters'
+// future. The site only uses processed copies with neutral names.
 const KUSABI_SOURCE_ART = ["characters", "extra", "home-hero.webp", "home-hero-v2.webp"];
+const TSUKINOMI_SOURCE_ART = ["characters", "extra"];
 
-function keepKusabiSourceArtOutOfBuild() {
+function keepSourceArtOutOfBuild() {
   return {
-    name: "keep-kusabi-source-art-out-of-build",
+    name: "keep-source-art-out-of-build",
     hooks: {
       /** @param {{ dir: URL }} options */
       "astro:build:done": async ({ dir }) => {
-        await Promise.all(
-          KUSABI_SOURCE_ART.map((path) => rm(new URL(`assets/kusabi/images/${path}`, dir), { recursive: true, force: true })),
-        );
+        const paths = [
+          ...KUSABI_SOURCE_ART.map((path) => `assets/kusabi/images/${path}`),
+          ...TSUKINOMI_SOURCE_ART.map((path) => `assets/tsukinomi/images/${path}`),
+        ];
+        await Promise.all(paths.map((path) => rm(new URL(path, dir), { recursive: true, force: true })));
       },
     },
   };
@@ -479,7 +482,7 @@ function keepKusabiSourceArtOutOfBuild() {
 export default defineConfig({
   site: "https://deeptutorai.github.io",
   base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
-  integrations: [keepKusabiSourceArtOutOfBuild()],
+  integrations: [keepSourceArtOutOfBuild()],
   markdown: {
     remarkPlugins: [
       remarkDirective,

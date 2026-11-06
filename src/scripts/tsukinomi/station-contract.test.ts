@@ -1,6 +1,6 @@
 // What the character page and the Extra train must keep true at the source level.
 import assert from "node:assert/strict";
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
 import type { VaultTier } from "../../data/tsukinomi/characters";
@@ -77,6 +77,25 @@ describe("the route", () => {
     const words = /นิสัย|บุคลิก|เงียบ|อ่อนโยน|สดใส|ร่าเริง|เข้มแข็ง|พูดน้อย|พูดเก่ง|ใจดี|หนักแน่น|ขี้กังวล|ซื่อสัตย์|คิดเยอะ|เศร้า|เสียดาย|โอตาคุ/;
     const later = (buildVaultFiles() as unknown as { later: unknown }).later;
     assert.doesNotMatch(JSON.stringify([tiers, later]) + read("src/data/tsukinomi/characters.ts"), words);
+  });
+});
+
+describe("the source art never ships", () => {
+  const servedFrom = ["src/pages", "src/components", "src/layouts", "src/data", "src/styles", "src/content/tsukinomi"];
+
+  it("is removed from every build", () => {
+    assert.match(read("astro.config.mjs"), /TSUKINOMI_SOURCE_ART = \["characters", "extra"\]/);
+  });
+
+  // A page asking for one of these would show a broken picture on the live site.
+  it("is not asked for by anything the site serves", () => {
+    const asked = servedFrom.flatMap((folder) =>
+      readdirSync(join(process.cwd(), folder), { recursive: true, withFileTypes: true })
+        .filter((entry) => entry.isFile())
+        .map((entry) => join(entry.parentPath, entry.name))
+        .filter((path) => /assets\/tsukinomi\/images\/(characters|extra)\//.test(readFileSync(path, "utf8"))),
+    );
+    assert.deepEqual(asked, []);
   });
 });
 
