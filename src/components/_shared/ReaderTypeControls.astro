@@ -1,0 +1,150 @@
+---
+// Text size and line spacing in a novel's settings panel, with Kusabi's steps. The rules below
+// reach only the chapter text, so nothing changes on the hub or the novel's other pages.
+import type { ReaderTypeNovel } from "../../scripts/_shared/reader-type-core";
+
+interface Props {
+  novel: ReaderTypeNovel;
+}
+
+const { novel } = Astro.props;
+const fontSteps = [
+  { value: "small", label: "เล็ก" },
+  { value: "normal", label: "ปกติ" },
+  { value: "large", label: "ใหญ่" },
+  { value: "xl", label: "ใหญ่มาก" },
+];
+const lineSteps = [
+  { value: "normal", label: "ปกติ" },
+  { value: "loose", label: "กว้าง" },
+];
+---
+
+<div class="reader-type" data-reader-type={novel}>
+  <fieldset>
+    <legend>ขนาดตัวอักษร</legend>
+    <div class="reader-type-steps" style={`--steps: ${fontSteps.length}`}>
+      {
+        fontSteps.map((step) => (
+          <label>
+            <input type="radio" name={`${novel}-reader-font`} value={step.value} data-reader-font />
+            <span>{step.label}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+  <fieldset>
+    <legend>ระยะบรรทัด</legend>
+    <div class="reader-type-steps" style={`--steps: ${lineSteps.length}`}>
+      {
+        lineSteps.map((step) => (
+          <label>
+            <input type="radio" name={`${novel}-reader-line`} value={step.value} data-reader-line />
+            <span>{step.label}</span>
+          </label>
+        ))
+      }
+    </div>
+  </fieldset>
+</div>
+
+<script>
+  import { bindReaderTypeControls } from "../../scripts/_shared/reader-type";
+
+  bindReaderTypeControls();
+  document.addEventListener("astro:page-load", bindReaderTypeControls);
+</script>
+
+<style>
+  .reader-type {
+    display: grid;
+    gap: 0.75rem;
+    margin-block-start: 1rem;
+    padding-block-start: 0.85rem;
+    border-block-start: 1px solid color-mix(in srgb, currentColor 12%, transparent);
+  }
+
+  fieldset {
+    display: grid;
+    gap: 0.4rem;
+    min-inline-size: 0;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  legend {
+    padding: 0;
+    font-size: 0.72rem;
+    opacity: 0.72;
+  }
+
+  .reader-type-steps {
+    display: grid;
+    grid-template-columns: repeat(var(--steps), minmax(0, 1fr));
+    gap: 0.3rem;
+  }
+
+  label {
+    position: relative;
+    display: block;
+    cursor: pointer;
+  }
+
+  input {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    opacity: 0;
+    cursor: pointer;
+  }
+
+  span {
+    display: grid;
+    place-items: center;
+    min-block-size: 2.75rem;
+    padding-inline: 0.2rem;
+    border: 1px solid color-mix(in srgb, currentColor 22%, transparent);
+    font-size: 0.8rem;
+    text-align: center;
+  }
+
+  input:checked + span {
+    border-color: var(--tsuki-accent, var(--accent));
+    background: color-mix(in srgb, var(--tsuki-accent, var(--accent)) 20%, transparent);
+  }
+
+  input:focus-visible + span {
+    outline: 2px solid var(--tsuki-accent, var(--accent));
+    outline-offset: 2px;
+  }
+</style>
+
+<style is:global>
+  html[data-lodge-font="small"] article.chapter,
+  html[data-tsukinomi-font="small"] article.tsukinomi-section {
+    font-size: 15px;
+  }
+
+  html[data-lodge-font="large"] article.chapter,
+  html[data-tsukinomi-font="large"] article.tsukinomi-section {
+    font-size: 22px;
+  }
+
+  html[data-lodge-font="xl"] article.chapter,
+  html[data-tsukinomi-font="xl"] article.tsukinomi-section {
+    font-size: 26px;
+  }
+
+  html[data-lodge-lh="loose"] article.chapter,
+  html[data-tsukinomi-lh="loose"] article.tsukinomi-section {
+    line-height: 2.25;
+  }
+
+  /* Both columns are measured in ch, so they would widen with the text. */
+  html[data-lodge-font] article.chapter,
+  html[data-tsukinomi-font] article.tsukinomi-section {
+    max-inline-size: min(100%, 800px);
+  }
+</style>

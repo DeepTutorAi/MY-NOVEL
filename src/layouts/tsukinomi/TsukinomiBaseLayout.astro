@@ -14,6 +14,7 @@ import { NOVELS, type NovelMeta } from "../../data/_novels";
 import "../../styles/tsukinomi/global.css";
 import { withBase } from "../../utils/base-path";
 import ProfileStorageInterceptor from "../../components/_shared/ProfileStorageInterceptor.astro";
+import ReaderTypeHead from "../../components/_shared/ReaderTypeHead.astro";
 
 interface Props {
   title: string;
@@ -67,6 +68,7 @@ const backgroundStyle = bgImage === "none" ? undefined : `--bg-image: ${bgImage}
 <html lang="th">
   <head>
     <ProfileStorageInterceptor />
+    <ReaderTypeHead novel="tsukinomi" />
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>

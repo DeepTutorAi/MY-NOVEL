@@ -6,6 +6,7 @@ import { getCollection } from "astro:content";
 import { getMusicCue, isMusicCueId } from "../../../data/tsukinomi/music-cues";
 import { partLabel } from "../../../scripts/tsukinomi/home/concourse-core";
 import { formatReadingTime } from "../../../utils/reading-time";
+import ReaderTypeControls from "../../_shared/ReaderTypeControls.astro";
 
 const tracks = (await getCollection("tsukinomiSections"))
   .sort((a, b) => a.data.number - b.data.number)
@@ -85,6 +86,8 @@ const tracks = (await getCollection("tsukinomiSections"))
     <input data-backdrop-toggle type="checkbox" />
     <span>แอนิเมชันพื้นหลัง (ซากุระ/ฝน)</span>
   </label>
+
+  <ReaderTypeControls novel="tsukinomi" />
 
   <div class="walkman-soundscapes" aria-label="เสียงบรรยากาศ">
     <section class="walkman-soundscape" data-soundscape="cassette-hiss">

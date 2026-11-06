@@ -437,6 +437,7 @@
 
     window.addEventListener("scroll", requestUpdate, { passive: true });
     window.addEventListener("resize", requestUpdate);
+    window.addEventListener("reader-type-change", requestUpdate);
     window.addEventListener("pagehide", handlePageHide);
 
     // Interaction listeners for secret tracking
@@ -453,6 +454,7 @@
       destroy() {
         window.removeEventListener("scroll", requestUpdate);
         window.removeEventListener("resize", requestUpdate);
+        window.removeEventListener("reader-type-change", requestUpdate);
         window.removeEventListener("pagehide", handlePageHide);
         window.removeEventListener("mousemove", recordInteraction);
         window.removeEventListener("scroll", recordInteraction);

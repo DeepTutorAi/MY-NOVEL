@@ -1,0 +1,35 @@
+---
+// Applies the saved text size and line spacing before first paint. ClientRouter replaces the
+// <html> attributes on every swap and does not re-run this, so they are set again after a swap.
+// Keys and steps match scripts/_shared/reader-type-core.ts.
+import type { ReaderTypeNovel } from "../../scripts/_shared/reader-type-core";
+
+interface Props {
+  novel: ReaderTypeNovel;
+}
+
+const { novel } = Astro.props;
+---
+
+<script is:inline define:vars={{ novel }}>
+  (() => {
+    const read = (key) => {
+      try {
+        return localStorage.getItem(key);
+      } catch {
+        return null;
+      }
+    };
+    const apply = () => {
+      const root = document.documentElement;
+      const font = read(novel + ":settings:font-size");
+      if (font === "small" || font === "large" || font === "xl") root.setAttribute("data-" + novel + "-font", font);
+      if (read(novel + ":settings:line-height") === "loose") root.setAttribute("data-" + novel + "-lh", "loose");
+    };
+    apply();
+    const bound = "__" + novel + "ReaderTypeBound";
+    if (window[bound]) return;
+    window[bound] = true;
+    document.addEventListener("astro:after-swap", apply);
+  })();
+</script>
