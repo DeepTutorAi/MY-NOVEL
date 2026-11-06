@@ -50,7 +50,7 @@ import "../../../styles/tsukinomi/extra-train.css";
       <p class="xt-count" data-route-count>อ่านแล้ว 0 จาก {TOTAL_SECTIONS} ภาค</p>
       <p class="xt-error" role="status" data-extra-error hidden>เปิดขบวนนี้ไม่สำเร็จ ลองเปิดหน้านี้อีกครั้ง</p>
 
-      <details class="xt-dev">
+      <details class="xt-dev" data-dev-key>
         <summary>ทางลัดผู้พัฒนา</summary>
         <div class="xt-dev-row">
           <label for="bypass-password">รหัส</label>
@@ -58,6 +58,7 @@ import "../../../styles/tsukinomi/extra-train.css";
           <button type="button" data-bypass-btn>ปลดล็อก</button>
         </div>
         <p class="xt-error" role="status" data-bypass-error hidden>รหัสไม่ถูกต้อง</p>
+        <p class="xt-dev-hint" data-bypass-hint hidden></p>
       </details>
     </section>
 

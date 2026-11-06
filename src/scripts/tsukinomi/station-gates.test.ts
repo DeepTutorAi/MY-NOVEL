@@ -1,7 +1,6 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 import {
-  BYPASS_H2,
   CHAPTERS_DONE_KEY,
   REVEALED_KEY,
   SECRET_DEPTHS_KEY,
@@ -10,7 +9,6 @@ import {
   extraOpen,
   maxSectionRead,
   parseSecretReads,
-  sha256Hex,
   stopNumber,
 } from "./station-gates";
 
@@ -88,11 +86,9 @@ describe("maxSectionRead", () => {
 });
 
 describe("the developer shortcut", () => {
-  it("accepts only the hash whose own hash is on record", async () => {
+  it("accepts only a token of the shared developer key", async () => {
     assert.equal(await bypassMatches(null), false);
     assert.equal(await bypassMatches("wrong"), false);
-    assert.equal(BYPASS_H2.length, 64);
-    assert.equal((await sha256Hex("abc")).slice(0, 8), "ba7816bf");
   });
 });
 

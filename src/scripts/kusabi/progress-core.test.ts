@@ -5,7 +5,6 @@ import { describe, it } from "node:test";
 import { CHAPTER_UNITS } from "../../data/kusabi/units";
 import { UNLOCK_NOTICES, UNLOCKS, type UnlockId } from "../../data/kusabi/unlocks";
 import {
-  BYPASS_H2,
   bypassMatches,
   CASE_MAP_KEY,
   chapterKey,
@@ -164,10 +163,9 @@ describe("site state", () => {
 });
 
 describe("developer shortcut", () => {
-  it("accepts only a stored value that hashes to the known digest", async () => {
+  it("accepts only a token of the shared developer key", async () => {
     assert.equal(await bypassMatches(null), false);
     assert.equal(await bypassMatches("wrong"), false);
-    assert.equal(BYPASS_H2.length, 64);
     assert.equal(await sha256Hex("abc"), "ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad");
   });
 });

@@ -17,305 +17,73 @@ const descriptionId = `novel-card-${novel.slug}-desc`;
 ---
 
 <div class="novel-card-wrapper" data-novel-slug={novel.slug} data-status={novel.status}>
-  <!-- Clickable / Published Card -->
-  <a
-    class="novel-card"
-    style={accentStyle + (isAvailable ? "" : "; display: none")}
-    href={withBase(novel.href)}
-    aria-label={`เปิดอ่าน ${novel.titleTh}`}
-    aria-describedby={`${descriptionId}-subtitle ${descriptionId}-meta ${descriptionId}-state`}
-    data-active-card
-  >
-    {/* Shares its transition name with the hero of the novel's home page, so
-        opening a card morphs its art into that page. */}
-    <span class="novel-card-media" aria-hidden="true" transition:name={`novel-hero-${novel.slug}`}>
-      {
-        useImage ? (
-          <img src={heroImage} alt="" loading="eager" decoding="async" />
-        ) : (
-          <span class="novel-card-placeholder">
-            <span class="station-line"></span>
-            <span class="station-moon"></span>
-            <span class="station-platform"></span>
-          </span>
-        )
-      }
-      <span class="novel-card-progress" data-card-progress hidden><span></span></span>
-    </span>
-    <span class="novel-card-body">
-      <span class="novel-card-kicker">{novel.titleEn}</span>
-      <strong class="novel-card-title">{novel.titleTh}</strong>
-      <span class="novel-card-subtitle" id={`${descriptionId}-subtitle`}>{novel.subtitle}</span>
-      <span class="novel-card-meta" id={`${descriptionId}-meta`}>{novel.mood} · {novel.length}</span>
-      <span class="novel-card-footer">
-        <span class="novel-card-state" id={`${descriptionId}-state`} data-card-state data-default={novel.badge ?? ""}>{novel.badge ?? ""}</span>
-        <span class="novel-card-action">เข้าสู่เรื่อง</span>
-      </span>
-    </span>
-  </a>
-  <a class="novel-card-continue" style={accentStyle} href={withBase(novel.href)} data-card-continue hidden>อ่านต่อ</a>
-
-  <!-- Locked / Coming Soon Card -->
-  <article
-    class="novel-card is-disabled"
-    style={accentStyle + (isAvailable ? "; display: none" : "")}
-    role="button"
-    tabindex="0"
-    aria-label={`ดูคำใบ้การเปิด ${novel.titleTh}`}
-    data-locked-card
-  >
-    <span class="novel-card-media" aria-hidden="true">
-      {
-        useImage ? (
-          <img src={heroImage} alt="" loading="eager" decoding="async" />
-        ) : (
-          <span class="novel-card-placeholder">
-            <span class="station-line"></span>
-            <span class="station-moon"></span>
-            <span class="station-platform"></span>
-          </span>
-        )
-      }
-    </span>
-    <span class="novel-card-body">
-      <span class="novel-card-kicker">{novel.titleEn}</span>
-      <strong class="novel-card-title">{novel.titleTh}</strong>
-      <span class="novel-card-subtitle">
-        {novel.slug === "tsukinomi" ? "สถานีซ่อนอยู่หลังความทรงจำ อ่านให้ถึงเงื่อนไข แล้วชานชาลาจะเปิดเอง" : novel.subtitle}
-      </span>
-      <span class="novel-card-meta">{novel.mood} · {novel.length}</span>
-      <span class="novel-card-footer">
-        <span>{novel.status}</span>
-        <span class="novel-card-action">ดูคำใบ้การเปิดสถานี</span>
-      </span>
-    </span>
-  </article>
   {
-    novel.slug === "tsukinomi" && (
-      <div class="novel-card-hint" data-tsuki-card-hint hidden role="status" aria-live="polite">
-        <button type="button" class="novel-card-hint-close" data-tsuki-card-hint-close aria-label="ปิดคำใบ้">×</button>
-        <strong data-tsuki-card-hint-title>คำใบ้ Extra: ทางหลักอยู่ที่ Lodge</strong>
-        <span data-tsuki-card-hint-copy>ลองอ่านเส้นทางลับของ Lodge ให้ครบ 15 ครั้ง แล้วสถานีจะเปิดประตู Extra ให้เอง</span>
-      </div>
+    isAvailable ? (
+      <>
+        <a
+          class="novel-card"
+          style={accentStyle}
+          href={withBase(novel.href)}
+          aria-label={`เปิดอ่าน ${novel.titleTh}`}
+          aria-describedby={`${descriptionId}-subtitle ${descriptionId}-meta ${descriptionId}-state`}
+          data-active-card
+        >
+          {/* Shares its transition name with the hero of the novel's home page, so
+              opening a card morphs its art into that page. */}
+          <span class="novel-card-media" aria-hidden="true" transition:name={`novel-hero-${novel.slug}`}>
+            {
+              useImage ? (
+                <img src={heroImage} alt="" loading="eager" decoding="async" />
+              ) : (
+                <span class="novel-card-placeholder">
+                  <span class="station-line" />
+                  <span class="station-moon" />
+                  <span class="station-platform" />
+                </span>
+              )
+            }
+            <span class="novel-card-progress" data-card-progress hidden>
+              <span />
+            </span>
+          </span>
+          <span class="novel-card-body">
+            <span class="novel-card-kicker">{novel.titleEn}</span>
+            <strong class="novel-card-title">{novel.titleTh}</strong>
+            <span class="novel-card-subtitle" id={`${descriptionId}-subtitle`}>{novel.subtitle}</span>
+            <span class="novel-card-meta" id={`${descriptionId}-meta`}>{novel.mood} · {novel.length}</span>
+            <span class="novel-card-footer">
+              <span class="novel-card-state" id={`${descriptionId}-state`} data-card-state data-default={novel.badge ?? ""}>
+                {novel.badge ?? ""}
+              </span>
+              <span class="novel-card-action">เข้าสู่เรื่อง</span>
+            </span>
+          </span>
+        </a>
+        <a class="novel-card-continue" style={accentStyle} href={withBase(novel.href)} data-card-continue hidden>อ่านต่อ</a>
+      </>
+    ) : (
+      /* A closed novel: only what a passer-by should know. The English title stays off the
+         page, because it is also the password on the gate this card leads to. */
+      <a
+        class="novel-card is-disabled"
+        style={accentStyle}
+        href={withBase(novel.href)}
+        aria-label={`${novel.titleTh} ยังไม่เปิดให้อ่าน ${novel.status}`}
+        data-astro-reload
+      >
+        <span class="novel-card-media" aria-hidden="true">
+          {useImage && <img src={heroImage} alt="" loading="eager" decoding="async" />}
+        </span>
+        <span class="novel-card-body">
+          <strong class="novel-card-title">{novel.titleTh}</strong>
+          <span class="novel-card-subtitle">{novel.subtitle}</span>
+          <span class="novel-card-meta">{novel.mood}</span>
+          <span class="novel-card-footer">
+            <span>{novel.status}</span>
+            <span class="novel-card-action">ยังไม่เปิดให้อ่าน</span>
+          </span>
+        </span>
+      </a>
     )
   }
 </div>
-
-{
-  novel.slug === "tsukinomi" && (
-    <script is:inline>
-      (() => {
-        const HINT_COOLDOWN_KEY = "tsukinomi:hub-card-hint-cooldown-until";
-        const HINT_COOLDOWN_MS = 5 * 60 * 1000;
-        const TSUKINOMI_SECRET_REQUIRED = 4;
-        const LODGE_SECRET_REQUIRED = 15;
-        let hintTimer = 0;
-        let clickCount = 0;
-        let lastClickTime = 0;
-        let activeCard, lockedCard, hint, hintTitle, hintCopy, hintClose;
-
-        const BYPASS_KEY = "tsukinomi:extra-bypassed";
-        // Double hash verification: H2 = sha256(H1)
-        const EXPECTED_H2 = "ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18";
-
-        // SHA-256 helper
-        async function sha256(message) {
-          const msgBuffer = new TextEncoder().encode(message);
-          const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
-          const hashArray = Array.from(new Uint8Array(hashBuffer));
-          return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-        }
-
-        const getSecretReadsCount = () => {
-          try {
-            const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
-            const arr = raw ? JSON.parse(raw) : [];
-            if (Array.isArray(arr)) {
-              return arr.filter(id => id !== "00-introduction").length;
-            }
-            return 0;
-          } catch {
-            return 0;
-          }
-        };
-
-        const getLodgeReadsCount = () => {
-          try {
-            const raw = localStorage.getItem("hvitveldt:secret:reads");
-            const arr = raw ? JSON.parse(raw) : [];
-            if (Array.isArray(arr)) {
-              return arr.filter(id => id !== "00-introduction").length;
-            }
-            return 0;
-          } catch {
-            return 0;
-          }
-        };
-
-        const checkUnlocked = async () => {
-          const storedH1 = localStorage.getItem(BYPASS_KEY);
-          if (storedH1) {
-            const calculatedH2 = await sha256(storedH1);
-            if (calculatedH2 === EXPECTED_H2) {
-              return true;
-            }
-          }
-
-          // Or unlock via reading progress
-          if (getSecretReadsCount() >= TSUKINOMI_SECRET_REQUIRED) {
-            return true;
-          }
-
-          // Or unlock via Lodge extra page unlock (Bypass check)
-          const lodgeBypassH1 = localStorage.getItem("hvitveldt:extra-bypassed");
-          if (lodgeBypassH1) {
-            const calculatedLodgeH2 = await sha256(lodgeBypassH1);
-            if (calculatedLodgeH2 === "6d4829eebb416434779797994fa3b4324fcf1b3eb2392c99b0c6599313b8dad7") {
-              return true;
-            }
-          }
-
-          // Or unlock via Lodge reading progress (>= 15 chapters read)
-          if (getLodgeReadsCount() >= LODGE_SECRET_REQUIRED) {
-            return true;
-          }
-
-          return false;
-        };
-
-        const updateCardUI = async () => {
-          if (!activeCard || !lockedCard) return;
-
-          const shouldGateCard = activeCard.closest('[data-novel-slug]')?.dataset.status !== "เผยแพร่";
-
-          if (!shouldGateCard) {
-            activeCard.style.display = '';
-            lockedCard.style.display = 'none';
-            return;
-          }
-
-          const unlocked = await checkUnlocked();
-          if (unlocked) {
-            activeCard.style.display = '';
-            lockedCard.style.display = 'none';
-          } else {
-            activeCard.style.display = 'none';
-            lockedCard.style.display = '';
-          }
-        };
-
-        const updateHintCopy = () => {
-          const tsukiReads = Math.min(getSecretReadsCount(), TSUKINOMI_SECRET_REQUIRED);
-          const lodgeReads = Math.min(getLodgeReadsCount(), LODGE_SECRET_REQUIRED);
-          const lodgeLeft = Math.max(0, LODGE_SECRET_REQUIRED - lodgeReads);
-          const tsukiLeft = Math.max(0, TSUKINOMI_SECRET_REQUIRED - tsukiReads);
-
-          if (hintTitle instanceof HTMLElement) {
-            hintTitle.textContent = lodgeLeft === 0
-              ? "คำใบ้ Extra: Lodge เปิดทางให้แล้ว"
-              : "คำใบ้ Extra: ทางหลักอยู่ที่ Lodge";
-          }
-
-          if (hintCopy instanceof HTMLElement) {
-            hintCopy.textContent = lodgeLeft === 0
-              ? `เงื่อนไข Lodge ครบแล้ว ${lodgeReads}/${LODGE_SECRET_REQUIRED} ครั้ง กลับมาที่สถานีแล้วลองเปิด Extra ได้เลย`
-              : `ลองอ่านเส้นทางลับของ Lodge ให้ครบ ${LODGE_SECRET_REQUIRED} ครั้ง ตอนนี้ ${lodgeReads}/${LODGE_SECRET_REQUIRED} เหลืออีก ${lodgeLeft} ครั้ง; อีกทางคืออ่านทางลับของ Tsukinomi ${tsukiReads}/${TSUKINOMI_SECRET_REQUIRED} เหลืออีก ${tsukiLeft} ครั้ง`;
-          }
-        };
-
-        const hideLockedHint = () => {
-          if (hint instanceof HTMLElement) {
-            hint.hidden = true;
-          }
-          window.clearTimeout(hintTimer);
-        };
-
-        const showLockedHint = () => {
-          updateHintCopy();
-
-          const now = Date.now();
-          const nextAllowed = Number(localStorage.getItem(HINT_COOLDOWN_KEY) || 0);
-          if (Number.isFinite(nextAllowed) && nextAllowed > now) {
-            return;
-          }
-
-          localStorage.setItem(HINT_COOLDOWN_KEY, String(now + HINT_COOLDOWN_MS));
-          if (hint instanceof HTMLElement) {
-            hint.hidden = false;
-            window.clearTimeout(hintTimer);
-            hintTimer = window.setTimeout(hideLockedHint, 6500);
-          }
-        };
-
-        const handleHintClose = (event) => {
-          event.preventDefault();
-          event.stopPropagation();
-          hideLockedHint();
-        };
-
-        // Developer shortcut trigger: 5 quick clicks on the locked card.
-        const handleLockedCardIntent = async () => {
-          showLockedHint();
-
-          const now = Date.now();
-          if (now - lastClickTime > 2000) {
-            clickCount = 0; // reset if clicks are too slow
-          }
-          clickCount++;
-          lastClickTime = now;
-
-          if (clickCount >= 5) {
-            clickCount = 0;
-            const password = prompt('กรอกรหัสผ่านผู้พัฒนาสำหรับปลดล็อคเรื่อง "สถานีทะเลพระจันทร์":');
-            if (password) {
-              const h1 = await sha256(password.trim());
-              const h2 = await sha256(h1);
-              if (h2 === EXPECTED_H2) {
-                localStorage.setItem(BYPASS_KEY, h1);
-                alert('ปลดล็อคผู้พัฒนาสำเร็จแล้ว!');
-                updateCardUI();
-                // Also refresh page to trigger ResumeCard updates
-                window.location.reload();
-              } else {
-                alert('รหัสผ่านไม่ถูกต้อง');
-              }
-            }
-          }
-        };
-
-        const handleLockedCardKeydown = (event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            handleLockedCardIntent();
-          }
-        };
-
-        const bind = () => {
-          const wrapper = document.querySelector('[data-novel-slug="tsukinomi"]');
-          if (!wrapper) return;
-
-          activeCard = wrapper.querySelector('[data-active-card]');
-          lockedCard = wrapper.querySelector('[data-locked-card]');
-          hint = wrapper.querySelector('[data-tsuki-card-hint]');
-          hintTitle = wrapper.querySelector('[data-tsuki-card-hint-title]');
-          hintCopy = wrapper.querySelector('[data-tsuki-card-hint-copy]');
-          hintClose = wrapper.querySelector('[data-tsuki-card-hint-close]');
-
-          updateCardUI();
-
-          hintClose?.addEventListener('click', handleHintClose);
-
-          if (lockedCard) {
-            lockedCard.addEventListener('click', handleLockedCardIntent);
-            lockedCard.addEventListener('keydown', handleLockedCardKeydown);
-          }
-        };
-
-        // Initialize
-        bind();
-        document.addEventListener("astro:page-load", bind);
-      })();
-    </script>
-  )
-}
-

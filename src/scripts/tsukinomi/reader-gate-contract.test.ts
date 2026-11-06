@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { NOVELS } from "../../data/_novels";
 
 const root = process.cwd();
 
@@ -27,21 +26,6 @@ function projectFilesUnder(dir: string, extensions: readonly string[]): string[]
   return found;
 }
 
-/** The gate script as emitted by the layout: from its status check to the script's closing tag. */
-function gatedRegion(layout: string): { start: number; end: number; text: string } {
-  const start = layout.search(/requiresUnlockGate\s*&&\s*\(\s*<script is:inline>/);
-  assert.notEqual(start, -1, "the gate script must be wrapped in a requiresUnlockGate check");
-  const closing = layout.indexOf("</script>", start);
-  assert.notEqual(closing, -1, "the gated script must be closed");
-  const end = closing + "</script>".length;
-  return { start, end, text: layout.slice(start, end) };
-}
-
-function withoutGatedRegion(layout: string): string {
-  const { start, end } = gatedRegion(layout);
-  return layout.slice(0, start) + layout.slice(end);
-}
-
 /** The flat `selector { body }` rules (no nesting) of the <style> blocks of an Astro component. */
 function cssRules(component: string): Array<{ selector: string; body: string }> {
   const styles = [...component.matchAll(/<style[^>]*>([\s\S]*?)<\/style>/g)].map((match) => match[1]).join("\n");
@@ -52,48 +36,19 @@ function cssRules(component: string): Array<{ selector: string; body: string }> 
 }
 
 describe("Tsukinomi reader gate and cutscene layering contract", () => {
-  it("derives the unlock gate from the novel status in _novels.ts", () => {
-    const layout = readProjectFile(BASE_LAYOUT);
-    const novelsSource = readProjectFile("src/data/_novels.ts");
-
-    assert.match(layout, /import \{[^}]*\bNOVELS\b[^}]*\} from "\.\.\/\.\.\/data\/_novels";/);
-    assert.match(layout, /\.find\(\(novel\) => novel\.slug === "tsukinomi"\)/);
-    assert.match(layout, /const requiresUnlockGate = tsukinomiNovel\?\.status !== "เผยแพร่";/);
-
-    // The literal compared in the layout must be a real NovelStatus, and the novel must exist.
-    assert.match(novelsSource, /export type NovelStatus = [^;]*"เผยแพร่"/);
-    assert.ok(
-      NOVELS.some((novel) => novel.slug === "tsukinomi"),
-      "_novels.ts must keep a tsukinomi entry for the layout to read",
-    );
+  it("never sends a reader away from a section page", () => {
+    for (const path of [BASE_LAYOUT, SECTION_LAYOUT]) {
+      assert.doesNotMatch(readProjectFile(path), /location\.(replace|assign)|location\.href\s*=/, path);
+    }
   });
 
-  it("emits the redirect only inside the status-gated script", () => {
+  it("keeps the time-of-day script", () => {
     const layout = readProjectFile(BASE_LAYOUT);
-    const region = gatedRegion(layout);
 
-    // The unlock logic stays available behind the check, so re-locking the novel restores it.
-    assert.match(region.text, /window\.location\.replace\(target\)/);
-    assert.match(region.text, /if \(!isUnlocked && requiresTsukinomiUnlock\)/);
-    assert.match(region.text, /PUBLIC_TSUKINOMI_PATHS/);
-
-    // Nothing outside the gated block may navigate the reader away.
-    const ungated = withoutGatedRegion(layout);
-    assert.doesNotMatch(ungated, /location\.replace/);
-    assert.doesNotMatch(ungated, /location\.assign/);
-    assert.doesNotMatch(ungated, /location\.href\s*=/);
-
-    const sectionLayout = readProjectFile(SECTION_LAYOUT);
-    assert.doesNotMatch(sectionLayout, /location\.(replace|assign)|location\.href\s*=/);
-  });
-
-  it("keeps the time-of-day script outside the gate", () => {
-    const ungated = withoutGatedRegion(readProjectFile(BASE_LAYOUT));
-
-    assert.match(ungated, /function setTimeOfDay\(hour\)/);
-    assert.match(ungated, /new Date\(\)\.getHours\(\)/);
-    assert.match(ungated, /window\.__timeOfDayBound/);
-    assert.match(ungated, /astro:after-swap/);
+    assert.match(layout, /function setTimeOfDay\(hour\)/);
+    assert.match(layout, /new Date\(\)\.getHours\(\)/);
+    assert.match(layout, /window\.__timeOfDayBound/);
+    assert.match(layout, /astro:after-swap/);
   });
 
   it("does not request worldtimeapi from either Tsukinomi layout", () => {

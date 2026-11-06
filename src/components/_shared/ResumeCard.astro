@@ -1,5 +1,6 @@
 ---
 import { getCollection } from "astro:content";
+import { NOVELS } from "../../data/_novels";
 import { withBase } from "../../utils/base-path";
 import { getSeaChapters } from "../../utils/sea-chapters";
 
@@ -15,12 +16,16 @@ const lodgeUnits = (await getCollection("chapters"))
 const tsukinomiUnits = (await getCollection("tsukinomiSections"))
   .sort((a, b) => a.data.number - b.data.number)
   .map((section) => ({ id: section.id, number: section.data.number, title: section.data.title }));
-// Published chapters only (drafts are filtered in PROD by getSeaChapters).
-const seaUnits = (await getSeaChapters()).map((chapter) => ({
-  id: chapter.id,
-  number: chapter.data.number,
-  title: chapter.data.title,
-}));
+// Published chapters only (drafts are filtered in PROD by getSeaChapters). While the novel is
+// closed the hub gets none: its chapter titles stay off the page and Sea drops off the card.
+const seaOpen = NOVELS.find((novel) => novel.slug === "sea")?.status === "เผยแพร่";
+const seaUnits = seaOpen
+  ? (await getSeaChapters()).map((chapter) => ({
+      id: chapter.id,
+      number: chapter.data.number,
+      title: chapter.data.title,
+    }))
+  : [];
 const kusabiUnits = (await getCollection("kusabiChapters"))
   .sort((a, b) => a.data.number - b.data.number)
   .map((chapter) => ({ id: chapter.id, number: chapter.data.number, title: chapter.data.thaiTitle || chapter.data.title }));
@@ -183,64 +188,6 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
       };
     };
 
-    // SHA-256 helper
-    async function sha256(message) {
-      const msgBuffer = new TextEncoder().encode(message);
-      const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-    }
-
-    const getSecretReadsCount = () => {
-      try {
-        const raw = localStorage.getItem("tsukinomi:reading:secret:reads");
-        const arr = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(arr)) {
-          return arr.filter((id) => id !== "00-introduction").length;
-        }
-        return 0;
-      } catch {
-        return 0;
-      }
-    };
-
-    const getLodgeReadsCount = () => {
-      try {
-        const raw = localStorage.getItem("hvitveldt:secret:reads");
-        const arr = raw ? JSON.parse(raw) : [];
-        if (Array.isArray(arr)) {
-          return arr.filter((id) => id !== "00-introduction").length;
-        }
-        return 0;
-      } catch {
-        return 0;
-      }
-    };
-
-    const isTsukinomiUnlocked = async () => {
-      const storedH1 = localStorage.getItem("tsukinomi:extra-bypassed");
-      if (storedH1) {
-        const calculatedH2 = await sha256(storedH1);
-        if (calculatedH2 === "ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18") {
-          return true;
-        }
-      }
-      if (getSecretReadsCount() >= 4) {
-        return true;
-      }
-      // Lodge extra check
-      const lodgeBypassH1 = localStorage.getItem("hvitveldt:extra-bypassed");
-      if (lodgeBypassH1) {
-        const calculatedLodgeH2 = await sha256(lodgeBypassH1);
-        if (calculatedLodgeH2 === "6d4829eebb416434779797994fa3b4324fcf1b3eb2392c99b0c6599313b8dad7") {
-          return true;
-        }
-      }
-      return getLodgeReadsCount() >= 15;
-    };
-
-    const isUnlocked = await isTsukinomiUnlocked();
-
     const candidates = [
       normalize({
         slug: "lodge",
@@ -321,14 +268,7 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
         getNumber: (saved) => `${saved?.chapterNumber ?? ""}`.trim(),
         getTitle: (saved) => (typeof saved?.chapterTitle === "string" ? saved.chapterTitle.trim() : ""),
       }),
-    ]
-      .filter(Boolean)
-      .filter((candidate) => {
-        if (candidate.novelTitle === "สถานีทะเลพระจันทร์") {
-          return isUnlocked;
-        }
-        return true;
-      });
+    ].filter(Boolean);
 
     updateNovelCards(candidates, percentText);
 

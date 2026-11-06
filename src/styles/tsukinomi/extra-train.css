@@ -175,6 +175,10 @@
   font-size: 0.82rem;
 }
 
+.xt-dev-hint {
+  margin: 0.6rem 0 0;
+}
+
 .xt-dev summary {
   display: inline-flex;
   align-items: center;

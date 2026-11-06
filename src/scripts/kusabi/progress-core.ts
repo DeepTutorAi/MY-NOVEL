@@ -8,6 +8,7 @@
 // 73% of the epilogue, so 70% would open a file before its scene.
 import { CHAPTER_UNITS, EXTRA_UNITS, PROLOGUE_ID, EPILOGUE_ID, MAIN_CHAPTER_COUNT } from "../../data/kusabi/units";
 import { UNLOCKS, type Rule, type UnlockId } from "../../data/kusabi/unlocks";
+import { isDevToken } from "../_shared/dev-key";
 
 export const READ_SCROLL = 0.7;
 export const MIN_ACTIVE_SECONDS = 120;
@@ -22,9 +23,6 @@ export const LAST_READ_KEY = "kusabi:reading:last-read";
 export const EXTRA_LAST_KEY = "kusabi:reading:extra-last";
 export const chapterKey = (id: string) => `kusabi:reading:chapter:${id}`;
 export const extraKey = (id: string) => `kusabi:reading:extra:${id}`;
-
-/** H2 = sha256(H1), H1 = sha256(password). The stored value is H1. */
-export const BYPASS_H2 = "9c5144f57cc6d4eb640c116097b92fd94f5a4370379d732604003d2a15fef6de";
 
 export interface ReadingRecord {
   progress: number;
@@ -154,11 +152,5 @@ export async function sha256Hex(message: string): Promise<string> {
   return Array.from(new Uint8Array(hash), (byte) => byte.toString(16).padStart(2, "0")).join("");
 }
 
-export async function bypassMatches(storedH1: string | null): Promise<boolean> {
-  if (!storedH1) return false;
-  try {
-    return (await sha256Hex(storedH1)) === BYPASS_H2;
-  } catch {
-    return false;
-  }
-}
+/** Whether a stored value is the developer shortcut. */
+export const bypassMatches = isDevToken;

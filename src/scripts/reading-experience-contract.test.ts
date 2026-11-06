@@ -101,6 +101,12 @@ describe("shared reading experience contract", () => {
     assert.match(tsukiTopbar, /href=\{withBase\("\/"\)\}[^>]*>ฮับนิยาย/);
     assert.match(tsukiNav, /href=\{withBase\("\/tsukinomi\/"\)\}>หน้าหลักเรื่อง/);
     assert.match(tsukiNav, /href=\{withBase\("\/"\)\}>ฮับนิยาย/);
+
+    const kusabiLayout = readProjectFile("src/layouts/kusabi/KusabiBaseLayout.astro");
+    const seaTopbar = readProjectFile("src/components/sea/navigation/SeaTopBar.astro");
+    assert.match(kusabiLayout, /href=\{withBase\("\/"\)\}[^>]*>ฮับนิยาย/);
+    assert.match(seaTopbar, /href=\{withBase\("\/"\)\}[^>]*>ฮับนิยาย/);
+    assert.ok(seaTopbar.indexOf("ฮับนิยาย") < seaTopbar.indexOf("data-sea-drawer-open"), "the hub link comes first, as on the other novels");
   });
 
   it("prevents the Tsukinomi drop cap from overlapping Thai prose on narrow reader viewports", () => {
@@ -145,12 +151,12 @@ describe("shared reading experience contract", () => {
       /activeSeconds >= SECRET_THRESHOLD_SEC && maxSecretProgress >= SECRET_DEPTH_THRESHOLD/,
     );
 
-    // Extra page requirements: bypass passwords (securely hashed) and 80% threshold checks
-    assert.match(lodgeExtra, /6d4829eebb416434779797994fa3b4324fcf1b3eb2392c99b0c6599313b8dad7/);
+    // Extra page requirements: the shared developer key and 80% threshold checks
+    assert.match(lodgeExtra, /isDevToken/);
     assert.match(lodgeExtra, /UNLOCK_THRESHOLD = 15/);
     assert.match(lodgeExtra, /hvitveldt:extra-bypassed/);
 
-    assert.match(tsukiExtra, /ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18/);
+    assert.match(tsukiExtra, /isDevToken/);
     assert.match(tsukiExtra, /UNLOCK_THRESHOLD = 4/);
     assert.match(tsukiExtra, /REQUIRED_FINAL_SECTION_ID = "05-ten-years"/);
     assert.match(tsukiExtra, /reads\.includes\(REQUIRED_FINAL_SECTION_ID\)/);

@@ -22,7 +22,8 @@
     "kusabi:sync": "tsx src/scripts/kusabi/sync-extras.ts",
     "kusabi:art": "tsx src/scripts/kusabi/process-art.ts",
     "kusabi:e2e": "tsx src/scripts/kusabi/kusabi-e2e.ts",
-    "kusabi:verify-dist": "tsx src/scripts/kusabi/verify-kusabi-dist.ts"
+    "kusabi:verify-dist": "tsx src/scripts/kusabi/verify-kusabi-dist.ts",
+    "dev-key:set": "tsx src/scripts/_shared/set-dev-key.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",

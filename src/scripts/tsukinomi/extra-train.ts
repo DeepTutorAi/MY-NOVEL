@@ -2,11 +2,11 @@
 // has read far enough there is a departure board and a route; after that the page
 // scrolls a carriage past the night, with the pictures in its windows. The pictures,
 // the tape list and the note are fetched only after the unlock.
+import { bindDevKeyForm } from "../_shared/dev-key-form";
 import { withBase } from "../../utils/base-path";
 import { paceWindows, scrollForPoint, trainProgress, trainTravel, type TrainPicture } from "./extra-train-core";
 import { startMoonsea } from "./home/moonsea-loader";
 import {
-  BYPASS_H2,
   BYPASS_KEY,
   SECRET_READS_KEY,
   SECTION_IDS,
@@ -14,7 +14,6 @@ import {
   bypassMatches,
   extraOpen,
   parseSecretReads,
-  sha256Hex,
 } from "./station-gates";
 
 interface TrainFile {
@@ -220,30 +219,7 @@ export function setupExtraTrain(): () => void {
   }
 
   // ---- the developer shortcut --------------------------------------------------------------------
-  const input = root.querySelector<HTMLInputElement>("[data-bypass-input]");
-  const error = root.querySelector<HTMLElement>("[data-bypass-error]");
-  const submit = async () => {
-    const password = input?.value.trim();
-    if (!password) return;
-    const h1 = await sha256Hex(password);
-    const ok = (await sha256Hex(h1)) === BYPASS_H2;
-    if (error) error.hidden = ok;
-    if (!ok) return;
-    try {
-      window.localStorage.setItem(BYPASS_KEY, h1);
-    } catch {
-      // Restricted storage: the train still leaves for this visit.
-    }
-    await board().catch(showError);
-  };
-  root.querySelector("[data-bypass-btn]")?.addEventListener("click", () => void submit(), { signal });
-  input?.addEventListener(
-    "keydown",
-    (event) => {
-      if (event.key === "Enter") void submit();
-    },
-    { signal },
-  );
+  bindDevKeyForm({ root, storageKey: BYPASS_KEY, signal, onOpen: () => board().catch(showError) });
 
   const start = async () => {
     const open = extraOpen(reads) || (await bypassMatches(safeGet(BYPASS_KEY)));

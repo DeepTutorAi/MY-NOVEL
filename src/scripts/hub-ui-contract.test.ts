@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
+import { NOVELS } from "../data/_novels";
 
 const root = process.cwd();
 
@@ -28,21 +29,18 @@ describe("Fiction hub visual contract", () => {
     assert.match(manifest, /no author name or in-image text/);
   });
 
-  it("publishes Tsukinomi while keeping a counted Lodge/Extra hint", () => {
-    const novels = readProjectFile("src/data/_novels.ts");
+  it("publishes every novel but Sea, and the locked card names no English title", () => {
     const novelCard = readProjectFile("src/components/_shared/NovelCard.astro");
 
-    assert.match(novels, /slug:\s*"tsukinomi"[\s\S]*status:\s*"เผยแพร่"/);
-    assert.match(novelCard, /data-tsuki-card-hint/);
-    assert.match(novelCard, /data-tsuki-card-hint-copy/);
-    assert.match(novelCard, /HINT_COOLDOWN_MS = 5 \* 60 \* 1000/);
-    assert.match(novelCard, /LODGE_SECRET_REQUIRED = 15/);
-    assert.match(novelCard, /TSUKINOMI_SECRET_REQUIRED = 4/);
-    assert.match(novelCard, /ตอนนี้/);
-    assert.match(novelCard, /เหลืออีก/);
-    assert.match(novelCard, /shouldGateCard/);
+    assert.deepEqual(
+      NOVELS.filter((novel) => novel.status !== "เผยแพร่").map((novel) => novel.slug),
+      ["sea"],
+    );
     assert.match(novelCard, /useImage \? \(/);
-    assert.doesNotMatch(novelCard, /รอเปิดสถานี/);
+    assert.doesNotMatch(novelCard, /<script/);
+    const locked = novelCard.slice(novelCard.indexOf('class="novel-card is-disabled"'));
+    assert.doesNotMatch(locked, /titleEn/);
+    assert.match(locked, /ยังไม่เปิดให้อ่าน/);
   });
 
   it("adds restrained shooting stars to the hub background without overwhelming the constellation field", () => {

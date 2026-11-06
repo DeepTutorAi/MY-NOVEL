@@ -80,7 +80,7 @@ const extraBase = withBase("/kusabi/extra/");
       <ul class="behind-tapes" data-behind-tapes></ul>
     </section>
 
-    <details class="dev-key">
+    <details class="dev-key" data-dev-key>
       <summary>ทางลัดผู้พัฒนา</summary>
       <div class="dev-key-row">
         <label for="bypass-password">รหัส</label>
@@ -88,6 +88,7 @@ const extraBase = withBase("/kusabi/extra/");
         <button type="button" class="kusabi-ghost" data-bypass-btn>ปลดล็อก</button>
       </div>
       <p class="dev-key-error" data-bypass-error role="status" hidden>รหัสไม่ถูกต้อง</p>
+      <p class="dev-key-hint" data-bypass-hint hidden></p>
     </details>
   </main>
 
@@ -351,6 +352,10 @@ const extraBase = withBase("/kusabi/extra/");
     .dev-key {
       color: var(--kusabi-ink-dim);
       font-size: 0.82rem;
+    }
+
+    .dev-key-hint {
+      margin: 0.6rem 0 0;
     }
 
     .dev-key summary {

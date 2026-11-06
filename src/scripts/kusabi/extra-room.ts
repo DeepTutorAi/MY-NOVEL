@@ -1,8 +1,9 @@
 // The Extra room: which tapes are open, the gallery, and the developer shortcut.
 // Gallery pictures are requested only after their unlock; a locked frame has no
 // image URL at all, so nothing shows in the network log.
-import { BYPASS_H2, BYPASS_KEY, extraKey, isFinishedRecord, isUnlocked, parseRecord, sha256Hex, type KusabiProgress } from "./progress-core";
-import { loadProgress, safeGet, safeSet } from "./progress";
+import { BYPASS_KEY, extraKey, isFinishedRecord, isUnlocked, parseRecord, type KusabiProgress } from "./progress-core";
+import { bindDevKeyForm } from "../_shared/dev-key-form";
+import { loadProgress, safeGet } from "./progress";
 import { loadVault } from "./vault";
 import { CHAPTER_UNITS, EXTRA_UNITS, MAIN_CHAPTER_COUNT } from "../../data/kusabi/units";
 import { MOMENT_GROUPS, type UnlockId } from "../../data/kusabi/unlocks";
@@ -166,27 +167,7 @@ export function setupExtraRoom(): () => void {
     await Promise.all([renderExtras(progress), renderGallery(progress, signal), renderBehind(progress)]);
   };
 
-  const input = document.querySelector<HTMLInputElement>("[data-bypass-input]");
-  const button = document.querySelector<HTMLButtonElement>("[data-bypass-btn]");
-  const error = document.querySelector<HTMLElement>("[data-bypass-error]");
-  const submit = async () => {
-    const password = input?.value.trim();
-    if (!password) return;
-    const h1 = await sha256Hex(password);
-    const ok = (await sha256Hex(h1)) === BYPASS_H2;
-    if (error) error.hidden = ok;
-    if (!ok) return;
-    safeSet(BYPASS_KEY, h1);
-    await render();
-  };
-  button?.addEventListener("click", () => void submit(), { signal });
-  input?.addEventListener(
-    "keydown",
-    (event) => {
-      if (event.key === "Enter") void submit();
-    },
-    { signal },
-  );
+  bindDevKeyForm({ root: document, storageKey: BYPASS_KEY, signal, onOpen: render });
 
   const dialog = document.querySelector<HTMLDialogElement>("[data-lightbox]");
   dialog?.addEventListener(

@@ -1,6 +1,7 @@
 // The puzzle map and Extra pages get the graphite look only (design 8.3): the
-// spoiler gate, the secret-read count and the unlock code stay exactly as they
-// were on main 0f6fa36, pinned here by hash; and both pages use the paper grain.
+// spoiler gate and the secret-read count stay as they were on main 0f6fa36, pinned
+// here by hash, and both pages use the paper grain. The Extra page's hash changed
+// once, on purpose, when its unlock moved to the shared developer key.
 import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
@@ -16,7 +17,7 @@ const scriptsHash = (source: string) =>
 describe("puzzle and Extra pages", () => {
   it("keep their gate and unlock scripts byte for byte", () => {
     assert.equal(scriptsHash(read("src/pages/lodge/puzzle.astro")), "4d40d9d7baf75975e06c3b06184a4581b4fcdca77af6a302d15aea6573fb43c0");
-    assert.equal(scriptsHash(read("src/pages/lodge/extra/index.astro")), "a858c7ffaa77f408e5bfcf1a7ea65e67cf91ecf82efabbabe374818b3c95a9a9");
+    assert.equal(scriptsHash(read("src/pages/lodge/extra/index.astro")), "2d3463a03da2848f384bc2a1a16ee3b8e3ed562cbd9bb3266af068ff9d4b9dc0");
   });
 
   it("wear the graphite paper of the rework", () => {

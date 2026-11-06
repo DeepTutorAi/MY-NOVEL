@@ -1,6 +1,7 @@
 // How far the reader has come, for the character page and the Extra train.
 // Pure: the storage is passed in, so node --test covers every rule. The keys are
 // the ones the reader's progress already lives under; nothing here resets them.
+import { isDevToken } from "../_shared/dev-key";
 
 export const SECRET_READS_KEY = "tsukinomi:reading:secret:reads";
 export const SECRET_DEPTHS_KEY = "tsukinomi:reading:secret:depths";
@@ -11,8 +12,6 @@ export const REVEALED_KEY = "tsukinomi:characters:revealed";
 /** The chapter the reader had reached when they last opened the character page. */
 export const SEEN_CHAPTER_KEY = "tsukinomi:characters:seen-chapter";
 export const BYPASS_KEY = "tsukinomi:extra-bypassed";
-/** Double hash of the developer shortcut: H2 = sha256(H1), H1 = sha256(password). */
-export const BYPASS_H2 = "ef8fa25c0397c32aa53ef84fd328412eb170e33ad8b0a6c62cd0f67f4f604f18";
 
 export const TOTAL_SECTIONS = 5;
 export const TOTAL_CHAPTERS = 18;
@@ -94,12 +93,5 @@ export function maxSectionRead(getItem: GetItem, keys: readonly string[], active
   return furthest;
 }
 
-export async function sha256Hex(message: string): Promise<string> {
-  const digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(message));
-  return Array.from(new Uint8Array(digest), (byte) => byte.toString(16).padStart(2, "0")).join("");
-}
-
-/** Whether a stored H1 is the developer shortcut. */
-export async function bypassMatches(storedH1: string | null): Promise<boolean> {
-  return storedH1 !== null && (await sha256Hex(storedH1)) === BYPASS_H2;
-}
+/** Whether a stored value is the developer shortcut. */
+export const bypassMatches = isDevToken;
