@@ -1,3 +1,5 @@
+import { SEA_CLOSED } from "../scripts/sea/seal-core.mjs";
+
 export type NovelStatus = "เผยแพร่" | "เร็วๆ นี้";
 
 export interface NovelMeta {
@@ -54,7 +56,7 @@ export const NOVELS = [
     heroState: "image",
     accent: "#00F3C5",
     href: "/sea/",
-    status: "เผยแพร่",
+    status: SEA_CLOSED ? "เร็วๆ นี้" : "เผยแพร่",
     badge: "ใหม่ · อาร์กที่ 1",
   },
   {

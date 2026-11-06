@@ -13,14 +13,20 @@
 //     copied from public/;
 //   - the legacy arc URL still redirects to the prologue;
 //   - the other novels' collection routes are not empty, which catches a
-//     build that silently ran against a cleared content store.
+//     build that silently ran against a cleared content store;
+//   - while the novel is closed (seal-core.mjs): every Sea page is sealed, and no
+//     chapter title, first paragraph, arc title or the English title is readable
+//     anywhere in dist. With SEA_SITE_PASSWORD set, each page is also opened to
+//     prove the right text is inside.
 //
 // Run after `pnpm build` (also after `GITHUB_ACTIONS=true pnpm build`):
-//   pnpm sea:verify-dist
+//   pnpm sea:verify-dist [dist folder, default dist]
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { dirname, extname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
+import { NOVELS } from "../../data/_novels";
 import { SEA_ARCS } from "../../data/sea/arcs";
+import { SEA_CLOSED, deriveSeaKey, openSealed } from "./seal-core.mjs";
 import { SEA_CHAPTER_MANIFEST } from "./sea-chapter-manifest";
 import { SEA_CHAPTERS_DIR } from "./sync-sea-chapters";
 
@@ -111,10 +117,18 @@ function walk(dir: string, out: string[] = []): string[] {
   return out;
 }
 
-export function verifySeaDist(root: string): { errors: string[]; notes: string[] } {
+const SEALED_MARK = 'id="sea-sealed"';
+
+export interface VerifyOptions {
+  /** Folder of the build, relative to root. */
+  distDir?: string;
+  closed?: boolean;
+}
+
+export function verifySeaDist(root: string, { distDir = "dist", closed = SEA_CLOSED }: VerifyOptions = {}): { errors: string[]; notes: string[] } {
   const errors: string[] = [];
   const notes: string[] = [];
-  const dist = join(root, "dist");
+  const dist = join(root, distDir);
   const chaptersDir = join(dist, "sea", "chapters");
 
   if (!existsSync(dist)) return { errors: ["dist/ is missing. Run pnpm build first."], notes };
@@ -144,7 +158,7 @@ export function verifySeaDist(root: string): { errors: string[]; notes: string[]
   const redirect = join(dist, LEGACY_REDIRECT);
   if (!existsSync(redirect)) {
     errors.push(`legacy redirect dist/${LEGACY_REDIRECT} is missing`);
-  } else if (!readFileSync(redirect, "utf8").includes("sea/chapters/00/")) {
+  } else if (!closed && !readFileSync(redirect, "utf8").includes("sea/chapters/00/")) {
     errors.push(`legacy redirect dist/${LEGACY_REDIRECT} does not point at sea/chapters/00/`);
   }
 
@@ -189,6 +203,22 @@ export function verifySeaDist(root: string): { errors: string[]; notes: string[]
     needles.push({ label: `title of unpublished arc ${arc.number}`, value: arc.titleEn.replace(/^The /, ""), outsideProse: true });
   }
 
+  if (closed) {
+    // Nothing of the story may be readable, published or not.
+    const seaTitle = NOVELS.find((novel) => novel.slug === "sea")?.titleEn;
+    if (seaTitle) needles.push({ label: "English title", value: seaTitle });
+    for (const entry of published) {
+      const probe = firstParagraphProbe(chapterBody(entry.id));
+      if (probe) needles.push({ label: `first paragraph of ${entry.id}`, value: probe });
+      const title = frontmatterTitle(chapterSource(entry.id));
+      if (title && [...title].length >= MIN_TITLE_NEEDLE) needles.push({ label: `title of ${entry.id}`, value: title });
+    }
+    for (const arc of SEA_ARCS.filter((arc) => publishedArcs.has(arc.number))) {
+      needles.push({ label: `title of arc ${arc.number}`, value: arc.titleTh });
+      needles.push({ label: `title of arc ${arc.number}`, value: arc.titleEn.replace(/^The /, "") });
+    }
+  }
+
   const allPaths = walk(dist);
   const working = allPaths
     .map((path) => relative(dist, path).replaceAll("\\", "/"))
@@ -222,17 +252,25 @@ export function verifySeaDist(root: string): { errors: string[]; notes: string[]
     errors.push(`${needle} found in ${shown}`);
   }
 
+  if (closed) {
+    for (const file of files.filter((candidate) => /^sea\/.*\.html$/.test(candidate.path))) {
+      if (!file.text.includes(SEALED_MARK)) errors.push(`dist/${file.path} is not sealed`);
+    }
+    if (existsSync(join(dist, "sea", "gate"))) errors.push("dist/sea/gate should have been removed after sealing");
+  }
+
   // Positive controls: the probes and title search must find published
-  // material, otherwise a clean result above would prove nothing.
+  // material, otherwise a clean result above would prove nothing. Sealed
+  // pages get theirs in verifySealedPages.
   const byPath = new Map(files.map((file) => [file.path, file.text]));
-  for (const entry of published) {
+  for (const entry of closed ? [] : published) {
     const page = byPath.get(`sea/chapters/${entry.id}/index.html`);
     if (!page) continue;
     const probe = firstParagraphProbe(chapterBody(entry.id));
     if (!probe) errors.push(`published ${entry.id}: no paragraph long enough to probe`);
     else if (!page.includes(probe)) errors.push(`probe self-check failed: published ${entry.id} page lacks "${probe}"`);
   }
-  for (const arc of SEA_ARCS.filter((arc) => publishedArcs.has(arc.number))) {
+  for (const arc of closed ? [] : SEA_ARCS.filter((arc) => publishedArcs.has(arc.number))) {
     if (![...byPath.values()].some((text) => text.includes(arc.titleTh))) {
       errors.push(`title self-check failed: published arc ${arc.number} title "${arc.titleTh}" appears nowhere in dist`);
     }
@@ -247,11 +285,49 @@ export function verifySeaDist(root: string): { errors: string[]; notes: string[]
   return { errors, notes };
 }
 
+/** Opens each sealed page with the password, and checks the chapter's own text is what comes out. */
+export async function verifySealedPages(root: string, distDir: string, password: string): Promise<string[]> {
+  const errors: string[] = [];
+  const key = await deriveSeaKey(password);
+  const open = async (path: string): Promise<string | null> => {
+    const html = readFileSync(join(root, distDir, path), "utf8");
+    const payload = /id="sea-sealed">([^<]*)</.exec(html)?.[1];
+    if (!payload) {
+      errors.push(`dist/${path} carries nothing to open`);
+      return null;
+    }
+    try {
+      return await openSealed(JSON.parse(payload) as { iv: string; data: string }, key);
+    } catch {
+      errors.push(`dist/${path} does not open with SEA_SITE_PASSWORD`);
+      return null;
+    }
+  };
+  for (const entry of SEA_CHAPTER_MANIFEST.filter((candidate) => !candidate.draft)) {
+    const page = await open(`sea/chapters/${entry.id}/index.html`);
+    const probe = firstParagraphProbe(stripFrontmatter(readFileSync(join(root, SEA_CHAPTERS_DIR, `${entry.id}.md`), "utf8")));
+    if (page !== null && probe && !page.includes(probe)) errors.push(`sealed ${entry.id} opens but lacks "${probe}"`);
+  }
+  const redirect = await open(LEGACY_REDIRECT);
+  if (redirect !== null && !redirect.includes("sea/chapters/00/")) errors.push(`legacy redirect does not point at sea/chapters/00/`);
+  return errors;
+}
+
 const isMain = process.argv[1] ? fileURLToPath(import.meta.url) === process.argv[1] : false;
 
 if (isMain) {
   const root = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
-  const { errors, notes } = verifySeaDist(root);
+  const distDir = process.argv[2] ?? "dist";
+  const { errors, notes } = verifySeaDist(root, { distDir });
+  if (SEA_CLOSED) {
+    const password = process.env.SEA_SITE_PASSWORD;
+    if (password) {
+      errors.push(...(await verifySealedPages(root, distDir, password)));
+      notes.push("sealed pages opened with SEA_SITE_PASSWORD");
+    } else {
+      notes.push("SEA_SITE_PASSWORD is not set: sealed pages were not opened");
+    }
+  }
   for (const note of notes) console.log(note);
   if (errors.length) {
     console.error(`sea:verify-dist FAILED (${errors.length}):`);

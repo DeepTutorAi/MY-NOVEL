@@ -1,0 +1,165 @@
+---
+// What every Sea URL shows while the novel is closed. The build fills [id=sea-sealed] with each
+// page, encrypted, and removes this route (scripts/sea/seal-pages.mjs). Thai copy only: the English
+// title is the password. No ClientRouter: a page without it makes the router do a full load.
+import "../../styles/sea/global.css";
+import { withBase } from "../../utils/base-path";
+
+const backdrop = withBase("/assets/sea/images/hub-sea-dark-adventure.webp");
+---
+
+<!doctype html>
+<html lang="th">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <meta name="theme-color" content="#060B12" />
+    <title>ทะเลเหนือโลก · เร็วๆ นี้</title>
+    <link rel="icon" href={withBase("/favicon.svg")} type="image/svg+xml" />
+    <script is:inline>
+      // A browser that has the key opens the page at once, without showing the gate first.
+      try {
+        if (localStorage.getItem("sea:site-key")) document.documentElement.classList.add("sea-gate-opening");
+      } catch (e) {}
+    </script>
+  </head>
+  <body class="sea-gate" style={`--gate-backdrop: url("${backdrop}")`}>
+    <main class="sea-gate-card">
+      <h1>ทะเลเหนือโลก</h1>
+      <p class="sea-gate-status">ยังไม่เปิดให้อ่าน เร็วๆ นี้</p>
+      <a class="sea-gate-hub" href={withBase("/")}>ฮับนิยาย</a>
+
+      <details class="sea-gate-dev" data-gate-dev>
+        <summary>ทางลัดผู้พัฒนา</summary>
+        <div class="sea-gate-row" data-gate-row>
+          <label for="sea-gate-password">รหัส</label>
+          <input id="sea-gate-password" type="password" autocomplete="off" data-gate-input />
+          <button type="button" data-gate-open>เปิด</button>
+        </div>
+        <p class="sea-gate-error" role="status" data-gate-error hidden>รหัสไม่ถูกต้อง</p>
+        <p class="sea-gate-wait" role="status" data-gate-wait hidden></p>
+      </details>
+    </main>
+
+    <script is:inline type="application/json" id="sea-sealed"></script>
+    <script>
+      import "../../scripts/sea/gate";
+    </script>
+
+    <style is:global>
+      html.sea-gate-opening body {
+        visibility: hidden;
+      }
+
+      body.sea-gate {
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+        min-height: 100dvh;
+        margin: 0;
+        padding: 16px;
+        background:
+          linear-gradient(rgba(6, 11, 18, 0.72), rgba(6, 11, 18, 0.9)),
+          var(--gate-backdrop) center / cover no-repeat #060b12;
+        color: var(--sea-ink);
+        font-family: var(--font-thai);
+      }
+
+      .sea-gate [hidden] {
+        display: none !important;
+      }
+
+      .sea-gate-card {
+        display: grid;
+        gap: 1rem;
+        justify-items: center;
+        width: min(26rem, 100%);
+        text-align: center;
+      }
+
+      .sea-gate-card h1 {
+        margin: 0;
+        font-size: clamp(1.8rem, 6vw, 2.6rem);
+        font-weight: 400;
+      }
+
+      .sea-gate-status {
+        margin: 0;
+        color: var(--sea-ink-muted);
+      }
+
+      .sea-gate-hub {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        padding: 0 1.1rem;
+        border: 1px solid color-mix(in srgb, var(--accent-cyan) 45%, transparent);
+        color: var(--sea-ink);
+        text-decoration: none;
+      }
+
+      .sea-gate-hub:hover,
+      .sea-gate-hub:focus-visible {
+        border-color: var(--accent-cyan);
+      }
+
+      .sea-gate-dev {
+        width: 100%;
+        margin-top: 1.5rem;
+        color: var(--sea-ink-muted);
+        font-size: 0.82rem;
+      }
+
+      .sea-gate-dev summary {
+        display: inline-flex;
+        align-items: center;
+        min-height: 44px;
+        cursor: pointer;
+      }
+
+      .sea-gate-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .sea-gate-row input {
+        flex: 1 1 10rem;
+        min-width: 0;
+        min-height: 44px;
+        padding: 0 0.7rem;
+        border: 1px solid color-mix(in srgb, var(--sea-ink) 30%, transparent);
+        background: rgba(6, 11, 18, 0.8);
+        color: var(--sea-ink);
+        font: inherit;
+      }
+
+      .sea-gate-row button {
+        min-width: 44px;
+        min-height: 44px;
+        padding: 0 1rem;
+        border: 1px solid color-mix(in srgb, var(--accent-cyan) 45%, transparent);
+        background: none;
+        color: var(--sea-ink);
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .sea-gate-row :focus-visible,
+      .sea-gate-dev summary:focus-visible,
+      .sea-gate-hub:focus-visible {
+        outline: 2px solid var(--accent-cyan);
+        outline-offset: 2px;
+      }
+
+      .sea-gate-error,
+      .sea-gate-wait {
+        margin: 0.7rem 0 0;
+        color: var(--sea-ink);
+      }
+    </style>
+  </body>
+</html>

@@ -36,6 +36,12 @@ jobs:
         run: pnpm check
       - name: Build
         run: pnpm build
+        env:
+          SEA_SITE_PASSWORD: ${{ secrets.SEA_SITE_PASSWORD }}
+      - name: Check that no Sea text reached the site
+        run: pnpm sea:verify-dist
+        env:
+          SEA_SITE_PASSWORD: ${{ secrets.SEA_SITE_PASSWORD }}
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
       - name: Upload Pages artifact

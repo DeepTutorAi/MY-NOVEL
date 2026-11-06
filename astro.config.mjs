@@ -1,11 +1,14 @@
 // @ts-check
 import { rm } from "node:fs/promises";
+import { fileURLToPath } from "node:url";
 import { defineConfig } from "astro/config";
 import tailwindcss from "@tailwindcss/vite";
 import remarkDirective from "remark-directive";
 import { visit } from "unist-util-visit";
 import { remarkHand } from "./src/plugins/remark-hand.mjs";
 import { journalClassName } from "./src/plugins/remark-journal-kind.mjs";
+import { SEA_CLOSED } from "./src/scripts/sea/seal-core.mjs";
+import { sealSeaPages } from "./src/scripts/sea/seal-pages.mjs";
 
 const isGitHubPagesBuild = process.env.GITHUB_ACTIONS === "true";
 
@@ -479,10 +482,30 @@ function keepSourceArtOutOfBuild() {
   };
 }
 
+// While Sea is closed, its pages reach the site only encrypted (scripts/sea/seal-core.mjs).
+function sealClosedSea() {
+  return {
+    name: "seal-closed-sea",
+    hooks: {
+      /** @param {{ dir: URL, logger: { info(message: string): void, warn(message: string): void } }} options */
+      "astro:build:done": async ({ dir, logger }) => {
+        const seaDir = fileURLToPath(new URL("sea/", dir));
+        if (!SEA_CLOSED) {
+          await rm(new URL("gate/", new URL("sea/", dir)), { recursive: true, force: true });
+          return;
+        }
+        const { pages, empty } = await sealSeaPages(seaDir, process.env.SEA_SITE_PASSWORD);
+        if (empty) logger.warn(`SEA_SITE_PASSWORD is not set: ${pages} Sea pages ship with nothing to open.`);
+        else logger.info(`Sealed ${pages} Sea pages.`);
+      },
+    },
+  };
+}
+
 export default defineConfig({
   site: "https://deeptutorai.github.io",
   base: isGitHubPagesBuild ? "/MY-NOVEL" : "/",
-  integrations: [keepSourceArtOutOfBuild()],
+  integrations: [keepSourceArtOutOfBuild(), sealClosedSea()],
   markdown: {
     remarkPlugins: [
       remarkDirective,

@@ -120,7 +120,8 @@ describe("Sea rework contract", () => {
 
   it("renders exactly one <main>, owned by SeaBaseLayout", () => {
     assert.equal(count(withoutComments(read("src/layouts/sea/SeaBaseLayout.astro")), /<main\b/), 1);
-    for (const path of SEA_SOURCES.filter((path) => path.endsWith(".astro") && !path.endsWith("SeaBaseLayout.astro"))) {
+    // The gate shown while the novel is closed is its own document, without SeaBaseLayout.
+    for (const path of SEA_SOURCES.filter((path) => path.endsWith(".astro") && !path.endsWith("SeaBaseLayout.astro") && !path.endsWith("sea/gate.astro"))) {
       assert.equal(count(withoutComments(read(path)), /<main\b/), 0, `${path} must not render <main>`);
     }
   });
