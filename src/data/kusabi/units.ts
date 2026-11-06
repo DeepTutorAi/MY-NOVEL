@@ -19,13 +19,12 @@ export const CHAPTER_UNITS = [
   { id: "13-epilogue", number: 13 },
 ] as const;
 
-/** E05 stays unpublished until the author decides D1 in web-rework-plan.md. */
 export const EXTRA_UNITS = [
   { id: "e01", number: 1, published: true },
   { id: "e02", number: 2, published: true },
   { id: "e03", number: 3, published: true },
   { id: "e04", number: 4, published: true },
-  { id: "e05", number: 5, published: false },
+  { id: "e05", number: 5, published: true },
 ] as const;
 
 export const PROLOGUE_ID = CHAPTER_UNITS[0].id;

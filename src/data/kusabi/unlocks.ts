@@ -50,7 +50,7 @@ export const UNLOCKS = {
   // E01, and the thank-you closes the last published Extra.
   "moments-book": { chapter: 13 },
   "moments-e01": { extra: "e01" },
-  "moments-end": { extra: "e04" },
+  "moments-end": { extra: "e05" },
 } as const satisfies Record<string, Rule>;
 
 export type UnlockId = keyof typeof UNLOCKS;
@@ -62,7 +62,7 @@ export type UnlockId = keyof typeof UNLOCKS;
 export const MOMENT_GROUPS = [
   { file: "m1", unlock: "moments-book", label: "ท้าย", ratios: [0.914, 1.5, 1.5, 0.914] },
   { file: "m2", unlock: "moments-e01", label: "เสริม 1", ratios: [1.5, 1.5, 1.5, 1.5] },
-  { file: "m3", unlock: "moments-end", label: "เสริม 4", ratios: [0.8] },
+  { file: "m3", unlock: "moments-end", label: "เสริม 5", ratios: [0.8] },
 ] as const satisfies ReadonlyArray<{ file: string; unlock: UnlockId; label: string; ratios: readonly number[] }>;
 
 const MORE_IN_FILES = { text: "แฟ้มในหน้าตัวละครมีรายละเอียดเพิ่ม", href: "/kusabi/characters/" };
@@ -86,6 +86,7 @@ export const UNLOCK_NOTICES: Partial<Record<UnlockId, { text: string; href: stri
   "extra-e02": { text: "เปิดเรื่องเสริมตอนถัดไปแล้ว", href: "/kusabi/extra/" },
   "extra-e03": { text: "เปิดเรื่องเสริมตอนถัดไปแล้ว", href: "/kusabi/extra/" },
   "extra-e04": { text: "เปิดเรื่องเสริมตอนถัดไปแล้ว", href: "/kusabi/extra/" },
+  "extra-e05": { text: "เปิดเรื่องเสริมตอนสุดท้ายแล้ว", href: "/kusabi/extra/" },
   "case-map-gate": { text: "แผงตัวเลขของแผนผังเปิดให้ลองแล้ว", href: "/kusabi/case-map/" },
   "moments-end": { text: "มีภาพใหม่ในแกลเลอรี", href: "/kusabi/extra/#kusabi-gallery" },
 };

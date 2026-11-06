@@ -61,7 +61,7 @@ for (const path of textFiles.filter((file) => name(file).startsWith("_astro/") &
   if (/ชิอง|อายาเมะ|คนสวมหน้ากาก/.test(source)) problems.push(`${name(path)} carries secret text`);
 }
 
-// Every published unit has its page; E05 stays out until the author decides.
+// Every published unit has its page, and an unpublished one stays out.
 for (const unit of CHAPTER_UNITS) {
   if (!existsSync(join(dist, `kusabi/chapters/${unit.id}/index.html`))) problems.push(`missing chapter ${unit.id}`);
 }

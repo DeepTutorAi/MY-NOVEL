@@ -38,6 +38,7 @@ const LOADERS = new Map<string, () => Promise<KusabiSceneModule>>([
   ["e02", narrator],
   ["e03", narrator],
   ["e04", narrator],
+  ["e05", narrator],
 ]);
 
 export function loadSceneFor(id: string): Promise<KusabiSceneModule> {

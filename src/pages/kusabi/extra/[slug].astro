@@ -6,7 +6,7 @@ import { EXTRA_NARRATION } from "../../../data/kusabi/extra-narration";
 import KusabiChapterLayout from "../../../layouts/kusabi/KusabiChapterLayout.astro";
 import { withBase } from "../../../utils/base-path";
 
-// An entry marked draft (E05 until the author decides) has no page in production.
+// An entry marked draft has no page in production.
 export async function getStaticPaths() {
   const extras = (await getCollection("kusabiExtras"))
     .filter((extra) => import.meta.env.DEV || !extra.data.draft)

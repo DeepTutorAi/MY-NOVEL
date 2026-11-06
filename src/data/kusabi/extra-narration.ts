@@ -1,7 +1,7 @@
 // What the voice says before each Extra chapter. Site copy, not manuscript: she goes unnamed and
 // speaks like someone who has played these tapes many times. E01 and E02 do not say who she is or
 // what happens to her; from E03 the reader who finished E02 can tell. Details are checked against
-// the chapters (src/content/kusabi/extras). E05 is a draft and gets its text when it opens.
+// the chapters (src/content/kusabi/extras). E05 answers the question she asks in E01.
 export const EXTRA_NARRATION: Record<string, string> = {
   e01: `ปีนี้ยังเป็นฤดูใบไม้ผลิ
 เขายังยกโต๊ะพลาด แล้วโทษผ้าขี้ริ้ว
@@ -52,4 +52,18 @@ export const EXTRA_NARRATION: Record<string, string> = {
 ฉันเคยเขียนป้ายให้เทปม้วนหนึ่งว่ากลับบ้าน
 ฟังม้วนนี้แล้วบอกฉันที
 ว่าเขาเดินไกลจากคำนั้นมาแค่ไหนแล้ว`,
+
+  e05: `สิงหาคม สามปีให้หลัง
+
+วันนี้เขาเดินตรวจบ้านทีละห้อง เหมือนคนรอแขก
+เทปของฉันยังอยู่ในกระเป๋าเสื้อ ตรงอกซ้าย
+สมุดเล่มนั้นกำลังจะมีชื่อใหม่ห้าชื่อ
+
+เธอรู้จักทุกชื่อแล้ว
+เขาคิดว่าครั้งนี้จะจบเหมือนทุกครั้ง
+เธอรู้ดีกว่าเขาอีก
+
+ฉันถามเธอไว้ตั้งแต่ม้วนแรก
+ตอนนี้เจอหรือยังว่าเรื่องนี้เริ่มเพี้ยนตั้งแต่ตรงไหน
+ถ้าเจอแล้ว ช่วยบอกเขาแทนฉันที`,
 };

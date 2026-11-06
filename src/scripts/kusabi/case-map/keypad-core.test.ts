@@ -88,7 +88,7 @@ describe("map data", () => {
     assert.deepEqual(MAP_TAPES.map((tape) => tape.label), ["คนที่ 3", "คนที่ 7", "คนที่ 9", "คนที่ 11", "กลับบ้าน"]);
   });
 
-  it("leaves E05 out of the history while it is unpublished", () => {
+  it("leaves E05 out of the history, which opens before it", () => {
     assert.ok(MAP_HISTORY.every((entry) => !entry.chapter.includes("5")));
   });
 });

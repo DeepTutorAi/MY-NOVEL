@@ -83,7 +83,7 @@ describe("the text", () => {
 
 describe("the registry", () => {
   it("has a scene for each narrated Extra and refuses anything else", async () => {
-    await assert.rejects(loadSceneFor("e05"), RangeError);
+    await assert.rejects(loadSceneFor("e06"), RangeError);
     await assert.rejects(loadSceneFor("9"), RangeError);
     await assert.rejects(loadSceneFor("toString"), RangeError);
   });

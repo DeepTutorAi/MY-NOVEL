@@ -159,9 +159,9 @@ describe("images", () => {
 });
 
 describe("Extra arc", () => {
-  it("marks E05 as a draft while the author has not decided", () => {
-    assert.match(read("src/content/kusabi/extras/e05.md"), /^draft: true$/m);
-    assert.match(read("src/data/kusabi/units.ts"), /id: "e05", number: 5, published: false/);
+  it("publishes all five, the author having approved what E05 adds", () => {
+    assert.match(read("src/content/kusabi/extras/e05.md"), /^draft: false$/m);
+    assert.match(read("src/data/kusabi/units.ts"), /id: "e05", number: 5, published: true/);
   });
 
   it("matches its drafts, so the site cannot drift from the source", () => {

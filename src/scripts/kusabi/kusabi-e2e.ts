@@ -88,8 +88,7 @@ async function openSession(browser: Browser, store: Record<string, string>, view
   page.on("request", (request) => requests.push(request.url()));
   page.on("pageerror", (error) => pageErrors.push(error instanceof Error ? error.message : String(error)));
   page.on("console", (message) => {
-    // The E05 check visits that missing page on purpose.
-    const expected = /favicon|WebSocket/.test(message.text()) || (message.location().url ?? "").includes("/extra/e05");
+    const expected = /favicon|WebSocket/.test(message.text());
     if (message.type() === "error" && !expected) pageErrors.push(`${message.text()} ${message.location().url ?? ""}`);
   });
   // Written through the page's own interceptor, the way the site writes them.
@@ -98,7 +97,7 @@ async function openSession(browser: Browser, store: Record<string, string>, view
     sessionStorage.setItem("__seeded", "1");
     for (const [key, value] of Object.entries(entries)) localStorage.setItem(`${key}:guest`, value);
     // Cutscenes have their own check below; here they would only cover the page.
-    for (const chapter of [0, 4, 8, 11, 12, "e01", "e02", "e03", "e04"]) localStorage.setItem(`kusabi:cutscene:played:${chapter}:guest`, new Date().toISOString());
+    for (const chapter of [0, 4, 8, 11, 12, "e01", "e02", "e03", "e04", "e05"]) localStorage.setItem(`kusabi:cutscene:played:${chapter}:guest`, new Date().toISOString());
   }, store);
   return { context, page, requests };
 }
@@ -402,7 +401,7 @@ async function main() {
       await context.close();
     });
 
-    await check("extra: locked for a reader at CH12, E05 is never offered", async () => {
+    await check("extra: locked for a reader at CH12, even by direct link", async () => {
       const { context, page, requests } = await openSession(browser, readerStorage(12));
       await visit(page, "/kusabi/extra/", 1200);
       assert(await page.$eval("[data-extra-gate]", (node) => !(node as HTMLElement).hidden), "the gate is gone");
@@ -415,9 +414,41 @@ async function main() {
       await visit(page, "/kusabi/extra/e01/?cutscene=replay", 1200);
       assert(await page.$eval("dialog.kusabi-cutscene", (node) => !(node as HTMLDialogElement).open), "a locked reader got the cutscene");
       assert(await page.evaluate(() => !document.documentElement.classList.contains("kusabi-cutscene-pending")), "the cover stayed up");
-      const missing = await page.goto(url("/kusabi/extra/e05/"), { waitUntil: "load", timeout: 60_000 });
-      if (!process.env.KUSABI_E2E_DEV) assert(missing?.status() === 404, `E05 answered ${missing?.status()}`);
+      await visit(page, "/kusabi/extra/e05/", 900);
+      assert(await page.$eval("article[data-unit-id]", (node) => (node as HTMLElement).hidden), "E05's text is visible");
       await context.close();
+    });
+
+    await check("extra: E05 opens after E04, with its cutscene, and the thank-you waits for it", async () => {
+      const before = await openSession(browser, readerStorage(13, ["e01", "e02", "e03"]));
+      await visit(before.page, "/kusabi/extra/", 1500);
+      const shut = await before.page.$$eval('.extra-tape[data-open="true"]', (rows) => rows.map((row) => (row as HTMLElement).dataset.extra));
+      assert(!shut.includes("e05"), `open before E04: ${shut.join(",")}`);
+      await before.context.close();
+
+      const { context, page } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04"]));
+      await visit(page, "/kusabi/extra/", 1500);
+      const open = await page.$$eval('.extra-tape[data-open="true"]', (rows) => rows.map((row) => (row as HTMLElement).dataset.extra));
+      assert(open.includes("e05"), `open: ${open.join(",")}`);
+      const title = await page.$eval('[data-extra="e05"] [data-extra-title]', (node) => node.textContent ?? "");
+      assert(title.trim().length > 0, "E05 has no title");
+      const thanks = await page.$$eval('.frame-moment[data-moment="m3"]', (frames) => frames.every((frame) => (frame as HTMLButtonElement).disabled));
+      assert(thanks, "the thank-you opened before E05 was finished");
+      await shot(page, "extra-room-five", true);
+      await visit(page, "/kusabi/extra/e05/?cutscene=replay", 300);
+      await page.waitForFunction(() => document.querySelector<HTMLDialogElement>("dialog.kusabi-cutscene")?.open === true, { timeout: 15_000 });
+      await pause(4000);
+      await shot(page, "cutscene-e05");
+      await page.click("[data-cutscene-skip]");
+      await page.waitForFunction(() => !document.querySelector<HTMLDialogElement>("dialog.kusabi-cutscene")?.open, { timeout: 5000 });
+      assert(await page.$eval("article[data-unit-id]", (node) => !(node as HTMLElement).hidden), "E05 did not open");
+      await context.close();
+
+      const done = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04", "e05"]));
+      await visit(done.page, "/kusabi/extra/", 1800);
+      const shown = await done.page.$$eval('.frame-moment[data-moment="m3"]', (frames) => frames.some((frame) => !(frame as HTMLButtonElement).disabled));
+      assert(shown, "the thank-you did not open after E05");
+      await done.context.close();
     });
 
     await check("extra: opens one tape at a time and tracks separately from the hub", async () => {
@@ -451,7 +482,7 @@ async function main() {
     });
 
     await check("gallery: a finished reader sees chapter art and none of the held-back pictures", async () => {
-      const { context, page, requests } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04"], true));
+      const { context, page, requests } = await openSession(browser, readerStorage(13, ["e01", "e02", "e03", "e04", "e05"], true));
       await visit(page, "/kusabi/extra/#kusabi-gallery", 1800);
       const words = await pageText(page);
       for (const word of ["ส่งมาทีหลัง", "ยังไม่มีคดี"]) assert(!words.includes(word), `"${word}" is showing`);
@@ -468,12 +499,13 @@ async function main() {
       await context.close();
     });
 
-    await check("gallery: pictures outside the book wait for the epilogue, then E01, then E04", async () => {
+    await check("gallery: pictures outside the book wait for the epilogue, then E01, then E05", async () => {
       const stages: Array<[number, string[], number]> = [
         [12, [], 0],
         [13, [], 4],
         [13, ["e01"], 8],
-        [13, ["e01", "e02", "e03", "e04"], 9],
+        [13, ["e01", "e02", "e03", "e04"], 8],
+        [13, ["e01", "e02", "e03", "e04", "e05"], 9],
       ];
       for (const [upTo, extras, expected] of stages) {
         const { context, page, requests } = await openSession(browser, readerStorage(upTo, extras));

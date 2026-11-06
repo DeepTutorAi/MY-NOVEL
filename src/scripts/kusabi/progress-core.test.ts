@@ -129,7 +129,7 @@ describe("unlock table", () => {
     assert.equal(isUnlocked("extra-e03", finished(all, ["e01"])), false);
   });
 
-  it("lets the developer shortcut open everything, without publishing E05", () => {
+  it("lets the developer shortcut open everything", () => {
     const progress = finished([], [], { bypass: true });
     assert.equal(unlockedIds(progress).length, Object.keys(UNLOCKS).length);
   });
