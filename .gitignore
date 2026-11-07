@@ -9,7 +9,7 @@ dist/
 .astro-preview.*.log
 .qa/
 .claude/
-repo_implementation.md
+docs/architecture/repo_implementation.md
 .github
 .codegraph/
 .serena/
