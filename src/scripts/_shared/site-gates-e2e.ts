@@ -239,17 +239,19 @@ async function checkDevKey(browser: Browser): Promise<void> {
   }
   await check("developer key: one password opens all three novels and clears the count", async () => {
     const { context, page } = await open(browser);
-    for (const { name, path } of DEV_PAGES) {
-      await visit(page, path);
-      await tryKey(page, "wrong one");
-      await tryKey(page, DEV_PASSWORD);
-      await pause(800);
+    await visit(page, "/kusabi/extra/");
+    await tryKey(page, "wrong one");
+    await tryKey(page, DEV_PASSWORD);
+    await pause(800);
+    for (const { name } of DEV_PAGES) {
       const stored = await page.evaluate((novel: string) => localStorage.getItem(`${novel === "lodge" ? "hvitveldt" : novel}:extra-bypassed:guest`), name);
-      assert(stored && /^[0-9a-f]{64}$/.test(stored), `${name}: nothing saved`);
-      assert((await page.evaluate((key: string) => localStorage.getItem(key), DEV_ATTEMPTS_KEY)) === null, `${name}: the count stayed`);
+      assert(stored && /^[0-9a-f]{64}:\d+$/.test(stored), `${name}: nothing saved`);
     }
+    assert((await page.evaluate((key: string) => localStorage.getItem(key), DEV_ATTEMPTS_KEY)) === null, "the count stayed");
     await visit(page, "/lodge/extra/");
     assert(await page.$eval("[data-extra-content]", (node) => !(node as HTMLElement).hidden), "Lodge's Extra stayed closed");
+    await visit(page, "/lodge/puzzle/");
+    assert(await page.$eval("[data-puzzle-content]", (node) => !(node as HTMLElement).hidden), "Lodge's Puzzle stayed closed");
     await visit(page, "/kusabi/extra/");
     assert(await page.$eval("[data-extra-gate]", (node) => (node as HTMLElement).hidden || getComputedStyle(node).display === "none"), "Kusabi's Extra stayed closed");
     await visit(page, "/tsukinomi/extra/", 1500);

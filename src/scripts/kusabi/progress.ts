@@ -1,7 +1,8 @@
 // Browser side of progress-core.ts. Every read goes through localStorage.getItem,
 // which ProfileStorageInterceptor maps to the active profile. New keys stay under
 // kusabi:secret: or kusabi:reading:, prefixes the interceptor already scopes.
-import { BYPASS_KEY, bypassMatches, parseReadList, READS_KEY, readProgress, type GetItem, type KusabiProgress } from "./progress-core";
+import { hasActiveDevBypass } from "../_shared/dev-key";
+import { BYPASS_KEY, parseReadList, READS_KEY, readProgress, type GetItem, type KusabiProgress } from "./progress-core";
 
 export const safeGet: GetItem = (key) => {
   try {
@@ -29,7 +30,13 @@ export function safeRemove(key: string): void {
 }
 
 export async function loadProgress(): Promise<KusabiProgress> {
-  return readProgress(safeGet, await bypassMatches(safeGet(BYPASS_KEY)));
+  let bypassed = false;
+  try {
+    bypassed = await hasActiveDevBypass(window.localStorage, BYPASS_KEY);
+  } catch {
+    bypassed = false;
+  }
+  return readProgress(safeGet, bypassed);
 }
 
 /** Without the async bypass check, for code that must not wait a frame. */

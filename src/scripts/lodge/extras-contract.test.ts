@@ -16,8 +16,8 @@ const scriptsHash = (source: string) =>
 
 describe("puzzle and Extra pages", () => {
   it("keep their gate and unlock scripts byte for byte", () => {
-    assert.equal(scriptsHash(read("src/pages/lodge/puzzle.astro")), "4d40d9d7baf75975e06c3b06184a4581b4fcdca77af6a302d15aea6573fb43c0");
-    assert.equal(scriptsHash(read("src/pages/lodge/extra/index.astro")), "2d3463a03da2848f384bc2a1a16ee3b8e3ed562cbd9bb3266af068ff9d4b9dc0");
+    assert.equal(scriptsHash(read("src/pages/lodge/puzzle.astro")), "9f0e8f702cdb049caf71bcdbe766844b0ac5075789d86f3b49f68f25d9b91451");
+    assert.equal(scriptsHash(read("src/pages/lodge/extra/index.astro")), "ca4508e3690ae29fec9381395124ee4b8a3e8c73212fecb0e21a3148e5c3f613");
   });
 
   it("wear the graphite paper of the rework", () => {

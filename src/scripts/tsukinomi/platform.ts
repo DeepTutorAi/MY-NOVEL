@@ -3,6 +3,7 @@
 // what the reader now knows about one, or add a line to their log. Nothing of a chapter
 // the reader has not finished is in the page source or in the network log.
 import type { LaterEntry, PersonCard, PersonRow, VaultTier } from "../../data/tsukinomi/characters";
+import { hasActiveDevBypass } from "../_shared/dev-key";
 import { withBase } from "../../utils/base-path";
 import { startMoonsea } from "./home/moonsea-loader";
 import {
@@ -11,6 +12,7 @@ import {
   SECRET_READS_KEY,
   STOP_CHAPTERS,
   TOTAL_CHAPTERS,
+  TOTAL_SECTIONS,
   bypassMatches,
   chaptersDone,
   maxSectionRead,
@@ -242,10 +244,27 @@ export function setupPlatform(): () => void {
   );
 
   // ---- how far the reader has come ------------------------------------------------------------
+  let stopSky = () => {};
   const start = async () => {
     const reads = parseSecretReads(safeGet(SECRET_READS_KEY));
-    const done = (await bypassMatches(safeGet(BYPASS_KEY))) ? TOTAL_CHAPTERS : chaptersDone(safeGet, reads);
+    let bypassed = false;
+    try {
+      bypassed = await hasActiveDevBypass(window.localStorage, BYPASS_KEY);
+    } catch {
+      bypassed = await bypassMatches(safeGet(BYPASS_KEY));
+    }
+    const done = bypassed ? TOTAL_CHAPTERS : chaptersDone(safeGet, reads);
     if (signal.aborted) return;
+    const furthest = bypassed ? TOTAL_SECTIONS : maxSectionRead(safeGet, storedKeys(), safeGet(PROFILE_KEY) ?? "guest");
+    stopSky = startMoonsea({
+      mount: root.querySelector<HTMLElement>("[data-moonsea-mount]"),
+      furthestRead: furthest > 0 ? furthest : null,
+      stage: "open",
+      onReady: (scene) => {
+        sky = scene;
+        if (root.dataset.era === "later") scene.setSnow(true);
+      },
+    });
     await applyChapters(done);
     if (signal.aborted) return;
     const opened = route.querySelectorAll("[data-card]").length;
@@ -258,17 +277,6 @@ export function setupPlatform(): () => void {
     }
   };
   void start().catch(showError);
-
-  const furthest = maxSectionRead(safeGet, storedKeys(), safeGet(PROFILE_KEY) ?? "guest");
-  const stopSky = startMoonsea({
-    mount: root.querySelector<HTMLElement>("[data-moonsea-mount]"),
-    furthestRead: furthest > 0 ? furthest : null,
-    stage: "open",
-    onReady: (scene) => {
-      sky = scene;
-      if (root.dataset.era === "later") scene.setSnow(true);
-    },
-  });
 
   return () => {
     abort.abort();

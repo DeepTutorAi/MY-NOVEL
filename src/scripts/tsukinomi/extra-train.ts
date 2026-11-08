@@ -2,6 +2,7 @@
 // has read far enough there is a departure board and a route; after that the page
 // scrolls a carriage past the night, with the pictures in its windows. The pictures,
 // the tape list and the note are fetched only after the unlock.
+import { hasActiveDevBypass } from "../_shared/dev-key";
 import { bindDevKeyForm } from "../_shared/dev-key-form";
 import { withBase } from "../../utils/base-path";
 import { paceWindows, scrollForPoint, trainProgress, trainTravel, type TrainPicture } from "./extra-train-core";
@@ -222,7 +223,13 @@ export function setupExtraTrain(): () => void {
   bindDevKeyForm({ root, storageKey: BYPASS_KEY, signal, onOpen: () => board().catch(showError) });
 
   const start = async () => {
-    const open = extraOpen(reads) || (await bypassMatches(safeGet(BYPASS_KEY)));
+    let bypassed = false;
+    try {
+      bypassed = await hasActiveDevBypass(window.localStorage, BYPASS_KEY);
+    } catch {
+      bypassed = await bypassMatches(safeGet(BYPASS_KEY));
+    }
+    const open = extraOpen(reads) || bypassed;
     if (signal.aborted) return;
     if (open) await board();
   };

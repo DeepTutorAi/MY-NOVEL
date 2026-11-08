@@ -2,7 +2,7 @@
 // part that disappears during a lock), [data-bypass-input], [data-bypass-btn], [data-bypass-error]
 // and [data-bypass-hint].
 import { createAttemptTracker, type AttemptPolicy } from "./attempt-limit";
-import { deriveDevToken, isDevToken } from "./dev-key";
+import { deriveDevToken, isDevToken, saveDevBypass } from "./dev-key";
 
 const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -64,7 +64,7 @@ export function bindDevKeyForm({ root, storageKey, signal, onOpen }: DevKeyFormO
     tracker.clear();
     paint();
     try {
-      window.localStorage.setItem(storageKey, token);
+      saveDevBypass(token, window.localStorage, storageKey);
     } catch {
       // Restricted storage: the page still opens for this visit.
     }

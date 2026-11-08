@@ -3,9 +3,13 @@
 // finishes the chapters that establish them. All text is written with
 // textContent; stored pins are filtered against the names on the board.
 import { FATES, visibleStamps } from "../../../data/lodge/fates";
+import { hasActiveDevBypass } from "../../_shared/dev-key";
 import { readGuestRecord, renderGuestCard } from "../home/guest-book";
 import { FINISHED, lodgeDrift, readFinished } from "../progress-core";
 import { SUSPECTS_KEY, parseSuspects, suspectedLine, toggleSuspect } from "./board-core";
+
+const BYPASS_KEY = "hvitveldt:extra-bypassed";
+const ALL_CHAPTERS = new Set(Array.from({ length: 18 }, (_, index) => index + 1));
 
 /** Pins set while storage refused writes, kept for this page session. */
 let sessionPins: string[] | null = null;
@@ -38,40 +42,44 @@ export function setupBoard(root: HTMLElement): () => void {
     // Unreadable storage: a board for a new reader.
   }
 
-  for (const card of cards) {
-    const fate = FATES.find((entry) => entry.name === card.dataset.name);
-    const file = card.querySelector<HTMLElement>("[data-file-number]");
-    const list = card.querySelector<HTMLElement>("[data-stamps]");
-    if (!fate) continue;
-    if (file && fate.fileNumber) {
-      file.textContent = fate.fileNumber.label;
-      file.hidden = !finished.has(fate.fileNumber.chapter);
-    }
-    if (list) {
-      list.replaceChildren(
-        ...visibleStamps(fate, finished).map((stamp) => {
-          const item = document.createElement("li");
-          item.className = "board-stamp";
-          item.dataset.stamp = "";
-          if (stamp.superseded) item.classList.add("is-superseded");
-          if (stamp.note) item.classList.add("is-note");
-          // Overturned stamps are struck through in the markup, so screen readers hear it too.
-          if (stamp.superseded) item.append(Object.assign(document.createElement("s"), { textContent: stamp.stamp }));
-          else item.textContent = stamp.stamp;
-          return item;
-        }),
-      );
-    }
-  }
-
-  // The finale (design 8.2): the reader's own card is pinned last, with whom they suspected.
   const finale = root.querySelector<HTMLElement>("[data-board-finale]");
-  const ended = lodgeDrift(finished) === 4;
-  if (finale) {
-    finale.hidden = !ended;
-    const card = finale.querySelector<HTMLElement>("[data-guest-card]");
-    if (ended && card) renderGuestCard(card, readGuestRecord(), 4);
-  }
+  let ended = false;
+
+  const applyProgress = (chapters: ReadonlySet<number>) => {
+    for (const card of cards) {
+      const fate = FATES.find((entry) => entry.name === card.dataset.name);
+      const file = card.querySelector<HTMLElement>("[data-file-number]");
+      const list = card.querySelector<HTMLElement>("[data-stamps]");
+      if (!fate) continue;
+      if (file && fate.fileNumber) {
+        file.textContent = fate.fileNumber.label;
+        file.hidden = !chapters.has(fate.fileNumber.chapter);
+      }
+      if (list) {
+        list.replaceChildren(
+          ...visibleStamps(fate, chapters).map((stamp) => {
+            const item = document.createElement("li");
+            item.className = "board-stamp";
+            item.dataset.stamp = "";
+            if (stamp.superseded) item.classList.add("is-superseded");
+            if (stamp.note) item.classList.add("is-note");
+            // Overturned stamps are struck through in the markup, so screen readers hear it too.
+            if (stamp.superseded) item.append(Object.assign(document.createElement("s"), { textContent: stamp.stamp }));
+            else item.textContent = stamp.stamp;
+            return item;
+          }),
+        );
+      }
+    }
+
+    // The finale (design 8.2): the reader's own card is pinned last, with whom they suspected.
+    ended = lodgeDrift(chapters) === 4;
+    if (finale) {
+      finale.hidden = !ended;
+      const card = finale.querySelector<HTMLElement>("[data-guest-card]");
+      if (ended && card) renderGuestCard(card, readGuestRecord(), 4);
+    }
+  };
 
   const render = () => {
     const pins = readPins(names);
@@ -82,6 +90,24 @@ export function setupBoard(root: HTMLElement): () => void {
     const line = finale?.querySelector<HTMLElement>("[data-board-suspected]");
     if (ended && line) line.textContent = suspectedLine(pins);
   };
+
+  applyProgress(finished);
+  render();
+
+  let disposed = false;
+  void (async () => {
+    let bypassed = false;
+    try {
+      bypassed = await hasActiveDevBypass(window.localStorage, BYPASS_KEY);
+    } catch {
+      bypassed = false;
+    }
+    if (!disposed && bypassed) {
+      applyProgress(ALL_CHAPTERS);
+      render();
+    }
+  })();
+
   const onClick = (event: Event) => {
     const button = (event.target as Element | null)?.closest<HTMLButtonElement>("[data-suspect]");
     const name = button?.closest<HTMLElement>("[data-board-card]")?.dataset.name;
@@ -90,7 +116,9 @@ export function setupBoard(root: HTMLElement): () => void {
     render();
   };
   root.addEventListener("click", onClick);
-  render();
   root.dataset.board = "ready";
-  return () => root.removeEventListener("click", onClick);
+  return () => {
+    disposed = true;
+    root.removeEventListener("click", onClick);
+  };
 }

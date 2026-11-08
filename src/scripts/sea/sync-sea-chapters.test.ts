@@ -167,9 +167,9 @@ describe("Sea chapter manifest", () => {
     }
   });
 
-  it("publishes the prologue and chapters 1-5 and keeps 6-15 as drafts", () => {
+  it("publishes the prologue and chapters 1-10 and keeps 11-15 as drafts", () => {
     for (const e of SEA_CHAPTER_MANIFEST) {
-      assert.equal(e.draft, e.number >= 6, `chapter ${e.id} draft flag`);
+      assert.equal(e.draft, e.number >= 11, `chapter ${e.id} draft flag`);
     }
   });
 

@@ -61,6 +61,23 @@ const items = itemBlocks.map((block) => {
           <p class="puzzle-error" data-puzzle-error hidden>รหัสยังไม่ถูก กลับไปอ่านช่วงทางรอดอีกครั้ง</p>
           <button class="puzzle-open" type="button" disabled data-puzzle-open>ยืนยันคำตอบ</button>
         </div>
+
+        <details class="puzzle-dev" data-dev-key>
+          <summary>ทางลัดผู้พัฒนา</summary>
+          <div class="puzzle-dev-row">
+            <label for="puzzle-bypass-password">รหัส</label>
+            <input
+              id="puzzle-bypass-password"
+              type="password"
+              autocomplete="off"
+              placeholder="กรอกรหัสผ่านผู้พัฒนา..."
+              data-bypass-input
+            />
+            <button type="button" data-bypass-btn>ปลดล็อก</button>
+          </div>
+          <p class="puzzle-error" data-bypass-error role="status" hidden>รหัสผ่านไม่ถูกต้อง</p>
+          <p class="puzzle-dev-hint" data-bypass-hint hidden></p>
+        </details>
       </div>
     </section>
 
@@ -96,6 +113,12 @@ const items = itemBlocks.map((block) => {
   </main>
 
   <script>
+    import { hasActiveDevBypass } from "../../scripts/_shared/dev-key";
+    import { bindDevKeyForm } from "../../scripts/_shared/dev-key-form";
+
+    const BYPASS_KEY = "hvitveldt:extra-bypassed";
+    let formBinding: AbortController | undefined;
+
     const initPuzzle = () => {
       const gate = document.querySelector("[data-puzzle-gate]");
       const content = document.querySelector("[data-puzzle-content]");
@@ -109,9 +132,13 @@ const items = itemBlocks.map((block) => {
       const key = "hvitveldt:puzzle-unlocked";
       const accepted = new Set(["karasjok"]);
 
-      const reveal = () => {
+      const showContent = () => {
         gate?.setAttribute("hidden", "");
         content?.removeAttribute("hidden");
+      };
+
+      const reveal = () => {
+        showContent();
         localStorage.setItem(key, "karasjok");
       };
 
@@ -123,6 +150,25 @@ const items = itemBlocks.map((block) => {
 
       if (isUnlocked()) {
         reveal();
+      } else {
+        void (async () => {
+          try {
+            if (await hasActiveDevBypass(window.localStorage, BYPASS_KEY)) {
+              showContent();
+            }
+          } catch {}
+        })();
+      }
+
+      if (gate) {
+        formBinding?.abort();
+        formBinding = new AbortController();
+        bindDevKeyForm({
+          root: gate,
+          storageKey: BYPASS_KEY,
+          signal: formBinding.signal,
+          onOpen: showContent,
+        });
       }
 
       if (
@@ -187,4 +233,57 @@ const items = itemBlocks.map((block) => {
 
     document.addEventListener("astro:page-load", initPuzzle);
   </script>
+
+  <style>
+    .puzzle-dev {
+      margin-top: 1.5rem;
+      padding-top: 1.25rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--ink-dim);
+      font-size: 0.85rem;
+      text-align: left;
+    }
+
+    .puzzle-dev summary {
+      display: inline-flex;
+      align-items: center;
+      min-height: 44px;
+      cursor: pointer;
+    }
+
+    .puzzle-dev-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      align-items: center;
+      margin-top: 0.5rem;
+    }
+
+    .puzzle-dev-row input {
+      flex: 1 1 12rem;
+      min-height: 40px;
+      padding: 0.45rem 0.75rem;
+      border: 1px solid var(--rune);
+      border-radius: 4px;
+      background: rgba(0, 0, 0, 0.25);
+      color: var(--ink);
+    }
+
+    .puzzle-dev-row button {
+      min-height: 40px;
+      padding: 0.45rem 1rem;
+      border: none;
+      border-radius: 4px;
+      background: var(--ink);
+      color: var(--bg);
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .puzzle-dev-hint {
+      margin-top: 0.5rem;
+      color: var(--ink-dim);
+      font-size: 0.82rem;
+    }
+  </style>
 </LodgeBaseLayout>

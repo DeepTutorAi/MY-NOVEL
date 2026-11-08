@@ -104,7 +104,7 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
   </main>
 
   <script>
-    import { isDevToken } from "../../../scripts/_shared/dev-key";
+    import { hasActiveDevBypass, isDevToken } from "../../../scripts/_shared/dev-key";
     import { bindDevKeyForm } from "../../../scripts/_shared/dev-key-form";
 
     const SECRET_READS_KEY = "hvitveldt:secret:reads";
@@ -127,8 +127,14 @@ import LodgeBaseLayout from "../../../layouts/lodge/LodgeBaseLayout.astro";
     };
 
     const checkUnlocked = async (): Promise<boolean> => {
-      if (await isDevToken(localStorage.getItem(BYPASS_KEY))) {
-        return true;
+      try {
+        if (await hasActiveDevBypass(window.localStorage, BYPASS_KEY)) {
+          return true;
+        }
+      } catch {
+        if (await isDevToken(localStorage.getItem(BYPASS_KEY))) {
+          return true;
+        }
       }
       return getSecretReadsCount() >= UNLOCK_THRESHOLD;
     };

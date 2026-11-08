@@ -98,9 +98,9 @@ describe("Sea initial UI rework contract", () => {
 
   it("turns a mid-chapter POV line under a scene heading into a scene plate", () => {
     // Chapter 07 carries the real case: "## ที่อีกฟากของโลก: ..." followed by
-    // "*POV: Sera Quill — ...*". Keep the fixture tied to the generated file.
+    // "*POV: Sera Quill (...)*". Keep the fixture tied to the generated file.
     const chapter07 = readProjectFile("src/content/the-sea-that-hung-above-the-world/chapters/07.md");
-    const povLine = "POV: Sera Quill — หอจดหมายเหตุแผนที่ ชั้นใต้ดินสอง กรุงหลวง เวลาเดียวกัน";
+    const povLine = "POV: Sera Quill (หอจดหมายเหตุแผนที่ ชั้นใต้ดินสอง กรุงหลวง, เวลาเดียวกัน)";
     assert.ok(chapter07.includes(`## ที่อีกฟากของโลก: หอจดหมายเหตุกรุงหลวง\n\n*${povLine}*`));
 
     const text = (value: string) => ({ type: "text", value });
@@ -134,7 +134,7 @@ describe("Sea initial UI rework contract", () => {
     assert.deepEqual(heading.properties?.className, ["sea-scene"]);
     assert.deepEqual(plate.properties?.className, ["sea-scene-plate"]);
     assert.equal(plate.children.length, 1);
-    assert.equal(plate.children[0].value, "Sera Quill — หอจดหมายเหตุแผนที่ ชั้นใต้ดินสอง กรุงหลวง เวลาเดียวกัน");
+    assert.equal(plate.children[0].value, "Sera Quill (หอจดหมายเหตุแผนที่ ชั้นใต้ดินสอง กรุงหลวง, เวลาเดียวกัน)");
     assert.equal(prose.properties?.className, undefined);
     assert.equal(stray.properties?.className, undefined, "a POV line that does not follow a scene heading stays prose");
     assert.equal(stray.children[0].tagName, "em");

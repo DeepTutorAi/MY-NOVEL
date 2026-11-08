@@ -84,6 +84,7 @@ import { withBase } from "../../utils/base-path";
   </main>
 
   <script>
+    import { hasActiveDevBypass } from "../../scripts/_shared/dev-key";
     import { onPage } from "../../scripts/_shared/lifecycle";
     import { setupBoard } from "../../scripts/lodge/board/board";
     import {
@@ -97,6 +98,7 @@ import { withBase } from "../../utils/base-path";
     const spoilerUnlockKey = "hvitveldt:characters:subject8-visible";
     const puzzleUnlockKey = "hvitveldt:puzzle-unlocked";
     const lastReadingKey = "hvitveldt:reading:last";
+    const bypassKey = "hvitveldt:extra-bypassed";
 
     const parseStored = (key: string) => {
       try {
@@ -119,7 +121,7 @@ import { withBase } from "../../utils/base-path";
       return value === "true" || value === "karasjok";
     };
 
-    const revealUnlockedCards = () => {
+    const revealUnlockedCards = async () => {
       const spoilerCards = Array.from(document.querySelectorAll("[data-character-spoiler]"));
       if (spoilerCards.length === 0) {
         return;
@@ -128,6 +130,7 @@ import { withBase } from "../../utils/base-path";
       const maxChapter = getMaxChapterRead();
       const hasManualUnlock = localStorage.getItem(spoilerUnlockKey) === "true";
       const hasPuzzleUnlock = puzzleUnlocked();
+      const hasDevBypass = await hasActiveDevBypass(window.localStorage, bypassKey);
 
       for (const card of spoilerCards) {
         if (!(card instanceof HTMLElement)) {
@@ -135,24 +138,27 @@ import { withBase } from "../../utils/base-path";
         }
 
         const revealAfter = Number(card.dataset.revealAfterChapter ?? 0);
-        const shouldReveal = hasManualUnlock || hasPuzzleUnlock || maxChapter >= revealAfter;
+        const earnedReveal = hasManualUnlock || hasPuzzleUnlock || maxChapter >= revealAfter;
+        const shouldReveal = earnedReveal || hasDevBypass;
 
         if (shouldReveal) {
           card.hidden = false;
-          localStorage.setItem(spoilerUnlockKey, "true");
+          if (earnedReveal) {
+            localStorage.setItem(spoilerUnlockKey, "true");
+          }
         }
       }
     };
 
     try {
-      revealUnlockedCards();
+      void revealUnlockedCards();
     } catch {
       // Restricted browser storage should leave spoiler cards hidden.
     }
 
     document.addEventListener("astro:page-load", () => {
       try {
-        revealUnlockedCards();
+        void revealUnlockedCards();
       } catch {}
     });
 

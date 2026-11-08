@@ -6,6 +6,7 @@ import { createAttemptTracker, type AttemptPolicy } from "../_shared/attempt-lim
 import { SEA_ATTEMPTS_KEY, SEA_KEY_STORAGE, deriveSeaKey, exportSeaKey, importSeaKey, normalizeSeaPassword, openSealed } from "./seal-core.mjs";
 
 const HOUR_MS = 60 * 60 * 1000;
+const SEA_KEY_TTL_MS = 3 * 24 * HOUR_MS;
 export const SEA_GATE_POLICY: AttemptPolicy = { lockAfter: 3, lockMs: 5 * HOUR_MS };
 
 interface Sealed {
@@ -102,7 +103,7 @@ const bindForm = (sealed: Sealed): void => {
     }
     tracker.clear();
     try {
-      window.localStorage.setItem(SEA_KEY_STORAGE, saved);
+      window.localStorage.setItem(SEA_KEY_STORAGE, `${saved}:${Date.now() + SEA_KEY_TTL_MS}`);
     } catch {
       // Restricted storage: this page opens, and the next one asks again.
     }
@@ -127,10 +128,21 @@ const start = async (): Promise<void> => {
   const stored = safeGet(SEA_KEY_STORAGE);
   if (stored) {
     try {
-      showPage(await openSealed(sealed, await importSeaKey(stored)));
+      const [rawKey, rawExpires] = stored.split(":");
+      if (rawExpires !== undefined) {
+        const expiresAt = Number(rawExpires);
+        if (!Number.isFinite(expiresAt) || Date.now() >= expiresAt) {
+          throw new Error("expired");
+        }
+      } else {
+        try {
+          window.localStorage.setItem(SEA_KEY_STORAGE, `${rawKey}:${Date.now() + SEA_KEY_TTL_MS}`);
+        } catch {}
+      }
+      showPage(await openSealed(sealed, await importSeaKey(rawKey)));
       return;
     } catch {
-      // Saved for an older password.
+      // Saved for an older password or expired after 3 days.
       try {
         window.localStorage.removeItem(SEA_KEY_STORAGE);
       } catch {
