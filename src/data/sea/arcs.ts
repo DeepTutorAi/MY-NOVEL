@@ -69,7 +69,7 @@ export const SEA_ARCS: readonly SeaArc[] = [
     number: 5,
     titleTh: "สภาแห่งความตาย",
     titleEn: "The Dead Parliament",
-    titleSource: "proposed",
+    titleSource: "draft-marker",
     chapterStart: 21,
     chapterEnd: 27,
     entryChapter: 21,

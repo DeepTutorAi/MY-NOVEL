@@ -55,6 +55,8 @@ interface Needle {
   value: string;
   /** Skip published Sea chapter prose when searching for this needle. */
   outsideProse?: boolean;
+  /** Skip other novels' own pages/assets (for ordinary Thai words used as titles). */
+  outsideOtherNovels?: boolean;
 }
 
 export function frontmatterTitle(markdown: string): string | null {
@@ -211,7 +213,9 @@ export function verifySeaDist(root: string, { distDir = "dist", closed = SEA_CLO
       const probe = firstParagraphProbe(chapterBody(entry.id));
       if (probe) needles.push({ label: `first paragraph of ${entry.id}`, value: probe });
       const title = frontmatterTitle(chapterSource(entry.id));
-      if (title && [...title].length >= MIN_TITLE_NEEDLE) needles.push({ label: `title of ${entry.id}`, value: title });
+      if (title && [...title].length >= MIN_TITLE_NEEDLE) {
+        needles.push({ label: `title of ${entry.id}`, value: title, outsideOtherNovels: true });
+      }
     }
     for (const arc of SEA_ARCS.filter((arc) => publishedArcs.has(arc.number))) {
       needles.push({ label: `title of arc ${arc.number}`, value: arc.titleTh });
@@ -236,11 +240,14 @@ export function verifySeaDist(root: string, { distDir = "dist", closed = SEA_CLO
     return { path: relative(dist, path).replaceAll("\\", "/"), text: /\.(m?js|json)$/.test(path) ? decodeScriptEscapes(raw) : raw };
   });
   const isChapterPage = (path: string) => /^sea\/chapters\/[^/]+\/index\.html$/.test(path);
+  const isOtherNovelFile = (path: string) => /^(?:lodge|kusabi|tsukinomi|assets\/(?:lodge|kusabi|tsukinomi))\//.test(path);
 
   const hits = new Map<string, string[]>();
   for (const file of files) {
     const withoutProse = isChapterPage(file.path) ? stripSeaProse(file.text) : file.text;
+    const otherNovel = isOtherNovelFile(file.path);
     for (const needle of needles) {
+      if (needle.outsideOtherNovels && otherNovel) continue;
       const haystack = needle.outsideProse ? withoutProse : file.text;
       if (!haystack.includes(needle.value)) continue;
       const key = `${needle.label}: "${needle.value}"`;
