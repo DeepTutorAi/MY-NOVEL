@@ -158,7 +158,7 @@ describe("Sea chapter manifest", () => {
     validateManifest(SEA_CHAPTER_MANIFEST);
     const numbers = SEA_CHAPTER_MANIFEST.map((e) => e.number);
     assert.equal(new Set(numbers).size, numbers.length);
-    assert.deepEqual(numbers, Array.from({ length: 16 }, (_, i) => i));
+    assert.deepEqual(numbers, Array.from({ length: 21 }, (_, i) => i));
     for (const e of SEA_CHAPTER_MANIFEST) {
       const arc = SEA_ARCS.find((candidate) => candidate.number === e.arc);
       assert.ok(arc, `chapter ${e.id} arc`);
@@ -167,9 +167,9 @@ describe("Sea chapter manifest", () => {
     }
   });
 
-  it("publishes the prologue and chapters 1-15", () => {
+  it("publishes the prologue and chapters 1-20", () => {
     for (const e of SEA_CHAPTER_MANIFEST) {
-      assert.equal(e.draft, e.number > 15, `chapter ${e.id} draft flag`);
+      assert.equal(e.draft, e.number > 20, `chapter ${e.id} draft flag`);
     }
   });
 
@@ -212,6 +212,6 @@ describe("real drafts", () => {
     const arcEnds = SEA_CHAPTER_MANIFEST.filter(
       (e) => parseDraft(readFileSync(join(root, e.source), "utf8"), e).arcEnd,
     ).map((e) => e.id);
-    assert.deepEqual(arcEnds, ["10", "15"]);
+    assert.deepEqual(arcEnds, ["10", "15", "20"]);
   });
 });
