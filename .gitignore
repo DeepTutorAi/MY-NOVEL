@@ -20,3 +20,4 @@ skills/
 .agents/skills/*
 !.agents/skills/ln-character-designer/
 !.agents/skills/ln-scene-composer/
+src/plan/new-universe/kyoka_chat_export.json
