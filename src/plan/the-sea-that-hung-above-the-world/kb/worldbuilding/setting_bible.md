@@ -21,8 +21,10 @@ The five layers below describe the water **inside** the suspended ocean, using t
 The *Albatross* does not enter the water under normal operation. In Arc 5, Maera seals the hull for a special dive through the lower surface and into Layers 1-3 to approach the Sky-Dam's submerged foundations — the crew's first experience of true ocean pressure.
 
 **Institution and place-name canon:**
-- **สภาศิลาไร้ฝน** is the ruling regime/council. **กระทรวง** is its executive bureaucracy and the ordinary word characters use for the state apparatus. **หมู่หินไร้หยดน้ำ** is the council's stone-cluster emblem/seal, not a third organization.
-- **Salt Ward** is the common and internal name of the detention-laboratory complex. **The White-Silt Bastion / ปราการผลึกขาว / ปราการขาว** are formal, translated, and shortened names for the same fortified site. The archive's euphemism, **สถานบำบัดและฟื้นฟูสภาวะเปียก**, is the public-facing administrative label.
+- **สภาศิลาไร้ฝน** is the ruling regime/council (centered at Hallowmere). **กระทรวง** is its executive bureaucracy and the ordinary word characters use for the state apparatus. **ตราหมู่หินไร้หยดน้ำ** is the council/ministry's stone-cluster seal/emblem, not a third organization.
+- **Salt Ward** is the common and internal name of the detention-laboratory complex. **The White-Silt Bastion / ปราการผลึกขาว / ปราการขาว** are formal, translated, and shortened names for the same fortified site. The archive's euphemism, **สถานบำบัดและฟื้นฟูสภาวะเปียก**, is the public-facing administrative label. Its physical layout consists of **3 levels above the mist** (staff quarters, administration, and upper front) and **3 underground levels** (B1: kitchen, laundry, electrical; B2: intake, interrogation, main personnel and supply elevators; B3: the laboratory, which Ministry paperwork refers to as **"Level 4" / "ชั้น 4"**).
+- **กติกาเรือข้อเจ็ด** (*Albatross* Ship Rule 7): *"คนที่ลงจากเรือไปแล้ว ยังนับเป็นลูกเรือ"* (Those who have disembarked still count as crew), added by Ilyra in Arc 5 Ch 25.
+- **พิพิธภัณฑ์ชายฝั่ง** (The Coastal Museum / หอ): Built directly around and over the grounded hull of the *Albatross* on the new shoreline after the Sky Ocean fell.
 
 **Key Locations within the Layers:**
 - **The Sunken Quarter** (Layer 2): An intact district of the Ascendant Engineers' original city — streets are vertical shafts. The whale-bone inscription was found here.
@@ -61,15 +63,15 @@ Exposure through infected blood or tissue fluid can deliver a smaller dose. That
 
 - **The Sky-Dam Engine**: A colossal structure of bone, shell, and copper built by the Ascendant Engineers. It holds the ocean aloft. Inside, pipes beat like blood vessels, and the consciousness of the Dead Parliament speaks through metal grates.
 - **Elaris**: Cael's hometown. A mountain city built on steep cliffs, sitting directly above the geological fault line where the sea was torn from the earth. Key trading zone: **ตลาดคราบสมุทร** (Ocean-Crust Market).
-- **The White-Silt Bastion (ปราการผลึกขาว / ปราการขาว / Salt Ward)**: A heavily guarded detention laboratory beneath the Sky-Dam where the **สภาศิลาไร้ฝน**, acting through its Ministry, holds Brine-Spore-infected children — studying the parasite's life cycle and attempting to weaponize it.
-- **Hallowmere**: A religious city governed by the Order of Rainless Stone, where citizens believe the rising flood is a holy baptism and refuse to evacuate.
+- **The White-Silt Bastion (ปราการผลึกขาว / ปราการขาว / Salt Ward)**: A heavily guarded detention laboratory (3 levels above the mist and 3 underground levels, with Underground Level 3 designated as "Level 4" in Ministry forms) where the **สภาศิลาไร้ฝน**, acting through its Ministry, holds Brine-Spore-infected children, studying the parasite's life cycle and attempting to weaponize it.
+- **Hallowmere**: A white-stone religious city on a western lake shore, seat of the **สภาศิลาไร้ฝน** (Council of Rainless Stone) and Bishop Corvein, where citizens believe the rising flood is a holy baptism and resist evacuation.
 - **Nacre-Vault**: A wealthy city that harvests "pearls" from the bones of brine-touched corpses, profiting off the mutation and actively resisting the dam's destruction.
 
 ---
 
 ## 🌲 Reclaimed Wilderness (The Drowned Roads)
 
-- **The Mistwood**: A woodland where trees draw moisture from the fog. Their leaves are fleshy and rib-like, breathing in unison during the humid nights.
+- **The Mistwood (ป่าหมอก)**: Located northwest of the Capital (ตะวันตกเฉียงเหนือของกรุงหลวง). Giant trees coated in pale coral armor draw moisture from the fog above a layer of acidic mist (หมอกเปรี้ยว), with fleshy, rib-like leaves that breathe in unison during humid nights.
 - **The Pearl Colony**: A settlement where Brine-Spore hosts infected with Coral-Spores or the Warden's Bloom undergo calcification — their bodies slowly transformed into living coral and calcium-carbonate structures.
 - **The Upside Reef**: A massive coral reef hanging down from the sky-cliffs, preying on birds, sky-ships, and the memories of travelers.
 - **The Bone Harbor**: An ancient shipyard buried in dry mud. When the rain falls, the dried hulls begin to float out of the dirt, remembering their past.

@@ -34,11 +34,11 @@ This document defines every location in the world — their geography, political
        └────┬────┘         │
             │              │
        [Mistwood]──────────┘
-       (South of Sky-Dam)
+       (NW of Capital)
        Brine-touched refuge
             │
        [Pearl Colony]
-       (South of Mistwood)
+       (Southern route)
        Calcification zone
             │
        [Bone Harbor]
@@ -213,7 +213,7 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 - **Type**: Government center
 - **Geography**: Built on a plateau east of the Sky-Dam. The city is constructed on what was once the continental shelf — the ground is compacted seabed. Architecture is stone and iron — heavy, oppressive, designed to resist salt corrosion.
 - **Relative Position**: East of the Sky-Dam. ~1.5 days by airship from Elaris. Connected to the Salt Ward via underground tunnels.
-- **Who Controls**: Ministry of Dry Earth — Marrow Saint's seat of power. Inquisitor headquarters. Military command center (Commander Voss).
+- **Who Controls**: **สภาศิลาไร้ฝน** (ruling council) acting through **กระทรวง** (the Ministry, using **ตราหมู่หินไร้หยดน้ำ** as its official seal). Inspector Kell Marr (`ผู้ตรวจการ Kell Marr`) commands the lockdown and pursuit in Arc 3. (Voss is the former commander, `อดีตผู้บัญชาการ Voss`, who signed the Pearl Colony evacuation order 3 years prior.)
 - **Local Features**: The Grand Library (Sera's workplace), the Archive Wing (where Sera and Lienn work), the Steam Pipeline network (Team Cassian's escape route), the broadcast tower (where Sera transmits the truth).
 - **Importance to Plot**: Sera's storyline hub. Team Cassian's escape route. The truth is broadcast from here.
 - **First Appearance**: Arc 2 Ch 7 (Sera subplot and first direct POV appearance) / Arc 3 Ch 11 (Sera's first full-chapter POV).
@@ -229,9 +229,9 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 
 ### 4. The Salt Ward
 - **Type**: Underground detention and experimentation facility
-- **Geography**: Built directly beneath the Sky-Dam Engine. Its deepest chambers connect to the Sky-Dam's foundation — water from the Sky Ocean seeps through the walls. The entire facility hums with the Engine's pulse.
-- **Relative Position**: Directly under the Sky-Dam. Accessible from the Capital via underground tunnels or from mountain passes used by The Chorus.
-- **Who Controls**: Ministry — The Harvesters division. Doctor Aldis Prahm was chief researcher (until killed by Varek).
+- **Geography**: Built with **3 levels above the mist** (staff quarters with the lab head's office, administration, and upper front) and **3 underground levels** (Underground 1: kitchen, laundry, electrical; Underground 2: intake, interrogation, main personnel and supply elevators; Underground 3: the laboratory, referred to as **"Level 4" / "ชั้น 4"** in Ministry paperwork). Its deepest chambers connect to the Sky-Dam's drainage and pipe system, and the facility consumes seven times the water of a normal building of its size.
+- **Relative Position**: Connected to the Capital via underground drainage and service tunnels.
+- **Who Controls**: **กระทรวง** (the Ministry) / The Harvesters division. Doctor Aldis Prahm (tall, smooth hair, 10 years of service) was chief researcher until killed by Varek.
 - **Importance to Plot**: Where Nio was held for 10 years. Where Team Cael rescues him. Site of the Party Split. Site of Odran's flashback confession.
 - **First Appearance**: Arc 3 Ch 12
 - **Last Appearance**: Arc 3 Ch 14 — Abandoned after the jailbreak. Later collapses as the Sky-Dam falls.
@@ -246,15 +246,15 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 
 ### 5. The Mistwood (ป่าหมอก)
 - **Type**: Reclaimed wilderness — Brine-touched refuge
-- **Geography**: A forest where trees draw moisture from the fog. Leaves are fleshy and rib-like — they breathe in unison during humid nights. The ground is soft — damp with standing water. Pale-Moths drift through the mist in clouds. Visibility is low. Sound travels strangely — as if the forest amplifies the Leviathan's frequency.
-- **Relative Position**: South of the Sky-Dam. Between the Salt Ward and Pearl Colony. ~3-4 days on foot.
+- **Geography**: A forest of giant trees coated in pale coral armor, with a layer of acidic mist (`หมอกเปรี้ยว`) beneath the canopy. Leaves are fleshy and rib-like, breathing in unison during humid nights. Pale-Moths drift through the mist in swarms, gathering around the forest's singing frequency. Visibility is low, and sound travels across the entire canopy.
+- **Relative Position**: **Northwest of the Capital (ตะวันตกเฉียงเหนือของกรุงหลวง)**, reached by airship from the Salt Ward/Capital area during Team Cael's escape.
 - **Who Controls**: No one — but The Chorus (escaped brine-touched led by the Voice-Mother) live here. They are not hostile but will kill trespassers who threaten them.
 - **Importance to Plot**: Team Cael's escape route after the Party Split. Odran's psychological collapse. First meeting with the Voice-Mother.
 - **First Appearance**: Arc 3 Ch 14
 - **Last Appearance**: Arc 4 Ch 17 — Team exits toward Pearl Colony. The forest remains. After the ocean falls, parts of the Mistwood survive as the new world's mangrove swamps.
 - **Key Events**:
   - Odran collapses from guilt — confesses to Cael (Ch 14)
-  - Voice-Mother's test: Cael must not flinch at her touch (Ch 14-15)
+  - Voice-Mother (an elderly woman with ice-colored eyes; no touch test) and the Chorus appear (Ch 14-15)
   - Varek's pursuit through the canopy (Ch 15)
 - **Final State**: Survives in altered form. The fog-tolerant trees form the basis of the new coastal ecosystem.
 
@@ -262,8 +262,8 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 
 ### 6. Pearl Colony
 - **Type**: Colony / Sanatorium for brine-touched
-- **Geography**: A village beside a grey lake, south of the Mistwood. The buildings are pale — built from coral and shell. The Warden's "garden" is a courtyard filled with fully calcified brine-touched — human-shaped coral statues, still alive, still watching.
-- **Relative Position**: South of the Mistwood. ~3-4 days walk from the Salt Ward. ~2 days walk from Bone Harbor.
+- **Geography**: A deserted coastal-style settlement beside a grey lake on the southern route. The buildings are pale, built from coral and shell. The Warden's "garden" is a courtyard filled with fully calcified brine-touched: human-shaped coral statues, still alive, still watching.
+- **Relative Position**: On the southern route, ~1.5 days by airship from the Capital/Mistwood area, and ~2 days walk/flight north of Bone Harbor.
 - **Who Controls**: The Warden of Pearl — independent. Not Ministry, but not benevolent either.
 - **Importance to Plot**: Reunion point — Team Cael and Team Cassian meet here. Varek defects here. Kaelen Mor's warning. Body horror centerpiece.
 - **First Appearance**: Arc 4 Ch 16
@@ -289,7 +289,7 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
   - Loran calculates fatality vector — 1.2% survival (Ch 19)
   - Loran departs — gives Ilyra his charts (Ch 19)
   - Pip meets the crew (Ch 19)
-  - Cassian kills Sergeant Durn (Ch 20)
+  - Cassian kills Sergeant Durn (elderly former drill sergeant who was stationed at base on the night Cassian took the patrol boat) (Ch 20)
   - Cael's speech before departure (Ch 20)
 - **Final State**: The harbor is submerged when the ocean falls. The dried hulls finally float for real. The Keening Crabs' crying stops — fewer human remains to feed on.
 
@@ -329,7 +329,7 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 - **Key Events**:
   - Merchant families refuse evacuation (Ch 27)
   - Maera sees the pearl factory — brine-touched corpses processed into pearls (Ch 27)
-  - Varek kills Master Harrow — *"Unimportant people don't deserve speeches."* (Ch 27)
+  - Varek kills Master Harrow in Ch 30
   - Half the population evacuates — half stays (Ch 27)
 - **Final State**: Flooded. The merchants who stayed drown with their pearls. The caves become underwater ruins.
 
@@ -337,7 +337,7 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 
 ### 10. Hallowmere
 - **Type**: Religious city
-- **Geography**: Built on the shore of a sacred lake west of the Sky-Dam. The lake is believed to be a "tear of God." The city's architecture is white stone — temples, shrines, the Gate of Absolution (the gate mechanism Odran cranks).
+- **Geography**: Built on the shore of a sacred lake west of the Sky-Dam, serving as the seat of **สภาศิลาไร้ฝน**. The lake is believed to be a "tear of God." The city's architecture is white stone: temples, shrines, and the sluice/mechanism room (`ประตูระบายน้ำ` / `ประตูห้องกลไก`) whose wheel Odran cranks.
 - **Relative Position**: West of the Sky-Dam. Connected to Nacre-Vault by pilgrimage roads.
 - **Who Controls**: Bishop Corvein (religious) + Ministry (political — light presence).
 - **Importance to Plot**: The hardest city to evacuate. Bishop Corvein's resistance. Odran's sacrifice.
@@ -422,19 +422,19 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 
 ### 16. The Coastal Museum (พิพิธภัณฑ์ชายฝั่ง)
 - **Type**: Museum / Memorial
-- **Geography**: Built on the new coastline after the ocean falls. Positioned at the place where Ilyra first landed after the Sky-Dam collapsed. The building incorporates timber from the *Albatross*.
+- **Geography**: Built on the new coastline after the ocean falls, directly around and over the grounded hull of the *Albatross* at the high-tide line (`ตัวหอคือตัวเรือ`). Wooden roofing extends from both sides of the ship's hull into long glass-windowed halls.
 - **Relative Position**: On the new coast — exact location deliberately left ambiguous in the text.
 - **Who Controls**: Independent — maintained by descendants of the survivors.
 - **Importance to Plot**: Epilogue setting (Arc 7 Ch 35). Legacy of all characters displayed here.
 - **First Appearance**: Arc 7 Ch 35
 - **Exhibits**:
-  - Maera's tools and Tovin's crude prosthetic arm — labeled: *"Barn Door — Made with Love — circa Year 2 After the Fall"*
+  - Maera's tools and Tovin's wooden-and-iron prosthetic left arm (built after landing to replace Maera's left arm, which lost nerve sensation from heat burns on the night they cut the shaft and had to be amputated later)
   - Odran's victim list — 74 names under glass (73 dead, Nio marked as survivor) — memorial
-  - Cassian's sword — recovered from the island peak
-  - Loran Thorne's lineage records — 7 generations
-  - "The Red-Eyed Terror" exhibit — folklore and red cloth offerings
+  - Cassian's sword (planted on the white-rock island peak in the bay), Reven's photograph (4 people in front of a house with a 6-year-old boy, recovered from coat remnants near the iron ring base), Kell Marr's black gloves, and Lienn's pen
+  - Loran's brass compass (carried south and later donated by his family) and Thorne lineage records (7 generations)
+  - The *Albatross* hull itself, with the ship's rulebook opened to **กติกาเรือข้อเจ็ด** (*"คนที่ลงจากเรือไปแล้ว ยังนับเป็นลูกเรือ"*, written in the newest ink)
   - Sera's *True History of the Sky Ocean* — opened to page 1: *"This is not a story about heroes…"*
-  - Audio installation: Cael's voice — recorded from rainfall frequencies
+  - Audio installation / rainfall resonance: Cael's rhythm (three beats, pause one) and Nio's three-note song returning across the bay on rainy nights, plus "The Red-Eyed Terror" exhibit (folklore and red cloth offerings)
 
 ---
 
@@ -455,8 +455,8 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 | Elaris | Capital | Airship | ~1.5 days |
 | Elaris | Capital | Foot (mountain passes) | ~4-5 days |
 | Capital | Salt Ward | Foot (underground tunnel) | ~1 day |
-| Salt Ward | Mistwood | Airship (escape flight) | ~0.5 days |
-| Mistwood | Pearl Colony | Foot | ~3-4 days |
+| Salt Ward | Mistwood (NW of Capital) | Airship (escape flight) | ~0.5 days |
+| Capital / Mistwood | Pearl Colony | Airship | ~1.5 days |
 | Pearl Colony | Bone Harbor | Foot | ~2 days |
 | Bone Harbor | Sky-Dam | Airship (direct ascent) | ~1 day |
 | Capital (via sewers) | Pearl Colony | Foot + occasional airship | ~5 days |
@@ -470,7 +470,7 @@ The labels retain the Ascendant Engineers' legacy measurement from the ocean's u
 |---|---|
 | **Elaris** | Built on the mountain because the lowlands were old seabed — unsafe, prone to salt saturation. The mountain was the only stable ground after the ocean was lifted. |
 | **Capital** | Built on the old continental shelf — flat, defensible plateau. Close to the Sky-Dam's energy output — the Ministry's power depends on proximity to the Engine. |
-| **Salt Ward** | Built directly under the Sky-Dam to use the Engine's water pressure for experiments. The Harvesters needed access to Sky Ocean water for their research. |
+| **Salt Ward** | Connected to the Capital via underground drainage and service tunnels; built with 3 levels above the mist and 3 underground levels (B3 = "Level 4" in paperwork) to tap Sky-Dam drainage and run Harvesters experiments in secrecy. |
 | **Nacre-Vault** | Built in natural caves because the cave system contained brine-touched fossils from the first generation of mutation — the "pearl" industry started with mining these fossils. |
 | **Hallowmere** | Built on the sacred lake shore because the lake was the first place where rain from the Sky Ocean collected naturally — seen as a divine sign. |
 | **Pearl Colony** | Built beside the salt lake because the high salinity accelerates the calcification process — the Warden chose this location for his "garden." |

@@ -27,51 +27,51 @@ This document outlines the high-level roadmap, thematic goals, and structural mo
 
 ## 🎭 Major Narrative Arcs (7 Arcs / 35 Chapters)
 
-### Arc 1: The Rain That Spoke (Ch 1-5)
+### Arc 1: เสียงเรียกใต้สายฝน (The Rain That Spoke, Ch 1-5)
 - **Focus**: World introduction, the mystery of the rain, Cael's past as the last remaining member of his household, and the erasure of the first margin village. Ilyra, Maera, Tovin, and Odran join the crew.
 - **Inciting Incident**: Cael hears the voice of his brother Nio (who should be dead/taken) singing in the rain.
 - **Plot Point 1**: The Ministry burns the contaminated village and erases it from maps. Cael finds a bottled miniature house with fingers tapping from inside. Inquisitor Kell Marr oversees the purge.
 
-### Arc 2: The Sky-Sailor and the Red Hunter (Ch 6-10)
-- **Focus**: Ascending to the Sky Ocean on Ilyra's sky-ship, chased by Varek. Hiring Loran Thorne as navigator. Cassian Veyr joins the crew. Sera begins her investigation in the Capital archives.
+### Arc 2: คนเดินเรือแห่งฟ้ากับนักล่าใบแดง (The Sky-Sailor and the Red Hunter, Ch 6-10)
+- **Focus**: Ascending to the Sky Ocean on Ilyra's sky-ship, chased by Varek. Hiring Loran Thorne as navigator, with Garrick and Lisse serving aboard the *Albatross*. Cassian Veyr joins the crew. Sera begins her investigation in the Capital archives.
 - **Midpoint Shift**: Discovering the upside-down drowned ruins in the sky and the inscription on the whale bone: *"The ocean was not lifted. It was butchered upward."*
 
-### Arc 3: The Ministry of Dry Earth (Ch 11-15)
-- **Focus**: Sera's path in the capital uncovering truth suppression. Infiltration of the Salt Ward to rescue Nio. **PARTY SPLIT** — Team Cael (Cael, Ilyra, Odran, Nio) flee through the Mistwood. Team Cassian (Cassian, Maera, Loran, Tovin, Sera) escape through the capital sewers.
-- **Crisis**: Odran confesses that he was the inquisitor who signed Nio away. Cael refuses to forgive him but must cooperate. Sera broadcasts the truth for the first time. The Voice-Mother and The Chorus appear.
+### Arc 3: กระทรวงแผ่นดินแห้ง (The Ministry of Dry Earth, Ch 11-15)
+- **Focus**: Sera and Lienn escape the Capital archives (D1 night) and hide in the drainage pipe for **one night** before meeting the 10-person raid team (Cassian, Maera, Loran, Tovin, Sera, Lienn, Ilyra, Cael, Odran, Garrick; Lisse waits at the ship). Infiltration of the Salt Ward rescues Nio (D2 night). **PARTY SPLIT**: Team Cael (Cael, Ilyra, Odran, Nio) flee through the Mistwood (D3-D5); Team Cassian (Cassian, Maera, Loran, Tovin, Sera, Lisse, Garrick, and mute **Wren / เร็น**) escape through the capital sewers.
+- **Crisis**: Odran confesses that he was the inquisitor who signed Nio away. Cael refuses to forgive him but must cooperate. Sera broadcasts the truth on a 30-minute loop (D3 night); Lienn is captured. The Voice-Mother and The Chorus appear.
 
-### Arc 4: The Drowned Roads (Ch 16-20)
-- **Focus**: The journey through areas reclaimed by the sea (The Mistwood, Pearl Colony, Upside Reef, Bone Harbor). Teams reunite at Pearl Colony. Varek defects after his mutation is exposed. Kaelen Mor — a former Rain Listener who refused his calling — warns Cael.
+### Arc 4: ถนนจมน้ำ (The Drowned Roads, Ch 16-20)
+- **Focus**: Begins **immediately** after Ch 15, traveling through areas reclaimed by the sea (Mistwood, Pearl Colony at **1.5 days** from the Capital, Upside Reef, Bone Harbor). Teams reunite at Pearl Colony (12 people including Wren). Ilyra swears to take Odran and Nio to the second quiet-wall (แนวนิ่งที่สอง ช่องเก้า ร่องสี่), then **postpones it until after the Sky-Dam** due to lost supplies from the last ore cart and the southern dam route. Cassian injures his right palm on the emergency brake lever. Varek defects after his mutation is exposed and joins under Ilyra's conditions. Kaelen Mor (fled 50 years ago) warns Cael. Sergeant Durn (Cassian's former instructor who stayed at base that night) hunts Cassian and is killed in Ch 20.
 - **Stakes**: Discovering that Cael's home city Elaris sits directly at the "wound of the world" and will be destroyed first if the sea falls.
-- **Loran's Departure**: Loran Thorne calculates a 99% fatality vector for the Sky-Dam mission. He refuses to join the suicide mission, hands Ilyra his charts, confronts Cassian about macro-strategy vs. family, and departs at Bone Harbor to save his daughter.
+- **Loran's Departure**: Loran Thorne calculates a 99% fatality vector for the Sky-Dam mission. He refuses to join the suicide mission, hands Ilyra his charts, confronts Cassian about macro-strategy vs. family, and departs at Bone Harbor to save his daughter Yara.
 
-### Arc 5: The Dead Parliament (Ch 21-27)
-- **Focus**: Entering the Sky-Dam Engine, revealing the past Ascendant Engineers' consciousness archive. Marrow Saint confronts Cael. Reven — a child Cassian once saved — attacks him.
+### Arc 5: สภาแห่งความตาย (The Dead Parliament, Ch 21-27)
+- **Focus**: Entering the Sky-Dam Engine with the 12-person crew, revealing the past Ascendant Engineers' consciousness archive. Automaton #7 / Wren (เร็น) plot point alerts Kell Marr to Wren's existence. Marrow Saint confronts Cael. Reven, a child Cassian once saved (carrying a photograph of **4 people standing in front of a house**), attacks him and is killed by Varek. Ilyra establishes **Ship Rule #7** (those who disembark still count as crew). Kell Marr releases the ship in Ch 27 on bureaucratic grounds after Marrow Saint's broadcast, warning of their meeting on land.
 - **Temptation**: The Dead Parliament offers to cure Nio if Cael repairs the dam to keep the sea aloft. Nio rejects the offer by stabbing his mutated chest, refusing to let the sea be bound again. Cael accepts Nio's autonomy. Cael chooses to become the Tide-Key.
 
-### Arc 6: The Moving of Cities (Ch 28-31)
-- **Focus**: Convincing three cities (Elaris, Nacre-Vault, Hallowmere) to migrate as the Sky-Dam breaks. Nacre-Vault's pearl industry resists. Bishop Corvein leads half of Hallowmere to drown in religious ecstasy.
-- **Odran's Penance**: Father Odran locks himself in Hallowmere's gate mechanism room, hand-cranking the rusted wheel until his finger bones crack. He drowns reciting all 74 names of the people he sent to the Salt Ward: 73 who died, then Nio Arvane, the one survivor.
+### Arc 6: การย้ายเมือง (The Moving of Cities, Ch 28-31)
+- **Focus**: Convincing three cities (Elaris, where Sera had only erased the North Stairs, Nacre-Vault, and Hallowmere) to migrate as the Sky-Dam breaks. Nacre-Vault's pearl industry resists. **Master Harrow is killed by Varek** (Ch 30). Bishop Corvein leads half of Hallowmere to drown in religious ecstasy.
+- **Odran's Penance**: Father Odran locks himself in Hallowmere's gate mechanism room (Ch 31, after Wren tears a strip of his robe), hand-cranking the rusted wheel until his finger bones crack. He drowns reciting all 74 names of the people he sent to the Salt Ward: 73 who died, then Nio Arvane, the one survivor.
 
-### Arc 7: When the Sea Fell (Ch 32-35)
-- **Focus**: Final sacrifices. Epilogue +300 years.
+### Arc 7: เมื่อทะเลร่วงหล่น (When the Sea Fell, Ch 32-35)
+- **Focus**: Final sacrifices (**2 old ships** from Bone Harbor join *Albatross* for **3 ships total**, with Pip's 4 siblings on the second ship; **Ship Rule #7** invoked). Epilogue +300 years.
 - **Climax**:
-  - **Cassian's Stand**: Stands on the crumbling tower peak. Shoots the rope bridge to force Ilyra's ship to escape. Kills Inquisitor Kell Marr. Faces the rising tide alone.
-  - **Maera's Sacrifice**: Chops through the primary engine core of the *Albatross* to create the signal beacon. The back-charge sears off her left arm.
+  - **Cassian's Stand**: Stands on the crumbling tower peak. Kills Inquisitor Kell Marr with his sword, shoots the rope bridge to force Ilyra's ship to escape, and faces the rising tide alone.
+  - **Maera's Sacrifice**: Chops through the primary engine core of the *Albatross* to create the signal beacon. Severe heat/nerve damage renders her **left arm without sensation** (still attached in Ch 33-34, **amputated after landing** and replaced with a wood-and-iron prosthetic).
   - **Cael's Transition**: Fully bonds with the Tide-Key Engine to control the ocean's fall. Survives not as a man, but as a guiding consciousness in the rain.
   - **Varek's Transformation**: Mutates completely into a coral-salt beast, vanishing into the Mistwood. Remembered as "The Red-Eyed Terror."
   - **Nio's Departure**: Completely loses his language, forgetting the word "brother" (พี่), but sings Cael's childhood melody in whale frequencies as farewell. Merges with the Leviathan.
-  - **Marrow Saint's End**: Dies alone in the Sky-Dam control room. *"At least… at the end… someone heard."*
-- **Epilogue (+300 years)**: The Coastal Museum displays Maera's tools, Odran's list, Cassian's sword, and Loran's lineage. Cael's voice is heard in the rainfall. Nio's whale song echoes in the harbor. The children leave red cloths at the Mistwood edge for the Red-Eyed Terror.
+  - **Marrow Saint's End**: Dies alone in the Sky-Dam control room. *"At least... at the end... someone heard."*
+- **Epilogue (+300 years, Ch 35)**: **Dual POV of เทสสา (Tessa) and Nio Arvane (in whale form, +300 years)**. The Coastal Museum displays Maera's tools and wood-and-iron prosthetic, Odran's list, Cassian's sword, **Reven's photograph of 4 people** (recovered from coat remains near the iron ring base), Loran's brass compass and 7-generation lineage, and *Albatross*'s stern helm. Cael's voice is heard in the rainfall. Nio's whale song echoes in the harbor. The children leave red cloths at the Mistwood edge for the Red-Eyed Terror.
 
 ---
 
 ## ⚙️ Target Reader & Framing
 - **Comp Titles**: For fans of *Higurashi When They Cry* (mystery/isolation/mutation), *BLACK SOULS II* (dark fantasy/cyclical sacrifices), and *Subarashiki Hibi* (philosophical perspective/DID).
-- **Narrative POV**: Third-Person Limited (shifting between Cael, Ilyra, Sera, Nio, and Maera).
+- **Narrative POV**: Third-Person Limited (shifting between Cael, Ilyra, Sera, Nio, and Maera, plus dual POV of Tessa and Nio in whale form in Ch 35).
 - **Estimated Length**: 100,000+ words.
 - **Structure**: 7 Arcs, 35 Chapters (~4,000 lines).
-- **Timeline**: ~5 months narrative + Epilogue (+300 years).
+- **Timeline**: ~2 months active narrative + Epilogue (+300 years).
 
 ---
 

@@ -64,9 +64,9 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 - **Appearance**: Scrawny, sun-darkened skin, buzz-cut hair, eyes too big for his face. Wears his dead father's oversized coat. Missing one front tooth.
 - **Personality**: Excited by everything. Wants to be a Sky-Sailor but has never left Bone Harbor. Talks nonstop until Ilyra yells at him to shut up. Uses nautical terms wrong. *"Is that a Cloud Whale?! Wait no… that's a Reef-something…"*
 - **Faction**: Neutral — works the docks to feed his younger siblings.
-- **Role**: Guards the *Albatross* while it's docked at Bone Harbor (Arc 4 Ch 19-20). Later becomes Ilyra's apprentice in the Aftermath. Appears elderly in the Epilogue (Arc 7 Ch 35) — retired captain.
-- **Appears**: Arc 4 (Ch 19, 20), Arc 7 Epilogue (Ch 35)
-- **Fate**: Survives. Becomes a captain. Trains the next generation of Sky-Sailors on the new sea.
+- **Role**: Guards the *Albatross* while it's docked at Bone Harbor (Arc 4 Ch 19-20). Later becomes a captain in the Aftermath and marries Yara Thorne (Loran's daughter) in the second year of the new port (Ch 35).
+- **Appears**: Arc 4 (Ch 19, 20), Arc 7 (Ch 32, 34, 35)
+- **Fate**: Survives. Becomes a captain and marries Yara Thorne; the bay's first shuttle boat carries the name of the person promised to be picked up.
 - **Relationship to Main Cast**: Ilyra's protégé. Represents the "next generation" who will inherit the world after the old Sky-Dam falls.
 - **Memorable Moment**: Arc 4 Ch 19: *"Did this ship fight a Cloud Whale?!"* Ilyra: *"No. It hit a bird."* Pip: *"…How big was the bird."*
 - **Why He Exists**: Shows the new generation. His excitement is the hope that survives in the epilogue.
@@ -83,9 +83,9 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 - **Personality**: Polite and cold. Never raises his voice. His smile stays on his face even when ordering executions. His "politeness" is more terrifying than Varek's brutality.
 - **Voice**: Slow, courteous, uses full titles — *"Mister Arvane. I am not here to harm you. I am here to help you choose the less painful path."*
 - **Faction**: Ministry — personally loyal to Marrow Saint.
-- **Role**: Leads the Inquisitor pursuit in Arc 3 (Capital lockdown). Defends the Sky-Dam in Arc 5. Final confrontation with Cassian in Arc 7 Ch 31.
-- **Appears**: Arc 1 (Ch 4), Arc 3 (Ch 13, 15), Arc 5 (Ch 21, 24), Arc 7 (Ch 31)
-- **Fate**: Killed by Cassian on the falling tower (Arc 7 Ch 31). Last words: *"You and I… we're the same."* Cassian: *"We are not the same. I chose to stop."*
+- **Role**: Leads the Inquisitor pursuit in Arc 3 (orders the Capital lockdown and shoots Commander Voss in Ch 15). Defends the Sky-Dam in Arc 5. Final confrontation with Cassian on the tower summit in Arc 7 Ch 32.
+- **Appears**: Arc 1 (Ch 4), Arc 3 (Ch 13, 15), Arc 5 (Ch 21, 23, 24, 27), Arc 7 (Ch 32)
+- **Fate**: Killed by Cassian on the falling tower summit (Arc 7 Ch 32); Cassian leaves Kell Marr's black gloves on the iron ring rim (Ch 35).
 - **Relationship to Main Cast**: Dark mirror of Cassian — both are soldiers loyal to their masters, but chose opposite sides. Cassian stopped. Kell never did.
 - **Memorable Moment**: His death — not epic, not long. Cassian kills him efficiently. No grand speech.
 - **Why He Exists**: Ministry needs a "face" antagonist besides Marrow. Kell is the one who actually does the hunting, the arresting. Represents the "good person who chose to do evil."
@@ -98,9 +98,9 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 - **Personality**: Fearful but not a coward. Afraid of the Ministry — deeply — but chose to help Sera because *"erasing history is wrong."* Her hands shake every time she passes secret documents. Never stops passing them.
 - **Voice**: Stutters when lying — *"Uh… the document… I… it fell… fell in water."*
 - **Faction**: Ministry → secretly helps Sera.
-- **Role**: Feeds Sera information from inside the archives after Sera flees (Arc 2 Ch 7, Arc 3 Ch 11). Arrested in Arc 3 Ch 13. Sent to Salt Ward.
+- **Role**: Flees the Ministry Archives together with Sera (Arc 3 Ch 11/13) and stays behind at the heavy iron door to hold the escape route open for Sera's team (Arc 3 Ch 13).
 - **Appears**: Arc 2 (Ch 7), Arc 3 (Ch 11, 13)
-- **Fate**: Dies in Salt Ward — body experimented on by Doctor Prahm. By the time Cael's team could have found her, she no longer remembers who she is.
+- **Fate**: Captured at the iron gate in Arc 3 Ch 13. Later in Ch 32, Kell Marr returns only her pen.
 - **Relationship to Main Cast**: Sera's colleague and friend. Sera carries the guilt of Lienn's death. *"I asked her to help. She helped. She died."*
 - **Memorable Moment**: Her last words to Sera before being dragged away: *"Sera… don't stop. If you stop… I was arrested for nothing."*
 - **Why She Exists**: Shows the COST of resistance against the Ministry. Not everyone who helps the heroes survives. Lienn is the price Sera pays.
@@ -108,14 +108,14 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 ---
 
 ### 7. Doctor Aldis Prahm — Chief Researcher, Salt Ward
-- **Age**: 56
-- **Appearance**: Plump, balding on top, round spectacles. Has a gentle, misplaced smile — in a room where brine-touched children scream, he smiles like a kind family doctor.
-- **Personality**: Dissociated. Genuinely believes he is "helping" these children — "understanding" the mutation to protect humanity. The brutal experiments are "necessary research." He does not enjoy suffering. He simply no longer feels anything about it.
-- **Voice**: Speaks like a doctor — *"Don't be afraid… this is a necessary procedure… you're going to help all of humanity, you know."*
+- **Age**: 56 (10 years of service at the Salt Ward)
+- **Appearance**: Tall, with smooth, flat hair (`ตัวสูง ผมเรียบ`). Has a calm, misplaced clinical demeanor.
+- **Personality**: Dissociated. Genuinely believes he is "helping" these children and "understanding" the mutation, treating brutal experiments as necessary procedures while keeping open files on the results.
+- **Voice**: Speaks calmly and politely like a doctor.
 - **Faction**: Ministry — The Harvesters (experimentation division).
-- **Role**: The man who experimented on Nio for 10 years (Arc 3 Ch 12, 14). Odran confronts him. Killed by Varek in Arc 3 Ch 14.
-- **Appears**: Arc 3 (Ch 12, 14)
-- **Fate**: Killed by Varek. Varek does not give him a final speech. Just a blade. Silent. Fast.
+- **Role**: The man who experimented on Nio for 10 years (Arc 3 Ch 12). During the raid in Ch 12, he gives the rescue team 40 minutes, light-blocking cloth bags for Nio, and two boxes of medicine, preferring to keep his file open to see what they do next.
+- **Appears**: Arc 3 (Ch 12)
+- **Fate**: Not killed in Arc 3; remains behind at the Salt Ward with his open file.
 - **Relationship to Main Cast**: Nio's torturer. Odran's mirror — Odran sent children to the Salt Ward; Prahm is what happened to them after they arrived.
 - **Memorable Moment**: Odran's confrontation: *"I sent children to you… what did you do to them."* Prahm (smiling): *"We saved them. We studied them. We understood them."*
 - **Why He Exists**: Shows that "evil" does not require malice. The horror of Prahm is that he genuinely thinks he is good.
@@ -127,9 +127,9 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 - **Appearance**: Stocky military build. Short steel-grey beard. Dark blue leather armor. Silver-hilted longsword. Looks like the ideal soldier.
 - **Personality**: Does not hate anyone. He just "follows orders" and never questions where those orders come from. *"Execute." "Report." "No exceptions."*
 - **Faction**: Ministry — military command.
-- **Role**: Commands the military forces in the Capital. Orders the city sealed during Team Cassian's escape (Arc 3 Ch 13, 15).
+- **Role**: Commands the military forces in the Capital. Records that the lockdown order came from Inquisitor Kell Marr (Arc 3 Ch 13), and in Ch 15 questions Marr directly on why the people below are being targeted.
 - **Appears**: Arc 3 (Ch 13, 15)
-- **Fate**: Killed during the escape — by Cassian.
+- **Fate**: Shot and killed by Inquisitor Kell Marr in Arc 3 Ch 15 after questioning the order.
 - **Relationship to Main Cast**: Antagonist. Represents the "system that works without thinking."
 - **Memorable Moment**: His orders during the lockdown: *"Seal all gates. No exceptions. If they resist… no exceptions."*
 - **Why He Exists**: The Ministry needs more than Inquisitors. Voss is the military — the system that executes without moral consideration.
@@ -141,9 +141,9 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 - **Appearance**: Thin, gaunt old man. Wears a magnifying lens over one eye. Hands scarred by chemical burns. Never wears gloves — he likes to "feel" what he experiments on.
 - **Personality**: Psychopathic scientist. Everything is a "specimen" — including himself. Speaks with childlike excitement. *"Look… these scales… they grow following moisture gradients… magnificent!"*
 - **Faction**: Ministry — The Harvesters (experimentation division). Reports to Doctor Prahm's division but operates the Nacre-Vault pearl factory.
-- **Role**: Runs the Nacre-Vault pearl factory where brine-touched corpses are smoked into stone and their bones extracted for pearls (Arc 6 Ch 27).
-- **Appears**: Arc 6 (Ch 27)
-- **Fate**: Killed by Varek — fast, silent. Varek: *"He was unimportant. Unimportant people don't deserve speeches."*
+- **Role**: Runs the Nacre-Vault pearl factory where brine-touched corpses are smoked into stone and their bones extracted for pearls (Arc 6 Ch 30).
+- **Appears**: Arc 6 (Ch 30)
+- **Fate**: Killed by Varek in Arc 6 Ch 30.
 - **Relationship to Main Cast**: Antagonist. The industrial face of Ministry exploitation.
 - **Memorable Moment**: Maera seeing his "factory" — rows of brine-touched bodies in various stages of calcification. Some still conscious.
 - **Why He Exists**: "Evil" from "curiosity" — more terrifying than evil from hatred. He represents the industrial-commercial dimension of the Ministry's crimes.
@@ -169,14 +169,14 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 ---
 
-### 11. Wren — Brine-Touched Child
+### 11. Wren (เร็น) — Brine-Touched Child (Queue 031, Year 10)
 - **Age**: 11
-- **Appearance**: Small girl. Skin translucent enough to see blue veins beneath. Left hand has webbing between the fingers — like fins. White hair from malnutrition. Never speaks.
-- **Personality**: Not mute — chooses not to speak because every time she speaks, the guards come. Communicates by drawing on the cell wall. Her drawings are identical to drawings made by brine-touched children in other cells — all of them depict the same thing: the Leviathan.
+- **Appearance**: Small girl. Skin translucent enough to see blue veins beneath. Left hand has webbing between the fingers. White hair from malnutrition. Never makes a vocal sound.
+- **Personality**: Her vocal cords were severed (`ถูกตัดเส้นเสียง`). She cannot speak aloud and communicates exclusively through writing, knocking/tapping rhythms (such as "up, up, down" on glass), and gestures.
 - **Faction**: Victim — has no faction. Only wants to go home.
-- **Role**: Found in the cell next to Nio's in the Salt Ward (Arc 3 Ch 12). Her drawings are the first concrete mystery seed for the Leviathan.
-- **Appears**: Arc 3 (Ch 12, 14)
-- **Fate**: Survives — rescued during the jailbreak. Evacuated. Becomes one of the "sea listeners" of the new generation.
+- **Role**: Queue 031 of Year 10 in the Salt Ward records. Found in the cell next to Nio's (Arc 3 Ch 12) and rescued with the crew. Remains close to Nio through Arcs 4-7; tears a scrap from Odran's robe before he locks the gate room (Ch 31), and receives the word `"ยัง"` ("Still") from Nio in Ch 34 before Nio enters the sea.
+- **Appears**: Arc 3-7 (Ch 12, 14, 16-34)
+- **Fate**: Survives — rescued during the jailbreak, evacuated, and stays through the finale (Ch 34).
 - **Relationship to Main Cast**: Symbol. Represents all the brine-touched children the Ministry experimented on. Cael sees in her what Nio was 10 years ago.
 - **Memorable Moment**: Her drawing — the Leviathan. When Sera shows it to Nio, he nods. *"Yes. That's the one. That's what's calling us."*
 - **Why She Exists**: The "voice" of the victim who cannot speak. Her drawings are a mystery seed — proof that the Leviathan's call is real and reaching all brine-touched simultaneously.
@@ -184,26 +184,26 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 ---
 
 ### 12. Voice-Mother — Matriarch of The Chorus
-- **Age**: ~50 (appears much older due to mutation)
-- **Appearance**: Tall, upright woman. Entire body covered in silver-grey scales. Eyes shine like pearl. Hair is living seaweed — thin strands that move on their own. Voice echoes as if speaking inside a cave.
-- **Personality**: Cold but reasonable. Does not hate humans — but does not believe humans can change. *"Humans always choose themselves first. So we learned to choose ourselves first."*
-- **Voice**: Echoing — *"What do you want here… to kill us like the Ministry does… or to use us like the Ministry does."*
+- **Age**: Elderly
+- **Appearance**: Elderly woman with ice-colored eyes (`หญิงชรา ตาสีน้ำแข็ง`). No scales and no living seaweed hair.
+- **Personality**: Cold, guarded, and weary of humans. In Ch 15, her claim that the sea's call is Nio's voice is presented as Chorus belief rather than objective fact (the Leviathan's call remains canon).
+- **Voice**: Calm and distant; addresses Odran formally with "ท่าน".
 - **Faction**: The Chorus — community of escaped brine-touched living in the Mistwood.
-- **Role**: Tests Cael in Arc 3 Ch 14-15 — watching whether he fears brine-touched or sees them as human. Permits passage. Later helps the team evade Varek.
-- **Appears**: Arc 3 (Ch 14, 15)
-- **Fate**: Unknown — may have died when the Sky-Dam collapsed, or survived in the Mistwood depths.
+- **Role**: Encounters Cael's team in the Mistwood (Arc 3 Ch 15) without a hand-touching test, and permits passage.
+- **Appears**: Arc 3 (Ch 15)
+- **Fate**: Unknown — remains in the Mistwood.
 - **Relationship to Main Cast**: Mirror. Shows what brine-touched become when they organize and survive — not just victims, but a community with their own leaders and their own anger.
-- **Memorable Moment**: Her test: *"Touch my hand, Rain Listener. If you flinch, you do not pass."* Cael does not flinch.
+- **Memorable Moment**: Encountering Cael's group in the Mistwood and voicing the Chorus belief about the call.
 - **Why She Exists**: Represents the perspective of brine-touched who are not just "victims" — they have community, leadership, and justified anger. She complicates the moral landscape.
 
 ---
 
 ### 13. The Warden of Pearl — Keeper of Pearl Colony
-- **Age**: Unknown — looks 40 but residents say he has not aged in 10 years.
-- **Appearance**: Tall, thin, skin pale white like mother-of-pearl. Wears a coat made of woven coral fibers. Eyes are still — like someone listening to something far away.
-- **Personality**: Kind but cold. Helps brine-touched who are calcifying — but also "preserves" them after death like museum specimens. *"Everyone here… is becoming something beautiful… would you like to stay and watch with me."*
+- **Age**: Elderly
+- **Appearance**: Elderly man with salt-and-pepper hair (`ผมสีดอกเลา`) and a right hand turned to coral. Former head of Pearl Colony.
+- **Personality**: Unsettlingly polite (uses "ผม/ครับ" and calls guests "พวกคุณ"). Helps brine-touched who are calcifying, while preserving them in his "garden."
 - **Faction**: Independent — Pearl Colony is his domain.
-- **Role**: Provides refuge at Pearl Colony (Arc 4 Ch 16-17). His "garden" of fully calcified brine-touched is the body horror centerpiece of Arc 4. Tries to keep the team from leaving.
+- **Role**: Provides refuge at Pearl Colony (Arc 4 Ch 16-17). His "garden" of calcified brine-touched is the body horror centerpiece of Arc 4. Watches the team depart up the mine-cart track without chasing them.
 - **Appears**: Arc 4 (Ch 16, 17)
 - **Fate**: Unknown — stayed at Pearl Colony as the waters rose. Whether he died or became part of the Colony is uncertain.
 - **Relationship to Main Cast**: Ambiguous. Is he a predator or a caretaker? The horror is the ambiguity.
@@ -251,11 +251,11 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 ### 16. Garrick & Lisse — Elaris Refugee Couple
 - **Age**: 38 and 35
-- **Appearance**: Garrick — stocky carpenter, rough hands. Lisse — quiet, sharp-eyed, 6 months pregnant.
+- **Appearance**: Garrick — dock porter/laborer (`กุลีท่าเรือ`), rough hands. Lisse — quiet, sharp-eyed, 6 months pregnant.
 - **Personality**: Garrick is afraid of everything but more afraid of losing his family. Lisse is silent but decisive. She makes the calls. He follows.
 - **Voice**: Garrick — *"Where are we going… will we survive…"* Lisse — *"We will survive."*
 - **Faction**: Civilians — no faction. Just trying to live.
-- **Role**: Board the *Albatross* as refugees in Arc 1 Ch 5. Reappear in Arc 6 Ch 26 — Lisse gives birth on the evacuation ship.
+- **Role**: Board the *Albatross* as refugees in Arc 1 Ch 5. Garrick joins the 10-person Salt Ward raid team in Arc 3 Ch 12-15 while Lisse remains on the ship. Reappear in Arc 6 Ch 26 — Lisse gives birth on the evacuation ship.
 - **Appears**: Arc 1 (Ch 5), Arc 6 (Ch 26)
 - **Fate**: Both survive. The baby — a girl — is the first child born after the beginning of the evacuation.
 - **Relationship to Main Cast**: Background. They give the evacuation a "face" — not just numbers, but a family the reader can worry about.
@@ -268,15 +268,15 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 ---
 
-### 17. Sergeant Durn — Cassian's Former Right Hand
-- **Age**: 36
-- **Appearance**: Large, powerful build. Scar from eyebrow to jaw. Rough, wheezing voice — damaged lungs from salt-acid exposure.
-- **Personality**: Loyalty bordering on obsession. He is not angry that Cassian killed their squad. He is angry that Cassian *"chose those children over us."*
-- **Voice**: Low, hoarse — *"You left us… you left me…"*
+### 17. Sergeant Durn — Cassian's Former Drill Instructor and Company Sergeant
+- **Age**: Elderly soldier
+- **Appearance**: Elderly veteran soldier with a scarred, weathered build.
+- **Personality**: Loyal to his unit and haunted by being left out. On the night Cassian killed all 9 men aboard the patrol boat (Ch 10), Durn had stayed at base (`ค้างฐาน`), making him the only member of the company Cassian did not ask and the only survivor besides Cassian.
+- **Voice**: Uses "ผม/แก" throughout the confrontation until switching to "ผม/คุณ" as he dies.
 - **Faction**: Ministry — hunts Cassian personally.
-- **Role**: Appears as a hunter pursuing Cassian in Arc 4 (Ch 18). Final confrontation in Arc 4 Ch 20.
+- **Role**: Appears pursuing Cassian in Arc 4 (Ch 18). Final duel with Cassian in Arc 4 Ch 20 (while Cassian fights with a bandaged right palm from the Ch 17 brake lever).
 - **Appears**: Arc 4 (Ch 18, 20)
-- **Fate**: Killed by Cassian at Bone Harbor. Last words: *"You know… I never hated you…"* Cassian: *"I know."* Durn: *"That… makes it worse."*
+- **Fate**: Killed by Cassian in a duel at Bone Harbor (Arc 4 Ch 20).
 - **Relationship to Main Cast**: Cassian's past made flesh. Forces Cassian to face the consequences of his choices.
 - **Memorable Moment**: His death. Cassian sits beside the body longer than necessary. No words.
 - **Why He Exists**: Forces Cassian to confront his past. Shows that "saving children" had a price — the people he abandoned.
@@ -318,13 +318,13 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 ---
 
 ### 20. Kaelen Mor — The Rain Listener Who Refused
-- **Age**: ~45 (at time of full calcification)
-- **Appearance**: Thin man. Half his body fully calcified into coral. One eye still human — grey-green, like Cael's. The other is pearl. He cannot move from the waist down. His hands are coral branches. His voice is a whisper — the last human sound he can make.
-- **Personality**: Bitter but not angry at Cael. Regretful. *"I ran. I thought I could hide from the calling. The sea doesn't forget. It just waits."*
-- **Faction**: Former Rain Listener — refused his calling. Now a "specimen" in the Warden of Pearl's garden.
-- **Role**: Appears in Arc 4 Ch 17. Warns Cael about the fate of Rain Listeners who refuse their role. Dies — fully calcifies — in the same chapter.
+- **Age**: Elderly (fled his duty 50 years ago; arrived at the Pearl Colony garden over 10 years ago)
+- **Appearance**: Thin, aged man. Half his body calcified into coral. One eye still human, the other pearl. Speaks in a hoarse, fast, bitter voice.
+- **Personality**: Bitter and regretful. Fled his calling 50 years ago and reached the garden over a decade ago, where he believed the comforting words offered on arrival.
+- **Faction**: Former Rain Listener — refused his calling. Now in the Warden of Pearl's garden.
+- **Role**: Appears in Arc 4 Ch 17. Warns Cael about the fate of Rain Listeners who refuse their role. Does NOT die in Ch 17.
 - **Appears**: Arc 4 (Ch 17)
-- **Fate**: Dies — fully transforms into coral. The Warden keeps his coral form in the garden.
+- **Fate**: Remains alive in his half-coral state at Pearl Colony in Arc 4 Ch 17.
 - **Relationship to Main Cast**: Cael's dark mirror — what Cael could become if he refuses the Tide-Key calling. His warning gives Cael's final choice more weight.
 - **Memorable Moment**: His warning: *"You can still run… before it calls you. But if you run… you'll end up like me. Half here. Half gone. Waiting."*
 - **Why He Exists**: Makes Cael's choice real. Cael is not the only Rain Listener. Others existed. Others refused. Others became this.
@@ -339,24 +339,24 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 | 1a | Rovan Arvane | — | Neutral (Elaris) | Backstory, Arc 1 traces | Dies in Year -8 |
 | 2 | Elder Soll | 71 | Quiet Resistance | Arc 1 | Dies in Elaris |
 | 3 | Henrick "Rust-Nail" | 41† | Ilyra's Mentor | Arc 5 (memory) | Dead before story |
-| 4 | Pip | 15 | Neutral (Bone Harbor) | Arc 4, 7 | Survives — becomes captain |
-| 5 | Kell Marr | 42 | Ministry — Inquisitor | Arc 2-7 | Killed by Cassian |
-| 6 | Lienn | 31 | Ministry → Sera's Ally | Arc 2-3 | Dies in Salt Ward |
-| 7 | Doctor Prahm | 56 | Ministry — Harvesters | Arc 3 | Killed by Varek |
-| 8 | Commander Voss | 48 | Ministry — Military | Arc 3 | Killed by Cassian |
-| 9 | Master Harrow | 60 | Ministry — Harvesters | Arc 6 | Killed by Varek |
-| 10 | Bishop Corvein | 63 | Independent — Hallowmere | Arc 6 | Drowns |
-| 11 | Wren | 11 | Victim — Salt Ward | Arc 3 | Survives |
-| 12 | Voice-Mother | ~50 | The Chorus | Arc 3 | Unknown |
-| 13 | Warden of Pearl | Unknown | Independent — Pearl Colony | Arc 4 | Unknown |
-| 14 | Rill the Net-Mender | 28 | Varek's Crew → Defector | Arc 2, 4 | Disappears |
+| 4 | Pip | 15 | Neutral (Bone Harbor) | Arc 4, 7 | Survives; becomes captain and marries Yara Thorne (Ch 35) |
+| 5 | Kell Marr | 42 | Ministry - Inquisitor | Arc 1-7 | Killed by Cassian on tower summit (Ch 32) |
+| 6 | Lienn | 31 | Ministry -> Sera's Ally | Arc 2-3 | Captured at iron gate covering Sera's escape (Ch 13) |
+| 7 | Doctor Prahm | 56 | Ministry - Harvesters | Arc 3 (Ch 12) | Survives Ch 12; remains with open file |
+| 8 | Commander Voss | 48 | Ministry - Military | Arc 3 (Ch 13, 15) | Shot by Kell Marr (Ch 15) |
+| 9 | Master Harrow | 60 | Ministry - Harvesters | Arc 6 (Ch 30) | Killed by Varek (Ch 30) |
+| 10 | Bishop Corvein | 63 | Independent - Hallowmere | Arc 6 | Drowns |
+| 11 | Wren | 11 | Victim - Salt Ward (Queue 031, Year 10) | Arc 3-7 | Survives; vocal cords severed; receives `"ยัง"` from Nio (Ch 34) |
+| 12 | Voice-Mother | Elderly | The Chorus | Arc 3 (Ch 15) | Unknown (elderly, ice-colored eyes) |
+| 13 | Warden of Pearl | Elderly | Independent - Pearl Colony | Arc 4 (Ch 16-17) | Remains at Pearl Colony |
+| 14 | Rill the Net-Mender | 28 | Varek's Crew -> Defector | Arc 2, 4 | Disappears |
 | 15 | The Twins | 25 | Varek's Crew | Arc 2 | Both dead |
-| 16 | Garrick & Lisse | 38/35 | Civilians — Elaris | Arc 1, 6 | Survive |
-| 17 | Sergeant Durn | 36 | Ministry — Hunter | Arc 4 | Killed by Cassian |
-| 18 | Reven | 19 | Ministry — Soldier | Arc 5 | Killed by Varek |
-| 19 | "Silt" | ~40 | Neutral — Info Broker | Arc 2, 4, 5 | Unknown |
-| 20 | Kaelen Mor | ~45 | Former Rain Listener | Arc 4 | Dies — fully calcified |
-| 21 | Maren Voss | 33 | "Civilian" — actually Ministry deep-cover | Arc 3-4 | Killed by Maera |
+| 16 | Garrick & Lisse | 38/35 | Civilians - Elaris (Garrick: dock porter) | Arc 1, 3, 6 | Survive |
+| 17 | Sergeant Durn | Elderly | Ministry - Hunter (ex-instructor) | Arc 4 (Ch 18, 20) | Stayed at base Ch 10; killed by Cassian in duel (Ch 20) |
+| 18 | Reven | 19 | Ministry - Soldier | Arc 5 | Killed by Varek |
+| 19 | "Silt" | ~40 | Neutral - Info Broker | Arc 2, 4, 5 | Unknown |
+| 20 | Kaelen Mor | Elderly | Former Rain Listener | Arc 4 (Ch 17) | Fled 50 yrs ago; arrived >10 yrs ago; survives Ch 17 |
+| 21 | Maren Voss | 33 | Cut from draft (`ไม่อยู่ในทีม`) | Not in draft | Removed from Arc 3-4 drafts |
 | 22 | General Theron Auld | 52 | Former Ministry — Cassian's mentor | Backstory (Arc 4 reveal) | Dead before story |
 
 ---
@@ -397,7 +397,7 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 **Expanded role**: The Voice-Mother should appear once more, briefly, in Arc 6 or 7 — not in person, but through a message. A brine-touched messenger reaches the crew with a single line: *"The Voice-Mother says: the sea remembers those who did not flinch."* This is not a thank you. It is an acknowledgment — the first time the Chorus has acknowledged a human as something other than a threat. It costs the Voice-Mother something to send this message. The reader should feel the cost without it being explained.
 
-**Small detail**: The Voice-Mother's seaweed-hair moves on its own, but it moves *toward* sound. When someone speaks near her, the hair drifts toward their mouth, as if listening. She has learned to tie it back when she does not want to hear someone — the way a human might cover their ears. The crew notices this. They do not understand it. It is the only visible sign that she is trying not to listen.
+**Small detail (Canon update)**: In the final Arc 3 draft (Ch 15), the Voice-Mother is an elderly woman with ice-colored eyes (without scales or living seaweed hair, and without a hand-touching test). Her statement that the call is Nio's voice is presented as Chorus belief rather than objective fact.
 
 **What she is afraid to admit**: She is afraid Cael will succeed. If Cael succeeds — if the sea falls and humans and brine-touched learn to coexist — then her twenty years of pity were a mistake, and the community she built in the Mistwood was built on a false premise. She would have to grieve not only the years but the identity she constructed in those years: the leader who protected her people from humans. If humans are not the threat she believed them to be, then she is not the protector she believed herself to be. She would rather be right than safe. She is not sure this is a virtue.
 
@@ -466,7 +466,7 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 **The contradiction he doesn't name**: Kaelen did not refuse his calling out of cowardice. He refused out of *pride*. He believed he could choose. He believed the calling was an offer, not a sentence. He believed he was the kind of man who could walk away from destiny and remain himself. He was wrong. The calling did not punish him. It simply *continued* — without him, through him, around him — until his body began to change without his consent, and by then it was too late, and the man who had believed he could choose discovered that the only choice he had was the manner of his failure.
 
-**Expanded role**: Kaelen's scene in Arc 4 Ch 17 should be longer. He should speak to Cael for a full page — not a warning, but a confession. He should tell Cael what it was like to hear the calling and refuse it. He should describe the moment he realized the calling was not going to stop — that it would simply continue through his body, changing him without his permission, until there was nothing left of the man who had refused. This is the scene that should make Cael's choice in Arc 5 real. Not a warning. A *testimony*.
+**Expanded role (Canon update)**: Kaelen fled his duty 50 years ago and arrived at the Pearl Colony garden over 10 years ago, where he believed the comforting words offered upon arrival. He speaks in a hoarse, fast, bitter voice and does NOT die in Ch 17.
 
 **Small detail**: Kaelen's human eye is grey-green, like Cael's. His pearl eye does not match. He has not looked in a mirror since the pearl eye formed. He is afraid of what he would see. He is more afraid of what he would not see — a man he no longer recognizes, who no longer recognizes himself.
 
@@ -476,7 +476,7 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 ## Sergeant Durn — The Loyal Soldier Who Was Left Behind
 
-**The contradiction he doesn't name**: Durn does not hate Cassian for leaving. He hates Cassian for *not taking him*. Durn would have followed Cassian into the desertion. He would have helped kill the squad. He would have carried the children. He did not get the chance. Cassian made the choice alone — decided for both of them — and Durn has spent every year since then wondering whether he would have said yes. He does not know. The not-knowing is worse than the betrayal. He hunts Cassian not to punish him but to *ask* him: *"Would you have let me come?"* He cannot ask this while alive. He hopes dying in front of Cassian will prompt the answer.
+**The contradiction he doesn't name (Canon update)**: Durn was Cassian's former drill instructor and company sergeant, and an elderly veteran soldier. On the night Cassian killed all nine men on the patrol boat (Ch 10), Durn was at base (`ค้างฐาน`) and was the only member of the company Cassian never asked. Durn died in the Ch 20 duel at Bone Harbor without hearing the answer.
 
 **Expanded role**: Durn's death in Arc 4 Ch 20 should include a longer silence after his last words. Cassian sits beside the body. The crew waits. Cassian does not speak. The reader should understand that Cassian is answering a question Durn asked with his last breath — *"You know… I never hated you…"* — and the answer is yes, Cassian would have let him come, and Durn died without hearing it, and Cassian will carry this for the rest of his life. This is the wound Reven will tear open in Arc 5.
 
@@ -486,9 +486,9 @@ This document catalogs 20 supporting characters beyond the 10 main cast members.
 
 ---
 
-## Maren Voss — The Quiet One Who Was Waiting
+## Maren Voss — The Quiet One Who Was Waiting (Cut from Final Draft / ไม่อยู่ในทีม)
 
-> **Design note:** Maren is the story's *human predator* — a character who appears to be an ordinary civilian, a refugee, a helper, and is in fact a Ministry deep-cover agent tasked with killing Cael. The horror is not that she is dangerous. The horror is that she was *kind* — genuinely kind, by choice, as a tool — and the crew liked her, and Cael trusted her, and none of them suspected, because she was exactly what she appeared to be *except for the part where she was going to kill them*. She is the proof that the Ministry does not only send monsters. It sends people. And people are worse, because people can make you care about them before they cut your throat.
+> **Canon Status (Arc 3-4 Drafts):** Maren Voss was removed from the final drafts of Arc 3 and Arc 4 (`ไม่อยู่ในทีม`) and does not join the crew or appear in Pearl Colony. The design notes below are preserved for historical reference only.
 
 - **Age**: 33
 - **Appearance**: Unremarkable. That is the point. Maren is the kind of person you look through — average height, mousy brown hair kept in a practical braid, plain face, plain clothes, plain voice. She has no scars, no distinguishing marks, no dramatic features. She looks like a farmer's wife. She looks like a librarian. She looks like whoever she needs to look like, not because she is a master of disguise but because she is *aggressively normal*, and normal is invisible. The only thing that might tip off a careful observer: her hands. Her hands are too still. Most people fidget, gesture, touch their faces. Maren's hands rest flat on surfaces, palms down, fingers spread — a stance that looks relaxed but is in fact a combat readiness drill. Cassian would have noticed. Cassian is not there.

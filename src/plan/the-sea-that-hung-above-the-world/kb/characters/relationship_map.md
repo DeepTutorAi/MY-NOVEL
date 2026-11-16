@@ -20,37 +20,37 @@ This document details the emotional dynamics, shifting perspectives, and develop
 ### 1.3 ↔ Maera Sol
 * **Initial Impression (Week 1 - Elaris)**: A cold, prickly mechanist who treats people like inefficient engines. She speaks entirely in dry scoldings and avoids eye contact. Cael thinks she is heartless and dislikes him.
 * **Turning Point Event (Week 3 - Post-Salt Ward)**: After they rescue Nio, Maera silently stays up all night modifying the ship's ventilation pipes to keep Nio's mutated, brine-choked skin damp. She complains about the draft and the waste of fuel, but Cael sees her quiet, mechanical mercy.
-* **Final/Developed Perspective (Week 6/Finale)**: Deep respect. He knows Maera's prickly exterior hides a fiercely protective heart. He is saddened that she lost her arm, but knows she and Tovin will rebuild their lives, and that she is too stubborn to let a missing limb stop her.
+* **Final/Developed Perspective (Week 6/Finale)**: Deep respect. He knows Maera's prickly exterior hides a fiercely protective heart. He is saddened that her left hand lost sensation in Ch 33-34 and her arm had to be amputated and replaced with a prosthetic after landing (Ch 35), but knows she and Tovin will rebuild their lives.
 
 ### 1.4 ↔ Cassian Veyr
 * **Initial Impression (Week 2 - The Sky Ocean)**: A cold-blooded Ministry veteran. Cael distrusts him instantly, viewing him as a tactical pragmatist who views refugees as numbers and is willing to make human sacrifices for the "greater good."
 * **Turning Point Event (Week 4 - The Evacuation)**: During a swarm attack, Cassian makes the call to cut loose a failing cargo barge to save the rest of the caravan. Cael tries to stop him, but later realizes that without Cassian's cold strategic decisions, the entire fleet would have drowned.
-* **Final/Developed Perspective (Week 6/Finale)**: He understands the heavy weight of leadership Cassian carried. When Cassian cuts the rope bridge on the tower to force Ilyra's ship to escape, Cael finally forgives him, recognizing him as a true strategic protector.
+* **Final/Developed Perspective (Week 6/Finale)**: He understands the heavy weight of leadership Cassian carried (bearing his right-palm scar from Ch 17 through the end). When Cassian kills Kell Marr, cuts the bridge ropes, and ends his life on the falling tower in Ch 32, Cael finally forgives him.
 
 ### 1.5 ↔ Father Odran Vale
 * **Initial Impression (Week 1 - Elaris)**: A wise, mournful priest who guides them. Cael respects his quiet authority but notices a deep, rotting sorrow behind his eyes.
 * **Turning Point Event (Week 3 - Confession)**: Odran confesses that he signed Nio's transfer order to the Salt Ward ten years ago. Cael's trust is shattered. He feels an intense cold anger and flatly refuses to offer Odran forgiveness, stating that it is not his to give.
-* **Final/Developed Perspective (Week 6/Finale)**: Bittersweet closure. Learning that Odran drowned in Hallowmere's gate room, cranking the wheel by hand until his fingers cracked to save the children, Cael respects the sacrifice. He realizes Odran chose a final, painful penance, even if the old wound remains.
+* **Final/Developed Perspective (Week 6/Finale)**: Bittersweet closure. Learning that Odran drowned in Hallowmere's gate mechanism room in Ch 31 (carrying his booklet of 74 names: 73 dead plus Nio), Cael respects the sacrifice. He realizes Odran chose a final, painful penance, even if the old wound remains.
 
 ### 1.6 ↔ Nio Arvane
 * **Initial Impression (Week 1 - Elaris)**: His lost younger brother. The source of Cael's deepest guilt. Cael views Nio as a victim who must be rescued and returned to his normal human form at all costs.
 * **Turning Point Event (Week 5 - The Dead Parliament)**: The Parliament offers to restore Nio's human body if Cael repairs the engine. Nio rejects it by stabbing his own mutated chest, choosing his sea-state. Cael realizes he was trying to force his own desires onto his brother.
-* **Final/Developed Perspective (Week 6/Finale)**: Pure acceptance. As Cael merges with the engine, Nio sings a farewell in whale frequencies. Cael lets go of Nio's human form, accepting him as a beautiful, permanent creature of the tides.
+* **Final/Developed Perspective (Week 6/Finale)**: Pure acceptance. As Cael binds with the engine as Tide-Key, Nio passes the word `"ยัง"` to Wren and enters the sea with the Leviathan (Ch 34), later remaining in the museum bay in whale form +300 years later (Ch 35). Cael accepts him as a creature of the tides.
 
 ### 1.7 ↔ Varek of the Red Sails
 * **Initial Impression (Week 2 - Sky Ocean)**: A terrifying, chaotic Ministry hunter chasing them. Cael views him as a ruthless tool of the state who takes pleasure in playing mind games.
 * **Turning Point Event (Week 4 - The Mistwood)**: Varek's gauntlets come off, revealing his own crusted mutations. Cael offers him clean water to soothe the burning skin. Varek is baffled by Cael's lack of hostility and joins them. Cael witnesses Varek using terrifying mockery to keep panicked refugees in line rather than slaughtering them, realizing Varek's ruthlessness is born of cold survival.
-* **Final/Developed Perspective (Week 6/Finale)**: He views him as a tragic, terrifying guardian. When Varek mutates fully and vanishes into the forest, Cael trusts him to keep predators away from the new shores.
+* **Final/Developed Perspective (Week 6/Finale)**: He views him as a tragic, terrifying guardian. After Varek kills Harrow in Ch 30, he mutates completely into a red-eyed beast and enters the Mistwood in Ch 34 (still counted under ship rule #7). Cael trusts him to keep predators away from the new shores.
 
 ### 1.8 ↔ Sera Quill
 * **Initial Impression (Week 1 - Elaris)**: A passive, quiet scholar who edits archives for the Ministry. Cael views her as complicit in the city's lies, hiding behind her books.
 * **Turning Point Event (Week 3 - Salt Ward)**: Sera risks her life to leak the real, uncensored maps showing the coordinate locations of the Salt Ward mass graves to Cael. Cael sees her quiet, sharp-tongued rebellion.
-* **Final/Developed Perspective (Week 6/Finale)**: Grateful. He knows she will write the true history of the flood, refusing to turn him into a perfect saint or a clean myth.
+* **Final/Developed Perspective (Week 6/Finale)**: Grateful. He knows she (having worked 4 years at the Archive and erased cities for 3 years, never Elaris) will redraw the new coastline and write the true history of the flood (Ch 35), refusing to turn him into a clean myth.
 
 ### 1.9 ↔ Loran Thorne
 * **Initial Impression (Week 2 - Sky Ocean)**: A cynical, retired Ministry navigator who smells of tobacco and only cares about his daughter and money.
 * **Turning Point Event (Week 4 - Bone Harbor)**: Loran calculates a 99% fatality vector, refuses to proceed, and leaves the crew to protect his family. Cael is shocked by his pragmatism, but respects his concrete sense of duty.
-* **Final/Developed Perspective (Week 6/Finale)**: He understands Loran's warning. As Cael becomes the Tide-Key, he is glad Loran chose life, ensuring his family survived the flood to build a future.
+* **Final/Developed Perspective (Week 6/Finale)**: He understands Loran's warning. As Cael becomes the Tide-Key, he is glad the 54-year-old veteran (who resigned at 39, 15 years ago) chose life and flew south to his daughter Yara in Ch 19, ensuring the Thorne lineage survived the flood.
 
 ---
 
@@ -70,7 +70,7 @@ This document details the emotional dynamics, shifting perspectives, and develop
 ### 2.3 ↔ Maera Sol
 * **Initial Impression (Week 1 - Elaris)**: A prickly, short-tempered mechanic who speaks in insults. Ilyra enjoys teasing her to watch her face turn red.
 * **Turning Point Event (Week 4 - Pearl Colony)**: During a critical engine breakdown, Maera admits she hates people because, unlike engines, she cannot repair them. Ilyra sees the soft heart Maera hides under her tools.
-* **Final/Developed Perspective (Aftermath)**: Sister-like trust. She feels deep guilt that Maera lost her arm on the *Albatross*, and helps Tovin build the coastal house they share, continuing to banter about Maera's "barn door" prosthetic.
+* **Final/Developed Perspective (Aftermath)**: Sister-like trust. She feels deep guilt that Maera's left hand lost sensation on the *Albatross* (Ch 33-34) and required amputation and a wooden-and-iron prosthetic after landing (Ch 35), and helps Tovin build the coastal house they share, continuing to banter about Maera's "Barn Door" prosthetic.
 
 ### 2.4 ↔ Cassian Veyr
 * **Initial Impression (Week 2 - Sky Ocean)**: A terrifying, scar-faced commander. She hates his rigid authority and expects him to treat them like expendable soldiers.
@@ -120,7 +120,7 @@ This document details the emotional dynamics, shifting perspectives, and develop
 ### 3.3 ↔ Maera Sol
 * **Initial Impression (Week 1 - Elaris)**: A scary, sharp-tongued mechanic who looks at him like a bug. Tovin thinks she is extremely cool but very difficult.
 * **Turning Point Event (Week 3 - Post-Salt Ward)**: Tovin is traumatized by the mutations and vomits behind the ship. Maera finds him, hands him a cloth, and stands beside him in the dark without saying a word. Tovin realizes she cares in her own prickly way.
-* **Final/Developed Perspective (Aftermath)**: Partner and the center of his life. He takes care of her after she loses her arm, learning basic mechanics to build her a prototype arm. He happily endures her daily scoldings.
+* **Final/Developed Perspective (Aftermath)**: Partner and the center of his life. After her left hand loses sensation in Ch 33-34 and is amputated after landing, he learns mechanics to build her a wooden-and-iron prosthetic arm ("Barn Door", Ch 35). He happily endures her daily scoldings.
 
 ### 3.4 ↔ Cassian Veyr
 * **Initial Impression (Week 2 - Sky Ocean)**: A terrifying Ministry soldier who looks like he could kill Tovin with a single look.
@@ -170,7 +170,7 @@ This document details the emotional dynamics, shifting perspectives, and develop
 ### 4.3 ↔ Tovin Rusk
 * **Initial Impression (Week 1 - Elaris)**: A loud, useless assistant who holds wrenches wrong and asks stupid questions. She views him as an annoyance.
 * **Turning Point Event (Week 3 - Post-Salt Ward)**: Tovin cuts his hand helping her, and she scolds him but wraps it gently. Later, when he is vomiting from trauma, she stands by him in the dark.
-* **Final/Developed Perspective (Aftermath)**: Her partner and primary support. She lost her arm, and Tovin built her a crude, noisy mechanical prosthetic. She scolds his terrible engineering every day but refuses to let anyone else modify it.
+* **Final/Developed Perspective (Aftermath)**: Her partner and primary support. Her left hand lost sensation in Ch 33-34 and was amputated after landing, and Tovin built her a wooden-and-iron prosthetic ("Barn Door", Ch 35). She scolds his engineering every day but refuses to let anyone else modify it.
 
 ### 4.4 ↔ Cassian Veyr
 * **Initial Impression (Week 2 - Sky Ocean)**: A rigid, cold soldier. She thinks he treats the ship like a weapon and people like expendable parts.
@@ -325,7 +325,7 @@ This document details the emotional dynamics, shifting perspectives, and develop
 ### 7.4 ↔ Maera Sol
 * **Initial Impression (Week 3 - Salt Ward)**: A cold, metal-frequency. She smells of grease and iron.
 * **Turning Point Event (Week 3 - Post-Salt Ward)**: She modifies the ship's vents to keep his salt-skin wet, complaining about the draft. Nio feels her quiet, metallic care.
-* **Final/Developed Perspective (Week 6/Finale)**: The builder of new shores. He watches her lose her arm and sees Tovin build her a crude metal limb, vibrating a frequency of strength for her.
+* **Final/Developed Perspective (Week 6/Finale)**: The builder of new shores. He watches her left hand lose sensation in Ch 33-34 and sees Tovin build her a wooden-and-iron prosthetic limb after landing (Ch 35), vibrating a frequency of strength for her.
 
 ### 7.5 ↔ Cassian Veyr
 * **Initial Impression (Week 3 - Salt Ward)**: A sharp, steel-frequency. Cassian smells of gunpowder and leather.

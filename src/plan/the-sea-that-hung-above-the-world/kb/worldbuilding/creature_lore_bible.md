@@ -405,14 +405,14 @@ This table covers the original core creature and phenomenon roster. Later predat
 
 ## PART 5: HYBRID BEINGS — POST-HUMAN
 
-### 15. The Ash-Turned (ผู้ถูกเถ้ากลืน) — Ground / Mistwood
-- **Type**: Post-human — Brine-touched with zero cognitive function
-- **Appearance**: Humanoid fusion — gill-slits, webbing, patchwork scales/exposed muscle. Jerky movement. Constant low moan at Leviathan frequency.
-- **Behavior**: Mindless. Wanders. Bites transmit brine-touch. Groups synchronize moaning into localized Drowned Choir.
-- **Origin**: Brine-touched isolated 2-5 years. Leviathan's call erases cognition. Body keeps mutating.
-- **First Appearance**: Arc 3 Ch 14 — One wears Elaris dockworker uniform. Odran recognizes it. Does not speak.
-- **Danger Level**: MEDIUM — Groups are extremely dangerous.
-- **Narrative Use**: "What could happen to Nio." Odran's guilt — some wear uniforms of children he sent to Salt Ward.
+### 15. The Ash-Turned ("คนเถ้า" / ผู้ถูกเถ้ากลืน) — Ground / Mistwood
+- **Type**: Post-human, Brine-touched subjects with lost cognitive function
+- **Appearance**: Humanoid figures with dry, cracked ash-grey skin (ผิวเถ้าแห้งแตก) and faded, worn clothing (no mucus, gills, or webbing). Walk steadily at an even, unbroken pace (เดินสม่ำเสมอ) rather than jerky movement.
+- **Behavior**: Mindless, non-stop march. They walk steadily in a single direction, northward toward the Sky-Dam (เขื่อนฟ้า), never stopping to sit or rest. Emit a continuous low sound in unison.
+- **Origin**: Brine-touched subjects sent to the Salt Ward and discarded or released when the system could no longer contain or use them.
+- **First Appearance**: Arc 3 Ch 14 (Mistwood), encountered walking north beneath the canopy.
+- **Danger Level**: MEDIUM (dangerous in numbers or as a choral/environmental hazard).
+- **Narrative Use**: "What could happen to Nio." Odran's guilt, recognizing the uniforms and origins of people sent to the Salt Ward.
 
 ### 16. Coral Husks (เปลือกปะการังเดินได้) — Pearl Colony
 - **Type**: Post-human — Fully calcified but mobile

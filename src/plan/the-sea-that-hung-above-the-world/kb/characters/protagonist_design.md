@@ -52,5 +52,5 @@ Becomes the center of the team. He must confront Father Odran's past betrayal an
 - *Shift*: Transitions from wanting to control the ecological disaster to listening to the ocean's call as a cry for help.
 
 ### 3. Late Act: Living Tide-Key
-Accepts his role as the tide regulator. He watches Nio lose his human memories, chooses not to fix the dam, and merges with the Sky-Dam Engine to regulate the ocean's fall.
+Accepts his role as the Tide-Key in Chapters 33-34. He watches Nio enter the sea with the Leviathan, chooses not to repair the dam, and binds with the Sky-Dam Engine to regulate the ocean's fall.
 - *Final State*: He does not end as a triumphant hero, but as a voice in the rain guiding future generations.

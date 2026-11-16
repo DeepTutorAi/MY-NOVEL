@@ -8,16 +8,16 @@ This document details the supporting cast, secondary POV figures, and key charac
 
 | Character | Fate in the Main Story Finale | Status in the Epilogue (Hundreds of Years Later) |
 | :--- | :--- | :--- |
-| **Cael Arvane** | Survives initially but becomes the **Living Tide-Key**, permanently bound to the Sky-Dam Engine. | Long dead. Exists only as a voice in the rainfall and a legendary figure. |
+| **Cael Arvane** | Survives initially but becomes the **Living Tide-Key**, permanently bound to the Sky-Dam Engine (Ch 33-34). | Long dead. Exists only as a voice in the rainfall and a legendary figure. |
 | **Ilyra Venn** | Survives the finale. | Long dead. Left behind her journals, the ship, and the coastal house she shared with Cael. |
 | **Tovin Rusk** | Survives. He is heavily injured but becomes Maera's caregiver and partner. | Long dead. Remembered as the narrator who recorded "Cael the human," keeping Cael's memory alive as a boy rather than just a myth. |
-| **Maera Sol** | Survives the finale but loses her left arm/hand from cutting the engine core. | Long dead. Left behind blueprints of the coastal cities, her personal tools, and her crude prototype prosthetic arm. |
-| **Cassian Veyr** | Goes missing/dies during his last stand on the falling tower. | Long dead/myth. Left his sword stuck on a small island that was once the top of the tower; remembered as "The Carrier." |
-| **Father Odran Vale** | Dies sacrificing himself in Hallowmere to keep the gates open for escaping children. | Long dead. Left behind his journal listing the names of the victims he sent to the Salt Ward. |
-| **Nio Arvane** | Loses his humanity, merging fully with the Sky Ocean. | Does not die a human death. Exists as a whale song echoing in the harbor on rainy nights. |
-| **Varek of the Red Sails** | Mutates completely into a coral-salt beast and vanishes into the Mistwood. | Exists in folklore as a terrifying red-eyed beast/guardian guarding the children's coastal village. |
-| **Sera Quill** | Survives the finale. | Long dead. Left behind the uncensored, true historical chronicle of the Sky Ocean and the flood. |
-| **Loran Thorne** | Retires and leaves the group in Arc 4. Flees to the south to evacuate his family. | Long dead. Remembered in family lineages as the veteran navigator who chose to live, surviving the flood. |
+| **Maera Sol** | Survives the finale; her left hand loses sensation from heat/nerve damage in Ch 33-34, and the arm is amputated and replaced with a wooden-and-iron prosthetic after landing (Ch 35). | Long dead. Left behind blueprints of the coastal cities, her personal tools, and her prototype prosthetic arm ("Barn Door"). |
+| **Cassian Veyr** | Bears a right-palm scar from the brake lever (Ch 17); kills Kell Marr on the tower summit and dies in Ch 32. | Long dead/myth. Left his sword stuck on a small island that was once the top of the tower; remembered as "The Carrier." |
+| **Father Odran Vale** | Carries his booklet of 74 names (73 dead + Nio survivor); drowns in the gate mechanism room in Ch 31 to keep the escape route open. | Long dead. Left behind his journal listing the 74 names of the Salt Ward cases. |
+| **Nio Arvane** | Passes the word `"ยัง"` to Wren and enters the sea with the Leviathan (Ch 34). | Does not die a human death. Exists in the museum bay +300 years later (Ch 35) in whale form, singing on rainy nights. |
+| **Varek of the Red Sails** | Kills Harrow in Ch 30; mutates completely into a red-eyed beast and enters the Mistwood in Ch 34 (still counted under ship rule #7). | Exists in folklore as a terrifying red-eyed beast/guardian guarding the Mistwood and coastal borders. |
+| **Sera Quill** | Worked at the Archive 4 years, began erasing cities 3 years ago (never erased Elaris); survives the finale. | Long dead. Redrew the new coastline and left behind the uncensored, true historical chronicle (Ch 35). |
+| **Loran Thorne** | Age 54 (resigned from military at 39, 15 years ago); leaves in Arc 4 (Ch 19) and flies south to his daughter Yara. | Long dead. Died of old age on the southern shore; his 7-generation Thorne lineage, brass compass, and unopened letter are preserved in Ch 35. |
 
 ---
 
@@ -51,9 +51,9 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Route**:
   - *Early*: Irritated by Cael and Tovin, viewing them as loud and inefficient liabilities.
   - *Middle*: Forms a practical partnership with Tovin, letting him pass tools and assist with repairs. She begins to trust him silently, bandaging his minor injuries while calling him stupid.
-  - *Late*: Stays behind in the engine room to manually severed the engine core of the *Albatross* to create the signal beacon, losing her left arm/hand in the process.
-  - *Aftermath*: Survives the flood. Tovin cares for her, and they build a life together. Tovin tries to build her a mechanical prosthetic arm; it's crude and noisy, prompting her to scold his craftsmanship daily while refusing to let anyone else modify it.
-  - *Epilogue*: Dies of old age. Her tools, city blueprints, and the crude prosthetic arm are displayed in a coastal museum, preserving her legacy as the engineer of the new coast.
+  - *Late*: Stays behind in the engine room to cut the engine core of the *Albatross* (Ch 33-34); her left arm and hand remain attached during Chapters 33-34, but severe heat/nerve damage leaves her left hand completely without sensation.
+  - *Aftermath*: Survives the flood. After landing (Ch 35), her insensate left arm is amputated and replaced with a wooden-and-iron prosthetic arm built by Tovin (nicknamed "Barn Door" / บานประตูโรงนา). She scolds his craftsmanship daily while refusing to let anyone else modify it.
+  - *Epilogue*: Dies of old age. Her tools, city blueprints, and the wooden-and-iron prosthetic arm are displayed in the coastal museum (Ch 35).
 
 ---
 
@@ -88,10 +88,10 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Route**:
   - *Early*: Saves the team from Reef-Hounds in a display of veteran skill, though the team initially distrusts him.
   - *Middle (Arc 3 - Team Cassian)*: Leads the infiltration of the Capital archives alongside Maera, Sera, Tovin, and Loran. He acts as the tactical pillar under pressure while constantly being baffled by Tovin's clumsy attempts to help Maera.
-  - *Late*: Mentors Father Odran Vale, forcing him to channel his self-destructive guilt into active protection.
-  - *Finale*: Makes a final stand on the falling tower. With Reef-Hounds and sea beasts closing in, he orders the last evacuation boat to leave. When Ilyra refuses to go, he uses his rifle to shoot and cut the bridge ropes himself, casting the boat off.
-  - *Fate*: He turns back to face the beasts. His sword hand shakes slightly—not out of fear, but sheer exhaustion. He disappears in the collapse.
-  - *Epilogue*: A legendary protector. His sword is found stuck on a small island that was once the summit of the tower. No one knows who placed it there.
+  - *Late*: Mentors Father Odran Vale, forcing him to channel his self-destructive guilt into active protection. Bears a right-palm scar from the mine-cart brake lever in Ch 17 (kept bandaged through Arcs 4-7, including his Ch 20 duel with Durn and his final stand).
+  - *Finale (Ch 32)*: Stands on the falling tower summit, kills Kell Marr, and orders the last evacuation boat to leave. When Ilyra refuses to go, he shoots and cuts the bridge ropes himself, casting the boat off.
+  - *Fate*: Turns back to face the final collapse in Ch 32 and ends his life there.
+  - *Epilogue (Ch 35)*: Remembered as "The Carrier." His sword is found stuck on the small island that was once the summit, and the family photograph (four people in front of a house) is recovered from his coat remains.
 
 ---
 
@@ -103,11 +103,11 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Want**: Document and preserve the absolute truth of history.
 - **Need**: Stop hiding behind "neutrality." Erasing maps in a lying regime makes her complicit.
 - **Route**:
-  - *Early*: Works inside the archives, editing out flooded areas.
-  - *Middle*: Discovers erased coordinates are mass graves; starts leaking files to Cael's team.
+  - *Early*: Worked at the Ministry Archive for 4 years and began erasing cities 3 years ago (never erased Elaris itself, only its North Stairs).
+  - *Middle*: Discovers erased coordinates are mass graves; flees with Lienn and leaks files to Cael's team.
   - *Late*: Spreads the maps and structural truth to the public, forcing the migration.
-  - *Final*: Survives the finale. She writes the uncensored, raw history of the flood, refusing to sanitise the events or make Cael or the others clean saints.
-  - *Epilogue*: Her "True History of the Sky Ocean" survives as the primary text of the old world's demise.
+  - *Final*: Survives the finale. She redraws the new coastline and writes the uncensored, raw history of the flood, refusing to sanitise the events or make Cael or the others clean saints.
+  - *Epilogue (Ch 35)*: Her "True History of the Sky Ocean" and redrawn coastal charts survive as the primary historical record.
 
 ---
 
@@ -122,9 +122,9 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Route**:
   - *Early*: Acts as the team's guide through Ministry territory, hiding his connection to Nio.
   - *Middle (Arc 3 - Team Cael)*: Escapes with Cael and Ilyra through the Mistwood. He nearly collapses from psychological trauma until he is pushed to focus on protecting the mutated Nio.
-  - *Late/Finale*: During the evacuation of Hallowmere, he locks himself in the gate mechanism room. He turns the rusty iron door wheel by hand until his finger bones crack. The sea water floods in, glass eels swimming past his ankles as children flee through the closing gap.
-  - *Fate*: He drowns as the water fills the chamber, reciting the names of the children he once sent to their deaths. Before the water closes over his mouth, he speaks the final name in his booklet—not his own, but another victim's.
-  - *Epilogue*: His booklet containing the list of victims is recovered and kept as a memorial of the cost of Hallowmere's survival.
+  - *Late/Finale (Ch 31)*: During the evacuation of Hallowmere, he locks himself inside the gate mechanism room (after Wren tears a scrap from his robe) and turns the iron wheel by hand to keep the escape route open.
+  - *Fate (Ch 31)*: Drowns as water floods the mechanism chamber, carrying his booklet of 74 names (73 dead + Nio Arvane as the sole survivor).
+  - *Epilogue (Ch 35)*: His booklet containing the 74 names is recovered and displayed in the coastal museum as a memorial.
 
 ---
 
@@ -138,8 +138,8 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Route**:
   - *Early (Past Flashbacks)*: Serves as the POV for the historical events 10 years ago, documenting the night he touched the forbidden rain, the onset of his mutation, and the horror of the Salt Ward containment cells.
   - *Middle (Present Active)*: Rescued in Arc 3. Serves as the active POV capturing his sensory shift into non-human frequencies and his silent communication with Varek.
-  - *Late*: Bridges with the Leviathan, forgetting human names and words one by one. During the finale, he completely forgets the word "brother," but sings the whale frequency of the melody Cael sang to him in childhood.
-  - *Final/Epilogue*: Merges fully with the sea. He does not die like a human, surviving as a voice and a whale song heard in the bay on rainy nights.
+  - *Late (Ch 34)*: Bridges with the Leviathan, losing human words one by one. Before entering the sea with the Leviathan, he passes the word `"ยัง"` ("Still") to Wren.
+  - *Final/Epilogue (Ch 35, +300 years)*: Enters the sea with the Leviathan. In the +300-year epilogue (shared POV with Tessa), he exists in whale form in the coastal museum bay, his song heard on rainy nights.
 
 ---
 
@@ -155,14 +155,14 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Route**:
   - *Early*: Relentlessly hunts Cael's crew, using mind games and terror tactics to scatter refugees.
   - *Middle*: His mutation is exposed at Pearl Colony. Knowing the Ministry will dissect him and finding their structure boringly predictable, he chooses defection, joining Cael's group out of survival and curiosity.
-  - *Late*: During the flood, he defends refugees not out of compassion, but by brutally slaughtering Reef-Hounds and using terrifying mockery to force panicked civilians to remain orderly: *"Panic, and I will show you how Reef-Hounds skin their meat. Keep marching."*
-  - *Final/Epilogue*: Mutates completely into a giant coral beast and vanishes. Remembered as "The Red-Eyed Terror" of the Mistwood—a monster-guardian that hunts sea predators and whom the coastal children leave red cloths to appease.
+  - *Late*: Kills Master Harrow in Ch 30. During the flood, he defends refugees through brutal efficiency and mockery to force panicked civilians to remain orderly.
+  - *Final/Epilogue (Ch 34-35)*: Mutates completely into a red-eyed beast and enters the Mistwood in Ch 34. Under Ship Rule #7 ("those who leave the ship still count as crew"), he remains recorded on the crew roster in Ch 35.
 
 ---
 
 ## 🧭 Loran Thorne (The Realist Navigator / Former Ministry Flight Commander)
 
-- **Age**: 45
+- **Age**: 54 (started flying at 21, served 18 years in the military, resigned at age 39, 15 years ago; later flew civilian charters and was temporarily contracted by the Ministry 5 years ago)
 - **Height**: 176 cm
 - **Appearance**: Weathered, sun-baked skin with a grey-streaked beard. Missing the middle finger of his left hand (lost during a Ministry dogfight). Smells of bitter tobacco and dried tea leaves. Wears a faded Ministry flight coat (with the insignia torn off), grease-stained trousers, and a heavy brass marine compass around his neck.
 - **Personality**: ESTJ (Baan Fah / Sentinel). Structured, authoritative, realistic, and highly organized. Loran has no interest in grand heroic martyrdom; he views duty as a concrete calculation rather than an abstract ideal. He is blunt, hates grand speeches, but maintains high professional standards; he believes that protecting his family is the only real post-war duty. He possesses a keen analytical mind for logistics and risk, refusing to let emotion override survival calculations.
@@ -171,9 +171,9 @@ This document details the supporting cast, secondary POV figures, and key charac
 - **Route**:
   - *Early*: Hired by Ilyra in Arc 2 because of his deep knowledge of the Sky Ocean's Ministry patrol routes. His rigid military background is immediately spotted by Cassian.
   - *Middle*: Coordinates the flight paths of the *Albatross* alongside Cassian, using their shared training to outmaneuver Varek's forces.
-  - *Late*: At the end of Arc 4 (The Drowned Roads), upon analyzing the flight, wind shear, and structural data of the Sky-Dam Engine, he calculates a near-100% fatality rate for the mission. Recognizing it as a certain death sentence, he refuses to proceed. He directly confronts Cassian, hands Ilyra his flight charts, and departs at Bone Harbor to return south and evacuate his family. (This logical premonition is tragically validated when almost the entire remaining team is killed or permanently transformed).
-  - *Aftermath*: Successfully moves his family to the southern mountains before the flood. He survives the disaster, settling as a respected elder in a new southern coastal village.
-  - *Epilogue*: Dies of old age. He is remembered by his descendants as a smart man who chose life and family over the military lies of the Ministry.
+  - *Late (Arc 4 Ch 19)*: At Bone Harbor, after calculating the mission's fatality rate, he departs and flies south to reach his only daughter, Yara Thorne.
+  - *Aftermath*: Successfully evacuates Yara to the southern shore before the flood, where he lives out his life and dies of old age.
+  - *Epilogue (Ch 35)*: The 7-generation Thorne family lineage record, his brass compass (carried south from Bone Harbor), and a single unopened, unaddressed family letter are preserved in the museum. Yara Thorne marries Pip in the second year of the new port.
 
 ---
 

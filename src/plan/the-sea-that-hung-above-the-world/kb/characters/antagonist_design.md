@@ -57,7 +57,7 @@ This document details the opposing forces: the historical archives of the Dead P
   - *Early*: A distant authority behind the Ministry's decrees.
   - *Middle*: Confronts Cael and offers a logical temptation: *"Humanity will drown before it can repair the world. Fix the dam, and save your brother."*
   - *Late*: Strives to maintain control as the dam fractures. He fails not because of incompetence, but because he underestimates the capacity of ordinary humans to cooperate and change. He cannot imagine cooperation without control, because he has spent forty years controlling everything, and the idea that people might *choose* to help each other without being managed is outside his framework. This is his blind spot. Not cruelty. *Control*.
-- **Final State**: Dies with the old machinery, abandoned in a control room that no longer commands obedience. His last words are relief.
+- **Final State**: Reads the over four hundred unsent letters and dies in Chapter 33 with the old machinery, abandoned in a control room that no longer commands obedience. His last words are relief.
 
 - **Small habits**:
   - Counts the names in the name room every night. Has never missed a night in twenty years. The count is always 73. He checks anyway.
