@@ -23,7 +23,7 @@ export interface SeaArc {
 export const SEA_ARCS: readonly SeaArc[] = [
   {
     number: 1,
-    titleTh: "ฝนที่พูดได้",
+    titleTh: "เสียงเรียกใต้สายฝน",
     titleEn: "The Rain That Spoke",
     titleSource: "author",
     chapterStart: 0,
@@ -80,7 +80,7 @@ export const SEA_ARCS: readonly SeaArc[] = [
     number: 6,
     titleTh: "การย้ายเมือง",
     titleEn: "The Moving of Cities",
-    titleSource: "proposed",
+    titleSource: "draft-marker",
     chapterStart: 28,
     chapterEnd: 31,
     entryChapter: 28,
@@ -91,7 +91,7 @@ export const SEA_ARCS: readonly SeaArc[] = [
     number: 7,
     titleTh: "เมื่อทะเลร่วงหล่น",
     titleEn: "When the Sea Fell",
-    titleSource: "proposed",
+    titleSource: "draft-marker",
     chapterStart: 32,
     chapterEnd: 35,
     entryChapter: 32,
