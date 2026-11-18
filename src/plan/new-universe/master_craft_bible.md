@@ -179,7 +179,7 @@ The following matrix establishes strict mathematical maximums and cooling-off pe
 
 ### 3.1 Absolute Ban on Attribute Declarations (The Zero-IQ-Mention Rule)
 Telling the reader that a character is smart is an admission of authorial incompetence. Declaring that Kyōka has an "IQ of 140" or a "ตรรกะระดับโอลิมปิก" instantly destroys the illusion of reality:
-* **The Zero-IQ-Mention Rule**: The terms `ไอคิว`, `IQ`, `135`, `140`, `อัจฉริยะ`, and `สมองอัจฉริยะ` are **strictly prohibited** from appearing in narrative prose, dialogue, and internal monologue.
+* **The Zero-IQ-Mention Rule**: The terms `ไอคิว`, `IQ`, `135`, `140`, `150`, `150+`, `อัจฉริยะ`, and `สมองอัจฉริยะ` are **strictly prohibited** from appearing in narrative prose, dialogue, and internal monologue.
 * **The Forensic Showing Standard**: The reader must deduce the character's intellectual caliber purely through observational competence:
   1. **Speed of Physical Diagnosis**: Identifying that a visitor walked through mud because their pant cuff is rolled up unevenly, without explaining the deduction unless necessary.
   2. **Tactical Economy**: Solving a complex dispute with a single, highly leveraged action rather than an exhaustive philosophical speech.
@@ -451,7 +451,7 @@ Before committing any prose, chapter brief, or character dialogue to the *New Un
 - [ ] Does Kenya address Hina strictly as "คุณยายเล็ก", "คุณยายอา", or "คุณยายฮินะ" (never น้า or ป้า)?
 
 #### 2. Anti-Glazing & Cognitive Audit
-- [ ] Are explicit declarations of intellect ("IQ", "ไอคิว", "140", "อัจฉริยะ") 100% absent from the manuscript?
+- [ ] Are explicit declarations of intellect ("IQ", "ไอคิว", "140", "150", "อัจฉริยะ") 100% absent from the manuscript?
 - [ ] Are mathematical/physics analogies ("มองโลกเป็นสมการ", "ตัวแปร") completely eliminated from interiority and romance?
 - [ ] Does Kyōka's intellect manifest through spatial deductions, taciturn observation, and delayed foresight?
 
