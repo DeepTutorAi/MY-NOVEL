@@ -1,0 +1,78 @@
+---
+import type { UpcomingNovelMeta } from "../../data/_novels";
+import { withBase } from "../../utils/base-path";
+
+interface Props {
+  novel: UpcomingNovelMeta;
+}
+
+const { novel } = Astro.props;
+const accentStyle = `--novel-accent: ${novel.accent}`;
+---
+
+<div class="novel-card-wrapper" data-upcoming-slug={novel.slug}>
+  {/* Not a link: the story has no pages yet, so nothing here can be opened. */}
+  <article class="novel-card is-upcoming" style={accentStyle}>
+    <div class="novel-card-media" aria-hidden="true">
+      <img src={withBase(novel.heroImage)} alt="" loading="lazy" decoding="async" />
+      <span class="upcoming-seal" lang="en">Coming soon</span>
+    </div>
+    <div class="novel-card-body">
+      <span class="novel-card-kicker">{novel.titleEn}</span>
+      <strong class="novel-card-title">{novel.titleTh}</strong>
+      <span class="novel-card-subtitle">{novel.teaser}</span>
+      <span class="novel-card-meta">{novel.mood}</span>
+      <span class="novel-card-footer">
+        <span>เร็วๆ นี้</span>
+        <span class="novel-card-action">ยังไม่เปิดให้อ่าน</span>
+      </span>
+    </div>
+  </article>
+</div>
+
+<style>
+  .novel-card.is-upcoming {
+    cursor: default;
+  }
+
+  .novel-card.is-upcoming:hover {
+    border-color: var(--hub-line);
+    background: var(--hub-panel);
+    transform: none;
+  }
+
+  .novel-card.is-upcoming:hover .novel-card-media img {
+    animation: none;
+  }
+
+  .upcoming-seal {
+    position: absolute;
+    right: 0;
+    bottom: 18px;
+    left: 0;
+    z-index: 1;
+    display: flex;
+    gap: 14px;
+    align-items: center;
+    justify-content: center;
+    color: color-mix(in srgb, var(--novel-accent) 55%, #f4efe6 45%);
+    font-family: var(--font-serif);
+    font-size: 0.78rem;
+    letter-spacing: 0.32em;
+    line-height: 1;
+    text-transform: uppercase;
+    text-shadow: 0 1px 10px rgba(0, 0, 0, 0.85);
+  }
+
+  .upcoming-seal::before,
+  .upcoming-seal::after {
+    width: 44px;
+    height: 1px;
+    content: "";
+    background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--novel-accent) 70%, transparent));
+  }
+
+  .upcoming-seal::after {
+    transform: scaleX(-1);
+  }
+</style>

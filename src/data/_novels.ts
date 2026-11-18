@@ -73,3 +73,36 @@ export const NOVELS = [
     status: "เผยแพร่",
   },
 ] as const satisfies readonly NovelMeta[];
+
+/** A story announced on the hub before it has any pages: a cover, but no link or length. */
+export interface UpcomingNovelMeta {
+  slug: string;
+  titleTh: string;
+  titleEn: string;
+  teaser: string;
+  mood: string;
+  heroImage: string;
+  accent: string;
+}
+
+// Hub order is reading order across the grid: Hizumi takes the left column, Ruin the right.
+export const UPCOMING_NOVELS = [
+  {
+    slug: "hizumi",
+    titleTh: "ฮิซุมิ",
+    titleEn: "Hizumi",
+    teaser: "ห้าวันบนเรือสำราญที่ออกไปเปิดตัวเครื่องจักรรุ่นใหม่กลางทะเล และเสียงฮัมใต้ท้องเรือที่เริ่มฟังไม่เหมือนเดิม",
+    mood: "ไซไฟ · สยองขวัญจิตวิทยา",
+    heroImage: "/assets/hizumi/images/hub-card.webp",
+    accent: "#A99BFF",
+  },
+  {
+    slug: "ruin",
+    titleTh: "รูน",
+    titleEn: "Ruin",
+    teaser: "ค.ศ. 2061 ประเทศที่ให้ AI ชื่อ EDEN เป็นผู้ตัดสินใจสูงสุด กับเด็กสาวคนหนึ่งที่ไม่มีประวัติอยู่ในระบบ",
+    mood: "ไซไฟการเมือง · สงครามปัญญา",
+    heroImage: "/assets/ruin/images/hub-card.webp",
+    accent: "#8CCFFF",
+  },
+] as const satisfies readonly UpcomingNovelMeta[];
