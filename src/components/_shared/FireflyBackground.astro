@@ -1,109 +1,109 @@
 ---
-// FireflyBackground.astro: lamphu trees and synchronised fireflies over a canal
-// at night. Rendering lives in src/scripts/hub/firefly-scene.ts.
+// Firefly hub background on the scene kit (spec 2.13, 3.5): lamphu trees and fireflies
+// by a canal at night. The theme CSS loads with the page so the first paint is themed;
+// the scene module loads lazily when this theme is the one showing.
+import "../../styles/_shared/hub-themes/firefly.css";
 ---
-<div class="firefly-scene" data-firefly-scene aria-hidden="true">
-  <canvas class="ff-static" data-layer="sky"></canvas>
-  <canvas class="ff-static" data-layer="far"></canvas>
-  <canvas class="ff-river" data-layer="river"></canvas>
-  <canvas class="ff-static" data-layer="near"></canvas>
-  <canvas id="fireflies-canvas" class="ff-fx" data-layer="fx"></canvas>
-  <canvas class="ff-reeds" data-layer="reeds"></canvas>
-  <div class="ff-vignette"></div>
+
+<div class="hub-sky hub-sky-firefly" data-hub-sky="firefly" aria-hidden="true">
+  <canvas data-sky-static></canvas>
+  <canvas data-sky-static></canvas>
+  <canvas data-sky-static></canvas>
+  <canvas data-sky-static></canvas>
+  <canvas data-sky-live></canvas>
 </div>
 
 <style>
-  .firefly-scene {
-    --ff-margin: 28px;
-    position: fixed;
-    inset: 0 0 auto;
-    /* Large viewport height: mobile URL-bar changes do not resize (and repaint) the scene. */
-    height: 100vh;
-    height: 100lvh;
-    z-index: 1;
-    overflow: hidden;
-    pointer-events: none;
-    background: #050a16;
+  /* The night sky itself; it is also the whole background until the first drawn frame,
+     and stays if the scene fails. */
+  .hub-sky-firefly {
+    background:
+      radial-gradient(ellipse 70% 40% at 62% 6%, rgb(32 52 78 / 0.55), transparent 70%),
+      linear-gradient(180deg, #02050e 0%, #050b18 30%, #08142a 58%, #0b2133 82%, #0d2a36 100%);
   }
 
-  .firefly-scene canvas {
+  /* Static planes are placed and sized by the scene (plane rects in px); the kit moves
+     them with transforms. The live canvas covers the viewport. */
+  .hub-sky-firefly canvas {
     position: absolute;
     display: block;
-    /* Overscanned layers are wider than the viewport; override the preflight cap. */
     max-width: none;
   }
 
-  .ff-static {
-    top: calc(var(--ff-margin) * -1);
-    left: calc(var(--ff-margin) * -1);
-    width: calc(100% + var(--ff-margin) * 2);
-    height: calc(100% + var(--ff-margin) * 2);
+  .hub-sky-firefly canvas[data-sky-static] {
+    top: 0;
+    left: 0;
     will-change: transform;
   }
 
-  .ff-river {
-    left: calc(var(--ff-margin) * -1);
-    width: calc(100% + var(--ff-margin) * 2);
-    will-change: transform;
-  }
-
-  .ff-fx {
+  .hub-sky-firefly canvas[data-sky-live] {
     inset: 0;
     width: 100%;
     height: 100%;
   }
-
-  .ff-reeds {
-    bottom: 0;
-    left: calc(var(--ff-margin) * -1);
-    width: calc(100% + var(--ff-margin) * 2);
-    will-change: transform;
-  }
-
-  .ff-vignette {
-    position: absolute;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 120% 90% at 50% 40%, transparent 55%, rgba(1, 3, 8, 0.55) 100%),
-      linear-gradient(to bottom, rgba(2, 4, 12, 0.35), transparent 18%);
-  }
 </style>
 
 <script>
-  import { mountFireflyScene, type FireflySceneHandle } from "../../scripts/hub/firefly-scene";
+  // Types only: a type import is erased, so the kit and the scene stay out of the page bundle.
+  import type { BindOptions, HubSceneHandle } from "../../scripts/hub/world/types";
 
-  // Bind contract with the hub theme switcher (src/pages/index.astro).
+  type SceneModule = typeof import("../../scripts/hub/firefly-scene");
   type FireflyWindow = Window & {
-    __bindFireflyBg?: () => void;
+    __bindFireflyBg?: (options?: BindOptions) => void;
     __fireflyBgCleanup?: () => void;
     __fireflyBgInitialized?: boolean;
+    __fireflyBgPreload?: () => Promise<SceneModule>;
+    __hubSoftArrival?: boolean;
   };
+
   const win = window as FireflyWindow;
-  let live: { root: HTMLElement; handle: FireflySceneHandle } | null = null;
+  let promise: Promise<SceneModule> | null = null;
+  let live: { root: HTMLElement; handle: HubSceneHandle } | null = null;
+  let pending: HTMLElement | null = null;
+
+  // One cached dynamic import; a failed import is forgotten so the next bind or preload retries.
+  const load = () =>
+    (promise ??= import("../../scripts/hub/firefly-scene").catch((error: unknown) => {
+      promise = null;
+      throw error;
+    }));
 
   const cleanup = () => {
+    pending = null;
     live?.handle.destroy();
     live = null;
     win.__fireflyBgInitialized = false;
   };
 
-  const bind = () => {
-    const container = document.getElementById("firefly-bg-container");
-    const root = container?.querySelector<HTMLElement>("[data-firefly-scene]");
-    if (!container || !root || container.style.display === "none") {
+  const bind = (options?: BindOptions) => {
+    const wrapper = document.getElementById("firefly-bg-container");
+    const root = wrapper?.querySelector<HTMLElement>("[data-hub-sky]");
+    if (!wrapper || !root || getComputedStyle(wrapper).display === "none") {
       cleanup();
       return;
     }
-    // Already running on this exact DOM: nothing to do.
-    if (live && live.root === root) return;
+    if (live?.root === root || pending === root) return;
     cleanup();
-    const handle = mountFireflyScene(root, { quietSelector: ".hub-hero h1, .hub-hero p" });
-    if (!handle) return;
-    live = { root, handle };
-    win.__fireflyBgInitialized = true;
+    pending = root;
+    delete root.dataset.sceneFailed;
+    load()
+      .then(({ mount }) => {
+        if (pending !== root) return;
+        pending = null;
+        const handle = mount(root, options);
+        if (handle) live = { root, handle };
+        else root.dataset.sceneFailed = "";
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        if (pending !== root) return;
+        pending = null;
+        root.dataset.sceneFailed = "";
+      });
   };
 
   win.__bindFireflyBg = bind;
   win.__fireflyBgCleanup = cleanup;
-  bind();
+  win.__fireflyBgPreload = load;
+  bind({ softReturn: win.__hubSoftArrival === true });
 </script>

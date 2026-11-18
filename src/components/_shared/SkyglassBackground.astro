@@ -1,0 +1,90 @@
+---
+// Skyglass hub background on the scene kit (spec 2.13, 3.2). The theme CSS is imported
+// here so the first paint is themed; the scene module loads lazily on bind.
+import "../../styles/_shared/hub-themes/skyglass.css";
+---
+
+<div class="hub-sky hub-sky-skyglass" data-hub-sky="skyglass" aria-hidden="true">
+  <canvas data-sky-static></canvas>
+  <canvas data-sky-live></canvas>
+</div>
+
+<style>
+  /* Blue hour with a low afterglow band, so the light-ink hero reads before the scene loads or if it fails. */
+  .hub-sky-skyglass {
+    background: linear-gradient(180deg, #18213a 0%, #24314f 38%, #3a4462 58%, #5b5266 70%, #1a2133 84%, #121821 100%);
+  }
+
+  .hub-sky-skyglass canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+</style>
+
+<script>
+  import type { BindOptions, HubSceneHandle } from "../../scripts/hub/world/types";
+
+  type SceneModule = typeof import("../../scripts/hub/skyglass-scene");
+  type SkyglassWindow = Window & {
+    __bindSkyglassBg?: (options?: BindOptions) => void;
+    __skyglassBgCleanup?: () => void;
+    __skyglassBgInitialized?: boolean;
+    __skyglassBgPreload?: () => Promise<SceneModule>;
+    __hubSoftArrival?: boolean;
+  };
+
+  const win = window as SkyglassWindow;
+  let promise: Promise<SceneModule> | null = null;
+  let live: { root: HTMLElement; handle: HubSceneHandle } | null = null;
+  let pending: HTMLElement | null = null;
+
+  // One cached import; a failed one is forgotten so the next bind or preload retries.
+  const load = () =>
+    (promise ??= import("../../scripts/hub/skyglass-scene").catch((error: unknown) => {
+      promise = null;
+      throw error;
+    }));
+
+  const cleanup = () => {
+    pending = null;
+    live?.handle.destroy();
+    live = null;
+    win.__skyglassBgInitialized = false;
+  };
+
+  const bind = (options?: BindOptions) => {
+    const wrapper = document.getElementById("skyglass-bg-container");
+    const root = wrapper?.querySelector<HTMLElement>("[data-hub-sky]");
+    if (!wrapper || !root || getComputedStyle(wrapper).display === "none") {
+      cleanup();
+      return;
+    }
+    if (live?.root === root || pending === root) return;
+    cleanup();
+    pending = root;
+    delete root.dataset.sceneFailed;
+    load()
+      .then(({ mount }) => {
+        if (pending !== root) return;
+        pending = null;
+        const handle = mount(root, options);
+        if (handle) live = { root, handle };
+        else root.dataset.sceneFailed = "";
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        if (pending !== root) return;
+        pending = null;
+        root.dataset.sceneFailed = "";
+      });
+  };
+
+  win.__bindSkyglassBg = bind;
+  win.__skyglassBgCleanup = cleanup;
+  win.__skyglassBgPreload = load;
+  bind({ softReturn: win.__hubSoftArrival === true });
+</script>

@@ -25,7 +25,7 @@ const faviconPng = withBase("/favicon.png");
 ---
 
 <!doctype html>
-<html lang="th">
+<html lang="th" class="hub-root">
   <head>
     <ProfileStorageInterceptor />
     <meta charset="UTF-8" />
@@ -33,6 +33,7 @@ const faviconPng = withBase("/favicon.png");
     <title>{title}</title>
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0A0908" />
+    <script is:inline>window.__hubThemeBoot?.();</script>
     <link rel="canonical" href={canonical} />
     <link rel="icon" href={faviconLit} type="image/svg+xml" />
     <link rel="icon" href={faviconPng} type="image/png" sizes="32x32" />

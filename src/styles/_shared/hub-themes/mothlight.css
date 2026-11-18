@@ -1,0 +1,488 @@
+/* Mothlight: สวนแสงจันทร์, a violet night garden under the moon (spec 3.4). Tokens and
+   skins only; geometry belongs to hub.css. Lamplight from the scene arrives as --w-light,
+   --w-breath (on .hub-page) and --w-glow, --w-lx, --w-ly (on each card wrapper). */
+
+:root[data-hub-theme="mothlight"],
+.hub-page [data-hub-theme-preview="mothlight"] {
+  --ml-wing: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 24'%3E%3Cpath d='M0 10C2 5 7 1 11 1.5c1 2.5-1 6.5-4 9-3 1-5 1-7 .5zM0 11.5c3 0 7 1 6.8 4-.2 1.5-1.8 2.1-2.2 2.7.4 1.8.6 3.8-.4 5.2-.8-1.4-1-3.4-1.6-5.6C1.6 15.6.8 13.6 0 12.5z'/%3E%3C/svg%3E");
+  --ml-moth: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='-12 0 24 24'%3E%3Cg id='w'%3E%3Cpath fill='%23cfe8d4' d='M0 10C2 5 7 1 11 1.5c1 2.5-1 6.5-4 9-3 1-5 1-7 .5zM0 11.5c3 0 7 1 6.8 4-.2 1.5-1.8 2.1-2.2 2.7.4 1.8.6 3.8-.4 5.2-.8-1.4-1-3.4-1.6-5.6C1.6 15.6.8 13.6 0 12.5z'/%3E%3Ccircle cx='5.5' cy='6.5' r='1.1' fill='%23d9a860'/%3E%3C/g%3E%3Cuse href='%23w' transform='scale(-1 1)'/%3E%3Cellipse cy='12.5' rx='1.1' ry='4.6' fill='%23f4efe2'/%3E%3C/svg%3E");
+  --hub-bg: #06050b;
+  --hub-ink: #ece8f3;
+  --hub-muted: #bdb5cc;
+  --hub-faint: #a49bb5;
+  --hub-line: rgba(210, 200, 240, 0.16);
+  --hub-line-strong: rgba(210, 200, 240, 0.3);
+  --hub-panel: #0e0b14;
+  --hub-panel-strong: #15101c;
+  --hub-accent: #e8b46a;
+  --hub-accent-ink: #e8b46a;
+  --hub-accent-contrast: #140f0a;
+  --hub-link-hover: #ffc77a;
+  --hub-focus: #b9e3c6;
+  --hub-focus-halo-color: #06050b;
+  --hub-select-bg: rgb(185 227 198 / 0.3);
+  --hub-select-ink: #ffffff;
+  --hub-pool: 8 6 18;
+  --hub-pool-a: 0.82;
+  --hub-pool-b: 0.5;
+  --hub-hero-ink: #ece8f3;
+  --hub-hero-muted: #cdc6dc;
+  --hub-title-font: "Cormorant Garamond", var(--font-thai);
+  --hub-title-weight: 400;
+  --hub-title-style: italic;
+  --hub-title-tracking: 0;
+  --hub-title-fill: #e6e4f2;
+  --hub-title-solid: #e6e4f2;
+  --hub-title-glow: drop-shadow(0 0 18px rgb(176 186 236 / 0.32));
+  --hub-text-shadow: 0 1px 14px rgb(4 3 12 / 0.85);
+  --hub-side-bg: #1a1219;
+  --hub-side-border: rgb(232 180 106 / 0.5);
+  --hub-side-ornament:
+    radial-gradient(120% 90% at 100% 100%, rgb(232 180 106 / 0.12), transparent 60%),
+    repeating-linear-gradient(97deg, rgb(255 236 210 / 0.025) 0 1px, transparent 1px 7px);
+  --card-radius: 10px;
+  --card-body-bg: #0e0b14;
+  --card-border: rgb(185 227 198 / 0.18);
+  --card-shadow: 0 18px 40px -26px rgb(0 0 0 / 0.9);
+  --card-shadow-hover: 0 24px 48px -24px rgb(0 0 0 / 0.95);
+  --card-media-bg: #120e1a;
+  --card-accent-share: 50%;
+  --card-progress-track: rgb(6 5 11 / 0.72);
+  --card-locked-filter: saturate(0.45) brightness(0.62) contrast(1.05);
+  --card-locked-veil: linear-gradient(180deg, rgb(26 20 52 / 0.3), rgb(6 5 11 / 0.6));
+  --card-upcoming-filter: saturate(0.4) brightness(0.78) sepia(0.15);
+  --card-seal-ink: #e2ebc6;
+  --card-seal-font: var(--font-thai);
+  --card-seal-text: "ยังอยู่ในดักแด้";
+  --resume-bg: #19111a;
+  --resume-border: rgb(232 180 106 / 0.36);
+  --resume-ink: #ece8f3;
+  --resume-action-bg: #e8b46a;
+  --resume-action-border: #e8b46a;
+  --resume-action-ink: #140f0a;
+  --resume-ornament: repeating-linear-gradient(93deg, rgb(255 236 210 / 0.022) 0 1px, transparent 1px 6px);
+  --chip-bg: #150f19;
+  --chip-border: rgb(232 180 106 / 0.32);
+  --chip-ink: #ece8f3;
+  --chip-btn-border: rgb(232 180 106 / 0.26);
+  --chip-btn-hover: rgb(232 180 106 / 0.14);
+  --chip-avatar-ring: rgb(185 227 198 / 0.6);
+  --window-label-bg: #18111a;
+  --window-label-ink: #ece8f3;
+  --window-label-border: rgb(232 180 106 / 0.38);
+  --hit-label-bg: #18111a;
+  --hit-label-ink: #ece8f3;
+  --modal-overlay: rgb(16 10 34 / 0.8);
+  --modal-blur: 10px;
+  --modal-bg: #170f1f;
+  --modal-border: rgb(185 227 198 / 0.2);
+  --modal-radius: 14px;
+  --modal-title-font: "Cormorant Garamond", var(--font-thai);
+  --modal-field-bg: rgb(6 5 11 / 0.55);
+  --modal-danger: #ff9a9a;
+  --modal-ornament:
+    radial-gradient(circle at 13px calc(100% - 13px), #f3efe0 0 1.4px, #c4d48a 1.8px 2.6px, transparent 3px),
+    radial-gradient(circle at 13px calc(100% - 13px), transparent 8px, #170f1f 9.5px),
+    repeating-conic-gradient(from 18deg at 13px calc(100% - 13px), rgb(236 234 246 / 0.22) 0 40deg, transparent 40deg 72deg);
+  --footer-ink: #bdb5cc;
+  --footer-line: rgb(232 180 106 / 0.22);
+  --footer-pool: 22 14 18;
+  --footer-pool-a: 0.9;
+}
+
+:root[data-hub-theme="mothlight"] {
+  color-scheme: dark;
+}
+
+/* Hit fractions: the lantern in the stage, the garden bed in the mid window. */
+:root[data-hub-theme="mothlight"] .hub-page {
+  --stage-hit-x: 0.14;
+  --stage-hit-y: 0.05;
+  --stage-hit-w: 0.12;
+  --stage-hit-h: 0.9;
+  --mid-hit-x: 0.3;
+  --mid-hit-y: 0.25;
+  --mid-hit-w: 0.4;
+  --mid-hit-h: 0.6;
+  /* A warm rim on the silver title follows the lamp. */
+  --hub-title-glow: drop-shadow(0 0 18px rgb(176 186 236 / 0.32)) drop-shadow(1px 1px 0 rgb(255 199 122 / calc(0.1 + 0.28 * var(--w-light))));
+}
+
+@media (max-width: 780px) {
+  :root[data-hub-theme="mothlight"] .hub-page {
+    --stage-hit-x: 0.08;
+    --stage-hit-w: 0.28;
+    --mid-hit-x: 0.1;
+    --mid-hit-w: 0.8;
+  }
+}
+
+/* Hero: a small luna moth under the title. */
+:root[data-hub-theme="mothlight"] .hub-title-group::after {
+  position: absolute;
+  top: calc(var(--hub-h1-size) * var(--hub-h1-lh) + 3px);
+  left: 3px;
+  width: 22px;
+  height: 14px;
+  content: "";
+  background: var(--ml-moth) center / contain no-repeat;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  :root[data-hub-theme="mothlight"] .hub-title-group::after {
+    content: none;
+  }
+}
+
+/* Chip and picker button: paper-lantern pills. */
+:root[data-hub-theme="mothlight"] :is(.hub-profile-widget, .hub-theme-btn) {
+  background: radial-gradient(130% 160% at 50% 130%, rgb(232 180 106 / 0.16), transparent 62%), var(--chip-bg);
+  box-shadow: inset 0 1px 0 rgb(255 220 170 / 0.08), 0 0.6rem 1.6rem rgb(0 0 0 / 0.45);
+}
+
+:root[data-hub-theme="mothlight"] .profile-icon {
+  box-shadow: 0 0 0 1px var(--chip-avatar-ring), -6px -3px 0 -3px rgb(185 227 198 / 0.3), 6px -3px 0 -3px rgb(185 227 198 / 0.3);
+}
+
+:root[data-hub-theme="mothlight"] .hub-theme-btn > span:first-child {
+  border-color: transparent;
+  border-radius: 0;
+  background: var(--ml-moth) center / contain no-repeat;
+  box-shadow: none;
+}
+
+/* Resume card and start panel: a garden tag hung on twine, warmed from the lantern side. */
+:root[data-hub-theme="mothlight"] :is(.resume-card, .hub-start)::before {
+  position: absolute;
+  bottom: calc(100% - 9px);
+  left: 22px;
+  width: 30px;
+  height: 34px;
+  content: "";
+  background:
+    radial-gradient(circle at 50% calc(100% - 5px), transparent 2.4px, #c9a46a 2.8px 3.8px, rgb(201 164 106 / 0.3) 4.4px, transparent 5px),
+    linear-gradient(to top right, transparent calc(50% - 1px), rgb(220 198 156 / 0.75) 50%, transparent calc(50% + 1px)) left top / 50% calc(100% - 5px) no-repeat,
+    linear-gradient(to top left, transparent calc(50% - 1px), rgb(220 198 156 / 0.75) 50%, transparent calc(50% + 1px)) right top / 50% calc(100% - 5px) no-repeat;
+  -webkit-mask: linear-gradient(transparent, #000 55%);
+  mask: linear-gradient(transparent, #000 55%);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="mothlight"] .resume-card {
+  box-shadow:
+    inset 34px -22px 60px -26px rgb(232 180 106 / calc(0.2 + 0.06 * var(--w-breath))),
+    0 16px 36px -22px rgb(0 0 0 / 0.85);
+}
+
+:root[data-hub-theme="mothlight"] .hub-start {
+  box-shadow: 0 16px 36px -22px rgb(0 0 0 / 0.85);
+}
+
+/* Library heading with a thin vine rule. */
+:root[data-hub-theme="mothlight"] .hub-library-head::after {
+  position: absolute;
+  right: 0;
+  bottom: -9px;
+  left: 0;
+  height: 7px;
+  content: "";
+  background:
+    radial-gradient(ellipse 3px 2px at 50% 30%, rgb(185 227 198 / 0.55) 60%, transparent 70%) 0 0 / 23px 7px,
+    linear-gradient(90deg, rgb(185 227 198 / 0.45), rgb(185 227 198 / 0.08) 70%, transparent) 0 55% / 100% 1px no-repeat;
+  -webkit-mask: linear-gradient(90deg, #000 40%, transparent);
+  mask: linear-gradient(90deg, #000 40%, transparent);
+  pointer-events: none;
+}
+
+/* Cards: lamplit panels. */
+:root[data-hub-theme="mothlight"] .novel-card {
+  --card-border-hover: rgb(232 180 106 / 0.55);
+  --card-accent-ink: color-mix(in oklch, var(--novel-accent) var(--card-accent-share), var(--hub-ink));
+  --card-shadow: 0 18px 40px -26px rgb(0 0 0 / 0.9), inset 0 0 0 1px rgb(232 180 106 / calc(0.22 * var(--w-glow)));
+}
+
+:root[data-hub-theme="mothlight"] .novel-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  content: "";
+  background: radial-gradient(circle at calc(var(--w-lx) * 100%) calc(var(--w-ly) * 100%), rgb(232 180 106 / calc(0.18 * var(--w-glow))), transparent 60%);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="mothlight"] .novel-card::after {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  height: 30px;
+  content: "";
+  background:
+    linear-gradient(90deg, transparent 6%, rgb(222 228 255 / 0.4) 50%, transparent 94%) top / 100% 1px no-repeat,
+    linear-gradient(rgb(200 210 255 / 0.1), transparent);
+  pointer-events: none;
+}
+
+/* A moth on the attended card in the still (perches are live only). */
+:root[data-hub-theme="mothlight"][data-hub-motion="still"] .novel-card-wrapper[data-attended] .novel-card::after {
+  background:
+    var(--ml-moth) 30% 4px / 26px 18px no-repeat,
+    linear-gradient(90deg, transparent 6%, rgb(222 228 255 / 0.4) 50%, transparent 94%) top / 100% 1px no-repeat;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root[data-hub-theme="mothlight"] .novel-card-wrapper[data-attended] .novel-card::after {
+    background:
+      var(--ml-moth) 30% 4px / 26px 18px no-repeat,
+      linear-gradient(90deg, transparent 6%, rgb(222 228 255 / 0.4) 50%, transparent 94%) top / 100% 1px no-repeat;
+  }
+}
+
+:root[data-hub-theme="mothlight"] .novel-card-continue {
+  --card-continue-bg: #130e19;
+  --card-continue-border: rgb(185 227 198 / 0.62);
+}
+
+/* Progress: a vine with tiny leaves and a bud at its tip. */
+:root[data-hub-theme="mothlight"] .novel-card-progress span {
+  background:
+    radial-gradient(ellipse at 50% 100%, #d4f2dc 0 32%, transparent 42%) 0 0 / calc(9px / var(--novel-progress, 1)) 100%,
+    linear-gradient(90deg, #4c8a68, #a9dcb9);
+  box-shadow: 0 0 8px rgb(185 227 198 / 0.45);
+}
+
+:root[data-hub-theme="mothlight"] .novel-card-progress::after {
+  position: absolute;
+  bottom: -3px;
+  left: calc(var(--novel-progress, 0) * 100%);
+  width: 7px;
+  height: 9px;
+  content: "";
+  translate: -40% 0;
+  border-radius: 50% 50% 45% 45% / 60% 60% 40% 40%;
+  background: radial-gradient(circle at 40% 35%, #f4f0e0, #b9e3c6 55%, #4c8a68);
+  box-shadow: 0 0 6px rgb(185 227 198 / 0.6);
+}
+
+/* Finished: a moonflower-in-bloom badge. */
+:root[data-hub-theme="mothlight"] .novel-card-wrapper[data-card-finished]::after {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  z-index: 4;
+  padding: 3px 11px 3px 26px;
+  border: 1px solid rgb(185 227 198 / 0.42);
+  border-radius: 999px;
+  content: "อ่านจบแล้ว" / "";
+  background:
+    radial-gradient(circle at 13px 50%, #c9d68c 0 1.6px, transparent 2px),
+    radial-gradient(circle at 13px 50%, transparent 5.4px, #0e0b14 6px),
+    repeating-conic-gradient(from 18deg at 13px 50%, #f1f1f6 0 40deg, transparent 40deg 72deg),
+    #0e0b14;
+  color: #ece8f3;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+/* Chosen by a pick: a paper tag. */
+:root[data-hub-theme="mothlight"] .novel-card-wrapper[data-chosen] .novel-card-body::after {
+  position: absolute;
+  top: -15px;
+  right: 18px;
+  z-index: 3;
+  padding: 3px 12px 3px 20px;
+  border-radius: 3px;
+  content: "ลองเรื่องนี้" / "";
+  background: radial-gradient(circle at 9px 50%, #4a3a2c 0 2px, transparent 2.6px), #f1e6cf;
+  box-shadow: 0 6px 14px -6px rgb(0 0 0 / 0.7);
+  color: #2a1d12;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  transform: rotate(-3deg);
+  pointer-events: none;
+}
+
+/* Locked: an arched wrought-iron garden gate over the cover: two leaves of bars meeting at a
+   double centre bar, an arched top rail with finial knobs, and two cross rails. */
+:root[data-hub-theme="mothlight"] .novel-card.is-disabled .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  background:
+    radial-gradient(circle at 50% 2.8%, rgb(150 156 214 / 0.5) 0 1.2px, #0a0912 1.6px 3.4px, transparent 3.8px),
+    radial-gradient(circle at 25.5% 6.8%, rgb(150 156 214 / 0.5) 0 1.2px, #0a0912 1.6px 3.4px, transparent 3.8px),
+    radial-gradient(circle at 74.5% 6.8%, rgb(150 156 214 / 0.5) 0 1.2px, #0a0912 1.6px 3.4px, transparent 3.8px),
+    radial-gradient(circle at 7.6% 17.3%, rgb(150 156 214 / 0.5) 0 1.2px, #0a0912 1.6px 3.4px, transparent 3.8px),
+    radial-gradient(circle at 92.4% 17.3%, rgb(150 156 214 / 0.5) 0 1.2px, #0a0912 1.6px 3.4px, transparent 3.8px),
+    radial-gradient(ellipse 50% 93.75% at 50% 100%, transparent calc(100% - 10px), rgb(150 156 214 / 0.45) calc(100% - 10px) calc(100% - 9px), #0a0912 calc(100% - 9px) calc(100% - 0.5px), transparent 100%) 0 0 / 100% 32% no-repeat,
+    linear-gradient(90deg, transparent calc(50% - 5px), #0a0912 calc(50% - 5px) calc(50% - 1px), rgb(150 156 214 / 0.45) calc(50% - 1px) calc(50% + 1px), #0a0912 calc(50% + 1px) calc(50% + 5px), transparent calc(50% + 5px)),
+    linear-gradient(transparent 60%, rgb(150 156 214 / 0.35) 60%, #0a0912 calc(60% + 1px) calc(60% + 5px), transparent 0),
+    linear-gradient(transparent 88%, rgb(150 156 214 / 0.35) 88%, #0a0912 calc(88% + 1px) calc(88% + 5px), transparent 0),
+    repeating-linear-gradient(90deg, transparent 0 calc(11% - 4px), rgb(150 156 214 / 0.45) calc(11% - 4px) calc(11% - 3px), #0a0912 calc(11% - 3px) 11%),
+    rgb(8 7 15 / 0.3);
+  -webkit-mask:
+    radial-gradient(ellipse 50% 30% at 50% 32%, #000 99%, transparent 100%),
+    linear-gradient(#000, #000) 0 100% / 100% 68% no-repeat;
+  mask:
+    radial-gradient(ellipse 50% 30% at 50% 32%, #000 99%, transparent 100%),
+    linear-gradient(#000, #000) 0 100% / 100% 68% no-repeat;
+  pointer-events: none;
+}
+
+/* Upcoming: a chrysalis veil and a Thai seal. */
+:root[data-hub-theme="mothlight"] .novel-card.is-upcoming .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  background:
+    radial-gradient(ellipse 42% 58% at 50% 44%, rgb(214 226 160 / 0.22), transparent 70%),
+    linear-gradient(rgb(150 168 110 / 0.16), rgb(24 30 20 / 0.5));
+  pointer-events: none;
+}
+
+:root[data-hub-theme="mothlight"] .upcoming-seal {
+  font-size: 0;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:root[data-hub-theme="mothlight"] .upcoming-seal::before {
+  width: auto;
+  height: auto;
+  content: var(--card-seal-text) / "";
+  background: none;
+  font-size: 0.86rem;
+}
+
+:root[data-hub-theme="mothlight"] .upcoming-seal::after {
+  content: none;
+}
+
+/* Mid window label: a paper label on twine. */
+:root[data-hub-theme="mothlight"] .hub-window-label::before {
+  position: absolute;
+  bottom: 100%;
+  left: 24px;
+  width: 1px;
+  height: 20px;
+  content: "";
+  background: linear-gradient(rgb(214 196 160 / 0), rgb(214 196 160 / 0.6));
+  pointer-events: none;
+}
+
+/* Guide: a luna moth whose wings beat in flight and open slowly at rest. Perch: the same moth at rest. */
+:root[data-hub-theme="mothlight"] :is(.hub-guide-body, .hub-perch[data-perch-kind="moth"]) {
+  background: radial-gradient(ellipse 1.6px 6px at 50% 56%, #f4efe2 80%, transparent);
+  filter: drop-shadow(0 0 5px rgb(185 227 198 / 0.5));
+}
+
+:root[data-hub-theme="mothlight"] :is(.hub-guide-body, .hub-perch[data-perch-kind="moth"])::before,
+:root[data-hub-theme="mothlight"] :is(.hub-guide-body, .hub-perch[data-perch-kind="moth"])::after {
+  position: absolute;
+  top: 3px;
+  left: 50%;
+  width: 15px;
+  height: 28px;
+  content: "";
+  transform-origin: 0 50%;
+  background:
+    radial-gradient(circle at 46% 26%, #e5bd7a 0 1.3px, #6a4a66 1.9px, transparent 2.5px),
+    linear-gradient(165deg, #eef7e6, #a8d8b6 55%, #c9b6e6);
+  -webkit-mask: var(--ml-wing) 0 0 / 100% 100% no-repeat;
+  mask: var(--ml-wing) 0 0 / 100% 100% no-repeat;
+}
+
+:root[data-hub-theme="mothlight"] .hub-perch[data-perch-kind="moth"]::before,
+:root[data-hub-theme="mothlight"] .hub-perch[data-perch-kind="moth"]::after {
+  position: absolute;
+  top: -1px;
+  width: 10px;
+  height: 19px;
+}
+
+:root[data-hub-theme="mothlight"] :is(.hub-guide-body, .hub-perch[data-perch-kind="moth"])::before {
+  transform: scaleX(-1);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-theme="mothlight"][data-hub-motion="full"] :is(.hub-guide[data-hub-guide="rest"] .hub-guide-body, .hub-perch[data-perch-kind="moth"])::before,
+  :root[data-hub-theme="mothlight"][data-hub-motion="full"] :is(.hub-guide[data-hub-guide="rest"] .hub-guide-body, .hub-perch[data-perch-kind="moth"])::after {
+    animation: ml-flap 3.3s ease-in-out infinite;
+  }
+
+  :root[data-hub-theme="mothlight"][data-hub-motion="full"] .hub-guide[data-hub-guide="fly"] .hub-guide-body::before,
+  :root[data-hub-theme="mothlight"][data-hub-motion="full"] .hub-guide[data-hub-guide="fly"] .hub-guide-body::after {
+    animation: ml-flap 0.34s ease-in-out infinite;
+  }
+
+  :root[data-hub-theme="mothlight"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="perch"] .novel-card::after {
+    animation: ml-perch-a 900ms ease-in-out both;
+  }
+
+  :root[data-hub-theme="mothlight"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="perch"] .novel-card::after {
+    animation: ml-perch-b 900ms ease-in-out both;
+  }
+}
+
+@keyframes ml-flap {
+  50% {
+    scale: 0.4 1;
+  }
+}
+
+@keyframes ml-perch-a {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 transparent;
+  }
+
+  36% {
+    box-shadow: inset 0 2px 0 rgb(255 199 122 / 0.9), inset 0 16px 18px -12px rgb(232 180 106 / 0.45);
+  }
+}
+
+@keyframes ml-perch-b {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 transparent;
+  }
+
+  36% {
+    box-shadow: inset 0 2px 0 rgb(255 199 122 / 0.9), inset 0 16px 18px -12px rgb(232 180 106 / 0.45);
+  }
+}
+
+/* Dialogs and the picker sheet: plum velvet over a violet veil; the sheet stays light. */
+:root[data-hub-theme="mothlight"] .hub-picker {
+  background: rgb(16 10 34 / 0.3);
+}
+
+/* Footer: the warm pool at the lantern's feet. */
+:root[data-hub-theme="mothlight"] .hub-footer-row::before {
+  background: radial-gradient(
+    ellipse closest-side at 50% 60%,
+    rgb(var(--footer-pool) / var(--footer-pool-a)) 0%,
+    rgb(var(--footer-pool) / calc(var(--footer-pool-a) * 0.75)) 60%,
+    rgb(var(--footer-pool) / 0) 100%
+  );
+}
+
+/* Swatch: indigo with a crescent and one warm dot. */
+.hub-theme-swatch[data-swatch="mothlight"] {
+  background:
+    radial-gradient(circle at 76% 26%, #17132e 0 7px, transparent 7.5px),
+    radial-gradient(circle at 70% 34%, #ece8d8 0 8px, transparent 8.5px),
+    radial-gradient(circle at 26% 74%, #ffd48a 0 2px, rgb(232 180 106 / 0.45) 3px, transparent 9px),
+    linear-gradient(160deg, #1d1838, #0b0a1a 70%);
+}
+
+@media (forced-colors: active), (prefers-contrast: more) {
+  :root[data-hub-theme="mothlight"] :is(.hub-title-group, .resume-card, .hub-start, .hub-library-head, .novel-card, .novel-card-media, .hub-window-label)::before,
+  :root[data-hub-theme="mothlight"] :is(.hub-title-group, .hub-library-head, .novel-card, .novel-card-wrapper)::after {
+    content: none;
+  }
+}

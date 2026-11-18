@@ -1,228 +1,216 @@
-// "Lamphu by the canal": the hub's firefly background.
+// "Fireflies by the canal" (spec 3.5): the hub's firefly world on the scene kit.
 //
-// Static art (sky, far bank, lamphu trees) is painted once per size into
-// layer canvases; each frame only moves firefly sprites, river strips and
-// reeds. Tree geometry lives in firefly-tree.ts, flash timing and
-// synchronisation in firefly-sync.ts.
+// Planes: a sky of stars and the real-phase moon, and the lamphu trees in the real gutters
+// (a canopy plane over the top band and one column per gutter), all moved by the kit's
+// compositor transforms; fireflies live on the sky canvas. The stage window is the near
+// jetty with the lowest branch and the long-tail boat, the mid window the far bank where
+// every novel is a stilt house, the ground window the reeds and dark water under the
+// footer. The page side goes only through ctx.out. Geometry lives in firefly-core.ts,
+// firefly-tree.ts and firefly-bank.ts, flash timing in firefly-sync.ts.
 
+import { createNoise2D, createRng } from "../_shared/scene-runtime";
+import { bankLayout, bankSteps, boatX, lampColour, PROFILE_STEP, rippleOffset, type Bank } from "./firefly-bank";
 import {
-  createNoise2D,
-  createRng,
-  createScene,
-  fbm2D,
-  type PointerState,
-  type SceneFrame,
-  type SceneSize,
-} from "../_shared/scene-runtime";
+  computeLayout,
+  crossingOrder,
+  frontCoord,
+  frontSpan,
+  SKY_PARALLAX,
+  TOP,
+  TREE_PARALLAX,
+  WAVE_AXIS,
+  windowBox,
+  type FireflyLayout,
+  type WindowBox,
+} from "./firefly-core";
 import {
+  advanceDriver,
+  boostCoupling,
+  CHORUS_BEATS,
+  CHORUS_S,
   configureGrid,
+  createDriver,
   createFlashField,
+  createRhythm,
+  createWave,
+  DRIVER_HOLD_PERIODS,
   flashIntensity,
+  rhythmTap,
   seedFirefly,
   smoothstep as smooth,
-  startWave,
   stepField,
+  sweepBetween,
+  waveRunning,
+  type Driver,
+  type FlashField,
+  type WaveFront,
 } from "./firefly-sync";
-import { buildTree, MARGIN, pickWeighted, type CrownSpec, type LayoutMode, type Pad, type TreeGeom } from "./firefly-tree";
+import { buildTree, MID_PALETTE, NEAR_PALETTE, pickWeighted, STAGE_PALETTE, treeSteps, unionBox, type Box, type PaintTarget, type Scratch, type TreeEnv, type TreeGeom } from "./firefly-tree";
+import { radialSprite } from "./scene-paint";
+import { collectPlanes, createHubScene, staticDpr } from "./world/kit";
+import type { CardInfo, Ctx, HubBuildContext, HubFrame, HubPlanes, HubPointer, HubSceneHandle, HubSceneHooks, HubSceneOptions, PageSnapshot, SceneEvent, Surface, Tier, WindowName } from "./world/types";
 
-const SEED = 0x51a7e;
-const MAX_FIREFLIES = 330;
-const FX_DPR_CAP = 1.5;
-const STATIC_DPR_CAP = 2;
-const SKY_DPR_CAP = 1.25;
-const RIVER_DPR_CAP = 1.5;
-const SPRITE_SIZE = 64;
 const TAU = Math.PI * 2;
-
-export type { CrownSpec, LayoutMode };
-
-export interface SceneLayout {
-  mode: LayoutMode;
-  width: number;
-  height: number;
-  waterY: number;
-  moonX: number;
-  moonY: number;
-  moonR: number;
-  farHeight: number;
-  houses: number;
-  reedHeight: number;
-  /** Size scale relative to a 900 px short side. */
-  scale: number;
-  trees: CrownSpec[];
-}
-
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
 
-export function layoutMode(width: number, height: number): LayoutMode {
-  const aspect = width / Math.max(1, height);
-  if (aspect < 0.85) return "portrait";
-  if (height < 520 && aspect > 1.45) return "short";
-  return "wide";
+/** One entry per canvas[data-sky-static], in DOM order: sky, left column, right column, canopy. */
+const STATICS = [{ parallax: SKY_PARALLAX }, { parallax: TREE_PARALLAX }, { parallax: TREE_PARALLAX }, { parallax: TREE_PARALLAX }];
+const SKY = 0;
+const COL_L = 1;
+const COL_R = 2;
+const CANOPY = 3;
+/** Firefly statics are painted at DPR 1 (spec 8.4 item 32). */
+const PLANE_DPR = 1;
+
+const CALL_SIZE = 16;
+const PERCH_SIZE = 5;
+const STAGE_CAP = 56;
+const MID_CAP = 56;
+const GROUND_CAP = 22;
+const SWELL_GAP_S = 2;
+/** A perch is let go this long after attention leaves its card. */
+const PERCH_RELEASE_S = 1.2;
+const SCROLL_TAKEOFF = 300;
+/** Polite announcement when the reader's taps lock the rhythm (spec 3.5 M4); once per page visit. */
+const RHYTHM_TEXT = "หิ่งห้อยกะพริบตามคุณแล้ว";
+let rhythmAnnounced = false;
+/** Where the jetty starts along the stage box (0..1). */
+const JETTY_AT = 0.66;
+
+export function mount(root: HTMLElement, options: HubSceneOptions = {}): HubSceneHandle | null {
+  const planes = collectPlanes(root, STATICS);
+  if (!planes) return null;
+  return createHubScene("firefly", planes, (ctx) => build(ctx, planes), options);
 }
 
-export function computeLayout(width: number, height: number): SceneLayout {
-  const W = width;
-  const H = height;
-  const mode = layoutMode(W, H);
-  const scale = clamp(Math.min(W, H) / 900, 0.5, 1.25);
-  if (mode === "portrait") {
-    const waterY = H * 0.79;
-    return {
-      mode, width: W, height: H, waterY, scale,
-      // Above the profile chip: the only sky band content never covers at the top of the page.
-      moonX: W * 0.78, moonY: clamp(H * 0.024, 15, 22), moonR: clamp(W * 0.024, 7, 10),
-      farHeight: H * 0.03, houses: 2, reedHeight: Math.min(H * 0.15, 140),
-      trees: [
-        { x0: -W * 0.55, x1: W * 0.86, top: -H * 0.04, bottom: H * 0.5, belly: 0.58, baseX: W * 0.06, baseY: waterY + H * 0.045, forkX: W * 0.22, forkY: H * 0.45, near: true, seed: 11, fireflyShare: 0.7, sprays: 8 },
-        { x0: W * 0.56, x1: W * 1.12, top: H * 0.57, bottom: H * 0.75, belly: 0.66, baseX: W * 0.83, baseY: waterY + H * 0.004, forkX: W * 0.82, forkY: H * 0.73, near: false, seed: 23, fireflyShare: 0.2, sprays: 3 },
-      ],
-    };
-  }
-  if (mode === "short") {
-    const waterY = H * 0.72;
-    return {
-      mode, width: W, height: H, waterY, scale,
-      moonX: W * 0.58, moonY: H * 0.16, moonR: clamp(H * 0.022, 7, 12),
-      farHeight: H * 0.055, houses: 3, reedHeight: H * 0.2,
-      trees: [
-        { x0: -W * 0.26, x1: W * 0.24, top: -H * 0.1, bottom: H * 0.54, belly: 0.64, baseX: W * 0.05, baseY: waterY + H * 0.08, forkX: W * 0.09, forkY: H * 0.48, near: true, seed: 11, fireflyShare: 0.4, sprays: 5 },
-        { x0: W * 0.78, x1: W * 1.18, top: -H * 0.02, bottom: H * 0.5, belly: 0.62, baseX: W * 0.97, baseY: waterY + H * 0.09, forkX: W * 0.93, forkY: H * 0.45, near: true, seed: 17, fireflyShare: 0.28, sprays: 3 },
-        { x0: W * 0.61, x1: W * 0.75, top: H * 0.45, bottom: H * 0.66, belly: 0.66, baseX: W * 0.685, baseY: waterY + H * 0.005, forkX: W * 0.68, forkY: H * 0.63, near: false, seed: 23, fireflyShare: 0.12, sprays: 2 },
-      ],
-    };
-  }
-  const waterY = H * 0.75;
-  return {
-    mode, width: W, height: H, waterY, scale,
-    moonX: W * 0.6, moonY: H * 0.125, moonR: clamp(H * 0.02, 11, 24),
-    farHeight: H * 0.045, houses: 5, reedHeight: Math.min(H * 0.24, 230),
-    trees: [
-      // Dominant tree on the left, a smaller one on the right; mid trees off the mirror axis.
-      { x0: -W * 0.22, x1: W * 0.41, top: -H * 0.05, bottom: H * 0.52, belly: 0.64, baseX: W * 0.075, baseY: waterY + H * 0.045, forkX: W * 0.13, forkY: H * 0.47, near: true, seed: 11, fireflyShare: 0.46, sprays: 11 },
-      { x0: W * 0.8, x1: W * 1.17, top: H * 0.03, bottom: H * 0.45, belly: 0.62, baseX: W * 0.965, baseY: waterY + H * 0.055, forkX: W * 0.935, forkY: H * 0.41, near: true, seed: 17, fireflyShare: 0.24, sprays: 6 },
-      { x0: W * 0.655, x1: W * 0.83, top: H * 0.44, bottom: H * 0.665, belly: 0.66, baseX: W * 0.735, baseY: waterY + H * 0.004, forkX: W * 0.735, forkY: H * 0.635, near: false, seed: 23, fireflyShare: 0.1, sprays: 3 },
-      { x0: W * 0.415, x1: W * 0.505, top: H * 0.585, bottom: H * 0.705, belly: 0.66, baseX: W * 0.462, baseY: waterY + H * 0.003, forkX: W * 0.462, forkY: H * 0.69, near: false, seed: 29, fireflyShare: 0.04, sprays: 2 },
-    ],
+/* ------------------------------------------------------------------ populations */
+
+/** A set of fireflies on one plane: the flash field plus where each one lives and flies. */
+interface Pop {
+  field: FlashField;
+  /** 0 on a perch (tree, branch, bank), 1 drifting over a band or the water. */
+  kind: Uint8Array;
+  homeX: Float32Array;
+  homeY: Float32Array;
+  edge: Float32Array;
+  size: Float32Array;
+  bright: Float32Array;
+  /** Brightness in the still frame (the lit outline). */
+  calm: Float32Array;
+  /** A faint glow kept between flashes (a dense cluster stays readable). */
+  floor: Float32Array;
+  roll: Float32Array;
+  wA: Float32Array;
+  wF1: Float32Array;
+  wF2: Float32Array;
+  wP1: Float32Array;
+  wP2: Float32Array;
+  /** Attraction: target, timing and whether the target is in document px (a card edge). */
+  tx: Float32Array;
+  ty: Float32Array;
+  tDoc: Uint8Array;
+  aStart: Float64Array;
+  aArrive: Float64Array;
+  aEnd: Float64Array;
+  /** Handed to a DOM perch: not drawn. */
+  hidden: Uint8Array;
+  /** Where it was drawn last (canvas px of its plane). */
+  x: Float32Array;
+  y: Float32Array;
+}
+
+function createPop(capacity: number, rand: () => number): Pop {
+  const f = () => new Float32Array(capacity);
+  const pop: Pop = {
+    field: createFlashField(capacity),
+    kind: new Uint8Array(capacity),
+    homeX: f(),
+    homeY: f(),
+    edge: f(),
+    size: f(),
+    bright: f(),
+    calm: f(),
+    floor: f(),
+    roll: f(),
+    wA: f(),
+    wF1: f(),
+    wF2: f(),
+    wP1: f(),
+    wP2: f(),
+    tx: f(),
+    ty: f(),
+    tDoc: new Uint8Array(capacity),
+    aStart: new Float64Array(capacity).fill(-1),
+    aArrive: new Float64Array(capacity).fill(-1),
+    aEnd: new Float64Array(capacity).fill(-10),
+    hidden: new Uint8Array(capacity),
+    x: f(),
+    y: f(),
   };
-}
-
-/** Firefly count by viewport area; coarse pointers (phones, tablets) get fewer. */
-export function fireflyCount(width: number, height: number, coarse: boolean): number {
-  const base = 60 + (Math.max(0, width) * Math.max(0, height)) / 6500;
-  return Math.round(clamp(base * (coarse ? 0.85 : 1), 50, MAX_FIREFLIES - 10));
-}
-
-
-/* ------------------------------------------------------------------ */
-/* Painting helpers                                                     */
-/* ------------------------------------------------------------------ */
-
-function makeCanvas(w: number, h: number): HTMLCanvasElement {
-  const c = document.createElement("canvas");
-  c.width = Math.max(1, Math.round(w));
-  c.height = Math.max(1, Math.round(h));
-  return c;
-}
-
-function ctx2d(canvas: HTMLCanvasElement): CanvasRenderingContext2D {
-  const ctx = canvas.getContext("2d");
-  if (!ctx) throw new Error("2D canvas unavailable");
-  return ctx;
-}
-
-interface Limb { x0: number; y0: number; cx: number; cy: number; x1: number; y1: number; w0: number; w1: number }
-
-function taperedCurve(ctx: CanvasRenderingContext2D, l: Limb): void {
-  const steps = 8;
-  const left: number[] = [];
-  const right: number[] = [];
-  for (let i = 0; i <= steps; i++) {
-    const t = i / steps;
-    const mt = 1 - t;
-    const x = mt * mt * l.x0 + 2 * mt * t * l.cx + t * t * l.x1;
-    const y = mt * mt * l.y0 + 2 * mt * t * l.cy + t * t * l.y1;
-    const dx = 2 * mt * (l.cx - l.x0) + 2 * t * (l.x1 - l.cx);
-    const dy = 2 * mt * (l.cy - l.y0) + 2 * t * (l.y1 - l.cy);
-    const len = Math.hypot(dx, dy) || 1;
-    const w = lerp(l.w0, l.w1, t) / 2;
-    left.push(x - (dy / len) * w, y + (dx / len) * w);
-    right.push(x + (dy / len) * w, y - (dx / len) * w);
+  for (let i = 0; i < capacity; i++) {
+    seedFirefly(pop.field, i, rand);
+    pop.roll[i] = rand();
+    pop.wF1[i] = 0.15 + rand() * 0.35;
+    pop.wF2[i] = 0.12 + rand() * 0.3;
+    pop.wP1[i] = rand() * TAU;
+    pop.wP2[i] = rand() * TAU;
   }
-  ctx.moveTo(left[0], left[1]);
-  for (let i = 2; i < left.length; i += 2) ctx.lineTo(left[i], left[i + 1]);
-  for (let i = right.length - 2; i >= 0; i -= 2) ctx.lineTo(right[i], right[i + 1]);
-  ctx.closePath();
-  ctx.moveTo(l.x1 + l.w1 / 2, l.y1);
-  ctx.arc(l.x1, l.y1, l.w1 / 2, 0, TAU);
+  return pop;
 }
 
-/** Smooth tapered outline of a limb given as (x, y, width) triples; overlapping limbs union under nonzero fill. */
-function branchPath(ctx: CanvasRenderingContext2D, pts: number[]): void {
-  const n = pts.length / 3;
-  if (n < 2) return;
-  const lx: number[] = [];
-  const ly: number[] = [];
-  const rx: number[] = [];
-  const ry: number[] = [];
-  for (let i = 0; i < n; i++) {
-    const a = Math.max(0, i - 1) * 3;
-    const b = Math.min(n - 1, i + 1) * 3;
-    const dx = pts[b] - pts[a];
-    const dy = pts[b + 1] - pts[a + 1];
-    const len = Math.hypot(dx, dy) || 1;
-    const w = pts[i * 3 + 2] / 2;
-    const nx = (-dy / len) * w;
-    const ny = (dx / len) * w;
-    lx.push(pts[i * 3] + nx);
-    ly.push(pts[i * 3 + 1] + ny);
-    rx.push(pts[i * 3] - nx);
-    ry.push(pts[i * 3 + 1] - ny);
+/** How far a firefly has been pulled toward its attraction target (0..1). */
+function attraction(pop: Pop, i: number, t: number): number {
+  if (!(t > pop.aStart[i] && t < pop.aEnd[i] + 2.2)) return 0;
+  return smooth(pop.aStart[i], pop.aArrive[i], t) * (1 - smooth(pop.aEnd[i], pop.aEnd[i] + 2.2, t));
+}
+
+const busy = (pop: Pop, i: number, t: number) => pop.hidden[i] === 1 || t < pop.aEnd[i] + 2.2;
+
+/** The `count` nearest free, live fireflies to (x, y), by last drawn position. */
+function nearestFree(pop: Pop, x: number, y: number, t: number, count: number): number[] {
+  const near: { i: number; d: number }[] = [];
+  for (let i = 0; i < pop.field.count; i++) {
+    if (busy(pop, i, t) || !pop.field.live[i]) continue;
+    near.push({ i, d: Math.hypot(pop.x[i] - x, pop.y[i] - y) });
   }
-  const side = (xs: number[], ys: number[], reverse: boolean) => {
-    const order = xs.map((_, i) => (reverse ? xs.length - 1 - i : i));
-    const first = order[0];
-    if (reverse) ctx.lineTo(xs[first], ys[first]);
-    else ctx.moveTo(xs[first], ys[first]);
-    for (let k = 1; k < order.length - 1; k++) {
-      const c = order[k];
-      const d = order[k + 1];
-      ctx.quadraticCurveTo(xs[c], ys[c], (xs[c] + xs[d]) / 2, (ys[c] + ys[d]) / 2);
-    }
-    const last = order[order.length - 1];
-    ctx.lineTo(xs[last], ys[last]);
-  };
-  side(lx, ly, false);
-  side(rx, ry, true);
-  ctx.closePath();
+  near.sort((a, b) => a.d - b.d);
+  return near.slice(0, count).map((n) => n.i);
 }
 
-/** A pointed leaf from (x, y) along `ang`: two quadratic curves, no ellipse. */
-function leafPath(ctx: CanvasRenderingContext2D, x: number, y: number, ang: number, len: number, wid: number): void {
-  const dx = Math.cos(ang);
-  const dy = Math.sin(ang);
-  const mx = x + dx * len * 0.45;
-  const my = y + dy * len * 0.45;
-  ctx.moveTo(x, y);
-  ctx.quadraticCurveTo(mx - dy * wid, my + dx * wid, x + dx * len, y + dy * len);
-  ctx.quadraticCurveTo(mx + dy * wid, my - dx * wid, x, y);
+/** Sends the `count` nearest free fireflies (by last drawn position) to a loose swarm around (x, y). */
+function callSwarm(pop: Pop, x: number, y: number, t: number, count: number, spread: number, reach: number, hover: number): number[] {
+  const near: { i: number; d: number }[] = [];
+  for (let i = 0; i < pop.field.count; i++) {
+    if (busy(pop, i, t) || !pop.field.live[i]) continue;
+    const d = Math.hypot(pop.x[i] - x, pop.y[i] - y);
+    if (d < reach) near.push({ i, d });
+  }
+  near.sort((a, b) => a.d - b.d);
+  const chosen = near.slice(0, count);
+  chosen.forEach(({ i, d }, c) => {
+    const ang = Math.random() * TAU;
+    const rr = Math.sqrt(Math.random());
+    pop.tx[i] = x + Math.cos(ang) * rr * spread;
+    pop.ty[i] = y + Math.sin(ang) * rr * spread * 0.65;
+    pop.tDoc[i] = 0;
+    pop.aStart[i] = t + 0.1 + c * 0.03;
+    pop.aArrive[i] = pop.aStart[i] + 0.9 + (d / reach) * 1.0;
+    pop.aEnd[i] = pop.aArrive[i] + hover + Math.random() * 3;
+    const field = pop.field;
+    // The cascade answers once the swarm has arrived, nearest first.
+    const arrived = pop.aArrive[i] + 0.12;
+    field.respondAt[i] = Math.max(arrived, t + 1.2) + (c / Math.max(1, chosen.length - 1)) * 0.9;
+    field.active[i] = 1;
+    field.boutEnd[i] = Math.max(field.boutEnd[i], pop.aEnd[i]);
+  });
+  return chosen.map((c) => c.i);
 }
 
+/* ------------------------------------------------------------------ sprites */
 
-function radialSprite(stops: ReadonlyArray<readonly [number, string]>, size = SPRITE_SIZE): HTMLCanvasElement {
-  const c = makeCanvas(size, size);
-  const ctx = ctx2d(c);
-  const g = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
-  for (const [at, color] of stops) g.addColorStop(at, color);
-  ctx.fillStyle = g;
-  ctx.fillRect(0, 0, size, size);
-  return c;
-}
-
-/** Glow sprite with a tight white-hot core; `rgb` is the species colour as "r,g,b". */
-function fireflySprite(rgb: string): HTMLCanvasElement {
-  return radialSprite([
+function fireflyStops(rgb: string): [number, string][] {
+  return [
     [0, "rgba(255,255,244,1)"],
     [0.05, "rgba(248,255,226,1)"],
     [0.1, `rgba(${rgb},0.76)`],
@@ -230,1632 +218,1703 @@ function fireflySprite(rgb: string): HTMLCanvasElement {
     [0.32, `rgba(${rgb},0.13)`],
     [0.55, `rgba(${rgb},0.035)`],
     [1, `rgba(${rgb},0)`],
-  ]);
+  ];
 }
 
-interface TreePalette { limb: string; back: string; front: string; highlight: string; rim: string; rimAlpha: number; sheen: number }
-const NEAR_PALETTE: TreePalette = { limb: "#010408", back: "#050e17", front: "#02070b", highlight: "120,160,190", rim: "#a9c8dc", rimAlpha: 0.62, sheen: 0.1 };
-const MID_PALETTE: TreePalette = { limb: "#0a1824", back: "#142b3d", front: "#0c1c2a", highlight: "130,170,200", rim: "#a4c2d4", rimAlpha: 0.34, sheen: 0.12 };
-const FAR_BANK = "#0a1a27";
-const FAR_DISTANT = "#15324a";
-
-/** Stable id of the static art; bump when painting changes so kept canvases repaint. */
-const ART_VERSION = 3;
-/** Layer canvases that already hold art for a given size (kept across theme toggles). */
-const paintedKey = new WeakMap<HTMLCanvasElement, string>();
-interface GeomCache { key: string; trees: TreeGeom[]; farProfile: Float32Array; lights: Light[] }
-let geomCache: GeomCache | null = null;
-
-/* ------------------------------------------------------------------ */
-/* Scene                                                                */
-/* ------------------------------------------------------------------ */
-
-interface Glint { x: number; y: number; len: number; w: number; phase: number; speed: number; base: number }
-interface Light { x: number; y: number }
-
-export interface FireflySceneOptions {
-  /** Elements whose text should not have fireflies flashing right behind it. */
-  quietSelector?: string;
+interface Sprites {
+  ff: HTMLCanvasElement[];
+  bokeh: HTMLCanvasElement;
+  call: HTMLCanvasElement;
+  ring: HTMLCanvasElement;
+  warm: HTMLCanvasElement;
+  soft: HTMLCanvasElement;
 }
 
-export interface FireflySceneHandle {
-  destroy(): void;
+function makeSprites(create: (w: number, h: number) => Surface): Sprites {
+  return {
+    ff: [radialSprite(64, fireflyStops("214,255,110"), create), radialSprite(64, fireflyStops("150,255,150"), create), radialSprite(64, fireflyStops("255,214,120"), create)],
+    bokeh: radialSprite(64, [[0, "rgba(225,255,170,0.3)"], [0.5, "rgba(205,255,140,0.22)"], [0.8, "rgba(180,240,120,0.1)"], [1, "rgba(160,230,110,0)"]], create),
+    call: radialSprite(64, [[0, "rgba(255,255,250,1)"], [0.05, "rgba(245,255,225,1)"], [0.12, "rgba(215,255,150,0.5)"], [0.3, "rgba(160,235,120,0.13)"], [1, "rgba(90,200,120,0)"]], create),
+    ring: radialSprite(96, [[0, "rgba(190,255,150,0)"], [0.6, "rgba(190,255,150,0)"], [0.8, "rgba(210,255,170,0.45)"], [0.9, "rgba(190,255,150,0.14)"], [1, "rgba(190,255,150,0)"]], create),
+    warm: radialSprite(64, [[0, "rgba(255,226,170,1)"], [0.12, "rgba(255,190,110,0.55)"], [0.4, "rgba(255,150,70,0.12)"], [1, "rgba(255,120,60,0)"]], create),
+    soft: radialSprite(32, [[0, "rgba(255,255,255,1)"], [1, "rgba(255,255,255,0)"]], create),
+  };
 }
 
-const NEUTRAL_POINTER: PointerState = { x: 0, y: 0, nx: 0.5, ny: 0.5, active: false, down: false, justTapped: false, type: "mouse" };
+/* ------------------------------------------------------------------ sky painting */
 
-export function mountFireflyScene(root: HTMLElement, options: FireflySceneOptions = {}): FireflySceneHandle | null {
-  const pick = (name: string) => root.querySelector<HTMLCanvasElement>(`canvas[data-layer="${name}"]`);
-  const skyCanvas = pick("sky");
-  const farCanvas = pick("far");
-  const riverCanvas = pick("river");
-  const nearCanvas = pick("near");
-  const fxCanvas = pick("fx");
-  const reedCanvas = pick("reeds");
-  if (!skyCanvas || !farCanvas || !riverCanvas || !nearCanvas || !fxCanvas || !reedCanvas) return null;
-  const skyCtx = skyCanvas.getContext("2d", { alpha: false });
-  const farCtx = farCanvas.getContext("2d");
-  const riverCtx = riverCanvas.getContext("2d", { alpha: false });
-  const nearCtx = nearCanvas.getContext("2d");
-  const reedCtx = reedCanvas.getContext("2d");
-  if (!skyCtx || !farCtx || !riverCtx || !nearCtx || !reedCtx) return null;
-
-  const coarse = window.matchMedia("(pointer: coarse)").matches;
-
-  const sprites = [fireflySprite("214,255,110"), fireflySprite("150,255,150"), fireflySprite("255,214,120")];
-  const bokehSprite = radialSprite([[0, "rgba(225,255,170,0.3)"], [0.5, "rgba(205,255,140,0.24)"], [0.8, "rgba(180,240,120,0.1)"], [1, "rgba(160,230,110,0)"]]);
-  const callSprite = radialSprite([[0, "rgba(255,255,250,1)"], [0.05, "rgba(245,255,225,1)"], [0.12, "rgba(215,255,150,0.55)"], [0.3, "rgba(160,235,120,0.14)"], [1, "rgba(90,200,120,0)"]]);
-  const ringSprite = radialSprite([[0, "rgba(190,255,150,0)"], [0.55, "rgba(190,255,150,0)"], [0.78, "rgba(210,255,170,0.5)"], [0.9, "rgba(190,255,150,0.16)"], [1, "rgba(190,255,150,0)"]]);
-  const warmSprite = radialSprite([[0, "rgba(255,226,170,1)"], [0.12, "rgba(255,190,110,0.55)"], [0.4, "rgba(255,150,70,0.12)"], [1, "rgba(255,120,60,0)"]]);
-  const softSprite = radialSprite([[0, "rgba(255,255,255,1)"], [1, "rgba(255,255,255,0)"]]);
-  // Swoop streak: head at the right edge, fading tail to the left.
-  const STREAK_W = 64;
-  const STREAK_H = 16;
-  const streakSprite = makeCanvas(STREAK_W, STREAK_H);
-  {
-    const g = ctx2d(streakSprite);
-    const lg = g.createLinearGradient(0, 0, STREAK_W, 0);
-    lg.addColorStop(0, "rgba(200,255,120,0)");
-    lg.addColorStop(0.7, "rgba(215,255,140,0.35)");
-    lg.addColorStop(1, "rgba(240,255,200,0.9)");
-    g.fillStyle = lg;
+/** The moon with its real phase: 0 new, 0.5 full; waxing is lit on the right. */
+function paintMoon(g: CanvasRenderingContext2D, mx: number, my: number, R: number, phase: number, seed: number): void {
+  const lit = (1 - Math.cos(phase * TAU)) / 2;
+  const halo = 0.35 + 0.65 * lit;
+  const ring = g.createRadialGradient(mx, my, R * 2.6, mx, my, R * 4.6);
+  ring.addColorStop(0, "rgba(170,200,230,0)");
+  ring.addColorStop(0.45, `rgba(175,205,235,${(0.05 * halo).toFixed(3)})`);
+  ring.addColorStop(1, "rgba(170,200,230,0)");
+  g.fillStyle = ring;
+  g.fillRect(mx - R * 5, my - R * 5, R * 10, R * 10);
+  const glow = g.createRadialGradient(mx, my, R * 0.9, mx, my, R * 3.4);
+  glow.addColorStop(0, `rgba(215,230,245,${(0.36 * halo).toFixed(3)})`);
+  glow.addColorStop(0.3, `rgba(170,200,230,${(0.12 * halo).toFixed(3)})`);
+  glow.addColorStop(1, "rgba(140,175,215,0)");
+  g.fillStyle = glow;
+  g.fillRect(mx - R * 3.6, my - R * 3.6, R * 7.2, R * 7.2);
+  const sky = g.createRadialGradient(mx, my, R, mx, my, R * 16);
+  sky.addColorStop(0, `rgba(90,130,180,${(0.08 * halo).toFixed(3)})`);
+  sky.addColorStop(1, "rgba(90,130,180,0)");
+  g.fillStyle = sky;
+  g.fillRect(mx - R * 16, my - R * 16, R * 32, R * 32);
+  // Earthshine on the dark limb.
+  g.fillStyle = "rgba(40,56,76,0.55)";
+  g.beginPath();
+  g.arc(mx, my, R, 0, TAU);
+  g.fill();
+  if (lit < 0.02) return;
+  const c = Math.cos(phase * TAU);
+  const side = phase < 0.5 ? 1 : -1;
+  g.save();
+  g.translate(mx, my);
+  g.scale(side, 1);
+  g.beginPath();
+  g.arc(0, 0, R, -Math.PI / 2, Math.PI / 2, false);
+  // The terminator: an ellipse on the lit side for a crescent, on the dark side for a gibbous moon.
+  g.ellipse(0, 0, R * Math.abs(c), R, 0, Math.PI / 2, -Math.PI / 2, c > 0);
+  g.closePath();
+  const disc = g.createRadialGradient(-R * 0.25, -R * 0.25, R * 0.1, 0, 0, R);
+  disc.addColorStop(0, "#f4f8fc");
+  disc.addColorStop(0.7, "#dde7f1");
+  disc.addColorStop(1, "#b8c8d9");
+  g.fillStyle = disc;
+  g.fill();
+  g.clip();
+  const rng = createRng(seed + 3);
+  g.fillStyle = "#8e9fb5";
+  for (let n = 0; n < 7; n++) {
+    const a = rng() * TAU;
+    const d = rng() * R * 0.6;
+    g.globalAlpha = 0.1 + rng() * 0.08;
     g.beginPath();
-    g.moveTo(0, STREAK_H / 2);
-    g.quadraticCurveTo(STREAK_W * 0.6, STREAK_H * 0.2, STREAK_W, STREAK_H / 2);
-    g.quadraticCurveTo(STREAK_W * 0.6, STREAK_H * 0.8, 0, STREAK_H / 2);
+    g.arc(Math.cos(a) * d, Math.sin(a) * d, R * (0.18 + rng() * 0.25), 0, TAU);
     g.fill();
   }
+  g.restore();
+  g.globalAlpha = 1;
+}
 
-  const scratch: HTMLCanvasElement[] = [];
-  const scratchCanvas = (i: number, w: number, h: number) => {
-    let c = scratch[i];
-    if (!c || c.width < w || c.height < h) {
-      c = makeCanvas(Math.max(w, c?.width ?? 0), Math.max(h, c?.height ?? 0));
-      scratch[i] = c;
-    }
-    const g = ctx2d(c);
-    g.setTransform(1, 0, 0, 1, 0, 0);
-    g.globalCompositeOperation = "source-over";
-    g.globalAlpha = 1;
-    g.clearRect(0, 0, w, h);
-    return c;
-  };
-
-  // Firefly state (struct of arrays; capacity is fixed so resizes never reallocate it).
-  const field = createFlashField(MAX_FIREFLIES);
-  const rand = createRng(SEED);
-  const kind = new Uint8Array(MAX_FIREFLIES); // 0 far bank, 1 mid tree, 2 near tree, 3 drifter
-  const bokeh = new Uint8Array(MAX_FIREFLIES);
-  const tree = new Int16Array(MAX_FIREFLIES);
-  const perch = new Int32Array(MAX_FIREFLIES);
-  const homeX = new Float32Array(MAX_FIREFLIES);
-  const homeY = new Float32Array(MAX_FIREFLIES);
-  const homeEdge = new Float32Array(MAX_FIREFLIES);
-  const posX = new Float32Array(MAX_FIREFLIES);
-  const surf = new Float32Array(MAX_FIREFLIES);
-  const size = new Float32Array(MAX_FIREFLIES);
-  const bright = new Float32Array(MAX_FIREFLIES);
-  const floorGlow = new Float32Array(MAX_FIREFLIES);
-  const still = new Float32Array(MAX_FIREFLIES);
-  const stillRoll = new Float32Array(MAX_FIREFLIES);
-  const wanderA = new Float32Array(MAX_FIREFLIES);
-  const wanderF1 = new Float32Array(MAX_FIREFLIES);
-  const wanderF2 = new Float32Array(MAX_FIREFLIES);
-  const wanderP1 = new Float32Array(MAX_FIREFLIES);
-  const wanderP2 = new Float32Array(MAX_FIREFLIES);
-  const swoopH = new Float32Array(MAX_FIREFLIES);
-  const swoopW = new Float32Array(MAX_FIREFLIES);
-  const fromX = new Float32Array(MAX_FIREFLIES);
-  const fromY = new Float32Array(MAX_FIREFLIES);
-  const flyStart = new Float32Array(MAX_FIREFLIES);
-  const flyEnd = new Float32Array(MAX_FIREFLIES);
-  const attractX = new Float32Array(MAX_FIREFLIES);
-  const attractY = new Float32Array(MAX_FIREFLIES);
-  const attractStart = new Float32Array(MAX_FIREFLIES);
-  const attractArrive = new Float32Array(MAX_FIREFLIES);
-  const attractEnd = new Float32Array(MAX_FIREFLIES);
-  const attractAmt = new Float32Array(MAX_FIREFLIES);
-  const driftH = new Float32Array(MAX_FIREFLIES);
-  const driftSeed = new Float32Array(MAX_FIREFLIES);
-  const kindRoll = new Float32Array(MAX_FIREFLIES);
-  const sizeRoll = new Float32Array(MAX_FIREFLIES);
-  // Per-frame draw results, reused by the reflection pass.
-  const drawn = new Uint8Array(MAX_FIREFLIES);
-  const drawX = new Float32Array(MAX_FIREFLIES);
-  const drawMirrorY = new Float32Array(MAX_FIREFLIES);
-  const drawR = new Float32Array(MAX_FIREFLIES);
-  const drawA = new Float32Array(MAX_FIREFLIES);
-  for (let i = 0; i < MAX_FIREFLIES; i++) {
-    seedFirefly(field, i, rand);
-    kindRoll[i] = rand();
-    sizeRoll[i] = rand();
-    stillRoll[i] = rand();
-    perch[i] = Math.floor(rand() * 1e9);
-    wanderF1[i] = 0.15 + rand() * 0.35;
-    wanderF2[i] = 0.12 + rand() * 0.3;
-    wanderP1[i] = rand() * TAU;
-    wanderP2[i] = rand() * TAU;
-    swoopW[i] = rand() < 0.5 ? -1 : 1;
-    driftSeed[i] = rand() * 100;
-    flyEnd[i] = -1;
-    attractEnd[i] = -1;
+/** Stars, a faint band of sky glow and the moon, on transparency over the CSS sky gradient. */
+function paintSky(g: CanvasRenderingContext2D, L: FireflyLayout, moonPhase: number, seed: number, soft: HTMLCanvasElement): void {
+  const W = L.width + L.side * 2;
+  const H = L.skyH;
+  g.setTransform(1, 0, 0, 1, 0, 0);
+  g.clearRect(0, 0, g.canvas.width, g.canvas.height);
+  g.setTransform(PLANE_DPR, 0, 0, PLANE_DPR, L.side * PLANE_DPR, TOP * PLANE_DPR);
+  // A faint milky band across the upper sky.
+  const band = createRng(seed + 9);
+  for (let k = 0; k < 9; k++) {
+    const t = k / 8;
+    const bx = lerp(-L.width * 0.1, L.width * 1.1, t);
+    const by = lerp(L.height * 0.55, -L.height * 0.05, t) + (band() - 0.5) * 40;
+    const r = Math.min(L.width, L.height) * (0.18 + band() * 0.12);
+    const rg = g.createRadialGradient(bx, by, 0, bx, by, r);
+    rg.addColorStop(0, "rgba(120,150,200,0.05)");
+    rg.addColorStop(1, "rgba(120,150,200,0)");
+    g.fillStyle = rg;
+    g.fillRect(bx - r, by - r, r * 2, r * 2);
   }
+  const srng = createRng(seed + 1);
+  const temps = ["#a9c3ff", "#cddcff", "#f4f6ff", "#fff3dc", "#ffd7a6"];
+  const count = Math.round((W * H) / 760);
+  const M = L.moon;
+  for (let n = 0; n < count; n++) {
+    const x = srng() * W - L.side;
+    const y = srng() * H - TOP;
+    const b = Math.pow(srng(), 3.2);
+    const fade = M.r > 0 ? clamp(Math.hypot(x - M.x, y - M.y) / (M.r * 9), 0.08, 1) : 1;
+    const alpha = (0.14 + 0.86 * b) * fade * (y < L.height ? 1 : 0.8);
+    const tr = srng();
+    if (alpha < 0.03) continue;
+    g.globalAlpha = alpha;
+    g.fillStyle = temps[tr < 0.12 ? 0 : tr < 0.35 ? 1 : tr < 0.72 ? 2 : tr < 0.92 ? 3 : 4];
+    const sz = 0.5 + b * 1.1;
+    g.fillRect(x - sz / 2, y - sz / 2, sz, sz);
+    if (b > 0.8) {
+      g.globalAlpha = alpha * 0.3;
+      const gr = 2 + b * 3.5;
+      g.drawImage(soft, x - gr, y - gr, gr * 2, gr * 2);
+    }
+  }
+  g.globalAlpha = 1;
+  if (M.r > 0) paintMoon(g, M.x, M.y, M.r, moonPhase, seed);
+}
 
-  const noise = createNoise2D(SEED + 5);
+/* ------------------------------------------------------------------ reeds */
 
-  let layout: SceneLayout | null = null;
+interface Reeds {
+  n: number;
+  x: Float32Array;
+  h: Float32Array;
+  w: Float32Array;
+  lean: Float32Array;
+  stiff: Float32Array;
+  phase: Float32Array;
+  freq: Float32Array;
+  group: Uint8Array;
+}
+
+function buildReeds(box: WindowBox, height: number, scale: number, seed: number): Reeds {
+  const rng = createRng(seed + 41);
+  const target = Math.round(clamp(box.w / 5, 60, 320));
+  const xs: number[] = [];
+  const hs: number[] = [];
+  for (let n = 0; n < target * 4 && xs.length < target; n++) {
+    const x = rng() * box.w;
+    // Dense in the gutters and the corners, low and sparse behind the footer text.
+    const inner = x > box.boxX + box.boxW * 0.12 && x < box.boxX + box.boxW * 0.88;
+    const e = Math.abs(x / box.w - 0.5) * 2;
+    const corner = Math.pow(clamp((e - 0.3) / 0.7, 0, 1), 1.2);
+    if (rng() > (inner ? 0.12 : 0.35) + corner * 0.65) continue;
+    xs.push(x);
+    hs.push(height * (inner ? 0.18 + 0.3 * corner : 0.35 + 0.65 * corner) * (0.45 + 0.55 * rng()) + 6 * scale);
+  }
+  const n = xs.length;
+  const reeds: Reeds = {
+    n,
+    x: Float32Array.from(xs),
+    h: Float32Array.from(hs),
+    w: new Float32Array(n),
+    lean: new Float32Array(n),
+    stiff: new Float32Array(n),
+    phase: new Float32Array(n),
+    freq: new Float32Array(n),
+    group: new Uint8Array(n),
+  };
+  for (let k = 0; k < n; k++) {
+    reeds.w[k] = (1.1 + rng() * 1.8) * Math.max(0.7, scale);
+    const side = reeds.x[k] < box.w / 2 ? -1 : 1;
+    reeds.lean[k] = side * (0.05 + rng() * 0.2) + (rng() - 0.5) * 0.25;
+    reeds.stiff[k] = 0.7 + rng() * 0.6;
+    reeds.phase[k] = rng() * TAU;
+    reeds.freq[k] = 0.5 + rng() * 0.6;
+    reeds.group[k] = rng() < 0.45 ? 0 : 1;
+  }
+  return reeds;
+}
+
+/* ------------------------------------------------------------------ the scene */
+
+interface PlaneRect {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+interface WindowState {
+  box: WindowBox;
+  /** Window rect in document px (shell width). */
+  doc: { x: number; y: number; w: number; h: number };
+}
+
+interface PerchState {
+  slug: string;
+  members: number[];
+  landAt: number;
+  id: number;
+  /** Scene time at which it lets go, or Infinity while attention stays. */
+  releaseAt: number;
+  u: number;
+}
+
+interface Ring {
+  plane: "sky" | WindowName;
+  x: number;
+  y: number;
+  t: number;
+  /** In document px (rings on windows are window px and need no conversion). */
+  doc: boolean;
+}
+
+function build(ctx: HubBuildContext, planes: HubPlanes): HubSceneHooks {
+  const { out, page, surfaces, paint } = ctx;
+  const create = (w: number, h: number) => surfaces.create(w, h);
+  const rand = createRng(ctx.seed);
+  const noise = createNoise2D(ctx.seed + 5);
+  const sprites = makeSprites(create);
+  const statics = planes.statics.map((p) => p.canvas);
+  const sctx = statics.map((c) => c.getContext("2d"));
+
+  const sky = createPop(420 + 48, rand);
+  const stage = createPop(STAGE_CAP, rand);
+  const mid = createPop(MID_CAP, rand);
+  const ground = createPop(GROUND_CAP, rand);
+  const pops: Record<"sky" | WindowName, Pop> = { sky, stage, mid, ground };
+
+  let L: FireflyLayout | null = null;
   let trees: TreeGeom[] = [];
-  let farProfile: Float32Array = new Float32Array(0);
-  let lights: Light[] = [];
-  let glints: Glint[] = [];
-  let riverSrc: HTMLCanvasElement | null = null;
-  let riverTint: HTMLCanvasElement | null = null;
-  let riverScale = 1;
-  let staticDpr = 1;
-  let skyDpr = 1;
-  let reedDpr = 1;
-  let fxScale = 1;
-  let wanderScale = 1;
-  let driftMinY = 0;
-  let driftMaxY = 0;
-  let frameNo = 0;
+  let treeKey = "";
+  let skyKey = "";
+  const planeRects: PlaneRect[] = [];
+  let treeFF = 0;
+  let driftFF = 0;
+  let treeOf = new Int16Array(sky.field.capacity);
 
-  // Reeds (struct of arrays sized per layout).
-  let reedCount = 0;
-  let reedX = new Float32Array(0);
-  let reedH = new Float32Array(0);
-  let reedW = new Float32Array(0);
-  let reedLean = new Float32Array(0);
-  let reedStiff = new Float32Array(0);
-  let reedPhase = new Float32Array(0);
-  let reedFreq = new Float32Array(0);
-  let reedGroup = new Uint8Array(0);
+  const wins: Record<WindowName, WindowState | null> = { stage: null, mid: null, ground: null };
+  const winKeys: Record<WindowName, string> = { stage: "", mid: "", ground: "" };
+  let stageArt: Surface | null = null;
+  let stageGeom: TreeGeom | null = null;
+  let bank: Bank | null = null;
+  let bankArt: Surface | null = null;
+  let mirror: Surface | null = null;
+  let groundWater: Surface | null = null;
+  let reeds: Reeds | null = null;
+  const jobScratch = new Map<string, Surface[]>();
 
-  // Wind: one gust front travelling left to right at a time.
+  // Pointer parallax (fine pointer only), smoothed in -0.5..0.5.
+  let parX = 0;
+  let parY = 0;
+  // Wind for reeds and ripples.
   let gustX = Infinity;
   let gustSpeed = 0;
   let gustWidth = 1;
   let gustStrength = 0;
   let nextGustAt = 3;
-  let windLevel = 0;
+  let wind = 0;
 
-  // Parallax: smoothed pointer offset in -0.5..0.5, quantised for the CSS layers.
-  let parX = 0;
-  let parY = 0;
-  let lastTransformX = Number.NaN;
-  let lastTransformY = Number.NaN;
-  // Layer offsets in CSS px by firefly kind (far bank and mid trees share the far layer).
-  const offX = new Float32Array(4);
-  const offY = new Float32Array(4);
-  let farOffX = 0;
-  let farOffY = 0;
+  // Chorus waves, the reader's rhythm and the opening.
+  let wave: WaveFront | null = null;
+  let waveCross = new Set<string>();
+  let wavePeaked = false;
+  let nextWaveAt = -1;
+  let pickSlug: string | null = null;
+  let breathAt = -10;
+  let driver: Driver | null = null;
+  let driverDoc = { x: 0, y: 0 };
+  let driverUntil = -1;
+  let chorusUntil = -1;
+  let rhythm = createRhythm();
+  let introPending = false;
+  let introAt = -10;
 
-  // Calls (tap/click) and their answering fireflies.
-  const CALLS = 4;
-  const callX = new Float32Array(CALLS);
-  const callY = new Float32Array(CALLS);
-  const callT = new Float32Array(CALLS).fill(-100);
-  let callCursor = 0;
-  let sceneT = 0;
-  let waveInitialised = false;
-  let coupledMinX = 0;
-  let coupledMaxX = 0;
+  // Attention, perches and card light.
+  let attendSlug: string | null = null;
+  let perch: PerchState | null = null;
+  const swellAt = new Map<string, number>();
+  const glowNow = new Map<string, number>();
+  const glowSent = new Map<string, number>();
+  const rings: Ring[] = [];
 
-  // Text boxes (scene coordinates) where fireflies are dimmed.
-  const QUIET_MAX = 6;
-  const quiet = new Float32Array(QUIET_MAX * 4);
-  let quietCount = 0;
-  let quietDirty = true;
-  let quietCheckedAt = -Infinity;
-  const markQuiet = () => {
-    quietDirty = true;
+  // The boat at the jetty: position along the stage box (0..1) and velocity.
+  let boatPos = 0.42;
+  let boatVel = 0;
+  const wakes: { x: number; t: number; dir: number }[] = [];
+  let lastWakeAt = -1;
+
+  // Still-mode state: shown at once, never queued for later (spec 3.5, M3-M5).
+  let stillGathered = false;
+  let stillBeats = 0;
+  let stillSync = false;
+  let wasStill = false;
+
+  /* ---------------- layout ---------------- */
+
+  const treeEnv = (lay: FireflyLayout): TreeEnv => ({
+    width: lay.width,
+    height: lay.treeBottom,
+    waterY: lay.waterY,
+    moonX: lay.moon.x,
+    moonY: lay.moon.y,
+    scale: lay.scale,
+    gutterL: lay.gutterL,
+    gutterR: lay.gutterR,
+    side: lay.side,
+    top: TOP,
+  });
+
+  const setBox = (canvas: HTMLCanvasElement, r: PlaneRect) => {
+    const w = Math.max(1, Math.ceil(r.w * PLANE_DPR));
+    const h = Math.max(1, Math.ceil(r.h * PLANE_DPR));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    const st = canvas.style;
+    st.left = `${r.x}px`;
+    st.top = `${r.y}px`;
+    st.width = `${r.w}px`;
+    st.height = `${r.h}px`;
   };
-  window.addEventListener("scroll", markQuiet, { passive: true });
 
-  /* ---------------- static painting ---------------- */
+  const releaseScratch = (key: string) => {
+    for (const s of jobScratch.get(key) ?? []) surfaces.release(s);
+    jobScratch.delete(key);
+  };
 
-  function paintSky(L: SceneLayout): void {
-    const { width: W, height: H, waterY } = L;
-    const ctx = skyCtx!;
-    ctx.setTransform(skyDpr, 0, 0, skyDpr, MARGIN * skyDpr, MARGIN * skyDpr);
-    const g = ctx.createLinearGradient(0, -MARGIN, 0, waterY);
-    g.addColorStop(0, "#03061a");
-    g.addColorStop(0.32, "#071032");
-    g.addColorStop(0.68, "#0b2340");
-    g.addColorStop(0.93, "#10394b");
-    g.addColorStop(1, "#154650");
-    ctx.fillStyle = g;
-    ctx.fillRect(-MARGIN, -MARGIN, W + MARGIN * 2, waterY + MARGIN);
-    ctx.fillStyle = "#07131d";
-    ctx.fillRect(-MARGIN, waterY, W + MARGIN * 2, H - waterY + MARGIN);
-
-    // Faint nebulous band and airglow, computed at low resolution.
-    const step = 8;
-    const tw = Math.ceil((W + MARGIN * 2) / step);
-    const th = Math.ceil((waterY + MARGIN) / step);
-    const tex = makeCanvas(tw, th);
-    const tctx = ctx2d(tex);
-    const img = tctx.createImageData(tw, th);
-    const band = createNoise2D(SEED + 9);
-    const bx0 = -W * 0.1;
-    const by0 = -H * 0.05;
-    const bdx = W * 1.1;
-    const bdy = waterY * 0.9;
-    const bl = Math.hypot(bdx, bdy);
-    for (let j = 0; j < th; j++) {
-      for (let i = 0; i < tw; i++) {
-        const x = i * step - MARGIN;
-        const y = j * step - MARGIN;
-        const d = Math.abs(((x - bx0) * bdy - (y - by0) * bdx) / bl) / (Math.min(W, H) * 0.22);
-        const n = fbm2D(band, x * 0.004, y * 0.004, 3);
-        const milky = Math.max(0, 1 - d * d) * clamp(0.45 + n * 0.9, 0, 1) * 0.22;
-        const glow = Math.exp(-Math.pow((y - (waterY - H * 0.13)) / (H * 0.09), 2)) * (0.13 + 0.07 * n);
-        const k = (j * tw + i) * 4;
-        img.data[k] = 110 + 40 * glow;
-        img.data[k + 1] = 140 + 70 * glow;
-        img.data[k + 2] = 190 - 20 * glow;
-        img.data[k + 3] = clamp((milky + glow) * 255, 0, 255);
-      }
+  const makeScratch = (key: string, boxes: Box[], dpr: number): Scratch => {
+    releaseScratch(key);
+    let w = 1;
+    let h = 1;
+    for (const b of boxes) {
+      w = Math.max(w, Math.ceil(b.w * dpr));
+      h = Math.max(h, Math.ceil(b.h * dpr));
     }
-    tctx.putImageData(img, 0, 0);
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = "high";
-    ctx.drawImage(tex, -MARGIN, -MARGIN, tw * step, th * step);
+    const list = [create(w, h), create(w, h), create(w, h)];
+    jobScratch.set(key, list);
+    return { T: list[0], F: list[1], R: list[2] };
+  };
 
-    // Moonlit sky brightening.
-    const mg = ctx.createRadialGradient(L.moonX, L.moonY, 0, L.moonX, L.moonY, L.moonR * 16);
-    mg.addColorStop(0, "rgba(120,160,205,0.2)");
-    mg.addColorStop(0.35, "rgba(90,130,180,0.07)");
-    mg.addColorStop(1, "rgba(60,100,150,0)");
-    ctx.fillStyle = mg;
-    ctx.fillRect(-MARGIN, -MARGIN, W + MARGIN * 2, waterY + MARGIN);
-
-    // Stars: dense, faint, varied temperatures; thinned toward the horizon and the moon.
-    const srng = createRng(SEED + 1);
-    const temps = ["#a9c3ff", "#cddcff", "#f4f6ff", "#fff3dc", "#ffd7a6"];
-    const count = Math.round(((W + MARGIN * 2) * (waterY + MARGIN)) / 700);
-    for (let n = 0; n < count; n++) {
-      const x = srng() * (W + MARGIN * 2) - MARGIN;
-      const yr = srng();
-      const y = -MARGIN + Math.pow(yr, 1.25) * (waterY + MARGIN);
-      const horizon = 1 - smooth(waterY - H * 0.28, waterY - H * 0.02, y);
-      const md = Math.hypot(x - L.moonX, y - L.moonY) / (L.moonR * 9);
-      const moonFade = clamp(md, 0.08, 1);
-      const b = Math.pow(srng(), 3.2);
-      const alpha = (0.14 + 0.86 * b) * horizon * moonFade;
-      const tr = srng();
-      if (alpha < 0.03) continue;
-      ctx.globalAlpha = alpha;
-      ctx.fillStyle = temps[tr < 0.12 ? 0 : tr < 0.35 ? 1 : tr < 0.72 ? 2 : tr < 0.92 ? 3 : 4];
-      const sz = 0.5 + b * 1.1;
-      ctx.fillRect(x - sz / 2, y - sz / 2, sz, sz);
-      if (b > 0.8) {
-        ctx.globalAlpha = alpha * 0.3;
-        const gr = 2 + b * 3.5;
-        ctx.drawImage(softSprite, x - gr, y - gr, gr * 2, gr * 2);
-      }
-    }
-    ctx.globalAlpha = 1;
-
-    // Moon: halo ring, glow, limb-darkened disc with faint maria.
-    const R = L.moonR;
-    const ring = ctx.createRadialGradient(L.moonX, L.moonY, R * 2.6, L.moonX, L.moonY, R * 4.4);
-    ring.addColorStop(0, "rgba(170,200,230,0)");
-    ring.addColorStop(0.45, "rgba(175,205,235,0.055)");
-    ring.addColorStop(0.62, "rgba(190,215,240,0.03)");
-    ring.addColorStop(1, "rgba(170,200,230,0)");
-    ctx.fillStyle = ring;
-    ctx.fillRect(L.moonX - R * 5, L.moonY - R * 5, R * 10, R * 10);
-    const glow = ctx.createRadialGradient(L.moonX, L.moonY, R * 0.9, L.moonX, L.moonY, R * 3.2);
-    glow.addColorStop(0, "rgba(215,230,245,0.38)");
-    glow.addColorStop(0.3, "rgba(170,200,230,0.12)");
-    glow.addColorStop(1, "rgba(140,175,215,0)");
-    ctx.fillStyle = glow;
-    ctx.fillRect(L.moonX - R * 3.5, L.moonY - R * 3.5, R * 7, R * 7);
-    const disc = ctx.createRadialGradient(L.moonX - R * 0.25, L.moonY - R * 0.25, R * 0.1, L.moonX, L.moonY, R);
-    disc.addColorStop(0, "#f4f8fc");
-    disc.addColorStop(0.7, "#dde7f1");
-    disc.addColorStop(1, "#b8c8d9");
-    ctx.fillStyle = disc;
-    ctx.beginPath();
-    ctx.arc(L.moonX, L.moonY, R, 0, TAU);
-    ctx.fill();
-    ctx.save();
-    ctx.clip();
-    const mrng = createRng(SEED + 3);
-    ctx.fillStyle = "#8e9fb5";
-    for (let n = 0; n < 7; n++) {
-      const a = mrng() * TAU;
-      const d = mrng() * R * 0.6;
-      const r = R * (0.18 + mrng() * 0.25);
-      ctx.globalAlpha = 0.1 + mrng() * 0.08;
-      ctx.beginPath();
-      ctx.arc(L.moonX + Math.cos(a) * d, L.moonY + Math.sin(a) * d, r, 0, TAU);
-      ctx.fill();
-    }
-    ctx.restore();
-    ctx.globalAlpha = 1;
-  }
-
-  /** Leaf tuft: leaves fan out from the pad centre and sag under gravity; noise opens lace gaps toward the outline. */
-  function padLeaves(g: CanvasRenderingContext2D, p: Pad, gap: (x: number, y: number) => number, gapFreq: number, coverage: number): void {
-    const rng = createRng(p.seed);
-    const area = Math.PI * p.rx * p.ry;
-    const count = Math.min(720, Math.ceil((p.density * coverage * area) / (p.leaf * p.leaf * 0.17)));
-    const thr = 0.88 - 0.8 * p.shell;
-    const droop = 0.42 + 0.2 * p.shell;
-    const nx = (p.seed % 977) * 0.13;
-    for (let k = 0; k < count; k++) {
-      const a = rng() * TAU;
-      const u = Math.pow(rng(), 0.6);
-      const ca = Math.cos(a);
-      const sa = Math.sin(a);
-      const edge = 1 + 0.2 * gap(ca * 1.3 + nx, sa * 1.3);
-      const x = p.x + ca * p.rx * u * edge;
-      const y = p.y + sa * p.ry * u * edge;
-      if (gap(x * gapFreq, y * gapFreq) > thr) continue;
-      const ang = Math.atan2(sa * (1 - droop) * 0.8 + droop, ca * (1 - droop)) + (rng() - 0.5) * 1.15;
-      const len = p.leaf * (0.75 + rng() * 0.6) * (0.9 + 0.35 * u);
-      leafPath(g, x, y, ang, len, len * 0.3);
-    }
-  }
-
-  function finishSteps(steps: Generator<void, void, void>): void {
-    while (!steps.next().done);
-  }
-
-  /** Paints one tree in steps; each yield is a safe place to hand control back to the browser. */
-  function* paintTree(target: CanvasRenderingContext2D, geom: TreeGeom, pal: TreePalette, L: SceneLayout): Generator<void, void, void> {
-    const dpr = staticDpr;
-    const s = L.scale;
-    const spec = geom.spec;
-    const box = geom.box;
-    const bw = Math.ceil(box.w * dpr);
-    const bh = Math.ceil(box.h * dpr);
-    const Tc = scratchCanvas(0, bw, bh);
-    const Fc = scratchCanvas(1, bw, bh);
-    const Rc = scratchCanvas(2, bw, bh);
-    const T = ctx2d(Tc);
-    const F = ctx2d(Fc);
-    const R = ctx2d(Rc);
-    const gapNoise = createNoise2D(spec.seed + 101);
-    const crownSize = Math.min((spec.x1 - spec.x0) / 2, (spec.bottom - spec.top) * 0.8);
-    const gapFreq = 1 / Math.max(18, crownSize * 0.11);
-    const toBox = (g: CanvasRenderingContext2D) => g.setTransform(dpr, 0, 0, dpr, -box.x * dpr, -box.y * dpr);
-    const tint = (g: CanvasRenderingContext2D, color: string) => {
-      g.setTransform(1, 0, 0, 1, 0, 0);
-      g.globalCompositeOperation = "source-in";
-      g.fillStyle = color;
-      g.fillRect(0, 0, bw, bh);
-      g.globalCompositeOperation = "source-over";
-    };
-
-    // 1. Back plane: interior leaf mass, a lighter value behind the limbs.
-    T.fillStyle = "#fff";
-    toBox(T);
-    T.beginPath();
-    for (const p of geom.pads) if (!p.front) padLeaves(T, p, gapNoise, gapFreq, 0.95);
-    T.fill();
-    tint(T, pal.back);
-    toBox(T);
-    T.globalCompositeOperation = "source-atop";
-    const reach = Math.max(spec.x1 - spec.x0, spec.bottom - spec.top) * 0.6;
-    const hx = geom.cx + geom.lightX * reach * 0.6;
-    const hy = geom.bellyY + geom.lightY * reach * 0.6;
-    const vg = T.createRadialGradient(hx, hy, 0, hx, hy, reach * 1.1);
-    vg.addColorStop(0, `rgba(${pal.highlight},${pal.sheen})`);
-    vg.addColorStop(1, `rgba(${pal.highlight},0)`);
-    T.fillStyle = vg;
-    T.fillRect(box.x, box.y, box.w, box.h);
-    T.globalCompositeOperation = "source-over";
-    yield;
-
-    // 2. Trunk, roots and limbs, darkest.
-    toBox(T);
-    T.fillStyle = pal.limb;
-    T.beginPath();
-    branchPath(T, geom.trunk.pts);
-    for (const r of geom.roots) branchPath(T, r.pts);
-    for (const b of geom.branches) branchPath(T, b.pts);
-    for (let n = 0; n < geom.spikes.length; n += 4) {
-      const x = geom.spikes[n];
-      const y = geom.spikes[n + 1];
-      const h = geom.spikes[n + 2];
-      const w = geom.spikes[n + 3];
-      T.moveTo(x - w, y);
-      T.lineTo(x + w * 0.15, y - h);
-      T.lineTo(x + w, y);
-      T.closePath();
-    }
-    T.fill();
-
-    // Faint moonlit edge along the trunk and limbs: the mask minus a copy moved away from the moon.
-    toBox(F);
-    F.fillStyle = "#fff";
-    F.beginPath();
-    branchPath(F, geom.trunk.pts);
-    for (const b of geom.branches) if (b.pts[2] > 2.5) branchPath(F, b.pts);
-    F.fill();
-    R.setTransform(1, 0, 0, 1, 0, 0);
-    R.globalCompositeOperation = "source-over";
-    R.clearRect(0, 0, bw, bh);
-    R.drawImage(Fc, 0, 0, bw, bh, 0, 0, bw, bh);
-    const limbShift = 1.6 * dpr * Math.max(0.75, s);
-    R.globalCompositeOperation = "destination-out";
-    R.drawImage(Fc, 0, 0, bw, bh, -geom.lightX * limbShift, -geom.lightY * limbShift, bw, bh);
-    R.globalCompositeOperation = "source-in";
-    R.fillStyle = pal.rim;
-    R.fillRect(0, 0, bw, bh);
-    R.globalCompositeOperation = "source-over";
-    T.setTransform(1, 0, 0, 1, 0, 0);
-    T.globalAlpha = pal.rimAlpha * 0.4;
-    T.drawImage(Rc, 0, 0, bw, bh, 0, 0, bw, bh);
-    T.globalAlpha = 1;
-    F.setTransform(1, 0, 0, 1, 0, 0);
-    F.clearRect(0, 0, bw, bh);
-    yield;
-
-    // 3. Front leaf mass with lace gaps, then tint and moonlit rims.
-    F.fillStyle = "#fff";
-    toBox(F);
-    F.beginPath();
-    for (const p of geom.pads) if (p.front) padLeaves(F, p, gapNoise, gapFreq, 1.45);
-    F.fill();
-    tint(F, pal.front);
-    yield;
-
-    const rimPass = (shift: number, alpha: number) => {
-      R.setTransform(1, 0, 0, 1, 0, 0);
-      R.globalCompositeOperation = "source-over";
-      R.clearRect(0, 0, bw, bh);
-      R.drawImage(Fc, 0, 0, bw, bh, 0, 0, bw, bh);
-      R.globalCompositeOperation = "destination-out";
-      R.drawImage(Fc, 0, 0, bw, bh, -geom.lightX * shift, -geom.lightY * shift, bw, bh);
-      // Strongest on the moon side, fading across the crown and below its widest line.
-      const mx = (geom.cx - box.x) * dpr;
-      const my = (geom.bellyY - box.y) * dpr;
-      const span = reach * dpr;
-      R.globalCompositeOperation = "source-in";
-      const lg = R.createLinearGradient(mx - geom.lightX * span, my - geom.lightY * span, mx + geom.lightX * span, my + geom.lightY * span);
-      lg.addColorStop(0, "rgba(0,0,0,0)");
-      lg.addColorStop(0.45, `${pal.rim}00`);
-      lg.addColorStop(1, pal.rim);
-      R.fillStyle = lg;
-      R.fillRect(0, 0, bw, bh);
-      R.globalCompositeOperation = "destination-in";
-      const top = (spec.top - box.y) * dpr;
-      const vg2 = R.createLinearGradient(0, top, 0, my + (spec.bottom - geom.bellyY) * dpr * 0.5);
-      vg2.addColorStop(0, "rgba(0,0,0,1)");
-      vg2.addColorStop(0.7, "rgba(0,0,0,0.45)");
-      vg2.addColorStop(1, "rgba(0,0,0,0)");
-      R.fillStyle = vg2;
-      R.fillRect(0, 0, bw, bh);
-      F.setTransform(1, 0, 0, 1, 0, 0);
-      F.globalCompositeOperation = "source-atop";
-      F.globalAlpha = alpha;
-      F.drawImage(Rc, 0, 0, bw, bh, 0, 0, bw, bh);
-      F.globalAlpha = 1;
-      F.globalCompositeOperation = "source-over";
-    };
-    const rimD = 1.3 * dpr * Math.max(0.75, s);
-    rimPass(rimD * 5, pal.rimAlpha * 0.2);
-    yield;
-    rimPass(rimD, pal.rimAlpha);
-    yield;
-
-    T.setTransform(1, 0, 0, 1, 0, 0);
-    T.drawImage(Fc, 0, 0, bw, bh, 0, 0, bw, bh);
-
-    // 4. Weeping twigs: arching, leafy, outside the rim pass so they do not glint like chains.
-    toBox(T);
-    T.fillStyle = pal.front;
-    T.strokeStyle = pal.front;
-    T.lineWidth = Math.max(0.8, 1.1 * s);
-    T.lineCap = "round";
-    T.beginPath();
-    for (const st of geom.strands) {
-      T.moveTo(st.x0, st.y0);
-      T.quadraticCurveTo(st.cx, st.cy, st.x1, st.y1);
-    }
-    T.stroke();
-    T.beginPath();
-    for (const st of geom.strands) {
-      const rng = createRng(st.seed);
-      const steps = Math.max(4, Math.ceil(Math.hypot(st.x1 - st.x0, st.y1 - st.y0) / (st.leaf * 0.62)));
-      for (let k = 1; k <= steps; k++) {
-        const t = k / steps;
-        const mt = 1 - t;
-        const x = mt * mt * st.x0 + 2 * mt * t * st.cx + t * t * st.x1;
-        const y = mt * mt * st.y0 + 2 * mt * t * st.cy + t * t * st.y1;
-        const tx = 2 * mt * (st.cx - st.x0) + 2 * t * (st.x1 - st.cx);
-        const ty = 2 * mt * (st.cy - st.y0) + 2 * t * (st.y1 - st.cy);
-        const along = Math.atan2(ty, tx);
-        const len = st.leaf * (1.25 - 0.55 * t) * (0.8 + rng() * 0.4);
-        const side = k % 2 === 0 ? 1 : -1;
-        leafPath(T, x, y, along + side * (0.75 + rng() * 0.5), len, len * 0.3);
-      }
-      leafPath(T, st.x1, st.y1, Math.PI / 2 + (rng() - 0.5) * 0.6, st.leaf * 0.9, st.leaf * 0.27);
-    }
-    T.fill();
-
-    target.setTransform(1, 0, 0, 1, 0, 0);
-    const dx = Math.round((box.x + MARGIN) * dpr);
-    const dy = Math.round((box.y + MARGIN) * dpr);
-    if (spec.near) {
-      // Dim mirror of the trunk foot in the water just below it.
-      const foot = (spec.baseY + MARGIN) * dpr;
-      target.save();
-      target.beginPath();
-      target.rect(0, foot, target.canvas.width, L.height * 0.1 * dpr);
-      target.clip();
-      target.globalAlpha = 0.3;
-      target.setTransform(1, 0, 0, -1, 0, 2 * foot);
-      target.drawImage(Tc, 0, 0, bw, bh, dx, dy, bw, bh);
-      target.restore();
-    }
-    target.drawImage(Tc, 0, 0, bw, bh, dx, dy, bw, bh);
-  }
-
-  /** Coconut palm: slender leaning trunk with drooping feathered fronds. */
-  function palm(g: CanvasRenderingContext2D, x: number, y: number, h: number, lean: number, s: number, rng: () => number): void {
-    const tx = x + lean * h;
-    const ty = y - h;
-    g.beginPath();
-    taperedCurve(g, { x0: x, y0: y, cx: x + lean * h * 0.1, cy: y - h * 0.55, x1: tx, y1: ty, w0: 2.6 * s, w1: 1.5 * s });
-    g.fill();
-    const n = 9 + Math.floor(rng() * 4);
-    g.beginPath();
-    const leaflets: number[] = [];
-    for (let k = 0; k < n; k++) {
-      const ang = -Math.PI / 2 + ((k + rng() * 0.6) / n - 0.5) * Math.PI * 1.7;
-      const len = h * (0.24 + rng() * 0.12);
-      const ex = tx + Math.cos(ang) * len;
-      const ey = ty + Math.sin(ang) * len * 0.55 + len * 0.45 * (1 - Math.abs(Math.sin(ang)) * 0.6);
-      const mx = tx + Math.cos(ang) * len * 0.55;
-      const my = ty + Math.sin(ang) * len * 0.6 - len * 0.12;
-      const w = len * 0.07;
-      g.moveTo(tx, ty);
-      g.quadraticCurveTo(mx, my - w, ex, ey);
-      g.quadraticCurveTo(mx, my + w, tx, ty);
-      for (let f = 0.25; f < 0.95; f += 0.14) {
-        const mt = 1 - f;
-        const px = mt * mt * tx + 2 * mt * f * mx + f * f * ex;
-        const py = mt * mt * ty + 2 * mt * f * my + f * f * ey;
-        leaflets.push(px, py, px + Math.cos(ang) * len * 0.05, py + len * 0.14 * (1 - f * 0.4));
-      }
-    }
-    g.fill();
-    g.lineWidth = Math.max(0.6, 0.7 * s);
-    g.beginPath();
-    for (let k = 0; k < leaflets.length; k += 4) {
-      g.moveTo(leaflets[k], leaflets[k + 1]);
-      g.lineTo(leaflets[k + 2], leaflets[k + 3]);
-    }
-    g.stroke();
-  }
-
-  /** Nipa palm clump: stemless fronds rising from the waterline. */
-  function nipa(g: CanvasRenderingContext2D, x: number, y: number, h: number, s: number, rng: () => number): void {
-    const n = 5 + Math.floor(rng() * 4);
-    g.beginPath();
-    for (let k = 0; k < n; k++) {
-      const ang = -Math.PI / 2 + ((k + rng() * 0.5) / n - 0.5) * 1.9;
-      const len = h * (0.65 + rng() * 0.45);
-      const bx = x + (rng() - 0.5) * 4 * s;
-      const ex = bx + Math.cos(ang) * len * 1.05;
-      const ey = y + Math.sin(ang) * len * 0.8 + len * 0.25;
-      const mx = bx + Math.cos(ang) * len * 0.5;
-      const my = y + Math.sin(ang) * len * 0.75;
-      const w = Math.max(0.8, len * 0.08);
-      g.moveTo(bx - w * 0.5, y);
-      g.quadraticCurveTo(mx - w, my, ex, ey);
-      g.quadraticCurveTo(mx + w, my + w * 0.6, bx + w * 0.5, y);
-    }
-    g.fill();
-  }
-
-  function paintFar(L: SceneLayout): void {
-    const { width: W, waterY } = L;
-    const s = L.scale;
-    const ctx = farCtx!;
-    const dpr = staticDpr;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, farCanvas!.width, farCanvas!.height);
-    const base = () => ctx.setTransform(dpr, 0, 0, dpr, MARGIN * dpr, MARGIN * dpr);
-    base();
-    const frng = createRng(SEED + 17);
-    const fn = createNoise2D(SEED + 19);
-    const x0 = -MARGIN;
-    const x1 = W + MARGIN;
-    const STEP = 3;
-    const samples = Math.ceil((x1 - x0) / STEP) + 1;
-    farProfile = new Float32Array(samples);
-    const FH = L.farHeight;
-
-    // Distant treeline: crowns of uneven width and height, open stretches, a few palms.
-    const crowns: number[] = [];
-    for (let x = x0 - 60; x < x1 + 60; ) {
-      if (frng() < 0.12) {
-        x += (20 + frng() * 60) * s;
-        continue;
-      }
-      const hw = (6 + Math.pow(frng(), 1.8) * 38) * s;
-      const tall = frng() < 0.1 ? 1.6 : 1;
-      crowns.push(x, hw, FH * (0.35 + frng() * 0.55) * tall * (0.7 + hw / (44 * s) * 0.5));
-      x += hw * (0.7 + frng() * 1.1);
-    }
-    ctx.fillStyle = FAR_DISTANT;
-    ctx.beginPath();
-    ctx.moveTo(x0, waterY + 1);
-    for (let k = 0; k < samples; k++) {
-      const x = x0 + k * STEP;
-      let h = FH * (0.22 + 0.12 * fn(x * 0.004, 7));
-      for (let c = 0; c < crowns.length; c += 3) {
-        const q = (x - crowns[c]) / crowns[c + 1];
-        if (q > -1 && q < 1) h = Math.max(h, crowns[c + 2] * Math.pow(1 - q * q, 0.5));
-      }
-      h += 1.6 * s * fn(x * 0.21, 3) + 0.9 * s * fn(x * 0.7, 9);
-      ctx.lineTo(x, waterY - h);
-    }
-    ctx.lineTo(x1, waterY + 1);
-    ctx.closePath();
-    ctx.fill();
-    ctx.strokeStyle = FAR_DISTANT;
-    const distantPalms = Math.round(W / 170);
-    for (let n = 0; n < distantPalms; n++) {
-      const x = x0 + frng() * (x1 - x0);
-      palm(ctx, x, waterY - FH * 0.3, (26 + frng() * 22) * s, (frng() - 0.5) * 0.25, s * 0.75, frng);
-    }
-    const haze = ctx.createLinearGradient(0, waterY - FH * 2.2, 0, waterY);
-    haze.addColorStop(0, "rgba(40,90,110,0)");
-    haze.addColorStop(1, "rgba(50,100,120,0.22)");
-    ctx.fillStyle = haze;
-    ctx.fillRect(x0, waterY - FH * 2.2, x1 - x0, FH * 2.2);
-
-    // Near bank: a low earth line, bushy trees made of leaves, nipa clumps and palms.
-    const bankH = new Float32Array(samples);
-    for (let k = 0; k < samples; k++) {
-      const x = x0 + k * STEP;
-      bankH[k] = Math.max(1.5 * s, FH * (0.1 + 0.08 * fn(x * 0.006, 21)) + 0.8 * s * fn(x * 0.3, 23));
-    }
-    const bump = (cx: number, hw: number, top: number) => {
-      const k0 = Math.max(0, Math.floor((cx - hw - x0) / STEP));
-      const k1 = Math.min(samples - 1, Math.ceil((cx + hw - x0) / STEP));
-      for (let k = k0; k <= k1; k++) {
-        const q = (x0 + k * STEP - cx) / hw;
-        if (q > -1 && q < 1) farProfile[k] = Math.max(farProfile[k], top * Math.sqrt(1 - q * q));
-      }
-    };
-    ctx.fillStyle = FAR_BANK;
-    ctx.beginPath();
-    ctx.moveTo(x0, waterY + 1);
-    for (let k = 0; k < samples; k++) {
-      farProfile[k] = bankH[k];
-      ctx.lineTo(x0 + k * STEP, waterY - bankH[k]);
-    }
-    ctx.lineTo(x1, waterY + 1);
-    ctx.closePath();
-    ctx.fill();
-
-    // Bankside shrubs: wide, low leaf masses that hug the waterline, a few on a short stem.
-    const bushes = Math.round(W / 70);
-    for (let n = 0; n < bushes; n++) {
-      const x = x0 + ((n + frng()) / bushes) * (x1 - x0);
-      const rw = (7 + frng() * 14) * s * (frng() < 0.15 ? 1.6 : 1);
-      const rh = rw * (0.5 + frng() * 0.35);
-      const stem = frng() < 0.35 ? rh * 0.5 : 0;
-      const cy = waterY - stem - rh * 0.55;
-      const leaf = clamp(rw * 0.34, 2.4 * s, 6 * s);
-      ctx.beginPath();
-      if (stem > 0) ctx.rect(x - 0.8 * s, cy, 1.6 * s, waterY - cy);
-      const count = Math.ceil((Math.PI * rw * rh * 1.6) / (leaf * leaf * 0.17));
-      for (let k = 0; k < count; k++) {
-        const a = frng() * TAU;
-        const d = Math.sqrt(frng());
-        const px = x + Math.cos(a) * rw * d;
-        const py = Math.min(waterY + 0.5, cy + Math.sin(a) * rh * d);
-        const len = leaf * (0.75 + frng() * 0.6);
-        leafPath(ctx, px, py, Math.atan2(Math.sin(a) * 0.5 + 0.5, Math.cos(a)) + (frng() - 0.5) * 1.3, len, len * 0.3);
-      }
-      ctx.fill();
-      bump(x, rw * 1.05, waterY - cy + rh * 0.85);
-    }
-    const nipas = Math.round(W / 45);
-    for (let n = 0; n < nipas; n++) {
-      const x = x0 + frng() * (x1 - x0);
-      const h = (7 + frng() * 10) * s;
-      nipa(ctx, x, waterY + 0.5, h, s, frng);
-      bump(x, h * 0.9, h * 0.8);
-    }
-    ctx.strokeStyle = FAR_BANK;
-    const palms = Math.max(3, Math.round(W / 190));
-    for (let n = 0; n < palms; n++) {
-      // Palms come in loose pairs and trios.
-      const x = x0 + frng() * (x1 - x0);
-      const group = 1 + Math.floor(frng() * 3);
-      for (let g = 0; g < group; g++) {
-        palm(ctx, x + (g - 1) * (5 + frng() * 7) * s, waterY - bankH[0] * 0.5, (34 + frng() * 36) * s, (frng() - 0.5) * 0.45, s, frng);
-      }
-    }
-
-    // Stilt houses in two loose groups, a jetty with a lamp and a moored long-tail boat.
-    lights = [];
-    const hrng = createRng(SEED + 23);
-    const groups = [W * (0.3 + hrng() * 0.06), W * (0.55 + hrng() * 0.08)];
-    const houseAt: number[] = [];
-    for (let n = 0; n < L.houses; n++) {
-      const g = groups[n % 2];
-      houseAt.push(g + (Math.floor(n / 2) - 0.3) * (34 + hrng() * 20) * s * (n % 2 ? 1 : -1));
-    }
-    if (L.houses >= 5) houseAt[L.houses - 1] = W * (0.86 + hrng() * 0.04);
-    for (const x of houseAt) {
-      const w = (15 + hrng() * 12) * s;
-      const h = (7 + hrng() * 5) * s;
-      const stilt = (4 + hrng() * 4) * s;
-      const floor = waterY - stilt;
-      const apex = (7 + hrng() * 5) * s;
-      const eave = 4 * s;
-      ctx.fillStyle = "#081723";
-      ctx.fillRect(x - w / 2, floor - h, w, h);
-      ctx.beginPath();
-      ctx.moveTo(x - w / 2 - eave, floor - h + 1.2 * s);
-      ctx.quadraticCurveTo(x - w * 0.22, floor - h - apex * 0.3, x, floor - h - apex);
-      ctx.quadraticCurveTo(x + w * 0.22, floor - h - apex * 0.3, x + w / 2 + eave, floor - h + 1.2 * s);
-      ctx.closePath();
-      ctx.fill();
-      ctx.fillRect(x - w / 2 - 2 * s, floor - 1, w + 4 * s, 1.5 * s);
-      ctx.strokeStyle = "#081723";
-      ctx.lineWidth = Math.max(0.7, s);
-      ctx.beginPath();
-      for (let p = 0; p <= 3; p++) {
-        const px = x - w / 2 + (w * p) / 3;
-        ctx.moveTo(px, floor);
-        ctx.lineTo(px, waterY + 1);
-      }
-      ctx.stroke();
-      if (hrng() < 0.8) {
-        const windows = 1 + Math.floor(hrng() * 2);
-        for (let k = 0; k < windows; k++) {
-          const wx = x - w / 2 + ((k + 0.5) / windows) * w;
-          const wy = floor - h * 0.55;
-          lights.push({ x: wx, y: wy });
-          ctx.fillStyle = "#ffc37a";
-          ctx.fillRect(wx - 1.3 * s, wy - 1.8 * s, 2.6 * s, 3.4 * s);
-          ctx.globalAlpha = 0.45;
-          const gr = 11 * s;
-          ctx.drawImage(warmSprite, wx - gr, wy - gr, gr * 2, gr * 2);
-          ctx.globalAlpha = 1;
-        }
-      }
-    }
-    {
-      const jx = groups[0] + (20 + hrng() * 10) * s;
-      const jl = (46 + hrng() * 30) * s;
-      const deckY = waterY - 2.6 * s;
-      ctx.fillStyle = "#081723";
-      ctx.fillRect(jx, deckY, jl, 1.4 * s);
-      ctx.beginPath();
-      for (let px = jx + 2 * s; px < jx + jl; px += 7 * s) ctx.rect(px, deckY, 0.9 * s, waterY - deckY + 1.5 * s);
-      ctx.rect(jx + jl - 1.5 * s, deckY - 10 * s, 0.8 * s, 10 * s);
-      ctx.fill();
-      const lx = jx + jl - 1.1 * s;
-      const ly = deckY - 10.5 * s;
-      lights.push({ x: lx, y: ly });
-      ctx.fillStyle = "#ffd48f";
-      ctx.fillRect(lx - 1.1 * s, ly - 1.1 * s, 2.2 * s, 2.2 * s);
-      ctx.globalAlpha = 0.5;
-      ctx.drawImage(warmSprite, lx - 13 * s, ly - 13 * s, 26 * s, 26 * s);
-      ctx.globalAlpha = 1;
-      // Long-tail boat moored beside the jetty.
-      const bx = jx + jl * 0.55;
-      const bl = (30 + hrng() * 8) * s;
-      const bh = 2.4 * s;
-      const by = waterY + 0.8 * s;
-      ctx.fillStyle = "#07141f";
-      ctx.beginPath();
-      ctx.moveTo(bx - bl / 2, by - bh);
-      ctx.lineTo(bx + bl * 0.36, by - bh);
-      ctx.quadraticCurveTo(bx + bl * 0.5, by - bh * 1.3, bx + bl * 0.56, by - bh * 2.6);
-      ctx.quadraticCurveTo(bx + bl * 0.5, by - bh * 0.2, bx + bl * 0.3, by);
-      ctx.quadraticCurveTo(bx - bl * 0.1, by + bh * 0.35, bx - bl / 2, by - bh * 0.3);
-      ctx.closePath();
-      ctx.moveTo(bx - bl * 0.22, by - bh);
-      ctx.quadraticCurveTo(bx - bl * 0.08, by - bh - 4.5 * s, bx + bl * 0.08, by - bh);
-      ctx.lineTo(bx + bl * 0.05, by - bh);
-      ctx.quadraticCurveTo(bx - bl * 0.08, by - bh - 3.2 * s, bx - bl * 0.19, by - bh);
-      ctx.closePath();
-      ctx.fill();
-    }
-
-    // Low mist over the far water.
-    const mist = ctx.createLinearGradient(0, waterY - FH * 1.4, 0, waterY + 2);
-    mist.addColorStop(0, "rgba(120,170,185,0)");
-    mist.addColorStop(0.7, "rgba(120,170,185,0.08)");
-    mist.addColorStop(1, "rgba(140,185,200,0.13)");
-    ctx.fillStyle = mist;
-    ctx.fillRect(x0, waterY - FH * 1.4, x1 - x0, FH * 1.4 + 2);
-
-    for (const geom of trees) {
-      if (!geom.spec.near) finishSteps(paintTree(ctx, geom, MID_PALETTE, L));
-    }
-  }
-
-  function clearNear(): void {
-    const ctx = nearCtx!;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, nearCanvas!.width, nearCanvas!.height);
-  }
-
-  function buildRiver(L: SceneLayout): void {
-    const { width: W, height: H, waterY } = L;
-    const hR = H - waterY;
-    riverScale = Math.min(RIVER_DPR_CAP, window.devicePixelRatio || 1);
-    const rs = riverScale;
-    const devW = Math.round((W + MARGIN * 2) * rs);
-    const devH = Math.max(1, Math.round((hR + MARGIN) * rs));
-    riverCanvas!.width = devW;
-    riverCanvas!.height = devH;
-    riverCanvas!.style.top = `${waterY}px`;
-    riverCanvas!.style.height = `${hR + MARGIN}px`;
-
-    // Mirror of everything above the waterline (sky and far layer).
-    riverSrc = makeCanvas(devW, devH);
-    const src = ctx2d(riverSrc);
-    src.setTransform(rs, 0, 0, -rs, MARGIN * rs, waterY * rs);
-    src.imageSmoothingQuality = "high";
-    src.drawImage(skyCanvas!, -MARGIN, -MARGIN, W + MARGIN * 2, H + MARGIN * 2);
-    src.drawImage(farCanvas!, -MARGIN, -MARGIN, W + MARGIN * 2, H + MARGIN * 2);
-    src.setTransform(rs, 0, 0, rs, MARGIN * rs, 0);
-    // Light streaks: window lights stretch into vertical columns on the rippled water.
-    for (const light of lights) {
-      const r0 = waterY - light.y;
-      const len = (26 + (light.x % 13)) * L.scale;
-      const g = src.createLinearGradient(0, r0 - 2, 0, r0 + len);
-      g.addColorStop(0, "rgba(255,190,110,0.5)");
-      g.addColorStop(1, "rgba(255,160,90,0)");
-      src.fillStyle = g;
-      src.fillRect(light.x - 1.6 * L.scale, r0 - 2, 3.2 * L.scale, len);
-    }
-    // Moon path: soft column below the moon.
-    const colW = L.moonR * 4 + hR * 0.25;
-    const cg = src.createLinearGradient(L.moonX - colW, 0, L.moonX + colW, 0);
-    cg.addColorStop(0, "rgba(150,185,215,0)");
-    cg.addColorStop(0.5, "rgba(170,200,225,0.13)");
-    cg.addColorStop(1, "rgba(150,185,215,0)");
-    src.fillStyle = cg;
-    src.fillRect(L.moonX - colW, 0, colW * 2, hR + MARGIN);
-
-    riverTint = makeCanvas(devW, devH);
-    const tint = ctx2d(riverTint);
-    tint.setTransform(rs, 0, 0, rs, 0, 0);
-    const tg = tint.createLinearGradient(0, 0, 0, hR);
-    tg.addColorStop(0, "rgba(4,12,22,0.12)");
-    tg.addColorStop(0.25, "rgba(4,12,22,0.38)");
-    tg.addColorStop(1, "rgba(2,6,12,0.74)");
-    tint.fillStyle = tg;
-    tint.fillRect(0, 0, W + MARGIN * 2, hR + MARGIN);
-    tint.fillStyle = "rgba(150,195,215,0.14)";
-    tint.fillRect(0, 0, W + MARGIN * 2, 1);
-
-    const grng = createRng(SEED + 31);
-    const count = Math.round(clamp(hR * 0.7, 40, 170));
-    glints = [];
-    for (let n = 0; n < count; n++) {
-      const depth = Math.pow(grng(), 0.85);
-      const r = 2 + depth * (hR - 4);
-      const spread = L.moonR * 1.2 + r * 0.5;
-      const off = (grng() + grng() + grng() - 1.5) * spread * 0.9;
-      glints.push({
-        x: L.moonX + off,
-        y: waterY + r,
-        len: (2 + depth * 14 * (0.4 + grng() * 0.6)) * L.scale,
-        w: depth > 0.5 ? 1.5 : 1,
-        phase: grng() * TAU,
-        speed: 1.2 + grng() * 2.6,
-        base: (0.75 - depth * 0.4) * (1 - Math.min(1, Math.abs(off) / (spread * 1.4))),
-      });
-    }
-  }
-
-  function buildReeds(L: SceneLayout): void {
-    const { width: W } = L;
-    const rh = L.reedHeight;
-    reedDpr = Math.min(window.devicePixelRatio || 1, FX_DPR_CAP);
-    reedCanvas!.width = Math.round((W + MARGIN * 2) * reedDpr);
-    reedCanvas!.height = Math.round(rh * reedDpr);
-    reedCanvas!.style.height = `${rh}px`;
-    const rrng = createRng(SEED + 41);
-    const target = Math.round(clamp(W / 5, 70, 300));
-    const xs: number[] = [];
-    const hs: number[] = [];
-    for (let n = 0; n < target * 3 && xs.length < target; n++) {
-      const x = rrng() * (W + MARGIN * 2) - MARGIN;
-      const e = Math.abs(x / W - 0.5) * 2;
-      const corner = Math.pow(clamp((e - 0.35) / 0.65, 0, 1), 1.3);
-      if (rrng() > 0.18 + corner * 0.82) continue;
-      xs.push(x);
-      hs.push(rh * (0.12 + 0.88 * corner) * (0.45 + 0.55 * rrng()) + 6 * L.scale);
-    }
-    reedCount = xs.length;
-    reedX = Float32Array.from(xs);
-    reedH = Float32Array.from(hs);
-    reedW = new Float32Array(reedCount);
-    reedLean = new Float32Array(reedCount);
-    reedStiff = new Float32Array(reedCount);
-    reedPhase = new Float32Array(reedCount);
-    reedFreq = new Float32Array(reedCount);
-    reedGroup = new Uint8Array(reedCount);
-    for (let n = 0; n < reedCount; n++) {
-      reedW[n] = (1.1 + rrng() * 1.8) * Math.max(0.7, L.scale);
-      const side = reedX[n] < W / 2 ? -1 : 1;
-      reedLean[n] = side * (0.05 + rrng() * 0.2) + (rrng() - 0.5) * 0.25;
-      reedStiff[n] = 0.7 + rrng() * 0.6;
-      reedPhase[n] = rrng() * TAU;
-      reedFreq[n] = 0.5 + rrng() * 0.6;
-      reedGroup[n] = rrng() < 0.45 ? 0 : 1;
-    }
-  }
-
-  function placeFireflies(L: SceneLayout): void {
-    const count = fireflyCount(L.width, L.height, coarse);
-    field.count = count;
-    const s = L.scale;
-    const fs = Math.max(0.7, s);
-    let shareSum = 0;
-    for (const g of trees) shareSum += g.spec.fireflyShare;
-    const farShare = 0.12;
-    const driftShare = 0.08;
-    const treeShare = 1 - farShare - driftShare;
-    driftMinY = L.waterY + (L.height - L.waterY) * 0.18;
-    driftMaxY = L.height - (L.height - L.waterY) * 0.18;
-    coupledMinX = Infinity;
-    coupledMaxX = -Infinity;
-    for (let i = 0; i < count; i++) {
-      const roll = kindRoll[i];
-      let k = 0;
-      let treeIdx = -1;
-      if (roll < treeShare && trees.length) {
-        let acc = 0;
-        const target = (roll / treeShare) * shareSum;
-        for (let t = 0; t < trees.length; t++) {
-          acc += trees[t].spec.fireflyShare;
-          if (target < acc || t === trees.length - 1) {
-            treeIdx = t;
-            break;
-          }
-        }
-        k = trees[treeIdx].spec.near ? 2 : 1;
-      } else if (roll < treeShare + farShare) {
-        k = 0;
-      } else {
-        k = 3;
-      }
-      kind[i] = k;
-      tree[i] = treeIdx;
-      const sr = sizeRoll[i];
-      bokeh[i] = 0;
-      if (k === 2) {
-        size[i] = (14 + sr * sr * 17) * fs;
-        bright[i] = 0.82 + sr * 0.18;
-        floorGlow[i] = sr > 0.55 ? 0.04 : 0;
-        swoopH[i] = (4 + sr * 5) * s;
-        wanderA[i] = (2 + sr * 4) * s;
-      } else if (k === 1) {
-        size[i] = (10 + sr * 5) * fs;
-        bright[i] = 0.72 + sr * 0.2;
-        floorGlow[i] = 0;
-        swoopH[i] = (2.5 + sr * 3) * s;
-        wanderA[i] = (1.5 + sr * 2) * s;
-      } else if (k === 0) {
-        size[i] = (6 + sr * 3) * fs;
-        bright[i] = 0.6 + sr * 0.3;
-        floorGlow[i] = 0;
-        swoopH[i] = 0;
-        wanderA[i] = 0.6 * s;
-      } else {
-        // Drifters over the water; some are close to the viewer and out of focus.
-        bokeh[i] = sr > 0.55 ? 1 : 0;
-        size[i] = bokeh[i] ? (12 + sr * 12) * fs : (16 + sr * 8) * fs;
-        bright[i] = 0.7 + sr * 0.25;
-        floorGlow[i] = 0.05;
-        swoopH[i] = bokeh[i] ? 0 : (4 + sr * 4) * s;
-        wanderA[i] = 0;
-      }
-      setHome(i, L);
-      posX[i] = homeX[i];
-      if (k === 3) driftH[i] = (18 + sr * 40) * s;
-      field.x[i] = homeX[i];
-      field.y[i] = k === 3 ? surf[i] - driftH[i] : homeY[i];
-      if (k === 1 || k === 2) {
-        coupledMinX = Math.min(coupledMinX, homeX[i]);
-        coupledMaxX = Math.max(coupledMaxX, homeX[i]);
-      }
-      // Still frame: the canopy outline softly lit, as at the top of a shared pulse.
-      const sr2 = stillRoll[i];
-      if (k === 1 || k === 2) still[i] = sr2 < 0.78 ? 0.12 + 0.62 * homeEdge[i] * (0.7 + 0.3 * sr2) : 0;
-      else if (k === 0) still[i] = sr2 < 0.5 ? 0.35 + sr2 * 0.6 : 0;
-      else still[i] = sr2 < 0.4 ? 0.45 : 0;
-      flyEnd[i] = -1;
-    }
-    if (!Number.isFinite(coupledMinX)) {
-      coupledMinX = 0;
-      coupledMaxX = L.width;
-    }
-    wanderScale = s;
-  }
-
-  function setHome(i: number, L: SceneLayout): void {
-    const k = kind[i];
-    if (k === 1 || k === 2) {
-      const g = trees[tree[i]];
-      if (!g) return;
-      const n = pickWeighted(g.perchCdf, (perch[i] % 100003) / 100003);
-      homeX[i] = g.perches[n * 2];
-      homeY[i] = g.perches[n * 2 + 1];
-      homeEdge[i] = g.perchEdge[n];
-      surf[i] = g.spec.baseY;
-    } else if (k === 0) {
-      const u = (perch[i] % 997) / 997;
-      const x = -MARGIN + u * (L.width + MARGIN * 2);
-      const idx = clamp(Math.round((x + MARGIN) / 3), 0, farProfile.length - 1);
-      const h = farProfile.length ? farProfile[idx] : L.farHeight;
-      homeX[i] = x;
-      homeY[i] = L.waterY - h * (0.25 + ((perch[i] % 61) / 61) * 0.65);
-      homeEdge[i] = 0;
-      surf[i] = L.waterY;
-    } else {
-      homeX[i] = ((perch[i] % 991) / 991) * L.width;
-      homeY[i] = lerp(driftMinY, driftMaxY, (perch[i] % 89) / 89);
-      homeEdge[i] = 0;
-      surf[i] = homeY[i];
-    }
-  }
-
-  // Static art is painted in small tasks so the page never freezes: sky at once,
-  // then one task per tree, the far bank (which also commits the layout and
-  // places the fireflies) and finally the near trees, which fade in.
-  let jobId = 0;
-  let jobTimer: ReturnType<typeof setTimeout> | undefined;
-  let fxCtx: CanvasRenderingContext2D | null = null;
-  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
-
-  /** A stage returns true when it has more work and should run again in a later task. */
-  function runStages(id: number, stages: Array<() => boolean | void>): void {
-    const next = () => {
-      if (id !== jobId || !stages.length) return;
-      if (!stages[0]()) stages.shift();
-      if (stages.length) jobTimer = setTimeout(next, 0);
-    };
-    jobTimer = setTimeout(next, 0);
-  }
-
-  function commitLayout(L: SceneLayout): void {
-    layout = L;
-    buildRiver(L);
-    buildReeds(L);
-    placeFireflies(L);
-  }
-
-  function showNear(): void {
-    const el = nearCanvas!;
-    el.style.transition = reduceMotion.matches ? "none" : "opacity 700ms ease";
-    el.style.opacity = "1";
-  }
-
-  function resize(sz: Readonly<SceneSize>, ctx: CanvasRenderingContext2D): void {
-    fxCtx = ctx;
-    const L = computeLayout(sz.width, sz.height);
-    const dpr = window.devicePixelRatio || 1;
-    staticDpr = Math.min(dpr, STATIC_DPR_CAP);
-    skyDpr = Math.min(dpr, SKY_DPR_CAP);
-    const key = `${ART_VERSION}:${sz.width}x${sz.height}@${staticDpr}/${skyDpr}`;
-    const size = (c: HTMLCanvasElement, scale: number) => {
-      const w = Math.round((sz.width + MARGIN * 2) * scale);
-      const h = Math.round((sz.height + MARGIN * 2) * scale);
-      if (c.width !== w || c.height !== h) {
-        c.width = w;
-        c.height = h;
-        paintedKey.delete(c);
-      }
-    };
-    size(skyCanvas!, skyDpr);
-    size(farCanvas!, staticDpr);
-    size(nearCanvas!, staticDpr);
-    configureGrid(field, sz.width, sz.height, Math.max(70, Math.min(sz.width, sz.height) * 0.11));
-    ctx.globalCompositeOperation = "lighter";
-    fxScale = ctx.getTransform().a;
-    lastTransformX = Number.NaN;
-    quietDirty = true;
-
-    jobId++;
-    clearTimeout(jobTimer);
-    const cached = geomCache?.key === key ? geomCache : null;
-    const painted = paintedKey.get(skyCanvas!) === key && paintedKey.get(farCanvas!) === key && paintedKey.get(nearCanvas!) === key;
-    if (painted && cached) {
-      trees = cached.trees;
-      farProfile = cached.farProfile;
-      lights = cached.lights;
-      commitLayout(L);
-      showNear();
-      return;
-    }
-
-    const id = jobId;
-    nearCanvas!.style.transition = "none";
-    nearCanvas!.style.opacity = "0";
-    clearNear();
-    paintSky(L);
-    paintedKey.set(skyCanvas!, key);
+  /**
+   * Recomposes the tree planes when the gutters, mode or plane height changed. Each crown
+   * is grown in its own paint step (spec 5.6: no long task during the build); the planes
+   * and the tree fireflies keep the previous crowns until the new set is complete.
+   */
+  const layoutTrees = (lay: FireflyLayout) => {
+    const key = [lay.mode, lay.width, lay.height, lay.gutterL, lay.gutterR, lay.treeBottom, lay.side].join(":");
+    if (key === treeKey) return;
+    treeKey = key;
+    const env = treeEnv(lay);
+    const specs = [...lay.trees].sort((a, b) => Number(a.near) - Number(b.near));
     const built: TreeGeom[] = [];
-    const stages: Array<() => boolean | void> = L.trees.map((spec, k) => () => {
-      built[k] = cached ? cached.trees[k] : buildTree(spec, L);
-    });
-    stages.push(() => {
-      trees = built;
-      paintFar(L);
-      commitLayout(L);
-      paintedKey.set(farCanvas!, key);
-      if (reduceMotion.matches && fxCtx) reducedMotionFrame(fxCtx);
-    });
-    L.trees.forEach((spec, k) => {
-      if (!spec.near) return;
-      let steps: Generator<void, void, void> | null = null;
-      stages.push(() => {
-        steps ??= paintTree(nearCtx!, built[k], NEAR_PALETTE, L);
-        return !steps.next().done;
-      });
-    });
-    stages.push(() => {
-      // Scratch layers are only needed while painting.
-      scratch.length = 0;
-      geomCache = { key, trees: built, farProfile, lights };
-      paintedKey.set(nearCanvas!, key);
-      showNear();
-    });
-    runStages(id, stages);
-  }
+    paint.run(
+      "trees",
+      specs.map((spec) => () => {
+        built.push(buildTree(spec, env));
+      }),
+      () => applyTrees(lay, built),
+    );
+  };
 
-  /* ---------------- per-frame ---------------- */
-
-  function measureQuiet(t: number): void {
-    quietDirty = false;
-    quietCheckedAt = t;
-    quietCount = 0;
-    const selector = options.quietSelector;
-    if (!selector) return;
-    const origin = root.getBoundingClientRect();
-    const range = document.createRange();
-    for (const el of document.querySelectorAll(selector)) {
-      if (quietCount >= QUIET_MAX) break;
-      if (typeof el.checkVisibility === "function" && !el.checkVisibility({ checkVisibilityCSS: true })) continue;
-      // The text itself, not the (often much wider) block box.
-      range.selectNodeContents(el);
-      const r = range.getBoundingClientRect();
-      if (r.width <= 0 || r.height <= 0) continue;
-      const q = quietCount * 4;
-      quiet[q] = r.left - origin.left;
-      quiet[q + 1] = r.top - origin.top;
-      quiet[q + 2] = r.right - origin.left;
-      quiet[q + 3] = r.bottom - origin.top;
-      quietCount++;
+  const applyTrees = (lay: FireflyLayout, built: TreeGeom[]) => {
+    trees = built;
+    // The canopy canvas holds every crown that starts near the top; columns take the rest.
+    let cut = lay.canopyCut;
+    for (const t of trees) if (t.spec.top < lay.height * 0.2) cut = Math.max(cut, t.box.y + t.box.h + 2);
+    cut = Math.round(clamp(cut, lay.height * 0.08, lay.treeBottom - 8));
+    let left: Box | null = null;
+    let right: Box | null = null;
+    for (const t of trees) {
+      const parts = [t.box.y + t.box.h > cut ? t.box : null, t.trunkBox && t.trunkBox.y + t.trunkBox.h > cut ? t.trunkBox : null];
+      for (const b of parts) {
+        if (!b) continue;
+        if (t.spec.baseX < lay.width / 2) left = unionBox(left, b);
+        else right = unionBox(right, b);
+      }
     }
-    range.detach();
-  }
+    const bottom = lay.treeBottom + 16;
+    const colL: PlaneRect = { x: -lay.side, y: cut, w: Math.max(8, Math.min(lay.width / 2, (left ? left.x + left.w : 0) + 6) + lay.side), h: bottom - cut };
+    const rx = Math.max(lay.width / 2, (right ? right.x : lay.width) - 6);
+    const colR: PlaneRect = { x: rx, y: cut, w: Math.max(8, lay.width + lay.side - rx), h: bottom - cut };
+    const canopy: PlaneRect = { x: -lay.side, y: -TOP, w: lay.width + lay.side * 2, h: cut + TOP };
+    planeRects[COL_L] = colL;
+    planeRects[COL_R] = colR;
+    planeRects[CANOPY] = canopy;
+    setBox(statics[COL_L], colL);
+    setBox(statics[COL_R], colR);
+    setBox(statics[CANOPY], canopy);
+    placeTreeFireflies(L ?? lay);
 
-  /** 1 away from text, down to 0.3 right behind it. */
-  function quietFactor(x: number, y: number): number {
+    const targets: PaintTarget[] = [];
+    for (const i of [COL_L, COL_R, CANOPY]) {
+      const g = sctx[i];
+      if (!g) continue;
+      g.setTransform(1, 0, 0, 1, 0, 0);
+      g.clearRect(0, 0, statics[i].width, statics[i].height);
+      targets.push({ g, ...planeRects[i] });
+    }
+    const scratch = makeScratch("trees", trees.map((t) => t.box), PLANE_DPR);
+    const steps = trees.flatMap((t) => treeSteps(t, t.spec.near ? NEAR_PALETTE : MID_PALETTE, targets, scratch, PLANE_DPR, lay.scale));
+    paint.run("tree-art", steps, () => releaseScratch("trees"));
+  };
+
+  const layoutSky = (lay: FireflyLayout) => {
+    const key = [lay.width, lay.skyH, lay.side, lay.moon.x, lay.moon.y, lay.moon.r].join(":");
+    if (key === skyKey) return;
+    skyKey = key;
+    const r: PlaneRect = { x: -lay.side, y: -TOP, w: lay.width + lay.side * 2, h: lay.skyH };
+    planeRects[SKY] = r;
+    setBox(statics[SKY], r);
+    const g = sctx[SKY];
+    if (g) paint.run("sky", [() => paintSky(g, lay, ctx.moonPhase, ctx.seed, sprites.soft)]);
+  };
+
+  /** Tree fireflies take perches on the crowns (plane px); drifters take spots over the bands (document px). */
+  const placeTreeFireflies = (lay: FireflyLayout) => {
+    // No crowns yet (the first set is still growing): drifters only.
+    treeFF = trees.length > 0 ? lay.counts.tree : 0;
+    driftFF = lay.counts.drift;
+    sky.field.count = treeFF + driftFF;
+    let shareSum = 0;
+    for (const t of trees) shareSum += t.spec.fireflyShare;
+    const s = Math.max(0.7, lay.scale);
+    if (treeOf.length < sky.field.capacity) treeOf = new Int16Array(sky.field.capacity);
+    for (let i = 0; i < treeFF; i++) {
+      const target = sky.roll[i] * shareSum;
+      let acc = 0;
+      let k = 0;
+      for (; k < trees.length - 1; k++) {
+        acc += trees[k].spec.fireflyShare;
+        if (target < acc) break;
+      }
+      treeOf[i] = k;
+      const t = trees[k];
+      const n = t ? pickWeighted(t.perchCdf, ((i * 7919 + 13) % 10007) / 10007) : 0;
+      sky.kind[i] = 0;
+      sky.homeX[i] = t ? t.perches[n * 2] : 0;
+      sky.homeY[i] = t ? t.perches[n * 2 + 1] : 0;
+      sky.edge[i] = t ? t.perchEdge[n] : 0;
+      const sr = (sky.roll[i] * 7.31) % 1;
+      const near = t?.spec.near ?? true;
+      sky.size[i] = (near ? 12 + sr * sr * 15 : 8 + sr * 5) * s;
+      sky.bright[i] = near ? 0.8 + sr * 0.2 : 0.65 + sr * 0.2;
+      sky.wA[i] = (near ? 2 + sr * 4 : 1.2 + sr * 2) * lay.scale;
+      sky.calm[i] = sky.roll[i] < 0.78 ? 0.12 + 0.62 * sky.edge[i] * (0.7 + 0.3 * sr) : 0;
+      sky.floor[i] = near && sr > 0.55 ? 0.04 : 0;
+    }
+    placeDrifters(lay);
+  };
+
+  const placeDrifters = (lay: FireflyLayout) => {
+    const snapshot = page.getSnapshot();
+    const bands = snapshot.bands.filter((b) => b.h > 12);
+    const total = bands.reduce((a, b) => a + b.h, 0);
+    const s = Math.max(0.7, lay.scale);
+    for (let j = 0; j < driftFF; j++) {
+      const i = treeFF + j;
+      sky.kind[i] = 1;
+      treeOf[i] = -1;
+      const u = sky.roll[i] * total;
+      let acc = 0;
+      let band = bands[0];
+      for (const b of bands) {
+        acc += b.h;
+        band = b;
+        if (u <= acc) break;
+      }
+      const sr = (sky.roll[i] * 13.7) % 1;
+      if (band) {
+        sky.homeX[i] = band.x + ((sky.roll[i] * 97.1) % 1) * band.w;
+        sky.homeY[i] = band.y + band.h * (0.25 + 0.5 * ((sky.roll[i] * 31.3) % 1));
+      } else {
+        sky.homeX[i] = ((sky.roll[i] * 97.1) % 1) * lay.width;
+        sky.homeY[i] = lay.height * 0.5;
+      }
+      sky.size[i] = (14 + sr * 10) * s;
+      sky.bright[i] = 0.7 + sr * 0.25;
+      sky.wA[i] = Math.min(10, (band?.h ?? 40) * 0.22);
+      sky.calm[i] = sky.roll[i] < 0.4 ? 0.45 : 0;
+      sky.floor[i] = 0.05;
+    }
+  };
+
+  /* ---------------- windows ---------------- */
+
+  const winDoc = (snapshot: PageSnapshot, name: WindowName) => snapshot.windows[name];
+
+  /** Window px of a document point inside a window. */
+  const toWindow = (name: WindowName, x: number, yDoc: number) => {
+    const w = wins[name];
+    if (!w) return null;
+    return { x: x - (w.doc.x - w.box.boxX), y: yDoc - w.doc.y };
+  };
+
+  const surfaceFor = (old: Surface | null, w: number, h: number): Surface => {
+    const bw = Math.max(1, Math.ceil(w));
+    const bh = Math.max(1, Math.ceil(h));
+    if (old && old.canvas.width === bw && old.canvas.height === bh) return old;
+    if (old) surfaces.release(old);
+    return create(bw, bh);
+  };
+
+  const lanterns = (snapshot: PageSnapshot) =>
+    snapshot.cards.filter((c) => c.kind === "open" && ((c.read ?? 0) > 0 || c.finished)).map((c) => ({ accent: c.accent, glow: c.finished ? 1 : 0.35 + 0.65 * (c.read ?? 0) }));
+
+  const layoutStage = (snapshot: PageSnapshot, lay: FireflyLayout) => {
+    const box = windowBox(snapshot, "stage");
+    const sd = staticDpr(snapshot.viewport);
+    const hold = lanterns(snapshot);
+    const key = [box.w, box.h, box.boxX, box.boxW, sd, lay.mode, JSON.stringify(hold)].join(":");
+    wins.stage = { box, doc: winDoc(snapshot, "stage") };
+    if (key === winKeys.stage || box.h < 8) return;
+    winKeys.stage = key;
+    const art = (stageArt = surfaceFor(stageArt, box.w * sd, box.h * sd));
+    const phone = lay.mode === "phone";
+    const waterY = box.h * (lay.mode === "landscape-short" ? 0.62 : 0.68);
+    // The lowest lamphu branch enters from the left edge and droops toward the water. Its
+    // crown stays inside the canvas and is feathered out before the left and top edges, so
+    // no straight cut shows where the window meets the sky.
+    const x1 = box.boxX + box.boxW * (phone ? 0.46 : 0.3);
+    const x0 = -Math.max(12, x1 * 0.06);
+    const spec = {
+      x0,
+      x1,
+      top: box.h * 0.05,
+      bottom: box.h * (phone ? 0.6 : 0.64),
+      belly: 0.4,
+      baseX: x0 - 14,
+      baseY: box.h * 0.3,
+      forkX: x0 + (x1 - x0) * 0.24,
+      forkY: box.h * 0.26,
+      near: true,
+      rooted: false,
+      seed: 61,
+      fireflyShare: 1,
+      sprays: phone ? 7 : 11,
+      ragged: 0.34,
+      density: 2.6,
+    };
+    const env: TreeEnv = { width: box.w, height: box.h, waterY, moonX: box.w * 0.8, moonY: -box.h, scale: lay.scale, gutterL: 0, gutterR: 0, side: 0, top: 0 };
+    stageGeom = buildTree(spec, env);
+    placeStage(lay, waterY);
+    const scratch = makeScratch("stage", [stageGeom.box], sd);
+    const target: PaintTarget = { g: art.g, x: 0, y: 0, w: box.w, h: box.h };
+    const feather = { left: Math.max(24, x1 * 0.22), top: box.h * 0.24 };
+    const steps = [
+      () => {
+        paintStageWater(art.g, box, sd, waterY, lay.scale, hold);
+        featherSides(art.g, box, sd);
+      },
+      ...treeSteps(stageGeom, STAGE_PALETTE, [target], scratch, sd, lay.scale, feather),
+    ];
+    paint.run("stage", steps, () => releaseScratch("stage"));
+  };
+
+  /** The water strip, the jetty with its lamp and one hanging lantern per novel in progress. */
+  const paintStageWater = (g: Ctx, box: WindowBox, dpr: number, waterY: number, scale: number, hold: { accent: string; glow: number }[]) => {
+    g.setTransform(1, 0, 0, 1, 0, 0);
+    g.clearRect(0, 0, g.canvas.width, g.canvas.height);
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    const s = Math.max(0.6, scale);
+    const W = box.w;
+    const H = box.h;
+    const water = g.createLinearGradient(0, waterY - 8, 0, H);
+    water.addColorStop(0, "rgba(10,30,42,0)");
+    water.addColorStop(0.12, "rgba(10,30,42,0.9)");
+    water.addColorStop(0.45, "#06131c");
+    water.addColorStop(0.78, "rgba(4,11,17,0.7)");
+    water.addColorStop(1, "rgba(4,11,17,0)");
+    g.fillStyle = water;
+    g.fillRect(0, waterY - 8, W, H - waterY + 8);
+    g.fillStyle = "rgba(150,195,215,0.12)";
+    g.fillRect(0, waterY, W, 1);
+    // A low far bank behind the water, so the strip reads as a canal.
+    const rng = createRng(ctx.seed + 71);
+    g.fillStyle = "#0b1d28";
+    g.beginPath();
+    g.moveTo(0, waterY + 0.5);
+    for (let x = 0; x <= W + 6; x += 6) g.lineTo(x, waterY - (2 + 4 * Math.abs(noise(x * 0.01, 3)) + (rng() < 0.08 ? 6 : 0)) * s);
+    g.lineTo(W, waterY + 0.5);
+    g.closePath();
+    g.fill();
+    // The jetty: posts into the water and a plank deck reaching in from the right.
+    const jx = box.boxX + box.boxW * JETTY_AT;
+    const jEnd = Math.min(W + 4, box.boxX + box.boxW + Math.min(24 * s, (W - box.boxX - box.boxW) * 0.5));
+    const deckY = waterY - 10 * s;
+    g.fillStyle = "#120b06";
+    g.fillRect(jx, deckY, jEnd - jx, 4 * s);
+    g.fillStyle = "#3a2516";
+    g.fillRect(jx, deckY, jEnd - jx, 1.2 * s);
+    g.fillStyle = "#0d0805";
+    const postH = (H - deckY) * 0.7;
+    for (let px = jx + 4 * s; px < jEnd - 2; px += 26 * s) g.fillRect(px, deckY, 3 * s, postH);
+    // Lamp post and its lantern at the head of the jetty.
+    const lx = jx + 10 * s;
+    const top = Math.max(6 * s, deckY - H * 0.46);
+    g.fillRect(lx - 1.5 * s, top, 3 * s, deckY - top);
+    g.fillRect(lx - 1.5 * s, top, 14 * s, 2 * s);
+    g.fillStyle = "#ffd48f";
+    g.fillRect(lx + 9 * s, top + 3 * s, 5 * s, 7 * s);
+    // Hanging lanterns along the rail: one per novel in progress, warmer the further read.
+    const span = Math.max(40, jEnd - jx - 40 * s);
+    hold.forEach((l, k) => {
+      const x = jx + 34 * s + (span * (k + 0.5)) / Math.max(1, hold.length);
+      const y = deckY - 14 * s;
+      g.strokeStyle = "rgba(20,12,6,0.9)";
+      g.lineWidth = Math.max(0.8, s);
+      g.beginPath();
+      g.moveTo(x, deckY);
+      g.lineTo(x, y - 4 * s);
+      g.stroke();
+      g.fillStyle = lampColour(l.accent, 0.5 + 0.5 * l.glow);
+      g.beginPath();
+      g.ellipse(x, y, 3 * s, 4 * s, 0, 0, TAU);
+      g.fill();
+      g.globalAlpha = 0.35 + 0.5 * l.glow;
+      const gr = 16 * s;
+      g.drawImage(sprites.warm, x - gr, y - gr, gr * 2, gr * 2);
+      // Its reflection: a short warm column on the water.
+      const rg = g.createLinearGradient(0, waterY, 0, waterY + (H - waterY) * 0.9);
+      rg.addColorStop(0, lampColour(l.accent, 0.3 * l.glow));
+      rg.addColorStop(1, lampColour(l.accent, 0));
+      g.globalAlpha = 1;
+      g.fillStyle = rg;
+      g.fillRect(x - 2.5 * s, waterY + 2, 5 * s, (H - waterY) * 0.9);
+    });
+    // The jetty lamp's own reflection.
+    const rg = g.createLinearGradient(0, waterY, 0, H);
+    rg.addColorStop(0, "rgba(255,200,120,0.32)");
+    rg.addColorStop(1, "rgba(255,170,90,0)");
+    g.fillStyle = rg;
+    g.fillRect(lx + 8 * s, waterY + 2, 7 * s, H - waterY - 2);
+  };
+
+  /**
+   * Fades a window's water and bank out over the gutters (destination-in), so the near lamphu
+   * trees standing in the gutters stay in front of the far bank and the canal strip.
+   */
+  const featherSides = (g: Ctx, box: WindowBox, dpr: number) => {
+    const W = box.w;
+    const l1 = Math.max(0, box.boxX - 8);
+    const r0 = Math.min(W, box.boxX + box.boxW + 8);
+    if (W <= 0 || (l1 <= 0 && r0 >= W)) return;
+    const stops: [number, number][] = [];
+    if (l1 > 0) stops.push([0, 0], [Math.max(0, l1 - 48) / W, 0], [l1 / W, 1]);
+    else stops.push([0, 1]);
+    if (r0 < W) stops.push([r0 / W, 1], [Math.min(W, r0 + 48) / W, 0], [1, 0]);
+    else stops.push([1, 1]);
+    g.save();
+    g.setTransform(dpr, 0, 0, dpr, 0, 0);
+    g.globalCompositeOperation = "destination-in";
+    const lg = g.createLinearGradient(0, 0, W, 0);
+    for (const [at, a] of stops) lg.addColorStop(at, `rgba(0,0,0,${a})`);
+    g.fillStyle = lg;
+    g.fillRect(0, 0, W, g.canvas.height / dpr);
+    g.restore();
+  };
+
+  const placeStage = (lay: FireflyLayout, waterY: number) => {
+    const w = wins.stage;
+    if (!w || !stageGeom) return;
+    const s = Math.max(0.7, lay.scale);
+    const n = lay.mode === "phone" || lay.mode === "landscape-short" ? 30 : 46;
+    stage.field.count = Math.min(STAGE_CAP, n + 6);
+    for (let i = 0; i < stage.field.count; i++) {
+      if (i < n) {
+        const k = pickWeighted(stageGeom.perchCdf, ((i * 4111 + 7) % 9973) / 9973);
+        stage.kind[i] = 0;
+        stage.homeX[i] = stageGeom.perches[k * 2];
+        stage.homeY[i] = stageGeom.perches[k * 2 + 1];
+        stage.edge[i] = stageGeom.perchEdge[k];
+        stage.size[i] = (12 + stage.roll[i] * 12) * s;
+        stage.bright[i] = 0.8 + stage.roll[i] * 0.2;
+        stage.wA[i] = (1.5 + stage.roll[i] * 3) * lay.scale;
+        stage.calm[i] = stage.roll[i] < 0.8 ? 0.25 + 0.55 * stage.edge[i] : 0;
+        stage.floor[i] = 0.08 + 0.1 * stage.edge[i];
+      } else {
+        stage.kind[i] = 1;
+        stage.homeX[i] = w.box.boxX + w.box.boxW * (0.15 + 0.7 * ((stage.roll[i] * 17.3) % 1));
+        stage.homeY[i] = waterY - (8 + 18 * ((stage.roll[i] * 7.7) % 1)) * s;
+        stage.size[i] = 14 * s;
+        stage.bright[i] = 0.75;
+        stage.wA[i] = 9 * s;
+        stage.calm[i] = stage.roll[i] < 0.5 ? 0.4 : 0;
+        stage.floor[i] = 0.05;
+      }
+    }
+    configureGrid(stage.field, w.box.w, w.box.h, 80);
+  };
+
+  const layoutMid = (snapshot: PageSnapshot, lay: FireflyLayout) => {
+    const box = windowBox(snapshot, "mid");
+    const sd = staticDpr(snapshot.viewport);
+    const cards = snapshot.cards.map((c) => `${c.slug}:${c.kind}:${c.read ?? "-"}:${c.finished ? 1 : 0}`).join("|");
+    const key = [box.w, box.h, box.boxX, box.boxW, sd, lay.mode, cards].join(":");
+    wins.mid = { box, doc: winDoc(snapshot, "mid") };
+    if (key === winKeys.mid || box.h < 8) return;
+    winKeys.mid = key;
+    const b = (bank = bankLayout(snapshot.cards, box, lay.scale, ctx.seed, lay.mode));
+    const artH = b.waterY + 6;
+    const art = (bankArt = surfaceFor(bankArt, box.w * sd, artH * sd));
+    const riverH = Math.max(1, box.h - b.waterY);
+    const mir = (mirror = surfaceFor(mirror, box.w, riverH));
+    placeMid(lay);
+    paint.run("mid", [
+      ...bankSteps(b, art.g, sd, mir.g, 1, art.canvas, sprites.warm),
+      () => {
+        featherSides(art.g, box, sd);
+        featherSides(mir.g, box, 1);
+      },
+    ]);
+  };
+
+  const placeMid = (lay: FireflyLayout) => {
+    if (!bank) return;
+    const b = bank;
+    const s = Math.max(0.6, lay.scale);
+    const n = Math.min(MID_CAP, Math.round(clamp(b.w / 26, 20, MID_CAP)));
+    mid.field.count = n;
+    for (let i = 0; i < n; i++) {
+      const x = ((mid.roll[i] * 53.7 + i / n) % 1) * b.w;
+      const k = clamp(Math.round(x / PROFILE_STEP), 0, b.profile.length - 1);
+      mid.kind[i] = 0;
+      mid.homeX[i] = x;
+      mid.homeY[i] = b.waterY - b.profile[k] * (0.4 + 0.9 * ((mid.roll[i] * 9.1) % 1)) - 3 * s;
+      mid.size[i] = (8 + mid.roll[i] * 7) * s;
+      mid.floor[i] = mid.roll[i] > 0.6 ? 0.06 : 0;
+      mid.bright[i] = 0.65 + mid.roll[i] * 0.3;
+      mid.wA[i] = 1.2 * s;
+      mid.calm[i] = mid.roll[i] < 0.55 ? 0.3 + 0.4 * mid.roll[i] : 0;
+    }
+    configureGrid(mid.field, b.w, b.h, 70);
+  };
+
+  const layoutGround = (snapshot: PageSnapshot, lay: FireflyLayout) => {
+    const box = windowBox(snapshot, "ground");
+    const key = [box.w, box.h, box.boxX, box.boxW].join(":");
+    wins.ground = { box, doc: winDoc(snapshot, "ground") };
+    if (key === winKeys.ground || box.h < 8) return;
+    winKeys.ground = key;
+    const waterTop = box.h * 0.4;
+    reeds = buildReeds(box, box.h * 0.42, lay.scale, ctx.seed);
+    const strip = (groundWater = surfaceFor(groundWater, 4, Math.max(1, box.h - waterTop)));
+    paint.run("ground", [
+      () => {
+        const g = strip.g;
+        g.setTransform(1, 0, 0, 1, 0, 0);
+        g.clearRect(0, 0, 4, strip.canvas.height);
+        const lg = g.createLinearGradient(0, 0, 0, strip.canvas.height);
+        lg.addColorStop(0, "rgba(14,38,50,0)");
+        lg.addColorStop(0.08, "rgba(12,32,44,0.85)");
+        lg.addColorStop(0.45, "#06121a");
+        lg.addColorStop(1, "#03080c");
+        g.fillStyle = lg;
+        g.fillRect(0, 0, 4, strip.canvas.height);
+      },
+    ]);
+    const s = Math.max(0.6, lay.scale);
+    const n = Math.min(GROUND_CAP, Math.round(clamp(box.w / 70, 8, GROUND_CAP)));
+    ground.field.count = n;
+    for (let i = 0; i < n; i++) {
+      const sideRoll = (ground.roll[i] * 11.3) % 1;
+      const inner = box.boxX + box.boxW * 0.1;
+      const x = sideRoll < 0.5 ? sideRoll * 2 * inner : box.w - (sideRoll - 0.5) * 2 * inner;
+      ground.kind[i] = 1;
+      ground.homeX[i] = x;
+      ground.homeY[i] = waterTop - (10 + 50 * ((ground.roll[i] * 5.9) % 1)) * s;
+      ground.size[i] = (12 + ground.roll[i] * 9) * s;
+      ground.bright[i] = 0.75;
+      ground.wA[i] = 10 * s;
+      ground.calm[i] = ground.roll[i] < 0.5 ? 0.4 : 0;
+      ground.floor[i] = 0.04;
+    }
+    configureGrid(ground.field, box.w, box.h, 90);
+  };
+
+  const recompose = (f: HubFrame) => {
+    const snapshot = f.page;
+    const width = f.width || snapshot.viewport.w;
+    const height = f.height || snapshot.viewport.h;
+    if (width <= 0 || height <= 0) return;
+    const lay = computeLayout(snapshot, width, height);
+    L = lay;
+    configureGrid(sky.field, width, height, Math.max(70, Math.min(width, height) * 0.11));
+    layoutSky(lay);
+    layoutTrees(lay);
+    if (driftFF !== lay.counts.drift || treeFF !== (trees.length > 0 ? lay.counts.tree : 0)) placeTreeFireflies(lay);
+    else placeDrifters(lay);
+    layoutStage(snapshot, lay);
+    layoutMid(snapshot, lay);
+    layoutGround(snapshot, lay);
+  };
+
+  /* ---------------- per-frame positions ---------------- */
+
+  const shiftX = () => -parX * 10;
+  const shiftY = () => -parY * 4;
+
+  /** Viewport position of sky firefly i without attraction. */
+  const skyBase = (f: HubFrame, i: number, t: number, moving: boolean) => {
+    const wa = moving ? sky.wA[i] : 0;
+    if (sky.kind[i] === 1) {
+      const ns = sky.roll[i] * 100;
+      const dx = moving ? 46 * Math.sin(t * 0.07 * (1 + sky.wF1[i]) + sky.wP1[i]) + 14 * noise(t * 0.05 + ns, ns) : 0;
+      return { x: sky.homeX[i] + dx, y: sky.homeY[i] - f.scrollY + (moving ? wa * Math.sin(t * sky.wF2[i] + sky.wP2[i]) : 0) };
+    }
+    const sy = f.staticY[COL_L] ?? 0;
+    return {
+      x: sky.homeX[i] + (moving ? shiftX() : 0) + wa * Math.sin(t * sky.wF1[i] + sky.wP1[i]),
+      y: sky.homeY[i] - sy + (moving ? shiftY() : 0) + wa * 0.6 * Math.sin(t * sky.wF2[i] + sky.wP2[i]),
+    };
+  };
+
+  /** Positions every firefly of a population for this frame (canvas px of its plane). */
+  const movePop = (pop: Pop, f: HubFrame, t: number, base: (i: number) => { x: number; y: number }, s: number) => {
+    for (let i = 0; i < pop.field.count; i++) {
+      const p = base(i);
+      let x = p.x;
+      let y = p.y;
+      const a = attraction(pop, i, t);
+      if (a > 0) {
+        const tx = pop.tx[i] + Math.sin(t * 0.7 + pop.wP1[i]) * 7 * s * (pop.tDoc[i] ? 0.3 : 1);
+        const ty = (pop.tDoc[i] ? pop.ty[i] - f.scrollY : pop.ty[i]) + Math.sin(t * 0.55 + pop.wP2[i]) * 5 * s * (pop.tDoc[i] ? 0.2 : 1);
+        x += (tx - x) * a;
+        y += (ty - y) * a - Math.sin(a * Math.PI) * 14 * s;
+      }
+      pop.x[i] = x;
+      pop.y[i] = y;
+      pop.field.x[i] = x;
+      pop.field.y[i] = y;
+    }
+  };
+
+  const windowBase = (pop: Pop, t: number, moving: boolean) => (i: number) => {
+    const wa = moving ? pop.wA[i] : 0;
+    if (pop.kind[i] === 1 && moving) {
+      return {
+        x: pop.homeX[i] + 30 * Math.sin(t * 0.09 * (1 + pop.wF1[i]) + pop.wP1[i]),
+        y: pop.homeY[i] + wa * Math.sin(t * pop.wF2[i] + pop.wP2[i]),
+      };
+    }
+    return { x: pop.homeX[i] + wa * Math.sin(t * pop.wF1[i] + pop.wP1[i]), y: pop.homeY[i] + wa * 0.6 * Math.sin(t * pop.wF2[i] + pop.wP2[i]) };
+  };
+
+  /* ---------------- drawing ---------------- */
+
+  /** 1 away from text, down to 0.3 right behind it (sky fireflies only). */
+  const quiet = (snapshot: PageSnapshot, x: number, yDoc: number): number => {
     let f = 1;
-    const pad = 16;
-    for (let q = 0; q < quietCount * 4; q += 4) {
-      const dx = Math.max(quiet[q] - x, 0, x - quiet[q + 2]);
-      const dy = Math.max(quiet[q + 1] - y, 0, y - quiet[q + 3]);
+    const pad = 18;
+    for (const h of snapshot.holes) {
+      const dx = Math.max(h.x - x, 0, x - (h.x + h.w));
+      const dy = Math.max(h.y - yDoc, 0, yDoc - (h.y + h.h));
       const d = Math.max(dx, dy);
       if (d < pad) f = Math.min(f, 0.3 + 0.7 * (d / pad));
     }
     return f;
-  }
+  };
 
-  function applyParallax(dt: number, pointer: Readonly<PointerState>): void {
-    const tx = pointer.active && pointer.type === "mouse" ? clamp(pointer.nx - 0.5, -0.5, 0.5) : 0;
-    const ty = pointer.active && pointer.type === "mouse" ? clamp(pointer.ny - 0.5, -0.5, 0.5) : 0;
-    const k = dt > 0 ? 1 - Math.exp(-dt * 2.2) : 1;
-    parX += (tx - parX) * k;
-    parY += (ty - parY) * k;
-    const qx = Math.round(parX * 400) / 400;
-    const qy = Math.round(parY * 400) / 400;
-    if (qx === lastTransformX && qy === lastTransformY) return;
-    lastTransformX = qx;
-    lastTransformY = qy;
-    farOffX = -qx * 6;
-    farOffY = -qy * 2;
-    offX[0] = farOffX;
-    offY[0] = farOffY;
-    offX[1] = farOffX;
-    offY[1] = farOffY;
-    offX[2] = -qx * 11;
-    offY[2] = -qy * 3.8;
-    offX[3] = -qx * 14;
-    offY[3] = -qy * 3;
-    skyCanvas!.style.transform = `translate3d(${(-qx * 3).toFixed(2)}px,${(-qy * 1.5).toFixed(2)}px,0)`;
-    const far = `translate3d(${farOffX.toFixed(2)}px,${farOffY.toFixed(2)}px,0)`;
-    farCanvas!.style.transform = far;
-    riverCanvas!.style.transform = far;
-    nearCanvas!.style.transform = `translate3d(${offX[2].toFixed(2)}px,${offY[2].toFixed(2)}px,0)`;
-    reedCanvas!.style.transform = `translate3d(${(-qx * 17).toFixed(2)}px,0,0)`;
-  }
-
-  function updateWind(t: number, dt: number, W: number): void {
-    if (dt <= 0) return;
-    if (t >= nextGustAt && gustX > W + gustWidth * 2) {
-      gustWidth = W * (0.18 + Math.random() * 0.14);
-      gustX = -gustWidth * 2;
-      gustSpeed = W / (3 + Math.random() * 2);
-      gustStrength = 0.6 + Math.random() * 0.6;
-      nextGustAt = t + 7 + Math.random() * 9;
+  const covered = (snapshot: PageSnapshot, x: number, yDoc: number, pad: number) => {
+    for (const r of snapshot.cover) {
+      if (x - pad >= r.x && x + pad <= r.x + r.w && yDoc - pad >= r.y && yDoc + pad <= r.y + r.h) return true;
     }
-    gustX += gustSpeed * dt;
-    const inView = gustX > -gustWidth && gustX < W + gustWidth ? 1 : 0;
-    windLevel += (inView * gustStrength - windLevel) * (1 - Math.exp(-dt * 1.5));
-  }
+    return false;
+  };
 
-  function rippleOffset(r: number, hR: number, t: number): number {
-    const depth = r / hR;
-    const amp = (0.35 + 4.2 * depth * Math.sqrt(depth)) * (1 + 0.45 * windLevel);
-    const q = Math.sqrt(r);
-    return amp * (0.65 * Math.sin(q * 3.1 - t * 1.5) + 0.35 * Math.sin(q * 1.3 + t * 0.8 + 1.3));
-  }
+  /** Wake gate of the opening: dark until the front passes, then a slow ramp (>= 300 ms per light). */
+  const introGate = (t: number, vy: number, height: number): number => {
+    const e = t - introAt;
+    if (e > 2.2 || e < 0) return 1;
+    const tf = 0.15 + 1.45 * clamp(vy / Math.max(1, height), 0, 1);
+    return smooth(tf, tf + 0.45, e);
+  };
+  const introGlow = (t: number, vy: number, height: number): number => {
+    const e = t - introAt;
+    if (e > 2.2 || e < 0) return 0;
+    const tf = 0.15 + 1.45 * clamp(vy / Math.max(1, height), 0, 1);
+    return 0.7 * smooth(tf, tf + 0.35, e) * (1 - smooth(tf + 0.35, tf + 1.2, e));
+  };
 
-  function drawRiver(L: SceneLayout, t: number, moving: boolean): void {
-    if (!riverSrc || !riverTint) return;
-    const ctx = riverCtx!;
-    const rs = riverScale;
-    const hR = L.height - L.waterY;
-    const devH = riverCanvas!.height;
-    const devW = riverCanvas!.width;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = 1;
+  /**
+   * Draws a population. `level` gives each firefly's brightness; `yDoc` converts a canvas y
+   * to document px for the hole and cover tests (sky only).
+   */
+  const drawPop = (
+    g: Ctx,
+    pop: Pop,
+    level: (i: number) => number,
+    opts: { snapshot?: PageSnapshot; scrollY?: number; limit?: number; reflectY?: number; reflectTo?: number; scale: number },
+  ) => {
+    const n = Math.min(pop.field.count, opts.limit ?? pop.field.count);
+    g.globalCompositeOperation = "lighter";
+    for (let i = 0; i < n; i++) {
+      if (pop.hidden[i]) continue;
+      let glow = level(i);
+      if (glow < 0.012) continue;
+      const x = pop.x[i];
+      const y = pop.y[i];
+      const r = pop.size[i] * (0.85 + 0.25 * Math.min(1, glow));
+      if (opts.snapshot && opts.scrollY !== undefined) {
+        const yDoc = y + opts.scrollY;
+        if (covered(opts.snapshot, x, yDoc, r * 0.3)) continue;
+        glow *= quiet(opts.snapshot, x, yDoc);
+      }
+      g.globalAlpha = Math.min(1, glow);
+      g.drawImage(sprites.ff[pop.field.species[i]], x - r, y - r, r * 2, r * 2);
+      if (opts.reflectY !== undefined && opts.reflectTo !== undefined) {
+        const ry = 2 * opts.reflectY - y;
+        if (ry > opts.reflectY + 1 && ry < opts.reflectTo) {
+          g.globalAlpha = Math.min(1, glow) * 0.38 * (1 - (ry - opts.reflectY) / Math.max(1, opts.reflectTo - opts.reflectY));
+          g.drawImage(sprites.ff[pop.field.species[i]], x - r * 0.85, ry - r * 1.4, r * 1.7, r * 2.8);
+        }
+      }
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+  };
+
+  const liveLevel = (pop: Pop, t: number, height: number, offsetY: number) => (i: number) => {
+    let e = flashIntensity(pop.field, i, t) * pop.bright[i] + pop.floor[i];
+    if (introAt >= 0 && t - introAt < 2.2) {
+      const vy = pop.y[i] + offsetY;
+      e = e * introGate(t, vy, height) + introGlow(t, vy, height) * pop.bright[i];
+    }
+    return e;
+  };
+
+  const drawRings = (g: Ctx, plane: Ring["plane"], t: number, scrollY: number, s: number) => {
+    g.globalCompositeOperation = "lighter";
+    for (const ring of rings) {
+      if (ring.plane !== plane) continue;
+      const tau = t - ring.t;
+      if (tau < 0 || tau > 1.6) continue;
+      const y = ring.doc ? ring.y - scrollY : ring.y;
+      const a = tau < 0.12 ? smooth(0, 0.12, tau) : 1 - smooth(0.12, 1.6, tau);
+      const r = 30 * s * (0.8 + 0.3 * a);
+      g.globalAlpha = a * 0.85;
+      g.drawImage(sprites.call, ring.x - r, y - r, r * 2, r * 2);
+      const spread = smooth(0, 1.6, tau);
+      const rr = (14 + 80 * spread) * s;
+      g.globalAlpha = (1 - spread) * 0.65;
+      g.drawImage(sprites.ring, ring.x - rr, y - rr * (plane === "mid" ? 0.35 : 1), rr * 2, rr * 2 * (plane === "mid" ? 0.35 : 1));
+    }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+  };
+
+  const boatLen = (box: WindowBox) => clamp(box.boxW * 0.2, 80, 220);
+
+  /** Paddle range along the stage box: the stern pole stays in the window, the bow stops short of the jetty. */
+  const boatRange = (): [number, number] => {
+    const box = wins.stage?.box;
+    if (!box || box.boxW <= 0) return [0.22, 0.5];
+    const len = boatLen(box) / box.boxW;
+    const lo = Math.max(0.12, 0.8 * len + 0.02);
+    const hi = JETTY_AT - 0.56 * len - 0.03;
+    return hi > lo ? [lo, hi] : [(lo + hi) / 2, (lo + hi) / 2];
+  };
+
+  const drawBoat = (g: Ctx, box: WindowBox, waterY: number, s: number, t: number, moving: boolean) => {
+    const len = boatLen(box);
+    const [lo, hi] = boatRange();
+    const bx = box.boxX + box.boxW * clamp(boatPos, lo, hi);
+    const bob = moving ? Math.sin(t * 1.9) * 0.8 * s : 0;
+    const by = waterY + 3 * s + bob;
+    const tilt = moving ? clamp(boatVel * 0.25, -0.05, 0.05) + Math.sin(t * 1.3) * 0.012 : 0;
+    const hull = (sign: 1 | -1, alpha: number, fill: string) => {
+      g.save();
+      g.translate(bx, by);
+      g.rotate(tilt * sign);
+      g.scale(1, sign);
+      g.globalAlpha = alpha;
+      g.fillStyle = fill;
+      const h = 7 * s;
+      g.beginPath();
+      g.moveTo(-len / 2, -h * 0.6);
+      g.lineTo(len * 0.34, -h);
+      g.quadraticCurveTo(len * 0.5, -h * 1.4, len * 0.56, -h * 2.8);
+      g.quadraticCurveTo(len * 0.5, -h * 0.2, len * 0.3, 0);
+      g.quadraticCurveTo(-len * 0.1, h * 0.3, -len / 2, -h * 0.1);
+      g.closePath();
+      g.fill();
+      // The canopy roof and the long-tail pole at the stern.
+      g.fillRect(-len * 0.2, -h * 3.2, len * 0.34, h * 0.45);
+      g.fillRect(-len * 0.18, -h * 3, 1.2 * s, h * 2.2);
+      g.fillRect(len * 0.12, -h * 3, 1.2 * s, h * 2.2);
+      g.beginPath();
+      g.moveTo(-len * 0.48, -h * 0.9);
+      g.lineTo(-len * 0.78, h * 0.4);
+      g.lineTo(-len * 0.77, h * 0.6);
+      g.lineTo(-len * 0.46, -h * 0.6);
+      g.closePath();
+      g.fill();
+      g.restore();
+    };
+    // Its reflection: a moonlit copy broken into ripple bands.
+    g.save();
+    g.beginPath();
+    for (let y = by + 1; y < by + 7 * s * 3.2; y += 4.5) g.rect(bx - len, y, len * 2, 2.6);
+    g.clip();
+    hull(-1, 0.16, "rgb(120,160,185)");
+    g.restore();
+    hull(1, 1, "#0d0906");
+    g.globalAlpha = 1;
+    // Moonlight along the gunwale, so the hull reads against the dark water.
+    g.strokeStyle = "rgba(150,185,205,0.38)";
+    g.lineWidth = Math.max(0.8, 0.9 * s);
+    g.beginPath();
+    g.moveTo(bx - len / 2, by - 4.2 * s);
+    g.lineTo(bx + len * 0.34, by - 7 * s);
+    g.quadraticCurveTo(bx + len * 0.5, by - 9.8 * s, bx + len * 0.56, by - 19.6 * s);
+    g.stroke();
+    // The boat's little lamp under the canopy.
+    g.globalCompositeOperation = "lighter";
+    g.globalAlpha = 0.85;
+    const gr = 14 * s;
+    g.drawImage(sprites.warm, bx - len * 0.03 - gr, by - 16 * s - gr, gr * 2, gr * 2);
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+    if (!moving) return;
+    // Wake: two short diverging arms behind the stern that widen and fade over 1.5 s.
+    g.strokeStyle = "rgb(170,210,225)";
+    g.lineWidth = Math.max(0.8, s * 0.9);
+    for (const w of wakes) {
+      const age = t - w.t;
+      if (age < 0 || age > 1.5) continue;
+      const arm = (10 + age * 22) * s * (0.8 + 0.4 * ((w.t * 7.3) % 1));
+      const x = box.boxX + box.boxW * w.x;
+      const y = waterY + 5 * s;
+      g.globalAlpha = (1 - age / 1.5) * 0.25;
+      g.beginPath();
+      g.moveTo(x, y);
+      g.lineTo(x - w.dir * arm, y - arm * 0.09 * (1 + age * 0.5));
+      g.moveTo(x, y + 1);
+      g.lineTo(x - w.dir * arm, y + arm * 0.16 * (1 + age * 0.5));
+      g.stroke();
+    }
+    g.globalAlpha = 1;
+  };
+
+  const drawStage = (g: Ctx, f: HubFrame, t: number, moving: boolean) => {
+    const w = wins.stage;
+    if (!w || !stageArt || !L) return;
+    const box = w.box;
+    const waterY = box.h * (L.mode === "landscape-short" ? 0.62 : 0.68);
+    g.drawImage(stageArt.canvas, 0, 0, stageArt.canvas.width, stageArt.canvas.height, 0, 0, box.w, box.h);
+    const s = Math.max(0.6, L.scale);
+    // Moonlit glints on the strip.
+    g.fillStyle = "#d4e6f2";
+    const grng = createRng(ctx.seed + 31);
+    for (let k = 0; k < 26; k++) {
+      const x = grng() * box.w;
+      const y = waterY + 3 + grng() * (box.h - waterY - 6);
+      const speed = 1 + grng() * 2.4;
+      const ph = grng() * TAU;
+      let a = moving ? Math.sin(t * speed + ph) : 0.4 + 0.3 * Math.sin(ph);
+      if (a <= 0) continue;
+      a = a * a * 0.4;
+      const dx = moving ? rippleOffset(y - waterY, box.h - waterY, t, wind) : 0;
+      g.globalAlpha = a;
+      g.fillRect(x + dx, y, (3 + grng() * 9) * s, 1);
+    }
+    g.globalAlpha = 1;
+    // The jetty lamp breathes a little (<= 12% luminance, < 2 Hz).
+    const lampX = box.boxX + box.boxW * JETTY_AT + 10 * s + 11.5 * s;
+    const top = Math.max(6 * s, waterY - 10 * s - box.h * 0.46);
+    const flick = moving ? 1 + 0.06 * Math.sin(t * 4.1) + 0.04 * Math.sin(t * 6.7 + 1) : 1;
+    g.globalCompositeOperation = "lighter";
+    g.globalAlpha = 0.75 * flick;
+    const lr = 26 * s;
+    g.drawImage(sprites.warm, lampX - lr, top + 6.5 * s - lr, lr * 2, lr * 2);
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+    drawBoat(g, box, waterY, s, t, moving);
+    const level = moving
+      ? liveLevel(stage, t, f.height, f.win.stage?.y ?? 0)
+      : (i: number) => (stillGathered ? 0.85 : stage.calm[i]) * stage.bright[i];
+    drawPop(g, stage, level, { scale: s, reflectY: waterY, reflectTo: box.h });
+    if (moving) drawRings(g, "stage", t, f.scrollY, s);
+  };
+
+  const drawMid = (g: Ctx, f: HubFrame, t: number, moving: boolean) => {
+    const b = bank;
+    if (!b || !bankArt || !mirror || !L) return;
+    const sd = bankArt.canvas.width / Math.max(1, b.w);
+    g.drawImage(bankArt.canvas, 0, 0, bankArt.canvas.width, bankArt.canvas.height, 0, 0, b.w, bankArt.canvas.height / sd);
+    const riverH = b.h - b.waterY;
+    const src = mirror.canvas;
     let row = 0;
+    const devH = src.height;
     while (row < devH) {
-      const r = row / rs;
-      const depth = Math.min(1, r / hR);
-      const hs = Math.max(1, Math.round((1 + 2.2 * depth + 2.5 * depth * depth) * rs));
-      const dx = (moving ? rippleOffset(r + hs * 0.5 / rs, hR, t) : rippleOffset(r, hR, 0.7) * 0.4) * rs;
-      ctx.drawImage(riverSrc, 0, row, devW, hs, dx, row, devW, hs);
+      const depth = row / Math.max(1, riverH);
+      const hs = Math.max(1, Math.round(1 + 2.2 * depth + 2.5 * depth * depth));
+      const dx = moving ? rippleOffset(row + hs * 0.5, riverH, t, wind) : rippleOffset(row, riverH, 0.7, 0) * 0.4;
+      // The river fades into the band below the window.
+      g.globalAlpha = 1 - smooth(0.62, 1, depth);
+      g.drawImage(src, 0, row, src.width, hs, dx, b.waterY + row, src.width, hs);
       row += hs;
     }
-    ctx.drawImage(riverTint, 0, 0);
-
-    ctx.setTransform(rs, 0, 0, rs, MARGIN * rs, -L.waterY * rs);
-    ctx.globalCompositeOperation = "lighter";
-    ctx.fillStyle = "#d4e6f2";
-    for (let n = 0; n < glints.length; n++) {
-      const g = glints[n];
-      let a: number;
-      if (moving) {
-        a = Math.sin(t * g.speed + g.phase);
-        if (a <= 0) continue;
-        a = a * a;
-        a = a * a * g.base;
-      } else {
-        a = g.base * 0.35 * (0.5 + 0.5 * Math.sin(g.phase));
-      }
-      if (a < 0.02) continue;
-      ctx.globalAlpha = a;
-      const dx = moving ? rippleOffset(g.y - L.waterY, hR, t) * 0.6 : 0;
-      ctx.fillRect(g.x + dx - g.len / 2, g.y, g.len, g.w);
+    g.globalAlpha = 1;
+    const s = b.scale;
+    // Upcoming novels: boat lanterns on their way, never arriving.
+    g.globalCompositeOperation = "lighter";
+    for (const boat of b.boats) {
+      const x = boatX(boat, t) + (moving ? Math.sin(t * 0.6 + boat.y) * 1.5 : 0);
+      const y = boat.y + (moving ? Math.sin(t * 1.1 + boat.tau) * 0.8 : 0);
+      g.globalCompositeOperation = "source-over";
+      g.fillStyle = "#04090d";
+      g.beginPath();
+      g.ellipse(x, y + 2 * s, 11 * s, 2.2 * s, 0, 0, TAU);
+      g.fill();
+      g.globalCompositeOperation = "lighter";
+      g.globalAlpha = 0.85;
+      g.fillStyle = lampColour(boat.accent, 1);
+      g.beginPath();
+      g.arc(x + 4 * s, y - 3 * s, 1.5 * s, 0, TAU);
+      g.fill();
+      const gr = 12 * s;
+      g.globalAlpha = 0.6;
+      g.drawImage(sprites.warm, x + 4 * s - gr, y - 3 * s - gr, gr * 2, gr * 2);
+      g.globalAlpha = 0.3;
+      g.drawImage(sprites.warm, x + 4 * s - gr * 0.4, y + 2 * s, gr * 0.8, gr * 1.6);
     }
-    ctx.globalAlpha = 1;
-  }
+    g.globalAlpha = 1;
+    g.globalCompositeOperation = "source-over";
+    const level = moving
+      ? liveLevel(mid, t, f.height, f.win.mid?.y ?? 0)
+      : (i: number) => (i < Math.round((mid.field.count * stillBeats) / CHORUS_BEATS) ? 0.9 : mid.calm[i]) * mid.bright[i];
+    drawPop(g, mid, level, { scale: s, reflectY: b.waterY, reflectTo: b.h });
+    if (moving) drawRings(g, "mid", t, f.scrollY, s);
+    else if (stillBeats > 0) {
+      // Each counted beat shows as a ring of light on the river.
+      g.globalCompositeOperation = "lighter";
+      for (let k = 0; k < Math.min(stillBeats, CHORUS_BEATS); k++) {
+        const rr = (16 + k * 9) * s;
+        g.globalAlpha = 0.5 - k * 0.04;
+        const cx = b.boxX + b.boxW * 0.62;
+        const cy = b.waterY + riverH * 0.45;
+        g.drawImage(sprites.ring, cx - rr, cy - rr * 0.3, rr * 2, rr * 0.6);
+      }
+      g.globalAlpha = 1;
+      g.globalCompositeOperation = "source-over";
+    }
+  };
 
-  function drawReeds(L: SceneLayout, t: number, moving: boolean): void {
-    const ctx = reedCtx!;
-    const rh = L.reedHeight;
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, reedCanvas!.width, reedCanvas!.height);
-    ctx.setTransform(reedDpr, 0, 0, reedDpr, MARGIN * reedDpr, 0);
-    const baseY = rh + 2;
+  const drawGround = (g: Ctx, f: HubFrame, t: number, moving: boolean) => {
+    const w = wins.ground;
+    if (!w || !reeds || !groundWater || !L) return;
+    const box = w.box;
+    const waterTop = box.h * 0.4;
+    g.drawImage(groundWater.canvas, 0, 0, groundWater.canvas.width, groundWater.canvas.height, 0, waterTop, box.w, box.h - waterTop);
+    const s = Math.max(0.6, L.scale);
+    g.fillStyle = "#cfe2ee";
+    const grng = createRng(ctx.seed + 37);
+    for (let k = 0; k < 18; k++) {
+      const x = grng() * box.w;
+      const y = waterTop + 8 + grng() * (box.h - waterTop - 16) * 0.5;
+      const ph = grng() * TAU;
+      let a = moving ? Math.sin(t * (0.8 + grng() * 1.6) + ph) : 0.4 + 0.3 * Math.sin(ph);
+      if (a <= 0) continue;
+      a = a * a * 0.22;
+      g.globalAlpha = a;
+      g.fillRect(x + (moving ? rippleOffset(y - waterTop, box.h - waterTop, t, wind) : 0), y, (4 + grng() * 10) * s, 1);
+    }
+    g.globalAlpha = 1;
+    const r = reeds;
+    const baseY = waterTop + 10 * s;
     for (let group = 0; group < 2; group++) {
-      ctx.beginPath();
-      for (let n = 0; n < reedCount; n++) {
-        if (reedGroup[n] !== group) continue;
-        const x = reedX[n];
-        const h = reedH[n];
-        let bend = reedLean[n];
+      g.beginPath();
+      for (let n = 0; n < r.n; n++) {
+        if (r.group[n] !== group) continue;
+        const x = r.x[n];
+        const h = r.h[n];
+        let bend = r.lean[n];
         if (moving) {
           const q = (x - gustX) / gustWidth;
           const gust = q > -3 && q < 3 ? gustStrength * Math.exp(-q * q) : 0;
-          bend += (0.05 * Math.sin(t * reedFreq[n] + reedPhase[n] + x * 0.004) + (gust * 0.32 + windLevel * 0.05)) / reedStiff[n];
+          bend += (0.05 * Math.sin(t * r.freq[n] + r.phase[n] + x * 0.004) + (gust * 0.32 + wind * 0.05)) / r.stiff[n];
         }
-        const w = reedW[n];
+        const rw = r.w[n];
         const tx = x + Math.sin(bend) * h;
         const ty = baseY - Math.cos(bend) * h;
         const cx = x + Math.sin(bend * 0.45) * h * 0.55;
         const cy = baseY - Math.cos(bend * 0.45) * h * 0.55;
-        ctx.moveTo(x - w, baseY);
-        ctx.quadraticCurveTo(cx - w * 0.45, cy, tx, ty);
-        ctx.quadraticCurveTo(cx + w * 0.45, cy, x + w, baseY);
+        g.moveTo(x - rw, baseY + 4);
+        g.quadraticCurveTo(cx - rw * 0.45, cy, tx, ty);
+        g.quadraticCurveTo(cx + rw * 0.45, cy, x + rw, baseY + 4);
       }
-      ctx.fillStyle = group === 0 ? "#0a1822" : "#020508";
-      ctx.fill();
+      g.fillStyle = group === 0 ? "#0a1822" : "#020508";
+      g.fill();
     }
-  }
+    const level = moving ? liveLevel(ground, t, f.height, f.win.ground?.y ?? 0) : (i: number) => ground.calm[i] * ground.bright[i];
+    drawPop(g, ground, level, { scale: s, reflectY: waterTop + 10 * s, reflectTo: box.h * 0.7 });
+    if (moving) drawRings(g, "ground", t, f.scrollY, s);
+  };
 
-  function scheduleWave(t: number): void {
-    const wave = field.wave;
-    if (!waveInitialised) {
-      waveInitialised = true;
-      wave.nextAt = t + 7 + Math.random() * 3;
+  /* ---------------- events ---------------- */
+
+  const cardOf = (slug: string | null) => (slug ? (page.getSnapshot().cards.find((c) => c.slug === slug) ?? null) : null);
+
+  const visible = (f: HubFrame, c: CardInfo) => c.rect.y - f.scrollY < f.height && c.rect.y + c.rect.h - f.scrollY > 0;
+
+  /** Lets the perched cluster go: the DOM perch is removed and its fireflies fly home from the frame. */
+  const releasePerch = (t: number) => {
+    if (!perch) return;
+    if (perch.id > 0) out.unperch(perch.id);
+    for (const i of perch.members) {
+      sky.hidden[i] = 0;
+      sky.aEnd[i] = Math.min(sky.aEnd[i], t);
     }
-    if (!wave.running && t >= wave.nextAt && layout) {
-      const pad = layout.width * 0.04;
-      startWave(field, t, Math.random() < 0.5 ? 1 : -1, coupledMinX - pad, coupledMaxX + pad);
-      wave.nextAt = t + 28 + Math.random() * 12;
+    perch = null;
+  };
+
+  /** M1: the nearest fireflies fly to the frame's top edge and settle there as a DOM perch. */
+  const summon = (f: HubFrame, slug: string, t: number, linger: number) => {
+    const card = cardOf(slug);
+    if (!card || !visible(f, card) || !L) return;
+    if (perch && perch.slug === slug) {
+      perch.releaseAt = linger;
+      return;
     }
-  }
+    releasePerch(t);
+    const s = Math.max(0.7, L.scale);
+    const u = 0.5;
+    const ex = card.rect.x + card.rect.w * u;
+    const ey = card.rect.y - f.scrollY;
+    const members = nearestFree(sky, ex, ey, t, PERCH_SIZE).map((i, k) => {
+      const d = Math.hypot(sky.x[i] - ex, sky.y[i] - ey);
+      sky.tx[i] = ex + (k - (PERCH_SIZE - 1) / 2) * 6 * s;
+      sky.ty[i] = card.rect.y - 3 - (k % 2) * 3;
+      sky.tDoc[i] = 1;
+      sky.aStart[i] = t;
+      sky.aArrive[i] = t + 0.9 + Math.min(0.7, d / 900);
+      sky.aEnd[i] = card.kind === "open" ? Infinity : sky.aArrive[i] + 1.6;
+      sky.field.active[i] = 1;
+      // They flash together on arrival; the refractory interval still holds.
+      sky.field.respondAt[i] = sky.aArrive[i] + 0.1;
+      return i;
+    });
+    if (card.kind !== "open" || members.length === 0) return;
+    perch = { slug, members, landAt: Math.max(...members.map((i) => sky.aArrive[i])) + 0.15, id: 0, releaseAt: linger, u };
+  };
 
-  /** Blend toward a call point: fly in, hover in a loose swarm, then return. */
-  function attraction(i: number, t: number): number {
-    if (!(t > attractStart[i] && t < attractEnd[i] + 2.5)) return 0;
-    return smooth(attractStart[i], attractArrive[i], t) * (1 - smooth(attractEnd[i], attractEnd[i] + 2.5, t)) * attractAmt[i];
-  }
-
-  function moveFireflies(L: SceneLayout, t: number, dt: number): void {
-    const n = field.count;
-    for (let i = 0; i < n; i++) {
-      const k = kind[i];
-      const a = attraction(i, t);
-      const swarmX = attractX[i] + Math.sin(t * 0.7 + wanderP1[i]) * 9 * wanderScale;
-      const swarmY = attractY[i] + Math.sin(t * 0.55 + wanderP2[i]) * 6 * wanderScale;
-      if (k === 3) {
-        const ns = driftSeed[i];
-        const ang = noise(posX[i] * 0.0025 + ns, t * 0.05 + ns) * Math.PI * 1.2;
-        const speed = (10 + 8 * sizeRoll[i]) * wanderScale * (1 - a);
-        posX[i] += (Math.cos(ang) * speed + windLevel * 6 * (1 - a)) * dt;
-        surf[i] += Math.sin(ang) * speed * 0.25 * dt;
-        if (surf[i] < driftMinY) surf[i] += (driftMinY - surf[i]) * dt;
-        if (surf[i] > driftMaxY) surf[i] -= (surf[i] - driftMaxY) * dt;
-        if (posX[i] < -40) posX[i] = L.width + 40;
-        else if (posX[i] > L.width + 40) posX[i] = -40;
-        const ax = posX[i];
-        const ay = surf[i] - driftH[i] * (0.8 + 0.2 * Math.sin(t * 0.4 + ns));
-        field.x[i] = ax + (swarmX - ax) * a;
-        field.y[i] = ay + (swarmY - ay) * a;
-        continue;
-      }
-      if (dt > 0 && (k === 1 || k === 2) && t > flyEnd[i] && a === 0 && Math.random() < dt * 0.01) {
-        fromX[i] = homeX[i];
-        fromY[i] = homeY[i];
-        perch[i] = Math.floor(Math.random() * 1e9);
-        setHome(i, L);
-        flyStart[i] = t;
-        flyEnd[i] = t + 2.5 + Math.random() * 2.5;
-      }
-      let ax = homeX[i];
-      let ay = homeY[i];
-      if (t < flyEnd[i]) {
-        const p = clamp((t - flyStart[i]) / (flyEnd[i] - flyStart[i]), 0, 1);
-        const e = p * p * (3 - 2 * p);
-        ax = lerp(fromX[i], homeX[i], e);
-        ay = lerp(fromY[i], homeY[i], e) - Math.sin(p * Math.PI) * 18 * wanderScale;
-      }
-      const wa = wanderA[i];
-      ax += wa * Math.sin(t * wanderF1[i] + wanderP1[i]);
-      ay += wa * 0.6 * Math.sin(t * wanderF2[i] + wanderP2[i]);
-      field.x[i] = ax + (swarmX - ax) * a;
-      field.y[i] = ay + (swarmY - ay) * a - Math.sin(a * Math.PI) * 14 * wanderScale;
+  /** M12: the frame's fireflies scatter into the air. */
+  const scatter = (f: HubFrame, slug: string, t: number) => {
+    const card = cardOf(slug);
+    if (!card || !L) return;
+    const s = Math.max(0.7, L.scale);
+    const members = perch?.slug === slug ? perch.members : [];
+    if (perch?.slug === slug) {
+      perch.id = 0;
+      perch = null;
     }
-  }
-
-  function drawFireflies(ctx: CanvasRenderingContext2D, L: SceneLayout, t: number, moving: boolean): void {
-    const n = field.count;
-    const fs = fxScale;
-    for (let i = 0; i < n; i++) {
-      drawn[i] = 0;
-      let e: number;
-      let tau = 1e9;
-      let flashLen = 1;
-      if (moving) {
-        e = flashIntensity(field, i, t);
-        tau = t - field.flashAt[i];
-        flashLen = field.attack[i] + field.decay[i];
-      } else {
-        e = still[i];
-      }
-      let glow = e * bright[i] + floorGlow[i];
-      if (glow < 0.012) continue;
-      const k = kind[i];
-      let sx = 0;
-      let sy = 0;
-      let u = 0;
-      const swooping = moving && tau < flashLen && swoopH[i] > 0;
-      if (swooping) {
-        u = tau / flashLen;
-        sy = swoopH[i] * Math.sin(u * 2.36);
-        sx = swoopW[i] * swoopH[i] * 0.6 * u * u * u;
-      }
-      const baseX = field.x[i];
-      const baseY = field.y[i];
-      const px = baseX + sx + offX[k];
-      const py = baseY + sy + offY[k];
-      if (quietCount) glow *= quietFactor(px, py);
-      const r = size[i] * (0.85 + 0.25 * e);
-      const alpha = bokeh[i] ? glow * 0.5 : glow;
-      ctx.globalAlpha = alpha > 1 ? 1 : alpha;
-      ctx.drawImage(bokeh[i] ? bokehSprite : sprites[field.species[i]], px - r, py - r, r * 2, r * 2);
-      if (swooping && e > 0.2 && (k === 2 || k === 3) && u > 0.08) {
-        // One stretched streak from where the swoop started to the head.
-        const tu = u * 0.35;
-        const tx = baseX + offX[k] + swoopW[i] * swoopH[i] * 0.6 * tu * tu * tu;
-        const ty = baseY + offY[k] + swoopH[i] * Math.sin(tu * 2.36);
-        const dx = px - tx;
-        const dy = py - ty;
-        const len = Math.hypot(dx, dy);
-        if (len > 2) {
-          const ux = dx / len;
-          const uy = dy / len;
-          const th = r * 0.22;
-          const sl = (len + th) / STREAK_W;
-          const st = th / STREAK_H;
-          ctx.globalAlpha = Math.min(1, glow * 0.4);
-          ctx.setTransform(fs * ux * sl, fs * uy * sl, -fs * uy * st, fs * ux * st, fs * px, fs * py);
-          ctx.drawImage(streakSprite, -STREAK_W, -STREAK_H / 2);
-          ctx.setTransform(fs, 0, 0, fs, 0, 0);
-        }
-      }
-      drawn[i] = 1;
-      drawX[i] = px;
-      drawMirrorY[i] = 2 * surf[i] - (baseY + sy) - offY[k];
-      drawR[i] = r;
-      drawA[i] = alpha;
+    const ex = card.rect.x + card.rect.w * 0.5;
+    const ey = card.rect.y - f.scrollY;
+    // Without a perched cluster, the fireflies nearest the frame take off instead.
+    const flyers = members.length > 0 ? members : nearestFree(sky, ex, ey, t, PERCH_SIZE);
+    for (const i of flyers) {
+      sky.hidden[i] = 0;
+      sky.x[i] = ex + (Math.random() - 0.5) * 30 * s;
+      sky.y[i] = ey;
+      const ang = -Math.PI / 2 + (Math.random() - 0.5) * 2.2;
+      sky.tx[i] = sky.x[i] + Math.cos(ang) * (80 + Math.random() * 80) * s;
+      sky.ty[i] = ey + Math.sin(ang) * (60 + Math.random() * 60) * s;
+      sky.tDoc[i] = 0;
+      sky.aStart[i] = t - 0.9;
+      sky.aArrive[i] = t + 0.6;
+      sky.aEnd[i] = t + 0.8;
     }
+  };
 
-    if (moving) {
-      for (let c = 0; c < CALLS; c++) {
-        const tau = t - callT[c];
-        if (tau < 0 || tau > 1.6) continue;
-        const a = tau < 0.12 ? smooth(0, 0.12, tau) : 1 - smooth(0.12, 1.6, tau);
-        const r = 42 * Math.max(0.75, L.scale) * (0.8 + 0.3 * a);
-        ctx.globalAlpha = a;
-        ctx.drawImage(callSprite, callX[c] - r, callY[c] - r, r * 2, r * 2);
-        // A soft ring spreads from the tap so the call reads even against a busy tree.
-        const spread = smooth(0, 1.6, tau);
-        const rr = (14 + 84 * spread) * Math.max(0.75, L.scale);
-        ctx.globalAlpha = (1 - spread) * 0.7;
-        ctx.drawImage(ringSprite, callX[c] - rr, callY[c] - rr, rr * 2, rr * 2);
-      }
-    }
-    ctx.globalAlpha = 1;
-  }
+  const stageFocus = () => {
+    const snapshot = page.getSnapshot();
+    const hit = snapshot.windows.stageHit;
+    return toWindow("stage", hit.x + hit.w * 0.5, hit.y + hit.h * 0.4);
+  };
 
-  /** Firefly reflections on the river layer (which already carries the far-layer offset). */
-  function drawReflections(L: SceneLayout, t: number, moving: boolean): void {
-    const hR = L.height - L.waterY;
-    const rs = riverScale;
-    const rctx = riverCtx!;
-    rctx.setTransform(rs, 0, 0, rs, MARGIN * rs, -L.waterY * rs);
-    rctx.globalCompositeOperation = "lighter";
-    for (let i = 0; i < field.count; i++) {
-      if (!drawn[i] || bokeh[i]) continue;
-      const r = drawR[i];
-      const ry = drawMirrorY[i];
-      if (ry <= L.waterY + 1 || ry > L.height + r) continue;
-      const depth = (ry - L.waterY) / hR;
-      const ra = drawA[i] * 0.42 * (1 - depth * 0.6);
-      if (ra < 0.01) continue;
-      const dx = moving ? rippleOffset(ry - L.waterY, hR, t) : 0;
-      rctx.globalAlpha = ra > 1 ? 1 : ra;
-      const rw = r * 0.85;
-      const rh = r * 1.5;
-      rctx.drawImage(sprites[field.species[i]], drawX[i] - farOffX + dx - rw, ry + farOffY - rh, rw * 2, rh * 2);
-    }
-    rctx.globalAlpha = 1;
-    rctx.globalCompositeOperation = "source-over";
-  }
+  const midFocus = () => {
+    const snapshot = page.getSnapshot();
+    const hit = snapshot.windows.midHit;
+    return { x: hit.x + hit.w * 0.5, yDoc: hit.y + hit.h * 0.5 };
+  };
 
-  function render(ctx: CanvasRenderingContext2D, frame: Readonly<SceneFrame>): void {
-    const L = layout;
-    if (!L) return;
-    const { t, dt } = frame;
-    sceneT = t;
-    frameNo++;
-    if (quietDirty || t - quietCheckedAt > 1) measureQuiet(t);
-    applyParallax(dt, frame.pointer);
-    updateWind(t, dt, L.width);
-    scheduleWave(t);
-    moveFireflies(L, t, dt);
-    stepField(field, t, dt, Math.random);
-    ctx.clearRect(0, 0, L.width, L.height);
-    drawFireflies(ctx, L, t, true);
-    // On fast displays the river and the reeds alternate frames (30 Hz each).
-    const split = dt > 0 && dt < 1 / 45;
-    if (!split || (frameNo & 1) === 0) {
-      drawRiver(L, t, true);
-      drawReflections(L, t, true);
-    }
-    if (!split || (frameNo & 1) === 1) drawReeds(L, t, true);
-  }
+  /** Starts a chorus wave now (or toward a chosen card). */
+  const startWave = (f: HubFrame, t: number, toU?: number) => {
+    const span = frontSpan(f.width, f.height);
+    const to = toU ?? span.to;
+    wave = createWave(t, WAVE_AXIS.ax, WAVE_AXIS.ay, span.from, to, toU === undefined ? 2.6 : 1.1);
+    waveCross = new Set();
+    wavePeaked = false;
+    for (const pop of [sky, stage, mid, ground]) boostCoupling(pop.field, t);
+  };
 
-  function reducedMotionFrame(ctx: CanvasRenderingContext2D): void {
-    const L = layout;
-    if (!L) return;
-    applyParallax(0, NEUTRAL_POINTER);
-    measureQuiet(sceneT);
-    for (let i = 0; i < field.count; i++) {
-      field.x[i] = kind[i] === 3 ? posX[i] : homeX[i];
-      field.y[i] = kind[i] === 3 ? surf[i] - driftH[i] : homeY[i];
-    }
-    ctx.clearRect(0, 0, L.width, L.height);
-    drawFireflies(ctx, L, 0, false);
-    drawRiver(L, 0, false);
-    drawReflections(L, 0, false);
-    drawReeds(L, 0, false);
-  }
+  /** M4: the page says once per visit that the fireflies have taken the reader's beat. */
+  const announceRhythm = () => {
+    if (rhythmAnnounced) return;
+    rhythmAnnounced = true;
+    out.announce(RHYTHM_TEXT);
+  };
 
-  function isInteractive(target: EventTarget | null): boolean {
-    return target instanceof Element && target.closest("a, button, input, select, textarea, label, summary, [role='button'], [contenteditable='true']") !== null;
-  }
+  let pendingPick: string | null = null;
+  let pendingBeat: { x: number; yDoc: number } | null = null;
+  const pendingCalls: { plane: "sky" | WindowName; x: number; y: number }[] = [];
+  let pendingPress: string | null = null;
+  let frameRef: HubFrame | null = null;
 
-  function onPointer(pointer: Readonly<PointerState>, event: PointerEvent): void {
-    if (event.type !== "pointerup" || !pointer.justTapped || !layout || isInteractive(event.target)) return;
-    const t = sceneT;
-    const x = pointer.x;
-    const y = pointer.y;
-    callX[callCursor] = x;
-    callY[callCursor] = y;
-    callT[callCursor] = t;
-    callCursor = (callCursor + 1) % CALLS;
-
-    // The nearest fireflies answer: they fly in, gather in a loose swarm and
-    // flash back as a cascade from the nearest outward. triggerFlash keeps
-    // each one's refractory interval.
-    const s = layout.scale;
-    const reach = Math.max(200, Math.min(layout.width, layout.height) * 0.42);
-    const candidates: Array<{ i: number; d: number }> = [];
-    for (let i = 0; i < field.count; i++) {
-      if (kind[i] === 0 || bokeh[i]) continue;
-      const d = Math.hypot(field.x[i] - x, field.y[i] - y);
-      if (d < reach) candidates.push({ i, d });
-    }
-    candidates.sort((a, b) => a.d - b.d);
-    const answer = Math.min(candidates.length, 16);
-    for (let c = 0; c < answer; c++) {
-      const { i, d } = candidates[c];
-      const ang = Math.random() * TAU;
-      const rr = Math.sqrt(Math.random());
-      attractX[i] = x + Math.cos(ang) * rr * 46 * Math.max(0.7, s);
-      attractY[i] = y + Math.sin(ang) * rr * 30 * Math.max(0.7, s);
-      attractStart[i] = t + 0.25 + c * 0.03;
-      attractArrive[i] = attractStart[i] + 1.1 + (d / reach) * 1.1;
-      attractEnd[i] = attractArrive[i] + 6 + Math.random() * 3;
-      attractAmt[i] = 0.92 + Math.random() * 0.06;
-      field.respondAt[i] = t + 1.1 + (c / Math.max(1, answer - 1)) * 1.1;
-      field.active[i] = 1;
-      field.boutEnd[i] = Math.max(field.boutEnd[i], attractEnd[i]);
-    }
-  }
-
-  const scene = createScene({
-    canvas: fxCanvas,
-    container: root,
-    dprCap: FX_DPR_CAP,
-    render,
-    resize,
-    onPointer,
-    reducedMotionFrame,
-  });
-  scene.start();
+  /* ---------------- hooks ---------------- */
 
   return {
-    destroy() {
-      jobId++;
-      clearTimeout(jobTimer);
-      scene.destroy();
-      window.removeEventListener("scroll", markQuiet);
-      riverSrc = null;
-      riverTint = null;
+    resize(f) {
+      frameRef = f;
+      recompose(f);
+    },
+
+    layout(f) {
+      frameRef = f;
+      recompose(f);
+    },
+
+    windowHz(name: WindowName, tier: Tier) {
+      if (name === "stage") return tier < 2 ? Infinity : 30;
+      return tier === 0 ? 30 : tier === 1 ? 20 : 0;
+    },
+
+    intro() {
+      introPending = true;
+    },
+
+    render(f, g) {
+      frameRef = f;
+      if (!L) return;
+      const lay = L;
+      const t = f.t;
+      const dt = f.dt;
+      if (wasStill) {
+        // Back from a still: nothing queued under it plays now.
+        wasStill = false;
+        stillGathered = false;
+        stillBeats = 0;
+        stillSync = false;
+      }
+      if (introPending) {
+        introPending = false;
+        introAt = t;
+        nextWaveAt = t + 9;
+      }
+      if (nextWaveAt < 0) nextWaveAt = t + 7 + Math.random() * 3;
+      const s = Math.max(0.7, lay.scale);
+
+      // Pointer parallax on fine pointers: trees and sky shift a few px.
+      const p = f.pointer;
+      const tx = p.active && p.type === "mouse" ? clamp(p.nx - 0.5, -0.5, 0.5) : 0;
+      const ty = p.active && p.type === "mouse" ? clamp(p.ny - 0.5, -0.5, 0.5) : 0;
+      const k = dt > 0 ? 1 - Math.exp(-dt * 2.2) : 1;
+      parX += (tx - parX) * k;
+      parY += (ty - parY) * k;
+      if (!lay.coarse) {
+        ctx.shiftStatic(SKY, -parX * 4, -parY * 2);
+        for (const i of [COL_L, COL_R, CANOPY]) ctx.shiftStatic(i, shiftX(), shiftY());
+      }
+
+      // Wind for the reeds and ripples.
+      if (t >= nextGustAt && gustX > f.width + gustWidth * 2) {
+        gustWidth = f.width * (0.18 + Math.random() * 0.14);
+        gustX = -gustWidth * 2;
+        gustSpeed = f.width / (3 + Math.random() * 2);
+        gustStrength = 0.6 + Math.random() * 0.6;
+        nextGustAt = t + 7 + Math.random() * 9;
+      }
+      gustX += gustSpeed * dt;
+      wind += ((gustX > -gustWidth && gustX < f.width + gustWidth ? gustStrength : 0) - wind) * (1 - Math.exp(-dt * 1.5));
+
+      // Queued input from events (applied here, where time and the frame are known).
+      for (const call of pendingCalls.splice(0)) {
+        rings.push({ plane: call.plane, x: call.x, y: call.y, t, doc: false });
+        callSwarm(pops[call.plane], call.x, call.y, t, CALL_SIZE, 46 * s, call.plane === "sky" ? Math.max(200, Math.min(f.width, f.height) * 0.42) : 420 * s, 6);
+      }
+      if (pendingPress) {
+        scatter(f, pendingPress, t);
+        pendingPress = null;
+      }
+      if (pendingPick) {
+        const card = cardOf(pendingPick);
+        if (card) {
+          const fully = card.rect.y - f.scrollY >= 0 && card.rect.y + card.rect.h - f.scrollY <= f.height;
+          const vy = fully ? card.rect.y - f.scrollY + card.rect.h / 2 : f.height / 2;
+          startWave(f, t, frontCoord(card.rect.x + card.rect.w / 2, vy));
+          pickSlug = card.slug;
+        }
+        pendingPick = null;
+      }
+      if (pendingBeat) {
+        const tap = rhythmTap(rhythm, performance.now() / 1000);
+        rings.push({ plane: "mid", ...(toWindow("mid", pendingBeat.x, pendingBeat.yDoc) ?? { x: 0, y: 0 }), t, doc: false });
+        // The bank answers each tap at once with its nearest fireflies.
+        for (let i = 0; i < mid.field.count; i += 3) mid.field.respondAt[i] = Math.min(mid.field.respondAt[i], t + 0.05);
+        if (tap.steady) {
+          driver = createDriver(tap.period, 0, 0);
+          driverDoc = { x: pendingBeat.x, y: pendingBeat.yDoc };
+          driverUntil = t + DRIVER_HOLD_PERIODS * tap.period;
+          if (tap.beats >= CHORUS_BEATS && chorusUntil < t) {
+            chorusUntil = t + CHORUS_S;
+            out.beat(null, "chorus");
+            announceRhythm();
+          }
+        }
+        pendingBeat = null;
+      }
+      if (driver) {
+        advanceDriver(driver, dt);
+        if (chorusUntil > t) {
+          driver.radius = Infinity;
+          driverUntil = Math.max(driverUntil, chorusUntil);
+        }
+        if (t > driverUntil) driver = null;
+      }
+
+      // The chorus wave: scheduled every 28-40 s.
+      if (!waveRunning(wave, t) && t >= nextWaveAt) {
+        startWave(f, t);
+        nextWaveAt = t + 28 + Math.random() * 12;
+      }
+      const tPrev = t - dt;
+      const front = wave && waveRunning(wave, t) ? wave.from + wave.speed * (t - wave.startedAt) : null;
+
+      // Sky fireflies: positions, liveness, then one Kuramoto step.
+      const nSky = sky.field.count;
+      const driftLimit = f.tier >= 1 ? treeFF + Math.round(driftFF * 0.6) : nSky;
+      movePop(sky, f, t, (i) => skyBase(f, i, t, true), s);
+      for (let i = 0; i < nSky; i++) {
+        const on = sky.x[i] > -40 && sky.x[i] < f.width + 40 && sky.y[i] > -40 && sky.y[i] < f.height + 40 && i < driftLimit;
+        sky.field.live[i] = on ? 1 : 0;
+      }
+      const skyDriver = driver ? { ...driver, x: driverDoc.x, y: driverDoc.y - f.scrollY } : null;
+      stepField(sky.field, t, dt, Math.random, sweepBetween(wave, tPrev, t), skyDriver);
+
+      // Window fireflies step only while their window is on screen.
+      for (const name of ["stage", "mid", "ground"] as const) {
+        const r = f.win[name];
+        const pop = pops[name];
+        if (!r) {
+          pop.field.live.fill(0, 0, pop.field.count);
+          continue;
+        }
+        pop.field.live.fill(1, 0, pop.field.count);
+        movePop(pop, f, t, windowBase(pop, t, true), s);
+        const local = driver ? { ...driver, x: driverDoc.x - r.x, y: driverDoc.y - f.scrollY - r.y } : null;
+        stepField(pop.field, t, dt, Math.random, sweepBetween(wave, tPrev, t, r.x, r.y), local);
+      }
+
+      // Perch: land, then hand over to the DOM; take off when the page scrolls fast.
+      if (perch) {
+        if (Math.abs(f.scrollVel) > SCROLL_TAKEOFF && perch.id > 0) releasePerch(t);
+        else if (perch.id === 0 && t >= perch.landAt) {
+          const id = out.perch(perch.slug, { kind: "firefly", u: perch.u });
+          if (id > 0) {
+            perch.id = id;
+            for (const i of perch.members) sky.hidden[i] = 1;
+          } else perch.landAt = t + 1;
+        }
+        if (perch && t >= perch.releaseAt) releasePerch(t);
+      }
+
+      // Card light: attention, chorus swells and the pick (M1, M7, M8, M9).
+      const order = crossingOrder(f.page.cards, f.scrollY, f.height);
+      if (front !== null && wave) {
+        const prev = wave.from + wave.speed * Math.max(0, tPrev - wave.startedAt);
+        for (const c of order) {
+          if (waveCross.has(c.slug) || c.u > front || c.u < prev - 1) continue;
+          waveCross.add(c.slug);
+          const card = cardOf(c.slug);
+          if (!card || card.kind !== "open") continue;
+          if (t - (swellAt.get(c.slug) ?? -10) >= SWELL_GAP_S) {
+            swellAt.set(c.slug, t);
+            out.beat(c.slug, "wave");
+          }
+        }
+        if (!wavePeaked && front >= (wave.from + wave.to) / 2) {
+          wavePeaked = true;
+          breathAt = t;
+        }
+      }
+      if (pickSlug && wave && !waveRunning(wave, t)) {
+        const slug = pickSlug;
+        pickSlug = null;
+        summon(f, slug, t, t + 6);
+        swellAt.set(slug, t);
+        out.beat(slug, "wave");
+      }
+      for (const card of f.page.cards) {
+        if (card.kind !== "open" || !visible(f, card)) continue;
+        const attended = attendSlug === card.slug ? 0.75 : 0;
+        const at = swellAt.get(card.slug) ?? -10;
+        const e = t - at;
+        const swell = e < 0 || e > 1.7 ? 0 : 0.7 * (e < 0.4 ? smooth(0, 0.4, e) : 1 - smooth(0.4, 1.7, e));
+        const target = Math.max(attended, swell);
+        const cur = glowNow.get(card.slug) ?? 0;
+        // Falls are shaped here (>= 900 ms); rises are slew-limited by the output.
+        const next = target >= cur ? target : Math.max(target, cur - dt / 0.9);
+        glowNow.set(card.slug, next);
+        const sent = glowSent.get(card.slug);
+        if (sent === undefined || Math.abs(sent - next) >= 1 / 64 || (next === 0 && sent !== 0)) {
+          glowSent.set(card.slug, next);
+          out.card(card.slug, { "w-glow": next });
+        }
+      }
+      const be = t - breathAt;
+      const breath = be < 0 || be > 2 ? 0 : be < 0.6 ? smooth(0, 0.6, be) : 1 - smooth(0.6, 2, be);
+      out.root({ "w-breath": breath });
+
+      // Draw: sky fireflies, rings, then the windows that are due.
+      const live = g.live;
+      drawPop(live, sky, liveLevel(sky, t, f.height, 0), { snapshot: f.page, scrollY: f.scrollY, limit: driftLimit, scale: s });
+      drawRings(live, "sky", t, f.scrollY, s);
+      if (g.stage) {
+        if (boatVel !== 0) {
+          boatVel *= Math.exp(-dt * 0.9);
+          boatPos += boatVel * dt;
+          const [lo, hi] = boatRange();
+          if (boatPos < lo || boatPos > hi) {
+            // Bounce off the jetty or the bank only when moving into it.
+            if ((boatPos < lo && boatVel < 0) || (boatPos > hi && boatVel > 0)) boatVel *= -0.3;
+            boatPos = clamp(boatPos, lo, hi);
+          }
+          if (Math.abs(boatVel) < 0.004) boatVel = 0;
+          if (Math.abs(boatVel) > 0.02 && t - lastWakeAt > 0.22) {
+            lastWakeAt = t;
+            const box = wins.stage?.box;
+            const half = box && box.boxW > 0 ? (0.5 * boatLen(box)) / box.boxW : 0.07;
+            wakes.push({ x: boatPos - Math.sign(boatVel) * half, t, dir: Math.sign(boatVel) });
+            if (wakes.length > 10) wakes.shift();
+          }
+        }
+        drawStage(g.stage, f, t, true);
+      }
+      if (g.mid) drawMid(g.mid, f, t, f.tier < 2);
+      if (g.ground) drawGround(g.ground, f, t, f.tier < 2);
+      while (rings.length && t - rings[0].t > 2) rings.shift();
+    },
+
+    still(f, g) {
+      frameRef = f;
+      wasStill = true;
+      if (!L) return;
+      const lay = L;
+      const s = Math.max(0.7, lay.scale);
+      const t = f.t;
+      // Rest positions, the canopy outline lit, or in sync after eight steady beats.
+      movePop(sky, f, t, (i) => skyBase(f, i, t, false), s);
+      const attended = cardOf(attendSlug);
+      const near = attended && visible(f, attended) ? { top: attended.rect.y - f.scrollY, bottom: attended.rect.y + attended.rect.h - f.scrollY } : null;
+      const level = (i: number) => {
+        if (stillSync && sky.kind[i] === 0) return 0.82 * sky.bright[i];
+        let v = sky.calm[i] * sky.bright[i];
+        // The trees beside the attended card light up around it.
+        if (near && sky.kind[i] === 0 && sky.y[i] > near.top - 30 && sky.y[i] < near.bottom + 30) v = Math.max(v, 0.7 * sky.bright[i]);
+        return v;
+      };
+      drawPop(g.live, sky, level, { snapshot: f.page, scrollY: f.scrollY, scale: s });
+      if (g.stage) {
+        movePop(stage, f, t, windowBase(stage, t, false), s);
+        if (stillGathered) {
+          const focus = stageFocus();
+          if (focus) {
+            for (let i = 0; i < stage.field.count; i++) {
+              const a = (i * 2.399) % TAU;
+              const rr = Math.sqrt((i + 0.5) / stage.field.count) * 40 * s;
+              stage.x[i] = focus.x + Math.cos(a) * rr;
+              stage.y[i] = focus.y + Math.sin(a) * rr * 0.6;
+            }
+          }
+        }
+        drawStage(g.stage, f, t, false);
+      }
+      if (g.mid) {
+        movePop(mid, f, t, windowBase(mid, t, false), s);
+        drawMid(g.mid, f, t, false);
+      }
+      if (g.ground) {
+        movePop(ground, f, t, windowBase(ground, t, false), s);
+        drawGround(g.ground, f, t, false);
+      }
+      const cards: Record<string, { "w-glow": number }> = {};
+      for (const card of f.page.cards) {
+        if (card.kind !== "open") continue;
+        cards[card.slug] = { "w-glow": card.slug === attendSlug ? 0.7 : card.finished ? 0.35 : 0 };
+      }
+      out.still({ "w-breath": stillSync ? 0.6 : 0 }, cards);
+    },
+
+    onPointer(p: HubPointer) {
+      if (!(p.tap || p.press) || !frameRef || !L) return;
+      if (frameRef.still) return;
+      if (p.zone === "open") pendingCalls.push({ plane: "sky", x: p.x, y: p.y });
+      else if (p.zone === "stage" || p.zone === "mid" || p.zone === "ground") {
+        const r = frameRef.win[p.zone];
+        if (r) pendingCalls.push({ plane: p.zone, x: p.x - r.x, y: p.y - r.y });
+      }
+    },
+
+    onEvent(event: SceneEvent) {
+      const f = frameRef;
+      const still = f?.still ?? false;
+      switch (event.name) {
+        case "hub:attention": {
+          const { slug } = event.detail;
+          attendSlug = slug;
+          if (!f || still) return;
+          if (slug) summon(f, slug, f.t, Infinity);
+          else if (perch) perch.releaseAt = f.t + PERCH_RELEASE_S;
+          if (slug && perch && perch.slug !== slug) perch.releaseAt = f.t;
+          return;
+        }
+        case "hub:press": {
+          if (perch?.slug === event.detail.slug) perch.id = 0;
+          if (!still) pendingPress = event.detail.slug;
+          return;
+        }
+        case "hub:pick": {
+          if (!still && event.detail.slug) pendingPick = event.detail.slug;
+          return;
+        }
+        case "hub:stage": {
+          const d = event.detail;
+          if (d.window === "stage") {
+            if (d.action === "tap") {
+              if (still) {
+                stillGathered = true;
+                return;
+              }
+              const r = f?.win.stage;
+              const at = d.x !== undefined && d.y !== undefined && r ? { x: d.x - r.x, y: d.y - r.y } : stageFocus();
+              if (at) pendingCalls.push({ plane: "stage", ...at });
+              return;
+            }
+            const dir = d.action === "left" ? -1 : 1;
+            if (still) {
+              const [lo, hi] = boatRange();
+              boatPos = clamp(clamp(boatPos, lo, hi) + dir * 0.08, lo, hi);
+            }
+            else boatVel = clamp(boatVel + dir * 0.2, -0.45, 0.45);
+            return;
+          }
+          if (d.action !== "tap") return;
+          if (still) {
+            stillBeats = Math.min(CHORUS_BEATS, stillBeats + 1);
+            if (stillBeats >= CHORUS_BEATS) {
+              stillSync = true;
+              announceRhythm();
+            }
+            return;
+          }
+          const focus = midFocus();
+          const scrollY = f?.scrollY ?? 0;
+          pendingBeat = d.x !== undefined && d.y !== undefined ? { x: d.x, yDoc: d.y + scrollY } : focus;
+          return;
+        }
+        case "hub:modal": {
+          if (event.detail.open && event.detail.kind !== "picker" && perch) {
+            // The output removes every perch when a dialog opens.
+            perch.id = 0;
+            releasePerch(f?.t ?? 0);
+          }
+          return;
+        }
+        case "hub:reading":
+        case "hub:theme":
+          return;
+      }
+    },
+
+    dispose() {
+      for (const key of [...jobScratch.keys()]) releaseScratch(key);
+      // The live canvas keeps a viewport-sized backing after the runtime stops; drop it so a
+      // hidden theme container holds no pixels (createScene sizes it again on the next mount).
+      planes.live.width = 0;
+      planes.live.height = 0;
+      for (const canvas of statics) {
+        canvas.width = 0;
+        canvas.height = 0;
+        for (const prop of ["left", "top", "width", "height"]) canvas.style.removeProperty(prop);
+      }
       trees = [];
-      scratch.length = 0;
+      stageGeom = null;
+      bank = null;
+      reeds = null;
+      stageArt = null;
+      bankArt = null;
+      mirror = null;
+      groundWater = null;
+      perch = null;
+      frameRef = null;
+      L = null;
     },
   };
 }

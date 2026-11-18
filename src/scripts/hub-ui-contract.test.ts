@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { describe, it } from "node:test";
-import { NOVELS } from "../data/_novels";
+import { NOVELS, UPCOMING_NOVELS } from "../data/_novels";
 
 const root = process.cwd();
 
@@ -41,6 +41,26 @@ describe("Fiction hub visual contract", () => {
     const locked = novelCard.slice(novelCard.indexOf('class="novel-card is-disabled"'));
     assert.doesNotMatch(locked, /titleEn/);
     assert.match(locked, /ยังไม่เปิดให้อ่าน/);
+  });
+
+  it("announces Hizumi (left) then Ruin (right) as upcoming cards that open nothing", () => {
+    const upcomingCard = readProjectFile("src/components/_shared/UpcomingNovelCard.astro");
+    const hub = readProjectFile("src/pages/index.astro");
+
+    assert.deepEqual(
+      UPCOMING_NOVELS.map((novel) => novel.slug),
+      ["hizumi", "ruin"],
+    );
+    assert.doesNotMatch(upcomingCard, /<a\b|href=\{|data-novel-slug/);
+    assert.match(upcomingCard, /เร็วๆ นี้/);
+    for (const novel of UPCOMING_NOVELS) {
+      const imagePath = `public${novel.heroImage}`;
+      assert.equal(existsSync(projectPath(imagePath)), true, `${imagePath} should exist`);
+    }
+    assert.ok(
+      hub.indexOf("UPCOMING_NOVELS.map") > hub.indexOf("NOVELS.map((novel) => <NovelCard"),
+      "upcoming cards follow the published ones",
+    );
   });
 
   it("adds restrained shooting stars to the hub background without overwhelming the constellation field", () => {

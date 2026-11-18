@@ -1,5 +1,7 @@
 // Canvas helpers shared by the hub's painted scenes: offscreen surfaces, soft sprites,
-// a dither tile for long gradients and a horizontally tiling band of mist.
+// a dither tile for long gradients and a horizontally tiling band of mist. The sprite
+// painters take an optional allocator, so a kit scene passes its surfaces ledger
+// (ctx.surfaces.create) and the kit counts and releases what they make.
 
 import { fbm2D } from "../_shared/scene-runtime";
 
@@ -17,6 +19,8 @@ export function surface(w: number, h: number): Surface {
   return { canvas, g: canvas.getContext("2d") as CanvasRenderingContext2D };
 }
 
+export type SurfaceAllocator = (w: number, h: number) => Surface;
+
 export function release(...canvases: HTMLCanvasElement[]): void {
   for (const c of canvases) {
     c.width = 0;
@@ -24,8 +28,12 @@ export function release(...canvases: HTMLCanvasElement[]): void {
   }
 }
 
-export function radialSprite(size: number, stops: ReadonlyArray<readonly [number, string]>): HTMLCanvasElement {
-  const { canvas, g } = surface(size, size);
+export function radialSprite(
+  size: number,
+  stops: ReadonlyArray<readonly [number, string]>,
+  create: SurfaceAllocator = surface,
+): HTMLCanvasElement {
+  const { canvas, g } = create(size, size);
   const r = size / 2;
   const grad = g.createRadialGradient(r, r, 0, r, r, r);
   for (const [at, color] of stops) grad.addColorStop(at, color);
@@ -35,8 +43,8 @@ export function radialSprite(size: number, stops: ReadonlyArray<readonly [number
 }
 
 /** A soft dot with four thin spikes, for bright stars and big sparks. */
-export function flareSprite(size: number, core: string, spike: string): HTMLCanvasElement {
-  const { canvas, g } = surface(size, size);
+export function flareSprite(size: number, core: string, spike: string, create: SurfaceAllocator = surface): HTMLCanvasElement {
+  const { canvas, g } = create(size, size);
   const r = size / 2;
   g.globalCompositeOperation = "lighter";
   const halo = g.createRadialGradient(r, r, 0, r, r, r * 0.5);
@@ -82,10 +90,17 @@ export function paintDither(g: CanvasRenderingContext2D, w: number, h: number, r
 }
 
 /** A band of mist that tiles horizontally: its noise walks a circle, so both ends match. */
-export function mistTile(noise: (x: number, y: number) => number, r: number, g: number, b: number, alpha: number): HTMLCanvasElement {
+export function mistTile(
+  noise: (x: number, y: number) => number,
+  r: number,
+  g: number,
+  b: number,
+  alpha: number,
+  create: SurfaceAllocator = surface,
+): HTMLCanvasElement {
   const w = 256;
   const h = 64;
-  const { canvas, g: ctx } = surface(w, h);
+  const { canvas, g: ctx } = create(w, h);
   const image = ctx.createImageData(w, h);
   for (let y = 0; y < h; y++) {
     const v = 1 - Math.abs(y / h - 0.55) * 2;

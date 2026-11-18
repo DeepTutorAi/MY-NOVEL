@@ -1,0 +1,500 @@
+/* Firefly theme: fireflies by a Thai canal at night (spec 3.5, Appendix B). Cards are lit
+   teak windows of stilt houses; the band under each row is the canal under the stilts. */
+@property --ff-lamp { syntax: "<number>"; inherits: true; initial-value: 0; }
+
+:root[data-hub-theme="firefly"],
+.hub-page [data-hub-theme-preview="firefly"] {
+  --hub-ink: #eef0e6;
+  --hub-muted: #bfc5b3;
+  --hub-faint: #a3aa96;
+  --hub-line: rgba(243, 196, 107, 0.16);
+  --hub-line-strong: rgba(243, 196, 107, 0.32);
+  --hub-panel: #110c09;
+  --hub-panel-strong: #1a120c;
+  --hub-accent: #f3c46b;
+  --hub-accent-contrast: #150e06;
+  --hub-focus: #d7f27a;
+  --hub-focus-halo-color: #050a10;
+  --modal-bg: #150f0a;
+  --modal-border: rgba(243, 196, 107, 0.3);
+  --modal-field-bg: rgba(0, 0, 0, 0.32);
+  --modal-danger: #ff8f7e;
+  --ff-weave: repeating-linear-gradient(45deg, #5c3d21 0 3px, #24170c 3px 6px);
+  --modal-ornament: var(--ff-weave) top / 100% 4px no-repeat, var(--ff-weave) bottom / 100% 4px no-repeat, var(--ff-weave) left / 4px 100% no-repeat, var(--ff-weave) right / 4px 100% no-repeat;
+}
+
+:root[data-hub-theme="firefly"] {
+  color-scheme: dark;
+  --hub-bg: #050a10;
+  --hub-accent-ink: #f3c46b;
+  --hub-link-hover: #f6d58f;
+  --hub-select-bg: #f3c46b;
+  --hub-select-ink: #050a10;
+  --hub-pool: 3 8 13;
+  --hub-pool-a: 0.84;
+  --hub-pool-b: 0.5;
+  --hub-hero-ink: #f1f0e4;
+  --hub-hero-muted: #c9cebd;
+  --hub-title-font: "Cormorant Garamond", var(--font-thai);
+  --hub-title-weight: 400;
+  --hub-title-style: normal;
+  --hub-title-tracking: 0;
+  --hub-title-fill: #f4ecd6;
+  --hub-title-solid: #f4ecd6;
+  --hub-title-glow: drop-shadow(0 0 18px rgba(243, 196, 107, 0.2)) drop-shadow(0 1px 10px rgba(2, 5, 9, 0.85));
+  --hub-text-shadow: 0 1px 12px rgba(2, 5, 9, 0.85);
+  --hub-side-bg: #160f0a;
+  --hub-side-border: rgba(243, 196, 107, 0.45);
+  --hub-side-ornament:
+    radial-gradient(circle at 9px 9px, #7a5a38 0 1.6px, transparent 2.6px),
+    radial-gradient(circle at calc(100% - 9px) 9px, #7a5a38 0 1.6px, transparent 2.6px),
+    repeating-linear-gradient(180deg, transparent 0 23px, rgba(0, 0, 0, 0.4) 23px 24px, rgba(243, 196, 107, 0.06) 24px 25px),
+    linear-gradient(180deg, #24180f, #150e09);
+  --card-radius: 4px;
+  --card-body-bg: #110c09;
+  --card-border: #2c1c10;
+  --card-border-hover: rgba(243, 196, 107, 0.7);
+  --card-shadow: 0 22px 40px -22px rgba(0, 0, 0, 0.9);
+  --card-shadow-hover: 0 0 0 1px rgba(243, 196, 107, 0.2), 0 24px 48px -20px rgba(243, 160, 70, 0.35);
+  --card-media-bg: #0b0806;
+  --card-accent-share: 55%;
+  --card-progress-track: #24170d;
+  --card-locked-filter: saturate(0.5) brightness(0.55);
+  --card-locked-veil: linear-gradient(rgba(5, 10, 16, 0.3), rgba(5, 10, 16, 0.3));
+  --card-upcoming-filter: saturate(0.75) brightness(0.78);
+  --card-upcoming-veil: linear-gradient(180deg, rgba(5, 10, 16, 0.05), rgba(5, 10, 16, 0.45));
+  --card-seal-ink: #f6d58f;
+  --card-seal-font: var(--font-thai);
+  --card-seal-text: "เรือยังไม่ถึงท่า";
+  --resume-bg: #1a120c;
+  --resume-border: rgba(243, 196, 107, 0.34);
+  --resume-ink: #eef0e6;
+  --resume-action-bg: #f3c46b;
+  --resume-action-border: #f3c46b;
+  --resume-action-ink: #150e06;
+  --resume-ornament: repeating-linear-gradient(180deg, transparent 0 27px, rgba(0, 0, 0, 0.35) 27px 28px, rgba(243, 196, 107, 0.05) 28px 29px);
+  --chip-bg: #15100b;
+  --chip-border: rgba(243, 196, 107, 0.3);
+  --chip-ink: #eef0e6;
+  --chip-btn-border: rgba(243, 196, 107, 0.26);
+  --chip-btn-hover: rgba(243, 196, 107, 0.1);
+  --chip-avatar-ring: rgba(215, 242, 122, 0.5);
+  --window-label-bg: #1c130c;
+  --window-label-ink: #f1e6cf;
+  --window-label-border: rgba(243, 196, 107, 0.38);
+  --hit-label-bg: #1c130c;
+  --hit-label-ink: #f1e6cf;
+  --modal-overlay: rgba(2, 10, 12, 0.74);
+  --modal-blur: 10px;
+  --modal-radius: 6px;
+  --footer-ink: #a3aa96;
+  --footer-line: rgba(243, 196, 107, 0.24);
+  --footer-pool: 2 7 11;
+  --footer-pool-a: 0.88;
+  --ff-dot: #f4ffc6 0 1.5px, rgba(215, 242, 122, 0.5) 3px, transparent 6px;
+}
+
+:root[data-hub-theme="firefly"] .novel-card {
+  --card-accent-ink: color-mix(in oklch, var(--novel-accent) var(--card-accent-share), var(--hub-ink));
+  --card-border-hover: color-mix(in srgb, var(--novel-accent) 30%, #f3c46b);
+  transition:
+    border-color var(--hub-dur) var(--hub-ease),
+    transform var(--hub-dur) var(--hub-ease),
+    background var(--hub-dur) var(--hub-ease),
+    box-shadow var(--hub-dur) var(--hub-ease),
+    --ff-lamp calc(var(--hub-dur) * 2.5) var(--hub-ease);
+}
+
+:root[data-hub-theme="firefly"] :is(.novel-card:is(:hover, :focus-visible), .novel-card-wrapper[data-attended] .novel-card) {
+  --ff-lamp: 1;
+}
+
+/* Hit rects over the branch (stage) and the river (mid), clear of the mid label. */
+:root[data-hub-theme="firefly"] .hub-window-stage { --stage-hit-x: 0.04; --stage-hit-y: 0.12; --stage-hit-w: 0.3; --stage-hit-h: 0.58; }
+:root[data-hub-theme="firefly"] .hub-window-mid { --mid-hit-x: 0.3; --mid-hit-y: 0.5; --mid-hit-w: 0.66; --mid-hit-h: 0.44; }
+
+@media (max-width: 780px) {
+  :root[data-hub-theme="firefly"] .hub-window-stage { --stage-hit-x: 0; --stage-hit-y: 0.1; --stage-hit-w: 0.45; --stage-hit-h: 0.6; }
+  :root[data-hub-theme="firefly"] .hub-window-mid { --mid-hit-x: 0.64; --mid-hit-y: 0.42; --mid-hit-w: 0.34; --mid-hit-h: 0.52; }
+}
+
+@media (orientation: landscape) and (max-height: 500px) {
+  :root[data-hub-theme="firefly"] .hub-window-stage { --stage-hit-x: 0.02; --stage-hit-y: 0.1; --stage-hit-w: 0.3; --stage-hit-h: 0.62; }
+  :root[data-hub-theme="firefly"] .hub-window-mid { --mid-hit-x: 0.36; --mid-hit-y: 0.46; --mid-hit-w: 0.6; --mid-hit-h: 0.48; }
+}
+
+/* Hero: a warm underglow that turns green-gold when the chorus peaks. */
+@media (prefers-contrast: no-preference) and (forced-colors: none) {
+  :root[data-hub-theme="firefly"] .hub-title-group h1 {
+    filter: drop-shadow(0 0 calc(8px + var(--w-breath) * 16px) rgb(222 240 140 / calc(var(--w-breath) * 0.4))) var(--hub-title-glow);
+  }
+}
+
+:root[data-hub-theme="firefly"] .hub-title-group::after {
+  position: absolute;
+  inset: -24px -48px;
+  z-index: -1;
+  content: "";
+  background: radial-gradient(ellipse 60% 70% at 32% 50%, rgba(215, 242, 122, 0.12), transparent 70%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Chip and picker button: woven bamboo, a firefly glyph and a firefly dot that brightens with the chorus. */
+:root[data-hub-theme="firefly"] :is(.hub-profile-widget, .hub-theme-btn) {
+  background:
+    repeating-linear-gradient(45deg, rgba(243, 196, 107, 0.07) 0 2px, transparent 2px 6px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.3) 0 2px, transparent 2px 6px),
+    var(--chip-bg);
+}
+
+:root[data-hub-theme="firefly"] .hub-theme-btn > [aria-hidden] {
+  border-color: transparent;
+  box-shadow: none;
+  background:
+    radial-gradient(circle at 50% 68%, #f4ffc2 0 2px, rgba(215, 242, 122, 0.6) 3px, transparent 7px),
+    radial-gradient(ellipse 4px 6px at 30% 34%, rgba(238, 240, 230, 0.6) 0 60%, transparent 72%),
+    radial-gradient(ellipse 4px 6px at 70% 34%, rgba(238, 240, 230, 0.6) 0 60%, transparent 72%);
+}
+
+:root[data-hub-theme="firefly"] .hub-profile-widget::after {
+  position: absolute;
+  top: -3px;
+  right: 18px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  content: "";
+  background: #ecffa8;
+  box-shadow: 0 0 8px 2px rgba(215, 242, 122, 0.55);
+  opacity: calc(0.6 + var(--w-breath) * 0.4);
+}
+
+/* Resume card and start panel: a pier sign with a hanging lamp, lit only for a returning reader. */
+:root[data-hub-theme="firefly"] :is(.resume-card, .hub-start)::before {
+  position: absolute;
+  top: -14px;
+  left: 18px;
+  width: 12px;
+  height: 18px;
+  border-radius: 3px 3px 5px 5px;
+  content: "";
+  background: radial-gradient(circle at 50% 62%, #fff2c2 0 2px, #f3c46b 3.5px, #9a6a2c 6px);
+  box-shadow: 0 0 16px 6px rgba(243, 196, 107, 0.35), 0 -6px 0 -4px #3a2516;
+}
+
+:root[data-hub-theme="firefly"] .hub-start::before {
+  background: linear-gradient(180deg, #3a2a1a, #1d140c);
+  box-shadow: 0 -6px 0 -4px #3a2516;
+}
+
+/* Library heading on a plank rule. */
+:root[data-hub-theme="firefly"] .hub-library-head::after {
+  position: absolute;
+  right: 0;
+  bottom: -9px;
+  left: 0;
+  height: 5px;
+  border-radius: 2px;
+  content: "";
+  background: repeating-linear-gradient(90deg, #3a2516 0 64px, #1b110a 64px 66px), #3a2516;
+  box-shadow: 0 1px 0 rgba(243, 196, 107, 0.16) inset, 0 4px 10px rgba(0, 0, 0, 0.5);
+}
+
+/* Band: two teak stilts into the canal, and the water strip with the window's lamp in it. */
+:root[data-hub-theme="firefly"] .novel-card-wrapper::before {
+  position: absolute;
+  top: 100%;
+  right: 17%;
+  left: 17%;
+  height: var(--hub-row-gap);
+  content: "";
+  background:
+    linear-gradient(90deg, #1d120a, #4a301b 45%, #1d120a) left / 8px 100% no-repeat,
+    linear-gradient(90deg, #1d120a, #4a301b 45%, #1d120a) right / 8px 100% no-repeat;
+  -webkit-mask-image: linear-gradient(180deg, #000 50%, transparent);
+  mask-image: linear-gradient(180deg, #000 50%, transparent);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="firefly"] .novel-card-wrapper::after {
+  position: absolute;
+  top: calc(100% + var(--hub-row-gap) * 0.4);
+  right: calc(var(--hub-col-gap) * -0.5);
+  left: calc(var(--hub-col-gap) * -0.5);
+  height: calc(var(--hub-row-gap) * 0.6);
+  content: "";
+  background:
+    radial-gradient(ellipse 16% 130% at 50% 0%, rgb(255 196 112 / calc(var(--ff-read-floor, 0) + var(--card-read) * 0.3 + var(--w-glow) * 0.42)), transparent 72%),
+    linear-gradient(90deg, transparent 24%, rgba(170, 210, 225, 0.2) 24% 33%, transparent 33% 58%, rgba(170, 210, 225, 0.14) 58% 70%, transparent 70%) 0 38% / 100% 1px no-repeat,
+    linear-gradient(90deg, transparent 38%, rgba(170, 210, 225, 0.12) 38% 52%, transparent 52%) 0 74% / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(10, 30, 42, 0.92), rgba(4, 12, 18, 0.4));
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 10%, #000 90%, transparent);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="firefly"] :is(.novel-card-wrapper[data-upcoming-slug], .novel-card-wrapper[data-status]:not([data-status="เผยแพร่"]))::after {
+  background:
+    linear-gradient(90deg, transparent 30%, rgba(170, 210, 225, 0.12) 30% 44%, transparent 44%) 0 50% / 100% 1px no-repeat,
+    linear-gradient(180deg, rgba(10, 30, 42, 0.92), rgba(4, 12, 18, 0.4));
+}
+
+/* Published card: a teak window. The frame sits over the cover; the lamp glows at its sill.
+   A bevelled moulding: lit top and left rails, shaded bottom and right, a dark inner line. */
+:root[data-hub-theme="firefly"] .novel-card::before {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: var(--hub-media-h);
+  border: 5px solid;
+  border-color: #48301b #33200f #2a1a0e #3d2817;
+  content: "";
+  box-shadow: inset 0 0 0 1px #1b110a, inset 0 1px 0 1px rgba(243, 196, 107, 0.08), inset 0 7px 16px rgba(0, 0, 0, 0.5);
+}
+
+/* A started or finished novel: the frame stops above the sill, where the firefly trail runs. */
+:root[data-hub-theme="firefly"] .novel-card-wrapper:is(.has-progress, [data-card-finished]) {
+  --ff-read-floor: 0.14;
+}
+
+:root[data-hub-theme="firefly"] .novel-card-wrapper:is(.has-progress, [data-card-finished]) .novel-card::before {
+  position: absolute;
+  height: calc(var(--hub-media-h) - 3px);
+}
+
+:root[data-hub-theme="firefly"] .novel-card::after {
+  position: absolute;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 1;
+  height: var(--hub-media-h);
+  content: "";
+  background: radial-gradient(ellipse 70% 50% at 50% 100%, rgba(255, 200, 120, 0.3), transparent 72%);
+  box-shadow: inset 0 0 0 2px rgba(215, 242, 122, 0.5), inset 0 0 26px rgba(215, 242, 122, 0.22);
+  opacity: 0;
+}
+
+:root[data-hub-theme="firefly"] .novel-card-media::after {
+  background:
+    radial-gradient(ellipse 62% 40% at 50% 104%, rgb(255 190 105 / calc(0.08 + var(--ff-read-floor, 0) + var(--card-read) * 0.18 + var(--w-glow) * 0.3 + var(--ff-lamp) * 0.24)), transparent 72%),
+    var(--card-media-shade);
+}
+
+:root[data-hub-theme="firefly"] .novel-card.is-disabled .novel-card-media::after { background: var(--card-locked-veil), var(--card-media-shade); }
+:root[data-hub-theme="firefly"] .novel-card.is-upcoming .novel-card-media::after { background: var(--card-upcoming-veil), var(--card-media-shade); }
+
+:root[data-hub-theme="firefly"] .novel-card-body {
+  background-image: repeating-linear-gradient(90deg, transparent 0 58px, rgba(0, 0, 0, 0.32) 58px 59px, rgba(243, 196, 107, 0.035) 59px 60px);
+}
+
+/* Locked: shutters closed, two louvred leaves with a centre seam. */
+:root[data-hub-theme="firefly"] .novel-card.is-disabled .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  background:
+    linear-gradient(90deg, #5b4a3a, #2b2219) 50% 45% / 6px 14px no-repeat,
+    linear-gradient(90deg, transparent calc(50% - 1px), #0b0705 calc(50% - 1px) calc(50% + 1px), transparent 0),
+    repeating-linear-gradient(180deg, #2f1e0f 0 8px, #1e130a 8px 10px, #3c2817 10px 11px);
+  box-shadow: inset 0 0 0 6px #22150b, inset 0 18px 24px -12px rgba(0, 0, 0, 0.7), inset 0 0 34px rgba(0, 0, 0, 0.65);
+}
+
+/* Upcoming: a house still being built, bamboo scaffolding over the cover. */
+:root[data-hub-theme="firefly"] .novel-card.is-upcoming .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  --ff-lash: linear-gradient(#2a1a0c, #2a1a0c);
+  --ff-node: repeating-linear-gradient(180deg, transparent 0 34px, rgba(42, 26, 12, 0.7) 34px 36px);
+  --ff-pole: linear-gradient(90deg, rgba(42, 28, 14, 0.6) 0 1px, rgba(196, 166, 104, 0.45) 1px 4px, rgba(42, 28, 14, 0.6) 4px 5px);
+  --ff-rail: linear-gradient(rgba(196, 166, 104, 0.3), rgba(196, 166, 104, 0.3));
+  background:
+    var(--ff-lash) 5% 14% / 8px 6px no-repeat, var(--ff-lash) 95% 14% / 8px 6px no-repeat,
+    var(--ff-lash) 5% 86% / 8px 6px no-repeat, var(--ff-lash) 95% 86% / 8px 6px no-repeat,
+    var(--ff-node) 5% 0 / 5px 100% no-repeat, var(--ff-node) 95% 0 / 5px 100% no-repeat,
+    var(--ff-pole) 5% 0 / 5px 100% no-repeat, var(--ff-pole) 95% 0 / 5px 100% no-repeat,
+    var(--ff-rail) 50% 14% / 90% 2px no-repeat, var(--ff-rail) 50% 86% / 90% 2px no-repeat,
+    linear-gradient(to bottom right, transparent calc(50% - 1px), rgba(196, 166, 104, 0.24) 0 calc(50% + 1px), transparent 0) 6.1% 50% / 18% 72% no-repeat;
+}
+
+:root[data-hub-theme="firefly"] .novel-card .upcoming-seal {
+  font-size: 0;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:root[data-hub-theme="firefly"] .novel-card .upcoming-seal::before {
+  width: auto;
+  height: auto;
+  border-radius: 4px;
+  content: var(--card-seal-text) / "";
+  background: rgba(8, 6, 4, 0.78);
+  box-shadow: 0 0 0 6px rgba(8, 6, 4, 0.78), 0 0 18px 6px rgba(0, 0, 0, 0.5);
+  font-size: 0.86rem;
+}
+
+:root[data-hub-theme="firefly"] .novel-card .upcoming-seal::after { content: none; }
+
+/* Reading progress: a trail of firefly dots along the sill, the tip dot breathing slowly. */
+:root[data-hub-theme="firefly"] .novel-card-progress span {
+  background: radial-gradient(circle, #efffb4 0 1px, rgba(215, 242, 122, 0.55) 1.5px, transparent 2.5px) 0 50% / 9px 100% repeat-x;
+  box-shadow: none;
+  transform: none;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(var(--novel-progress, 0) * 100%), transparent 0);
+  mask-image: linear-gradient(90deg, #000 calc(var(--novel-progress, 0) * 100%), transparent 0);
+}
+
+:root[data-hub-theme="firefly"] .novel-card-progress::after {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--novel-progress, 0) * 100%);
+  width: 7px;
+  height: 7px;
+  margin: -3.5px 0 0 -3.5px;
+  border-radius: 50%;
+  content: "";
+  background: #f4ffc6;
+  box-shadow: 0 0 8px 3px rgba(215, 242, 122, 0.6);
+}
+
+/* Finished: a lit lantern badge. Chosen: a lantern tag. */
+:root[data-hub-theme="firefly"] .novel-card-wrapper[data-card-finished] .novel-card-body::before,
+:root[data-hub-theme="firefly"] .novel-card-wrapper[data-chosen] .novel-card-body::after {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  padding: 3px 11px 3px 22px;
+  border-radius: 999px;
+  content: "อ่านจบแล้ว" / "";
+  background: radial-gradient(circle at 11px 50%, #fff3c4 0 2.5px, transparent 5px), #f3c46b;
+  box-shadow: 0 0 14px rgba(243, 196, 107, 0.45);
+  color: #150e06;
+  font-size: 0.78rem;
+  line-height: 1.4;
+}
+
+:root[data-hub-theme="firefly"] .novel-card-wrapper[data-chosen] .novel-card-body::after {
+  content: "ลองเรื่องนี้" / "";
+  background: radial-gradient(circle at 11px 50%, #f4ffc6 0 2.5px, transparent 5px), #1d140c;
+  box-shadow: inset 0 0 0 1px #f3c46b, 0 0 14px rgba(215, 242, 122, 0.3);
+  color: #f6d58f;
+}
+
+:root[data-hub-theme="firefly"] .novel-card-continue {
+  border-color: rgba(243, 196, 107, 0.75);
+  background: linear-gradient(180deg, #3a2516, #22160c);
+  color: #f6ecd8;
+}
+
+:root[data-hub-theme="firefly"] .novel-card-continue:is(:hover, :focus-visible) {
+  border-color: #f3c46b;
+  background: linear-gradient(180deg, #4b311c, #2c1c10);
+}
+
+/* Perched fireflies on a frame, their glow following the card's light. */
+:root[data-hub-theme="firefly"] .hub-perch[data-perch-kind="firefly"] {
+  background:
+    radial-gradient(circle at 16% 72%, var(--ff-dot)), radial-gradient(circle at 38% 44%, var(--ff-dot)),
+    radial-gradient(circle at 62% 78%, var(--ff-dot)), radial-gradient(circle at 86% 50%, var(--ff-dot));
+  filter: brightness(calc(0.75 + var(--w-glow) * 0.5)) drop-shadow(0 0 4px rgba(215, 242, 122, 0.55));
+}
+
+/* The guide: a firefly with tiny wings; its glow follows the chorus (--w-breath). */
+:root[data-hub-theme="firefly"] .hub-guide-body {
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 58%, #f4ffc6 0 3px, rgba(215, 242, 122, 0.5) 5px, transparent 12px);
+  filter: drop-shadow(0 0 calc(4px + var(--w-breath) * 6px) rgba(215, 242, 122, 0.6));
+}
+
+:root[data-hub-theme="firefly"] .hub-guide-body::before {
+  position: absolute;
+  top: 9px;
+  left: 10px;
+  width: 16px;
+  height: 9px;
+  content: "";
+  background:
+    radial-gradient(ellipse 4px 5px at 28% 60%, rgba(238, 240, 230, 0.5) 0 70%, transparent 80%),
+    radial-gradient(ellipse 4px 5px at 72% 60%, rgba(238, 240, 230, 0.5) 0 70%, transparent 80%);
+}
+
+:root[data-hub-theme="firefly"] .hub-window-label {
+  border-radius: 4px;
+  background: linear-gradient(180deg, #2a1b10, #1a110a);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(243, 196, 107, 0.16);
+}
+
+:root[data-hub-theme="firefly"] .hub-window-hit:not(:disabled):hover {
+  background: radial-gradient(closest-side, rgba(215, 242, 122, 0.1), transparent);
+}
+
+/* Footer: jetty planks over the near bank's water, the text on its dark pool. */
+:root[data-hub-theme="firefly"] .hub-footer-row::after {
+  position: absolute;
+  top: -10px;
+  right: -12px;
+  left: -12px;
+  z-index: -1;
+  height: 6px;
+  content: "";
+  background: repeating-linear-gradient(90deg, #3a2516 0 46px, #170f08 46px 48px);
+  box-shadow: inset 0 1px 0 rgba(243, 196, 107, 0.14), 0 5px 10px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="firefly"] .hub-footer-next-link { text-decoration-color: rgba(243, 196, 107, 0.6); }
+:root[data-hub-theme="firefly"] .hub-picker { background: rgba(2, 10, 12, 0.3); }
+
+.hub-theme-swatch[data-swatch="firefly"] {
+  background:
+    radial-gradient(circle at 60% 36%, #eaff9a 0 1.5px, rgba(215, 242, 122, 0.4) 2.5px, transparent 5px),
+    radial-gradient(circle at 76% 56%, #eaff9a 0 1.5px, rgba(215, 242, 122, 0.4) 2.5px, transparent 5px),
+    radial-gradient(circle at 48% 64%, #eaff9a 0 1.5px, rgba(215, 242, 122, 0.4) 2.5px, transparent 5px),
+    radial-gradient(ellipse 34% 52% at 10% 18%, #04100b 0 70%, transparent 74%),
+    linear-gradient(90deg, transparent 12%, #04100b 12% 17%, transparent 0),
+    linear-gradient(180deg, #050b18, #0b2133 72%, #0a1c26);
+}
+
+/* Under reduced motion or pause, the attended card's frame shows its perched cluster. */
+@media (prefers-reduced-motion: reduce) {
+  :root[data-hub-theme="firefly"] .novel-card-wrapper[data-attended] .novel-card::after {
+    background: radial-gradient(circle at 44% 3px, var(--ff-dot)), radial-gradient(circle at 50% 2px, var(--ff-dot)), radial-gradient(circle at 56% 4px, var(--ff-dot));
+    box-shadow: none;
+    opacity: 1;
+  }
+}
+
+:root[data-hub-theme="firefly"][data-hub-motion="still"] .novel-card-wrapper[data-attended] .novel-card::after {
+  background: radial-gradient(circle at 44% 3px, var(--ff-dot)), radial-gradient(circle at 50% 2px, var(--ff-dot)), radial-gradient(circle at 56% 4px, var(--ff-dot));
+  box-shadow: none;
+  opacity: 1;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-theme="firefly"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="wave"] .novel-card::after { animation: ff-wave-a 1.2s ease-in-out; }
+  :root[data-hub-theme="firefly"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="wave"] .novel-card::after { animation: ff-wave-b 1.2s ease-in-out; }
+  :root[data-hub-theme="firefly"][data-hub-motion="full"] .hub-hero[data-w-beat="a"][data-w-beat-kind="chorus"] .hub-title-group::after { animation: ff-chorus-a 2.4s ease-in-out; }
+  :root[data-hub-theme="firefly"][data-hub-motion="full"] .hub-hero[data-w-beat="b"][data-w-beat-kind="chorus"] .hub-title-group::after { animation: ff-chorus-b 2.4s ease-in-out; }
+  :root[data-hub-theme="firefly"][data-hub-motion="full"] .novel-card-progress::after { animation: ff-breathe 2.4s ease-in-out infinite; }
+  :root[data-hub-theme="firefly"][data-hub-motion="full"] .hub-guide[data-hub-guide="fly"] .hub-guide-body::before { animation: ff-wing 0.5s ease-in-out infinite alternate; }
+}
+
+@keyframes ff-wave-a { 0%, 100% { opacity: 0; } 35% { opacity: 1; } }
+@keyframes ff-wave-b { 0%, 100% { opacity: 0; } 35% { opacity: 1; } }
+@keyframes ff-chorus-a { 0%, 100% { opacity: 0; } 30% { opacity: 1; } }
+@keyframes ff-chorus-b { 0%, 100% { opacity: 0; } 30% { opacity: 1; } }
+@keyframes ff-breathe { 0%, 100% { opacity: 0.45; } 50% { opacity: 1; } }
+@keyframes ff-wing { from { transform: scaleX(1); } to { transform: scaleX(0.7); } }
+
+@media (forced-colors: active), (prefers-contrast: more) {
+  :root[data-hub-theme="firefly"] :is(.novel-card-wrapper, .novel-card, .novel-card-media, .novel-card-body, .resume-card, .hub-start, .hub-title-group, .hub-profile-widget)::before,
+  :root[data-hub-theme="firefly"] :is(.novel-card-wrapper, .novel-card, .novel-card-body, .novel-card-progress, .hub-library-head, .hub-footer-row, .hub-title-group, .hub-profile-widget)::after {
+    content: none;
+  }
+}

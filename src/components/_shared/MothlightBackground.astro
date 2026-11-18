@@ -1,77 +1,130 @@
 ---
-// Mothlight hub background: luna moths in a moonlit garden, rendered on one canvas.
+// Mothlight hub background on the scene kit (spec 2.13, 3.4): a violet night garden of luna
+// moths. The theme CSS is imported here so the first paint is themed; the scene loads lazily.
+import "../../styles/_shared/hub-themes/mothlight.css";
 ---
-<div class="mothlight-scene" data-mothlight-scene aria-hidden="true">
-  <canvas id="mothlight-sky"></canvas>
+
+<div class="hub-sky hub-sky-mothlight" data-hub-sky="mothlight" aria-hidden="true">
+  <canvas data-sky-static data-ml-plane="sky"></canvas>
+  <canvas data-sky-static data-ml-plane="garden"></canvas>
+  <canvas data-sky-static data-ml-plane="garden" data-ml-sway="b"></canvas>
+  <canvas data-sky-static data-ml-plane="garden" data-ml-sway="c"></canvas>
+  <canvas data-sky-live></canvas>
 </div>
 
 <style>
-  .mothlight-scene {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    overflow: hidden;
-    background: linear-gradient(180deg, #07081a 0%, #0b0c25 45%, #141236 100%);
+  /* The whole background until the first drawn frame, and the fallback if the scene fails. */
+  .hub-sky-mothlight {
+    background:
+      radial-gradient(ellipse 70% 45% at 82% 12%, rgb(84 78 140 / 0.35), transparent 70%),
+      linear-gradient(180deg, #05040f 0%, #0b0a22 40%, #16122f 80%, #1d1636 100%);
   }
 
-  /* Touch browsers resize the viewport as the URL bar shows and hides; the largest viewport
-     keeps the scene from being rebuilt on every scroll. */
-  @media (pointer: coarse) {
-    .mothlight-scene {
-      inset: 0 0 auto 0;
-      height: 100vh;
-      height: 100lvh;
-    }
-  }
-
-  .mothlight-scene canvas {
+  .hub-sky-mothlight canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: block;
     width: 100%;
     height: 100%;
   }
+
+  /* The sky plane is taller than the viewport by its parallax travel. */
+  .hub-sky-mothlight canvas[data-ml-plane="sky"] {
+    height: 125%;
+  }
+
+  /* Two extra sway phases of the hanging garden crossfade over the first; still pages show one. */
+  .hub-sky-mothlight canvas[data-ml-sway] {
+    visibility: hidden;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    :root[data-hub-motion="full"] .hub-sky-mothlight canvas[data-ml-sway] {
+      visibility: visible;
+      animation: ml-sway 7s ease-in-out infinite alternate;
+    }
+
+    :root[data-hub-motion="full"] .hub-sky-mothlight canvas[data-ml-sway="c"] {
+      animation-delay: -3.5s;
+      animation-duration: 9s;
+    }
+  }
+
+  @keyframes ml-sway {
+    0%,
+    25% {
+      opacity: 0;
+    }
+
+    75%,
+    100% {
+      opacity: 1;
+    }
+  }
 </style>
 
 <script>
-  import { createMothlightScene } from "../../scripts/hub/mothlight-scene";
-  import type { SceneHandle } from "../../scripts/_shared/scene-runtime";
+  // Types only: a type import is erased, so the kit and the scene stay out of the page bundle.
+  import type { BindOptions, HubSceneHandle } from "../../scripts/hub/world/types";
 
+  type SceneModule = typeof import("../../scripts/hub/mothlight-scene");
   type MothlightWindow = Window & {
-    __bindMothlightBg?: () => void;
+    __bindMothlightBg?: (options?: BindOptions) => void;
     __mothlightBgCleanup?: () => void;
     __mothlightBgInitialized?: boolean;
+    __mothlightBgPreload?: () => Promise<SceneModule>;
+    __hubSoftArrival?: boolean;
   };
 
   const win = window as MothlightWindow;
-  let live: { canvas: HTMLCanvasElement; handle: SceneHandle } | null = null;
+  let promise: Promise<SceneModule> | null = null;
+  let live: { root: HTMLElement; handle: HubSceneHandle } | null = null;
+  let pending: HTMLElement | null = null;
+
+  // One cached import; a failed import is forgotten so the next bind or preload retries.
+  const load = () =>
+    (promise ??= import("../../scripts/hub/mothlight-scene").catch((error: unknown) => {
+      promise = null;
+      throw error;
+    }));
 
   const cleanup = () => {
+    pending = null;
     live?.handle.destroy();
     live = null;
     win.__mothlightBgInitialized = false;
   };
 
-  const bind = () => {
+  const bind = (options?: BindOptions) => {
     const wrapper = document.getElementById("mothlight-bg-container");
-    const scene = wrapper?.querySelector<HTMLElement>("[data-mothlight-scene]");
-    const canvas = scene?.querySelector<HTMLCanvasElement>("canvas");
-    if (!wrapper || wrapper.style.display === "none" || !scene || !canvas) {
+    const root = wrapper?.querySelector<HTMLElement>("[data-hub-sky]");
+    if (!wrapper || !root || getComputedStyle(wrapper).display === "none") {
       cleanup();
       return;
     }
-    if (live && live.canvas === canvas) return;
+    if (live?.root === root || pending === root) return;
     cleanup();
-    const handle = createMothlightScene(canvas, scene, {
-      avoid: ".hub-title-group, .hub-side-note, .hub-profile-widget, .hub-footer",
-      avoidSoft: ".novel-card, .resume-card",
-      pointerBlock: ".hub-title-group, .hub-side-note, .hub-profile-widget, .hub-footer, .novel-card, .resume-card, .hub-modal-overlay",
-    });
-    live = { canvas, handle };
-    handle.start();
-    win.__mothlightBgInitialized = true;
+    pending = root;
+    delete root.dataset.sceneFailed;
+    load()
+      .then(({ mount }) => {
+        if (pending !== root) return;
+        pending = null;
+        const handle = mount(root, options);
+        if (handle) live = { root, handle };
+        else root.dataset.sceneFailed = "";
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        if (pending !== root) return;
+        pending = null;
+        root.dataset.sceneFailed = "";
+      });
   };
 
   win.__bindMothlightBg = bind;
   win.__mothlightBgCleanup = cleanup;
-  bind();
+  win.__mothlightBgPreload = load;
+  bind({ softReturn: win.__hubSoftArrival === true });
 </script>

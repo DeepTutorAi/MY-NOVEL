@@ -1,49 +1,60 @@
 ---
-// "Lightfall" hub background: ribbons of light falling through a net of stars, drawn on one canvas.
+// Constellation hub background on the scene kit (spec 2.13, 3.3): a star plane the compositor
+// moves, the live canvas, and the lazily loaded scene. The theme CSS is imported here so it is
+// bundled into the hub page.
+import "../../styles/_shared/hub-themes/constellation.css";
 ---
-<div class="lightfall-scene" data-lightfall-scene aria-hidden="true">
-  <canvas id="lightfall-canvas"></canvas>
+
+<div class="hub-sky hub-sky-constellation" data-hub-sky="constellation" aria-hidden="true">
+  <canvas data-sky-static></canvas>
+  <canvas data-sky-live></canvas>
 </div>
 
 <style>
-  .lightfall-scene {
-    position: fixed;
-    inset: 0;
-    z-index: 1; /* Sits behind text and cards (z-index 2) but above the page background */
-    pointer-events: none;
-    overflow: hidden;
-    background: linear-gradient(180deg, #02030a 0%, #0d1020 50%, #322e37 82%, #0e0b11 86%, #030307 100%);
+  .hub-sky-constellation {
+    background:
+      radial-gradient(120% 60% at 50% 100%, rgba(58, 40, 52, 0.55), transparent 70%),
+      linear-gradient(180deg, #04050b 0%, #070a16 40%, #0c1022 76%, #141528 100%);
   }
 
-  /* Touch browsers resize the viewport as the URL bar shows and hides; the largest viewport
-     keeps the scene from being rebuilt on every scroll. */
-  @media (pointer: coarse) {
-    .lightfall-scene {
-      inset: 0 0 auto 0;
-      height: 100vh;
-      height: 100lvh;
-    }
-  }
-
-  .lightfall-scene canvas {
+  .hub-sky-constellation canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: block;
     width: 100%;
     height: 100%;
   }
+
+  /* The star plane tiles every viewport height; the kit moves it up by its parallax. */
+  .hub-sky-constellation canvas[data-sky-static] {
+    height: 200%;
+  }
 </style>
 
 <script>
-  import type { SceneHandle } from "../../scripts/_shared/scene-runtime";
+  import type { BindOptions, HubSceneHandle } from "../../scripts/hub/world/types";
 
-  type LightfallWindow = Window & {
-    __bindDynamicCityBg?: () => void;
+  type SceneModule = typeof import("../../scripts/hub/lightfall-scene");
+  type ConstellationWindow = Window & {
+    __bindDynamicCityBg?: (options?: BindOptions) => void;
     __dynamicCityBgCleanup?: () => void;
     __dynamicCityBgInitialized?: boolean;
+    __dynamicCityBgPreload?: () => Promise<SceneModule>;
+    __hubSoftArrival?: boolean;
   };
 
-  const win = window as LightfallWindow;
-  let live: { canvas: HTMLCanvasElement; handle: SceneHandle } | null = null;
-  let pending: HTMLCanvasElement | null = null;
+  const win = window as ConstellationWindow;
+  let promise: Promise<SceneModule> | null = null;
+  let live: { root: HTMLElement; handle: HubSceneHandle } | null = null;
+  let pending: HTMLElement | null = null;
+
+  // One cached import; a failed import is forgotten so the next bind or preload retries.
+  const load = () =>
+    (promise ??= import("../../scripts/hub/lightfall-scene").catch((error: unknown) => {
+      promise = null;
+      throw error;
+    }));
 
   const cleanup = () => {
     pending = null;
@@ -52,34 +63,35 @@
     win.__dynamicCityBgInitialized = false;
   };
 
-  const bind = () => {
+  const bind = (options?: BindOptions) => {
     const wrapper = document.getElementById("constellation-bg-container");
-    const scene = wrapper?.querySelector<HTMLElement>("[data-lightfall-scene]");
-    const canvas = scene?.querySelector<HTMLCanvasElement>("canvas");
-    if (!wrapper || wrapper.style.display === "none" || !scene || !canvas) {
+    const root = wrapper?.querySelector<HTMLElement>("[data-hub-sky]");
+    if (!wrapper || !root || getComputedStyle(wrapper).display === "none") {
       cleanup();
       return;
     }
-    if ((live && live.canvas === canvas) || pending === canvas) return;
+    if (live?.root === root || pending === root) return;
     cleanup();
-    pending = canvas;
-    // The scene's code loads only when this theme is the one showing.
-    void import("../../scripts/hub/lightfall-scene").then(({ createLightfallScene }) => {
-      if (pending !== canvas) return;
-      pending = null;
-      const handle = createLightfallScene(canvas, scene, {
-        avoid: ".hub-title-group, .hub-side-note, .hub-profile-widget, .hub-footer",
-        avoidTextOnly: ".hub-title-group",
-        avoidSoft: ".novel-card, .resume-card",
-        pointerBlock: ".hub-title-group, .hub-side-note, .hub-profile-widget, .hub-footer, .novel-card, .resume-card, .hub-modal-overlay",
+    pending = root;
+    delete root.dataset.sceneFailed;
+    load()
+      .then(({ mount }) => {
+        if (pending !== root) return;
+        pending = null;
+        const handle = mount(root, options);
+        if (handle) live = { root, handle };
+        else root.dataset.sceneFailed = "";
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        if (pending !== root) return;
+        pending = null;
+        root.dataset.sceneFailed = "";
       });
-      live = { canvas, handle };
-      handle.start();
-      win.__dynamicCityBgInitialized = true;
-    });
   };
 
   win.__bindDynamicCityBg = bind;
   win.__dynamicCityBgCleanup = cleanup;
-  bind();
+  win.__dynamicCityBgPreload = load;
+  bind({ softReturn: win.__hubSoftArrival === true });
 </script>

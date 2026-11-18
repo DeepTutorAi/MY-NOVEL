@@ -1,7 +1,8 @@
 ---
 // Per-profile localStorage namespacing shared by every base layout. Rendered
 // first in <head> so no other script can read or write storage before the
-// interceptor is installed.
+// interceptor is installed. The hub theme bridge follows it for the same reason.
+import HubThemeBridge from "./HubThemeBridge.astro";
 ---
 
 <script is:inline>
@@ -68,3 +69,5 @@
     };
   })();
 </script>
+
+<HubThemeBridge />

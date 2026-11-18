@@ -23,7 +23,12 @@
     "kusabi:art": "tsx src/scripts/kusabi/process-art.ts",
     "kusabi:e2e": "tsx src/scripts/kusabi/kusabi-e2e.ts",
     "kusabi:verify-dist": "tsx src/scripts/kusabi/verify-kusabi-dist.ts",
-    "dev-key:set": "tsx src/scripts/_shared/set-dev-key.ts"
+    "dev-key:set": "tsx src/scripts/_shared/set-dev-key.ts",
+    "hub:test": "tsx --test \"src/scripts/hub/**/*.test.ts\" src/scripts/hub-ui-contract.test.ts src/scripts/hub-portal-contract.test.ts src/scripts/hub-theme-contract.test.ts src/scripts/reading-experience-contract.test.ts src/scripts/_shared/scene-runtime.test.ts",
+    "hub:fixtures": "tsx src/scripts/hub/qa/capture-fixtures.ts",
+    "hub:e2e": "tsx src/scripts/hub/qa/hub-e2e.ts",
+    "hub:measure": "tsx src/scripts/hub/qa/hub-measure.ts",
+    "hub:budget": "tsx src/scripts/hub/qa/hub-budget.ts"
   },
   "dependencies": {
     "@fontsource/cormorant-garamond": "^5.2.11",

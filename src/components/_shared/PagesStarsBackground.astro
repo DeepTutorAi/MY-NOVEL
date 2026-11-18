@@ -1,49 +1,65 @@
 ---
-// "Pages into stars" hub background: an open grimoire whose pages become stars, drawn on one canvas.
+// Library hub background (pages-stars, spec 3.1 and 2.13): the sky root of the night reading
+// hall. The theme CSS loads with the page; the scene loads lazily on the kit.
+import "../../styles/_shared/hub-themes/pages-stars.css";
 ---
-<div class="grimoire-scene" data-grimoire-scene aria-hidden="true">
-  <canvas id="pages-stars-canvas"></canvas>
+
+<div class="hub-sky hub-sky-pages-stars" data-hub-sky="pages-stars" aria-hidden="true">
+  <canvas data-sky-static="hall"></canvas>
+  <canvas data-sky-static="shelf-left"></canvas>
+  <canvas data-sky-static="shelf-right"></canvas>
+  <canvas data-sky-static="vault"></canvas>
+  <canvas data-sky-live></canvas>
 </div>
 
 <style>
-  .grimoire-scene {
-    position: fixed;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    overflow: hidden;
-    background: linear-gradient(180deg, #03040f 0%, #120e3c 40%, #5c2069 70%, #d97f4e 92%, #efb06c 100%);
+  .hub-sky-pages-stars {
+    background:
+      radial-gradient(ellipse 70% 40% at 32% 0%, rgb(24 32 74 / 0.55), transparent 70%),
+      linear-gradient(180deg, #07060c 0%, #0d0b16 60%, #120d14 100%);
   }
 
-  /* Touch browsers resize the viewport as the URL bar shows and hides; the largest viewport
-     keeps the scene from being rebuilt on every scroll. */
-  @media (pointer: coarse) {
-    .grimoire-scene {
-      inset: 0 0 auto 0;
-      height: 100vh;
-      height: 100lvh;
-    }
-  }
-
-  .grimoire-scene canvas {
+  /* The scene sizes the static planes (gutter strips, the hall's scroll travel); the live canvas fills the root. */
+  .hub-sky-pages-stars canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
     display: block;
+  }
+
+  .hub-sky-pages-stars canvas[data-sky-static="shelf-right"] {
+    right: 0;
+    left: auto;
+  }
+
+  .hub-sky-pages-stars canvas[data-sky-live] {
     width: 100%;
     height: 100%;
   }
 </style>
 
 <script>
-  import type { SceneHandle } from "../../scripts/_shared/scene-runtime";
+  import type { BindOptions, HubSceneHandle } from "../../scripts/hub/world/types";
 
-  type PagesStarsWindow = Window & {
-    __bindPagesStarsBg?: () => void;
+  type SceneModule = typeof import("../../scripts/hub/library-scene");
+  type LibraryWindow = Window & {
+    __bindPagesStarsBg?: (options?: BindOptions) => void;
     __pagesStarsBgCleanup?: () => void;
     __pagesStarsBgInitialized?: boolean;
+    __pagesStarsBgPreload?: () => Promise<SceneModule>;
+    __hubSoftArrival?: boolean;
   };
 
-  const win = window as PagesStarsWindow;
-  let live: { canvas: HTMLCanvasElement; handle: SceneHandle } | null = null;
-  let pending: HTMLCanvasElement | null = null;
+  const win = window as LibraryWindow;
+  let promise: Promise<SceneModule> | null = null;
+  let live: { root: HTMLElement; handle: HubSceneHandle } | null = null;
+  let pending: HTMLElement | null = null;
+
+  const load = () =>
+    (promise ??= import("../../scripts/hub/library-scene").catch((error: unknown) => {
+      promise = null;
+      throw error;
+    }));
 
   const cleanup = () => {
     pending = null;
@@ -52,33 +68,35 @@
     win.__pagesStarsBgInitialized = false;
   };
 
-  const bind = () => {
+  const bind = (options?: BindOptions) => {
     const wrapper = document.getElementById("pages-stars-bg-container");
-    const scene = wrapper?.querySelector<HTMLElement>("[data-grimoire-scene]");
-    const canvas = scene?.querySelector<HTMLCanvasElement>("canvas");
-    if (!wrapper || wrapper.style.display === "none" || !scene || !canvas) {
+    const root = wrapper?.querySelector<HTMLElement>("[data-hub-sky]");
+    if (!wrapper || !root || getComputedStyle(wrapper).display === "none") {
       cleanup();
       return;
     }
-    if ((live && live.canvas === canvas) || pending === canvas) return;
+    if (live?.root === root || pending === root) return;
     cleanup();
-    pending = canvas;
-    // The scene's code loads only when this theme is the one showing.
-    void import("../../scripts/hub/grimoire-scene").then(({ createGrimoireScene }) => {
-      if (pending !== canvas) return;
-      pending = null;
-      const handle = createGrimoireScene(canvas, scene, {
-        avoid: ".hub-title-group, .hub-side-note, .hub-profile-widget, .hub-footer",
-        avoidSoft: ".novel-card, .resume-card",
-        pointerBlock: ".hub-title-group, .hub-side-note, .hub-profile-widget, .hub-footer, .novel-card, .resume-card, .hub-modal-overlay",
+    pending = root;
+    delete root.dataset.sceneFailed;
+    load()
+      .then(({ mount }) => {
+        if (pending !== root) return;
+        pending = null;
+        const handle = mount(root, options);
+        if (handle) live = { root, handle };
+        else root.dataset.sceneFailed = "";
+      })
+      .catch((error: unknown) => {
+        console.error(error);
+        if (pending !== root) return;
+        pending = null;
+        root.dataset.sceneFailed = "";
       });
-      live = { canvas, handle };
-      handle.start();
-      win.__pagesStarsBgInitialized = true;
-    });
   };
 
   win.__bindPagesStarsBg = bind;
   win.__pagesStarsBgCleanup = cleanup;
-  bind();
+  win.__pagesStarsBgPreload = load;
+  bind({ softReturn: win.__hubSoftArrival === true });
 </script>

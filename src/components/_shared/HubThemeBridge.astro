@@ -1,0 +1,44 @@
+---
+// Head bridge for the hub theme (spec 2.14 step 1). Inlines the theme registry and
+// resolution, exposes window.__hubTheme and window.__hubThemeBoot, and themes the
+// incoming hub document on astro:before-swap so the transition snapshot is themed.
+// Rendered by ProfileStorageInterceptor, so storage reads go through it.
+import themeCore from "../../scripts/hub/theme-core.mjs?raw";
+
+const core = themeCore
+  .replace(/\/\*[\s\S]*?\*\//g, "")
+  .replace(/^\s*\/\/.*$/gm, "")
+  .replace(/^export /gm, "")
+  .replace(/^function lowerFirst\b[\s\S]*?^\}\n/m, "");
+
+const source = `(()=>{
+${core}
+const w=window,d=document,S=(w.__hubThemeBridge??={});
+const get=(k)=>{try{return localStorage.getItem(k)}catch{return null}};
+const put=(k,v)=>{try{v==null?localStorage.removeItem(k):localStorage.setItem(k,v)}catch{}};
+const resolve=(u)=>{let p=null;try{p=new URL(u,location.href).searchParams.get("theme")}catch{}
+const r=resolveTheme({param:p,stored:get(OVERRIDE_KEY),session:S.t,nowMs:Date.now()});
+if(r.invalidStored)put(OVERRIDE_KEY,null);return r};
+const motion=()=>(S.m??get(MOTION_KEY))==="still"?"still":"full";
+const reading=()=>["hvitveldt","tsukinomi","kusabi"].some((n)=>{try{return JSON.parse(get(n+":reading:last")).progress>=0.005}catch{return false}});
+const apply=(doc,u)=>{const k=resolve(u).key,e=doc.documentElement,m=doc.querySelector('meta[name="theme-color"]');
+e.dataset.hubTheme=k;e.dataset.hubMotion=motion();e.toggleAttribute("data-hub-has-reading",reading());
+if(m)m.content=themeByKey(k).themeColor};
+w.__hubTheme={resolve:(u=location.href)=>resolve(u),
+set:(k)=>{S.t=themeByKey(k)?.key??null;put(OVERRIDE_KEY,S.t)},
+active:()=>resolve(location.href).key,motion,
+setMotion:(still)=>{S.m=still?"still":"";put(MOTION_KEY,still?"still":null);d.documentElement.dataset.hubMotion=motion()}};
+w.__hubThemeBoot=()=>apply(d,location.href);
+if(!S.on){S.on=1;d.addEventListener("astro:before-swap",(ev)=>{const hub=!!ev.newDocument.body?.classList.contains("hub-page");
+w.__hubSoftArrival=hub;if(hub)apply(ev.newDocument,ev.to)})}
+})();`;
+
+// Whitespace is dropped beside punctuation (the inlined sources hold no string with
+// a space) and after statement ends, to keep the bridge within its 1.4 KB gzip budget.
+const bridge = source
+  .replace(/^\s+/gm, "")
+  .replace(/[ \t]*([=,:{}()[\];?<>+*/!&|-])[ \t]*/g, "$1")
+  .replace(/([;{},[])\n/g, "$1");
+---
+
+<script is:inline set:html={bridge}></script>

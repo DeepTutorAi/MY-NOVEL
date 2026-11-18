@@ -1,0 +1,565 @@
+/* Constellation, สายแสงกลางดาว (spec 3.3): gold silk light on a warm night. Tokens and skins
+   only; the geometry belongs to hub.css. Appendix B slots: wrapper ::before thread stub, ::after
+   knot ring; card ::before perimeter run, ::after stitches and resonance; media ::before gauze
+   or unwoven warp; body background star dust; body ::after chosen tag; progress ::after bead. */
+
+@property --con-angle {
+  syntax: "<angle>";
+  inherits: false;
+  initial-value: 0deg;
+}
+
+:root[data-hub-theme="constellation"] {
+  color-scheme: dark;
+}
+
+:root[data-hub-theme="constellation"],
+.hub-page [data-hub-theme-preview="constellation"] {
+  --hub-bg: #060812;
+  --hub-ink: #f1e9d8;
+  --hub-muted: #c2b69f;
+  --hub-faint: #a59a86;
+  --hub-line: rgba(224, 180, 106, 0.2);
+  --hub-line-strong: rgba(224, 180, 106, 0.4);
+  --hub-panel: #0b0e1a;
+  --hub-panel-strong: #0f1325;
+  --hub-accent: #e0b46a;
+  --hub-accent-ink: #e8c27f;
+  --hub-accent-contrast: #0b0e1a;
+  --hub-link-hover: #f2d58a;
+  --hub-focus: #f2d58a;
+  --hub-focus-halo-color: #05060b;
+  --hub-select-bg: #c9a35c;
+  --hub-select-ink: #05060b;
+  --hub-pool: 5 6 12;
+  --hub-pool-a: 0.84;
+  --hub-pool-b: 0.52;
+  --hub-hero-ink: #f1e9d8;
+  --hub-hero-muted: #cdc1a8;
+  --hub-title-font: "Cormorant Garamond", var(--font-thai);
+  --hub-title-weight: 400;
+  --hub-title-style: normal;
+  --hub-title-tracking: 0.01em;
+  --hub-title-fill:
+    linear-gradient(100deg, transparent 42%, rgba(255, 248, 226, 0.95) 50%, transparent 58%) 100% 0 / 260% 100% no-repeat,
+    linear-gradient(180deg, #fdf6e6 16%, #f1e9d8 52%, #e8cc94 100%);
+  --hub-title-solid: #f1e9d8;
+  --hub-text-shadow: none;
+  --hub-side-bg: rgba(8, 10, 22, 0.76);
+  --hub-side-border: rgba(224, 180, 106, 0.62);
+  --hub-side-ornament: linear-gradient(90deg, rgba(224, 180, 106, 0.1), transparent 34%);
+  --card-radius: 10px;
+  --card-body-bg: #0b0e1a;
+  --card-border: rgba(224, 180, 106, 0.32);
+  --card-media-bg: #0a0d18;
+  --card-accent-share: 55%;
+  --card-progress-track: rgba(224, 180, 106, 0.14);
+  --card-locked-filter: saturate(0.55) brightness(0.7) contrast(1.05);
+  --card-locked-veil: linear-gradient(180deg, rgba(5, 6, 12, 0.2), rgba(5, 6, 12, 0.6));
+  --card-upcoming-filter: saturate(0.75) brightness(0.8);
+  --card-upcoming-veil: linear-gradient(180deg, rgba(6, 8, 18, 0.05), rgba(6, 8, 18, 0.35));
+  --card-seal-font: var(--font-thai);
+  --card-seal-text: "กำลังร้อยด้าย";
+  --resume-bg: #14100c;
+  --resume-border: rgba(224, 180, 106, 0.58);
+  --resume-ink: #f6eedd;
+  --resume-action-bg: linear-gradient(180deg, rgba(255, 228, 170, 0.28), rgba(224, 180, 106, 0.12));
+  --resume-action-border: rgba(242, 213, 138, 0.78);
+  --resume-action-ink: #fff3d6;
+  --resume-ornament:
+    radial-gradient(ellipse 46% 130% at 80% 0%, rgba(255, 196, 110, 0.24), transparent 70%),
+    linear-gradient(180deg, rgba(224, 180, 106, 0.08), transparent 70%);
+  --chip-bg: rgba(9, 11, 22, 0.88);
+  --chip-border: rgba(224, 180, 106, 0.46);
+  --chip-ink: #f1e9d8;
+  --chip-btn-border: rgba(224, 180, 106, 0.32);
+  --chip-btn-hover: rgba(224, 180, 106, 0.14);
+  --chip-avatar-ring: rgba(242, 213, 138, 0.75);
+  --window-label-bg: rgba(9, 12, 28, 0.92);
+  --window-label-ink: #f1e9d8;
+  --window-label-border: rgba(224, 180, 106, 0.5);
+  --hit-label-bg: #0b0e1a;
+  --hit-label-ink: #f6e3b8;
+  --modal-overlay: rgba(5, 6, 12, 0.85);
+  --modal-blur: 10px;
+  --modal-bg: #0b0e1a;
+  --modal-border: rgba(224, 180, 106, 0.36);
+  --modal-radius: 10px;
+  --modal-title-font: "Cormorant Garamond", var(--font-thai);
+  --modal-field-bg: rgba(255, 246, 222, 0.04);
+  --modal-danger: #ff8f7e;
+  --modal-ornament: linear-gradient(180deg, rgba(224, 180, 106, 0.07), transparent 120px);
+  --footer-ink: #e8d9b6;
+  --footer-line: rgba(224, 180, 106, 0.42);
+  --footer-pool: 4 5 10;
+  --footer-pool-a: 0.92;
+  --hub-ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+
+/* The pool and loom hit areas (stage x .25 y .35 w .5 h .6; mid kept above its heading). */
+:root[data-hub-theme="constellation"] .hub-page {
+  --stage-hit-x: 0.25;
+  --stage-hit-y: 0.35;
+  --stage-hit-w: 0.5;
+  --stage-hit-h: 0.6;
+  --mid-hit-x: 0.15;
+  --mid-hit-y: 0.16;
+  --mid-hit-w: 0.7;
+  --mid-hit-h: 0.56;
+  --hub-title-glow:
+    drop-shadow(0 0 calc(12px + var(--w-light) * 10px) rgb(224 180 106 / calc(0.26 + var(--w-light) * 0.3)))
+    drop-shadow(0 1px 10px rgba(2, 3, 8, 0.8));
+}
+
+@media (max-width: 780px) {
+  :root[data-hub-theme="constellation"] .hub-page {
+    --stage-hit-x: 0.08;
+    --stage-hit-y: 0.3;
+    --stage-hit-w: 0.84;
+    --stage-hit-h: 0.65;
+    --mid-hit-x: 0.05;
+    --mid-hit-y: 0.1;
+    --mid-hit-w: 0.9;
+    --mid-hit-h: 0.52;
+  }
+}
+
+/* Cards: tablets of night glass hung from a thread. --w-glow is the scene's light on the card. */
+:root[data-hub-theme="constellation"] .novel-card {
+  --card-accent-ink: color-mix(in oklch, var(--novel-accent) var(--card-accent-share), var(--hub-ink));
+  --card-border-hover: rgba(242, 213, 138, 0.82);
+  --card-shadow:
+    0 22px 44px -26px rgba(0, 0, 0, 0.92),
+    0 0 calc(var(--w-glow) * 32px) rgb(224 180 106 / calc(var(--w-glow) * 0.36));
+  --card-shadow-hover: 0 0 0 1px rgba(242, 213, 138, 0.2), 0 0 30px rgba(224, 180, 106, 0.22), 0 24px 46px -24px rgba(0, 0, 0, 0.95);
+  --card-media-shade:
+    linear-gradient(180deg, rgba(6, 8, 18, 0) 46%, rgba(6, 8, 18, 0.66) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--novel-accent) 14%, transparent), transparent 40%);
+  --card-progress-fill: linear-gradient(90deg, rgba(224, 180, 106, 0.5), #f2d58a);
+  --card-seal-ink: #f2dcaa;
+}
+
+:root[data-hub-theme="constellation"] .novel-card-continue {
+  --card-continue-bg: rgba(11, 14, 26, 0.94);
+  --card-continue-border: rgba(224, 180, 106, 0.62);
+}
+
+:root[data-hub-theme="constellation"] .novel-card-continue:hover {
+  border-color: #f2d58a;
+  background: rgba(46, 38, 26, 0.96);
+}
+
+:root[data-hub-theme="constellation"] .novel-card-wrapper[data-attended] .novel-card {
+  border-color: rgba(242, 213, 138, 0.74);
+}
+
+:root[data-hub-theme="constellation"] .novel-card-body {
+  background-image:
+    radial-gradient(circle at 14% 22%, rgba(255, 240, 214, 0.1) 0 0.7px, transparent 1.5px),
+    radial-gradient(circle at 62% 58%, rgba(242, 213, 138, 0.09) 0 0.7px, transparent 1.4px);
+  background-size: 150px 110px, 230px 170px;
+}
+
+/* The thread stub rises from the knot into the band, fading in at its top; a bead runs down it. */
+:root[data-hub-theme="constellation"] .novel-card-wrapper::before {
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  z-index: 1;
+  width: 7px;
+  height: 26px;
+  translate: -50% 0;
+  content: "";
+  background:
+    radial-gradient(circle, #fff6de 0 1.2px, rgba(242, 213, 138, 0.7) 2px, transparent 3.4px) 50% -8px / 7px 7px no-repeat,
+    linear-gradient(180deg, rgba(242, 213, 138, 0), rgb(242 213 138 / calc(0.45 + var(--card-read) * 0.5))) 50% 0 / 1px 100% no-repeat;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .novel-card-wrapper[data-upcoming-slug]::before {
+  position: absolute;
+  background: repeating-linear-gradient(180deg, rgba(224, 180, 106, 0.42) 0 3px, transparent 3px 7px) 50% 0 / 1px 100% no-repeat;
+  opacity: 0.75;
+}
+
+:root[data-hub-theme="constellation"] .novel-card-wrapper:has(> .is-disabled)::before {
+  content: none;
+}
+
+/* The gold knot ring at the top centre, glowing with progress; a small star once finished. */
+:root[data-hub-theme="constellation"] .novel-card-wrapper::after {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  z-index: 3;
+  width: 10px;
+  height: 10px;
+  translate: -50% 0;
+  box-sizing: border-box;
+  border: 1.5px solid rgba(242, 213, 138, 0.92);
+  border-radius: 50%;
+  content: "";
+  background: #0b0e1a;
+  box-shadow: 0 0 calc(2px + var(--card-read) * 12px) rgb(242 213 138 / calc(0.2 + var(--card-read) * 0.6));
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .novel-card-wrapper[data-upcoming-slug]::after {
+  position: absolute;
+  border-style: dashed;
+  border-color: rgba(224, 180, 106, 0.6);
+}
+
+:root[data-hub-theme="constellation"] .novel-card-wrapper[data-card-finished]::after {
+  position: absolute;
+  top: -9px;
+  width: 18px;
+  height: 18px;
+  border: 0;
+  border-radius: 0;
+  background:
+    radial-gradient(circle, #fff8e4 0 1.6px, rgba(242, 213, 138, 0.85) 2.8px, rgba(242, 213, 138, 0) 6px),
+    linear-gradient(90deg, transparent 8%, rgba(255, 240, 200, 0.95) 50%, transparent 92%) 50% 50% / 100% 1.4px no-repeat,
+    linear-gradient(0deg, transparent 8%, rgba(255, 240, 200, 0.95) 50%, transparent 92%) 50% 50% / 1.4px 100% no-repeat;
+  box-shadow: none;
+  filter: drop-shadow(0 0 6px rgba(242, 213, 138, 0.7));
+}
+
+/* Perimeter light run, shown by the tug beat; the stitched inner line is the resonance string. */
+:root[data-hub-theme="constellation"] .novel-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1.5px;
+  border-radius: inherit;
+  content: "";
+  background: conic-gradient(from var(--con-angle), transparent 0 70%, rgba(242, 213, 138, 0.25) 80%, #fff3d0 88%, rgba(242, 213, 138, 0.25) 94%, transparent);
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .novel-card::after {
+  position: absolute;
+  inset: 6px;
+  z-index: 2;
+  border: 1px dashed rgba(224, 180, 106, 0.17);
+  border-radius: 6px;
+  content: "";
+  background: linear-gradient(90deg, transparent 40%, rgba(255, 236, 190, 0.8) 50%, transparent 60%) 100% 0 / 300% 100% no-repeat;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .novel-card.is-disabled .novel-card-media::before,
+:root[data-hub-theme="constellation"] .novel-card.is-upcoming .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .novel-card.is-disabled .novel-card-media::before {
+  background:
+    repeating-linear-gradient(0deg, rgba(5, 6, 12, 0.18) 0 1px, transparent 1px 3px),
+    repeating-linear-gradient(90deg, rgba(5, 6, 12, 0.12) 0 1px, transparent 1px 4px),
+    rgba(6, 8, 18, 0.3);
+}
+
+:root[data-hub-theme="constellation"] .novel-card.is-upcoming .novel-card-media::before {
+  background:
+    repeating-linear-gradient(90deg, rgba(242, 213, 138, 0.07) 0 1px, transparent 1px 13px) 0 0 / 100% 40% no-repeat,
+    linear-gradient(180deg, rgba(6, 8, 18, 0.1), rgba(6, 8, 18, 0.35));
+}
+
+:root[data-hub-theme="constellation"] .novel-card-progress::after {
+  position: absolute;
+  top: 50%;
+  left: calc(var(--novel-progress, 0) * 100%);
+  width: 8px;
+  height: 8px;
+  translate: -50% -50%;
+  content: "";
+  background: radial-gradient(circle, #fff6de 0 1.6px, #f2d58a 2.6px, rgba(242, 213, 138, 0) 4px);
+}
+
+:root[data-hub-theme="constellation"] .novel-card-wrapper[data-chosen] .novel-card-body::after {
+  position: absolute;
+  top: 16px;
+  right: 18px;
+  padding: 3px 11px;
+  border: 1px solid rgba(242, 213, 138, 0.66);
+  border-radius: 999px;
+  content: "ลองเรื่องนี้" / "";
+  background: #120f0a;
+  color: #f6dfa8;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+:root[data-hub-theme="constellation"] .upcoming-seal {
+  font-size: 0;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:root[data-hub-theme="constellation"] .upcoming-seal::before {
+  width: auto;
+  height: auto;
+  font-size: 0.9rem;
+  content: var(--card-seal-text) / "";
+  background: none;
+  text-shadow: 0 0 12px rgba(242, 213, 138, 0.4), 0 1px 8px rgba(0, 0, 0, 0.9);
+}
+
+:root[data-hub-theme="constellation"] .upcoming-seal::after {
+  content: none;
+}
+
+/* Hero: a gold thread drawn under the title, a thread binding the side note. */
+:root[data-hub-theme="constellation"] .hub-title-group::after {
+  position: absolute;
+  top: calc(var(--hub-h1-size) * var(--hub-h1-lh) + 6px);
+  left: 0;
+  width: min(300px, 62%);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, rgba(242, 213, 138, 0.92), rgba(224, 180, 106, 0.36) 62%, transparent);
+  transform-origin: left center;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .hub-side-note::before {
+  position: absolute;
+  width: 1px;
+  height: 44px;
+  translate: -17px calc(-100% - 14px);
+  content: "";
+  background: linear-gradient(0deg, rgba(242, 213, 138, 0.8), rgba(224, 180, 106, 0));
+  pointer-events: none;
+}
+
+/* The resume card is a lantern hanging on its own thread; the start panel is the same lantern, unlit. */
+:root[data-hub-theme="constellation"] :is(.resume-card, .hub-start)::before {
+  position: absolute;
+  bottom: 100%;
+  left: 80%;
+  width: 1px;
+  height: 24px;
+  content: "";
+  background: linear-gradient(0deg, rgba(242, 213, 138, 0.8), rgba(242, 213, 138, 0));
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .hub-start {
+  background: linear-gradient(180deg, rgba(224, 180, 106, 0.05), transparent 70%), #0b0e1a;
+}
+
+:root[data-hub-theme="constellation"] .hub-start::before {
+  position: absolute;
+  opacity: 0.5;
+}
+
+:root[data-hub-theme="constellation"] .resume-card-actions a {
+  box-shadow: inset 0 1px 0 rgba(255, 246, 222, 0.28), 0 0 16px rgba(224, 180, 106, 0.16);
+}
+
+/* Library heading set between two small stars (the leading one where a gutter holds it), with a hairline under it. */
+:root[data-hub-theme="constellation"] .hub-library-head h2::after {
+  position: absolute;
+  content: "✦" / "";
+  color: #e0b46a;
+  font-size: 0.72em;
+  translate: 0.55em 0.42em;
+}
+
+@media (min-width: 781px) {
+  :root[data-hub-theme="constellation"] .hub-library-head h2::before {
+    position: absolute;
+    content: "✦" / "";
+    color: #e0b46a;
+    font-size: 0.72em;
+    translate: -1.5em 0.42em;
+  }
+}
+
+:root[data-hub-theme="constellation"] .hub-library-head::after {
+  position: absolute;
+  right: 0;
+  bottom: -9px;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, rgba(224, 180, 106, 0.55), rgba(224, 180, 106, 0.12) 45%, transparent 80%);
+  pointer-events: none;
+}
+
+/* Chip and picker button: dark pills with gold piping, a star-ticked avatar ring, a falling-light mark. */
+:root[data-hub-theme="constellation"] :is(.hub-profile-widget, .hub-theme-btn) {
+  box-shadow: inset 0 0 0 1px rgba(5, 6, 12, 0.9), inset 0 0 0 2px rgba(224, 180, 106, 0.12), 0 0.6rem 1.6rem rgba(0, 0, 0, 0.5);
+}
+
+:root[data-hub-theme="constellation"] .hub-profile-widget::before {
+  position: absolute;
+  top: 50%;
+  left: 1px;
+  width: 38px;
+  height: 38px;
+  translate: 0 -50%;
+  content: "";
+  background:
+    radial-gradient(circle at 50% 1.5px, #f2d58a 0 1px, transparent 1.6px),
+    radial-gradient(circle at 50% calc(100% - 1.5px), #f2d58a 0 1px, transparent 1.6px),
+    radial-gradient(circle at 1.5px 50%, #f2d58a 0 1px, transparent 1.6px),
+    radial-gradient(circle at calc(100% - 1.5px) 50%, #f2d58a 0 1px, transparent 1.6px);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="constellation"] .hub-theme-btn::before {
+  position: absolute;
+  width: 16px;
+  height: 16px;
+  content: "";
+  background:
+    linear-gradient(180deg, transparent, #f2d58a) 3px 3px / 1.5px 8px no-repeat,
+    linear-gradient(180deg, transparent, #fff1c8) 7.25px 0 / 1.5px 13px no-repeat,
+    linear-gradient(180deg, transparent, #f2d58a) 11.5px 5px / 1.5px 8px no-repeat,
+    radial-gradient(circle, #0a0c18 0 8px, transparent 8.5px);
+  pointer-events: none;
+}
+
+/* Guide: ดาวนำทาง, a small four-point star with a short comet tail. */
+:root[data-hub-theme="constellation"] .hub-guide-body {
+  border-radius: 0;
+  background:
+    radial-gradient(circle, #fff7e0 0 2px, rgba(242, 213, 138, 0.72) 3.6px, rgba(242, 213, 138, 0) 10px),
+    linear-gradient(90deg, transparent 22%, rgba(255, 240, 200, 0.9) 50%, transparent 78%) 50% 50% / 100% 1.5px no-repeat,
+    linear-gradient(0deg, transparent 22%, rgba(255, 240, 200, 0.9) 50%, transparent 78%) 50% 50% / 1.5px 100% no-repeat;
+}
+
+:root[data-hub-theme="constellation"] .hub-guide::before {
+  position: absolute;
+  bottom: 50%;
+  left: 50%;
+  width: 2px;
+  height: 24px;
+  translate: -50% 0;
+  content: "";
+  background: linear-gradient(0deg, rgba(242, 213, 138, 0.62), rgba(242, 213, 138, 0));
+}
+
+/* Dialogs and picker: night glass in a gold thread frame. */
+:root[data-hub-theme="constellation"] .hub-modal-card {
+  box-shadow: inset 0 0 0 6px #0b0e1a, inset 0 0 0 7px rgba(224, 180, 106, 0.26), 0 18px 60px rgba(0, 0, 0, 0.7);
+}
+
+:root[data-hub-theme="constellation"] .hub-footer-next-link {
+  text-decoration-color: rgba(224, 180, 106, 0.6);
+}
+
+.hub-theme-swatch[data-swatch="constellation"] {
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 72 48'%3E%3Cg fill='none' stroke='%23e0b46a' stroke-linecap='round'%3E%3Cpath d='M36-2C29 14 13 20 9 50' stroke-width='1.6'/%3E%3Cpath d='M36-2c2 18-1 32 1 52' opacity='.75'/%3E%3Cpath d='M36-2c7 16 23 22 27 52' stroke-width='1.6'/%3E%3C/g%3E%3Cg fill='%23fff3d6'%3E%3Ccircle cx='18' cy='10' r='.9'/%3E%3Ccircle cx='56' cy='14' r='1.1'/%3E%3Ccircle cx='47' cy='34' r='.7'/%3E%3C/g%3E%3C/svg%3E") center / cover no-repeat,
+    linear-gradient(180deg, #070a16, #141633);
+}
+
+/* Motion: every animation waits for full motion. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .hub-title-group::after {
+    animation: con-draw 1.6s cubic-bezier(0.2, 0.7, 0.2, 1) 0.2s both;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="tug"]::before {
+    animation: con-tug-a 0.9s ease-in 0.15s both;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="tug"]::before {
+    animation: con-tug-b 0.9s ease-in 0.15s both;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="tug"] .novel-card::before {
+    animation: con-run-a 1.2s ease-in-out 0.35s both;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="tug"] .novel-card::before {
+    animation: con-run-b 1.2s ease-in-out 0.35s both;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="resonance"] .novel-card::after {
+    animation: con-res-a 1.1s ease-out;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="resonance"] .novel-card::after {
+    animation: con-res-b 1.1s ease-out;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .hub-hero[data-w-beat="a"][data-w-beat-kind="title-glint"] .hub-title-group h1 {
+    animation: con-glint-a 1.2s ease-in-out;
+  }
+
+  :root[data-hub-theme="constellation"][data-hub-motion="full"] .hub-hero[data-w-beat="b"][data-w-beat-kind="title-glint"] .hub-title-group h1 {
+    animation: con-glint-b 1.2s ease-in-out;
+  }
+}
+
+@keyframes con-draw {
+  from {
+    opacity: 0;
+    transform: translateY(-5px) scaleX(0);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes con-tug-a {
+  40% { background-position: 50% 6px, 50% 0; }
+  to { background-position: 50% 34px, 50% 0; }
+}
+
+@keyframes con-tug-b {
+  40% { background-position: 50% 6px, 50% 0; }
+  to { background-position: 50% 34px, 50% 0; }
+}
+
+@keyframes con-run-a {
+  40% { opacity: 1; }
+  to { opacity: 0; --con-angle: 360deg; }
+}
+
+@keyframes con-run-b {
+  40% { opacity: 1; }
+  to { opacity: 0; --con-angle: 360deg; }
+}
+
+/* Resonance: a highlight sweeps along the stitched string; the stitch itself does not change. */
+@keyframes con-res-a {
+  50% { background-position: 50% 0; }
+  to { background-position: 0 0; }
+}
+
+@keyframes con-res-b {
+  50% { background-position: 50% 0; }
+  to { background-position: 0 0; }
+}
+
+@keyframes con-glint-a {
+  40% { background-position: 62% 0, 0 0; }
+  to { background-position: 0% 0, 0 0; }
+}
+
+@keyframes con-glint-b {
+  40% { background-position: 62% 0, 0 0; }
+  to { background-position: 0% 0, 0 0; }
+}
+
+/* Forced colours and more contrast: the ornaments step aside. */
+@media (forced-colors: active), (prefers-contrast: more) {
+  :root[data-hub-theme="constellation"] :is(.novel-card-wrapper, .novel-card, .hub-side-note, .hub-title-group, .hub-profile-widget, .resume-card, .hub-start)::before,
+  :root[data-hub-theme="constellation"] :is(.novel-card-wrapper, .novel-card, .hub-title-group, .hub-library-head)::after {
+    content: none;
+  }
+}

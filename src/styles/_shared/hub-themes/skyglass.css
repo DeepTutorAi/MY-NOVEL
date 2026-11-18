@@ -1,0 +1,558 @@
+/* Skyglass: หอกระจกยามเย็น (spec 3.2), keyed dark: a glass city from blue hour into night, light ink
+   on dark glass so the hub never glares. Tokens and skins only; geometry comes from hub.css. */
+
+:root[data-hub-theme="skyglass"],
+.hub-page [data-hub-theme-preview="skyglass"] {
+  --hub-bg: #111822;
+  --hub-ink: #edf1f5;
+  --hub-muted: #a4b0be;
+  --hub-faint: #9aa6b4;
+  --hub-line: #d6e2ee29;
+  --hub-line-strong: #d6e2ee4c;
+  --hub-panel: #111822;
+  --hub-panel-strong: #18202c;
+  --hub-accent: #d9ab86;
+  --hub-accent-ink: #e2bb98;
+  --hub-accent-contrast: #1b2330;
+  --hub-link-hover: #e2bb98;
+  --hub-focus: #eef4ff;
+  --hub-focus-halo-color: #1b2330;
+  --hub-select-bg: #d9ab86d9;
+  --hub-select-ink: #1b2330;
+  --hub-pool: 10 14 24;
+  --hub-pool-a: 0.6;
+  --hub-pool-b: 0.28;
+  --hub-hero-ink: #edf1f5;
+  --hub-hero-muted: #b6c0cc;
+  --hub-hero-plate: none;
+  --hub-title-font: "IBM Plex Sans Thai Looped", var(--font-thai);
+  --hub-title-weight: 400;
+  --hub-title-style: normal;
+  --hub-title-tracking: 0.01em;
+  --hub-title-fill: linear-gradient(180deg, #f6f3ee 22%, #d9e1ea);
+  --hub-title-solid: #edf1f5;
+  --hub-title-glow: drop-shadow(0 1px 14px #070a10b3);
+  --hub-text-shadow: 0 1px 12px #070a10b3;
+  --hub-side-bg: #111822f0;
+  --hub-side-border: #45556a;
+  --card-radius: 14px;
+  --card-body-bg: #111822;
+  --card-border: #d6e2ee33;
+  --card-shadow: 0 22px 40px -24px #090d14b2, inset 0 1px 0 #f1ece34c;
+  --card-lift: -3px;
+  --card-media-bg: #18202c;
+  --card-accent-share: 50%;
+  --card-progress-track: #090d1480;
+  --card-locked-filter: saturate(0.5) brightness(0.62);
+  --card-locked-veil: linear-gradient(#11182233, #11182280);
+  --card-upcoming-filter: saturate(0.6) brightness(0.8) blur(1.2px);
+  --card-upcoming-veil: linear-gradient(#d7e1ea33, #d7e1ea0f);
+  --card-seal-text: "ชั้นนี้ยังไม่เปิดไฟ";
+  --resume-bg: #18202c;
+  --resume-border: #efc79561;
+  --resume-ink: #edf1f5;
+  --resume-action-bg: linear-gradient(#f1d2a8, #e3b98c);
+  --resume-action-border: #efc795;
+  --resume-action-ink: #1b2330;
+  --resume-ornament: radial-gradient(90% 150% at 88% 120%, #efc7953d, transparent 62%), linear-gradient(#efc79512, transparent 60%);
+  --chip-bg: #111822e6;
+  --chip-border: #d6e2ee3d;
+  --chip-ink: #edf1f5;
+  --chip-btn-border: #d6e2ee38;
+  --chip-btn-hover: #f1ece31a;
+  --chip-avatar-ring: #eef1f4b2;
+  --window-label-bg: #111822e6;
+  --window-label-border: #d6e2ee3d;
+  --hit-label-bg: #111822f0;
+  --hit-label-ink: #edf1f5;
+  --modal-overlay: #0e1520d1;
+  --modal-blur: 10px;
+  --modal-bg: #111822f0;
+  --modal-border: #d6e2ee42;
+  --modal-radius: 16px;
+  --modal-field-bg: #090d148c;
+  --modal-danger: #f0a39a;
+  --modal-ornament: linear-gradient(#f1ece312, transparent 140px);
+  --footer-ink: #aeb9c5;
+  --footer-line: #d6e2ee33;
+  --footer-pool: 24 32 44;
+  --footer-pool-a: 0.92;
+}
+
+:root[data-hub-theme="skyglass"] {
+  color-scheme: dark;
+}
+
+:root[data-hub-theme="skyglass"] .hub-page {
+  --stage-hit-x: 0.6;
+  --stage-hit-y: 0.06;
+  --stage-hit-w: 0.26;
+  --stage-hit-h: 0.88;
+  --mid-hit-x: 0.2;
+  --mid-hit-y: 0.3;
+  --mid-hit-w: 0.6;
+  --mid-hit-h: 0.4;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card,
+:root[data-hub-theme="skyglass"] .novel-card-continue {
+  --card-accent-ink: color-mix(in oklch, var(--novel-accent) var(--card-accent-share), var(--hub-ink));
+  --card-border-hover: color-mix(in oklch, var(--novel-accent) 30%, #eef1f4);
+  --card-shadow-hover: 0 28px 48px -26px #090d14cc, 0 0 36px -8px #efc79566;
+  --card-media-shade: linear-gradient(#11182200 46%, #1118229e);
+  --card-progress-fill: #eef1f4;
+  --card-continue-bg: #1d2735;
+  --card-continue-border: #a8cbbf;
+  --card-seal-ink: #e8edf2;
+}
+
+/* The pale outline sits in a dark mat, so it holds 3:1 over the afterglow band as well (8.3 item 9). */
+:root[data-hub-theme="skyglass"] .novel-card:focus-visible {
+  --card-shadow-hover: 0 0 0 9px #111822db, 0 28px 48px -26px #090d14cc;
+}
+
+:root[data-hub-theme="skyglass"] .hub-title-group::after {
+  position: absolute;
+  top: calc(var(--hub-h1-size) * var(--hub-h1-lh) + 9px);
+  left: 0;
+  width: min(220px, 40%);
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, rgb(210 156 127 / calc(0.2 + 0.5 * var(--w-sky))), #d29c7f00), linear-gradient(90deg, #d6e2ee59, #d6e2ee00);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .hub-side-note {
+  border-radius: 0 12px 12px 0;
+  box-shadow: 0 12px 28px -16px #090d1499;
+  color: #d3dbe4;
+  text-shadow: none;
+}
+
+:root[data-hub-theme="skyglass"] :is(.hub-profile-widget, .hub-theme-btn) {
+  box-shadow: 0 10px 26px -12px #090d148c, inset 0 1px 0 #f1ece329;
+  backdrop-filter: blur(10px);
+}
+
+:root[data-hub-theme="skyglass"] :is(.hub-profile-widget, .novel-card)::before {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  padding: 1px;
+  border-radius: inherit;
+  content: "";
+  mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  mask-composite: exclude;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .hub-profile-widget::before {
+  background: conic-gradient(from calc(var(--w-sun) - 50deg), transparent, #f1ece3bf 50deg, transparent 100deg);
+}
+
+:root[data-hub-theme="skyglass"] :is(.resume-card, .hub-start) {
+  border-radius: 14px;
+  box-shadow: 0 20px 40px -26px #090d14bf, inset 0 1px 0 #f1ece333;
+}
+
+:root[data-hub-theme="skyglass"] .resume-card-actions :is(a, button) {
+  border-radius: 10px;
+}
+
+:root[data-hub-theme="skyglass"] .resume-card-actions a {
+  box-shadow: 0 0 18px -4px #efc7958c;
+}
+
+:root[data-hub-theme="skyglass"] .resume-card-actions button {
+  border-color: #d6e2ee3d;
+}
+
+:root[data-hub-theme="skyglass"] .hub-start {
+  border-color: #d6e2ee33;
+  background: var(--resume-bg);
+}
+
+:root[data-hub-theme="skyglass"] .hub-start::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  content: "";
+  background: var(--resume-ornament);
+  opacity: 0;
+  transition: opacity calc(var(--hub-dur) * 3) ease;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] :is(.hub-start:hover, .hub-start:focus-within)::before {
+  opacity: 1;
+}
+
+:root[data-hub-theme="skyglass"] .hub-library-head h2 {
+  color: var(--hub-ink);
+  text-shadow: 0 1px 10px #070a10cc;
+}
+
+/* A soft dark pool, transparent at its edges, keeps the heading clear of the afterglow and the lit city. */
+:root[data-hub-theme="skyglass"] .hub-library-head::before {
+  position: absolute;
+  top: -28px;
+  bottom: -28px;
+  left: -48px;
+  z-index: -1;
+  width: 18rem;
+  content: "";
+  background: radial-gradient(closest-side, #0b101acc, #0b101a80 55%, #0b101a00);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .hub-library-head::after {
+  position: absolute;
+  right: 0;
+  bottom: -9px;
+  left: 0;
+  height: 1px;
+  content: "";
+  background: linear-gradient(90deg, #d6e2ee40, #d6e2ee14 60%, transparent);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .hub-pick-btn {
+  border-radius: 999px;
+}
+
+:root[data-hub-theme="skyglass"] .hub-library-head .hub-pick-btn {
+  border-color: #d6e2ee4c;
+  background: #111822e0;
+  box-shadow: inset 0 1px 0 #f1ece32e, 0 8px 18px -10px #090d1499;
+  color: var(--hub-ink);
+}
+
+:root[data-hub-theme="skyglass"] .hub-library-head .hub-pick-btn:hover {
+  border-color: #a8cbbf;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-wrapper::before {
+  --sg-b: calc((min(var(--hub-shell-max), 100vw - 2 * var(--hub-edge)) - 100vw) / 2);
+  position: absolute;
+  top: calc(100% + var(--hub-row-gap) * 0.42);
+  right: calc(var(--hub-col-gap) * -0.5);
+  left: var(--sg-b);
+  height: 1px;
+  content: "";
+  background: #d6e2ee5c;
+  box-shadow: 0 8px 14px -6px #05080d80;
+  opacity: calc(0.55 + 0.45 * var(--w-glow));
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-wrapper[data-col="r"]::before {
+  position: absolute;
+  right: var(--sg-b);
+  left: calc(var(--hub-col-gap) * -0.5);
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-wrapper[data-col="full"]::before {
+  position: absolute;
+  right: var(--sg-b);
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-wrapper[data-attended]::before {
+  background: linear-gradient(90deg, #efc79540, #f3d7b1 30% 70%, #efc79540);
+  box-shadow: 0 0 14px 1px #efc7958c, 0 8px 14px -6px #11182266;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card::before {
+  background:
+    conic-gradient(from calc(var(--w-sun) - 46deg), transparent, rgb(241 236 227 / calc(0.18 + 0.55 * var(--w-sky))) 46deg, transparent 92deg),
+    conic-gradient(from calc(var(--w-sun) - 64deg), transparent, rgb(239 199 149 / calc(0.12 + 0.6 * (1 - var(--w-sky)))) 64deg, transparent 128deg);
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-footer {
+  color: var(--card-accent-ink);
+}
+
+/* The interior light sits above the filtered cover image (z-index 1); the progress bar paints after it. */
+:root[data-hub-theme="skyglass"] .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  content: "";
+  background: radial-gradient(120% 95% at 50% 108%, #efc795b3, #efc79552 50%, transparent 82%);
+  mix-blend-mode: screen;
+  opacity: max(var(--sg-look, 0), (0.45 + 0.55 * (1 - var(--w-sky))) * (0.2 + 0.8 * var(--card-read, 0)));
+  transition: opacity calc(var(--hub-dur) * 2.5) ease;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-media::after {
+  background:
+    linear-gradient(118deg, transparent 30%, rgb(225 234 242 / calc(0.04 + 0.14 * var(--w-sky))) 46%, rgb(225 234 242 / calc(0.02 + 0.06 * var(--w-sky))) 58%, transparent 72%) 0 0 / 220% 100% no-repeat,
+    var(--card-media-shade);
+  background-position: calc(var(--sg-look, 0) * 100%) 0, 0 0;
+  transition: background-position calc(var(--hub-dur) * 4) ease;
+}
+
+:root[data-hub-theme="skyglass"] :is(.novel-card:hover, .novel-card:focus-visible, .novel-card-wrapper[data-attended] .novel-card) {
+  --sg-look: 1;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  content: "";
+  background: linear-gradient(105deg, transparent 38%, #fffaf042 50%, transparent 62%);
+  opacity: 0;
+  transform: translateX(-100%);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card.is-disabled .novel-card-media::before {
+  background:
+    linear-gradient(90deg, transparent calc(50% - 1px), #0b1018 0 calc(50% + 1px), transparent 0),
+    repeating-linear-gradient(#1c2431eb 0 5px, #d7e1ea2e 5px 6px, #1c243180 6px 8px);
+  mix-blend-mode: normal;
+  opacity: 0.94;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card.is-disabled .novel-card-media::after {
+  background: var(--card-locked-veil), var(--card-media-shade);
+}
+
+:root[data-hub-theme="skyglass"] .novel-card.is-disabled .novel-card-title {
+  color: #b8c2cd;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card.is-disabled:hover {
+  border-color: #d6e2ee3d;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card.is-upcoming .novel-card-media::before {
+  background:
+    repeating-linear-gradient(#d7e1ea1a 0 1px, transparent 1px 24px),
+    repeating-linear-gradient(90deg, #d7e1ea1a 0 1px, transparent 1px 24px);
+  mask: linear-gradient(#000, transparent 85%);
+  mix-blend-mode: normal;
+  opacity: 1;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card.is-upcoming .novel-card-media::after {
+  background: var(--card-upcoming-veil), var(--card-media-shade);
+}
+
+:root[data-hub-theme="skyglass"] .upcoming-seal {
+  font-size: 0;
+  letter-spacing: 0;
+  text-transform: none;
+  text-shadow: 0 1px 10px #090d14e6;
+}
+
+:root[data-hub-theme="skyglass"] .upcoming-seal::before {
+  width: auto;
+  height: auto;
+  font-size: 0.86rem;
+  content: var(--card-seal-text) / "";
+  background: none;
+}
+
+:root[data-hub-theme="skyglass"] .upcoming-seal::after {
+  content: none;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-progress {
+  background: linear-gradient(transparent 1px, var(--card-progress-track) 1px);
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-progress span {
+  background: linear-gradient(transparent 1px, var(--card-progress-fill) 1px 2px, #eef1f438 2px);
+  box-shadow: 0 0 8px #eef1f480;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-progress::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  background: linear-gradient(90deg, transparent, #fffaf0f2, transparent) -40px 0 / 40px 100% no-repeat;
+  opacity: 0;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-wrapper[data-card-finished]::after {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+  z-index: 4;
+  padding: 3px 11px 3px 24px;
+  border-radius: 999px;
+  content: "อ่านจบแล้ว" / "";
+  background: radial-gradient(circle at 12px 50%, #fff1d8 0 2.5px, #efc795b2 3.5px, #efc79500 9px), #111822db;
+  box-shadow: 0 0 0 1px #efc79573, 0 0 16px #efc79540;
+  color: #f6e7cf;
+  font-size: 0.78rem;
+  line-height: 1.5;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="skyglass"] .novel-card-wrapper[data-chosen] .novel-card-body::after {
+  position: absolute;
+  top: -15px;
+  right: 18px;
+  z-index: 3;
+  padding: 3px 12px;
+  border-radius: 999px;
+  content: "ลองเรื่องนี้" / "";
+  background: #eef1f4;
+  box-shadow: 0 6px 18px -6px #090d1499;
+  color: #1b2330;
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
+:root[data-hub-theme="skyglass"] .hub-window-hit:not(:disabled):hover {
+  background: #f1ece30f;
+  box-shadow: inset 0 0 0 1px #f1ece33d;
+}
+
+:root[data-hub-theme="skyglass"] .hub-guide-body {
+  background: radial-gradient(circle, #fffaf0 0 2.5px, #f1ece380 4px, #f1ece300 11px);
+}
+
+:root[data-hub-theme="skyglass"] .hub-guide-body::after {
+  position: absolute;
+  inset: 11px 3px;
+  border: 1px solid #f1ece399;
+  border-radius: 50%;
+  content: "";
+  transform: rotate(-18deg);
+}
+
+:root[data-hub-theme="skyglass"] .hub-footer-row::before {
+  position: absolute;
+  inset: -16px calc(-1 * clamp(0px, (100vw - 100%) / 2 - 8px, 120px)) -24px;
+  border-radius: 16px;
+  background: rgb(var(--footer-pool) / var(--footer-pool-a));
+  box-shadow: inset 0 1px 0 #f1ece340, 0 0 0 1px #d6e2ee1f;
+}
+
+:root[data-hub-theme="skyglass"] .hub-modal-card {
+  box-shadow: 0 24px 60px -20px #090d14cc, inset 0 1px 0 #f1ece338;
+}
+
+.hub-theme-swatch[data-swatch="skyglass"] {
+  background:
+    radial-gradient(circle at 68% 80%, #f3d3a6 0 1.6px, transparent 2.6px),
+    radial-gradient(circle at 80% 72%, #f3d3a6 0 1.6px, transparent 2.6px),
+    radial-gradient(130% 90% at 50% 118%, transparent 74%, #f1ece3e6 75% 77%, transparent 78%),
+    linear-gradient(#131a2f, #24314f 55%, #5b5266 78%, #1a2133);
+}
+
+@media (max-width: 780px) {
+  :root[data-hub-theme="skyglass"] .hub-page {
+    --stage-hit-x: 0.52;
+    --stage-hit-y: 0.05;
+    --stage-hit-w: 0.44;
+    --stage-hit-h: 0.9;
+    --mid-hit-x: 0.06;
+    --mid-hit-y: 0.14;
+    --mid-hit-w: 0.88;
+    --mid-hit-h: 0.46;
+  }
+}
+
+/* Plex is wider than the serif titles: on phones, tighter tracking keeps the one-line title inside the shell. */
+@media (max-width: 480px) {
+  :root[data-hub-theme="skyglass"] {
+    --hub-title-tracking: -0.03em;
+  }
+}
+
+/* Plex is wider than the serif titles: tighter tracking keeps the title clear of the short-landscape top bar,
+   and the hairline moves up so it never strikes the subtitle's Thai upper marks. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root[data-hub-theme="skyglass"] {
+    --hub-title-tracking: -0.045em;
+  }
+
+  :root[data-hub-theme="skyglass"] .hub-title-group::after {
+    top: calc(var(--hub-h1-size) * var(--hub-h1-lh) + 2px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-theme="skyglass"][data-hub-motion="full"] .hub-hero[data-w-beat="a"] ~ * .novel-card::after {
+    animation: sg-glint-a 1200ms ease-in-out;
+  }
+
+  :root[data-hub-theme="skyglass"][data-hub-motion="full"] .hub-hero[data-w-beat="b"] ~ * .novel-card::after {
+    animation: sg-glint-b 1200ms ease-in-out;
+  }
+
+  :root[data-hub-theme="skyglass"][data-hub-motion="full"] .novel-card:hover .novel-card-progress::after {
+    animation: sg-run 1.6s ease-in-out 0.2s;
+  }
+
+  :root[data-hub-theme="skyglass"][data-hub-motion="full"] .hub-guide[data-hub-guide="fly"] .hub-guide-body::after {
+    animation: sg-orbit 2.4s linear infinite;
+  }
+}
+
+@keyframes sg-glint-a {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sg-glint-b {
+  0% {
+    opacity: 0;
+    transform: translateX(-100%);
+  }
+
+  30% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+}
+
+@keyframes sg-run {
+  0% {
+    opacity: 0;
+    background-position: -40px 0;
+  }
+
+  25% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    background-position: calc(var(--novel-progress, 0) * 100%) 0;
+  }
+}
+
+@keyframes sg-orbit {
+  to {
+    transform: rotate(342deg);
+  }
+}
+
+@media (forced-colors: active), (prefers-contrast: more) {
+  :root[data-hub-theme="skyglass"] :is(.novel-card, .hub-profile-widget, .hub-library-head, .hub-title-group)::after,
+  :root[data-hub-theme="skyglass"] :is(.novel-card, .hub-profile-widget, .novel-card-media)::before {
+    content: none;
+  }
+}

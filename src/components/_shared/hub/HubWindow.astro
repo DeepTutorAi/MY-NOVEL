@@ -1,0 +1,36 @@
+---
+// One of the three in-flow scene windows (spec 2.2, Appendix A). The box is shell
+// width; the canvas is full-bleed and decorative. Stage and mid carry a hit button
+// placed from the theme's --stage-hit-* or --mid-hit-* fractions, labelled per theme.
+import { HUB_THEME_COPY } from "../../../data/hub/themes";
+
+interface Props {
+  name: "stage" | "mid" | "ground";
+}
+
+const { name } = Astro.props;
+const hasHit = name !== "ground";
+---
+
+<div class={`hub-window hub-window-${name}`} data-hub-window={name}>
+  <canvas class="hub-window-canvas" data-hub-window-canvas={name} aria-hidden="true"></canvas>
+  {name === "mid" && <h2 class="hub-window-label" id="hub-upcoming-title">เรื่องที่กำลังเดินทางมา</h2>}
+  {
+    hasHit && (
+      <button
+        type="button"
+        class="hub-window-hit"
+        data-hub-hit={name}
+        aria-describedby={name === "stage" ? "hub-hit-desc" : undefined}
+        disabled
+      >
+        {HUB_THEME_COPY.map((row) => (
+          <span class="hub-hit-label" data-theme-only={row.key}>
+            {name === "stage" ? row.stageHitTh : row.midHitTh}
+          </span>
+        ))}
+      </button>
+    )
+  }
+  {name === "stage" && <p class="visually-hidden" id="hub-hit-desc">กดลูกศรซ้ายหรือขวาเพื่อเล่นกับฉาก</p>}
+</div>

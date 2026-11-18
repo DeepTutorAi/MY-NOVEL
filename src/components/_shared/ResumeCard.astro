@@ -76,12 +76,16 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
         bar.hidden = true;
         cont.hidden = true;
         wrapper.classList.remove("has-progress");
+        wrapper.style.removeProperty("--card-read");
+        wrapper.removeAttribute("data-card-finished");
         continue;
       }
 
       const unitProgress = entry.completed ? 1 : entry.progress;
       const overall = entry.unitCount > 0 ? (entry.index + unitProgress) / entry.unitCount : 0;
       bar.style.setProperty("--novel-progress", String(Math.max(0.02, Math.min(1, overall))));
+      wrapper.style.setProperty("--card-read", String(Math.min(1, overall)));
+      wrapper.toggleAttribute("data-card-finished", Boolean(entry.completed && !entry.nextHref));
       bar.hidden = false;
 
       if (entry.completed && !entry.nextHref) {
@@ -104,6 +108,8 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
       wrapper.classList.add("has-progress");
     }
   };
+
+  const announceReading = () => document.dispatchEvent(new CustomEvent("hub:reading"));
 
   const initResumeCard = async () => {
     const card = document.querySelector("[data-hub-resume]");
@@ -273,9 +279,12 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
     updateNovelCards(candidates, percentText);
 
     const saved = candidates.sort((a, b) => b.updatedAt - a.updatedAt)[0];
+    // The bridge guesses this flag before a soft-navigation snapshot; this is the final state.
+    document.documentElement.toggleAttribute("data-hub-has-reading", Boolean(saved));
 
     if (!saved) {
       card.hidden = true;
+      delete card.dataset.resumeSlug;
       return;
     }
 
@@ -298,6 +307,7 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
       link.textContent = "อ่านต่อ";
     }
     card.hidden = false;
+    card.dataset.resumeSlug = saved.slug;
 
     clear.onclick = () => {
       try {
@@ -305,10 +315,14 @@ const kusabiUnits = (await getCollection("kusabiChapters"))
         localStorage.removeItem(saved.storageKey);
       } finally {
         card.hidden = true;
+        delete card.dataset.resumeSlug;
+        // Other records keep the start panel away: it would claim nothing was started.
+        document.documentElement.toggleAttribute("data-hub-has-reading", candidates.length > 1);
+        announceReading();
       }
     };
   };
 
-  initResumeCard();
-  document.addEventListener("astro:page-load", initResumeCard);
+  initResumeCard().finally(announceReading);
+  document.addEventListener("astro:page-load", () => initResumeCard().finally(announceReading));
 </script>

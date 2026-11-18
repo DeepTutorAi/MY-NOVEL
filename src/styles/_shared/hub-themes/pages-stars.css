@@ -1,0 +1,648 @@
+/* Library: หอสมุดใต้เพดานดาว, a night reading hall under a star-chart vault (spec 3.1).
+   Tokens and skins only; geometry belongs to hub.css. Candlelight from the scene arrives as
+   --w-light-x, --w-light, --w-breath (on .hub-page) and --w-glow (on each card wrapper). */
+
+:root[data-hub-theme="pages-stars"],
+.hub-page [data-hub-theme-preview="pages-stars"] {
+  --lib-gilt: #c9a35a;
+  --lib-lozenge: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 10'%3E%3Cpath d='M0 5h88M112 5h88' stroke='%23c9a35a' stroke-width='.8' opacity='.8'/%3E%3Cpath d='M100 0l6 5-6 5-6-5z' fill='%23f2d48c'/%3E%3Ccircle cx='86' cy='5' r='1.2' fill='%23c9a35a'/%3E%3Ccircle cx='114' cy='5' r='1.2' fill='%23c9a35a'/%3E%3C/svg%3E");
+  --hub-bg: #07060c;
+  --hub-ink: #f1e8d6;
+  --hub-muted: #b5a891;
+  --hub-faint: #8a7f6c;
+  --hub-line: rgb(214 178 94 / 0.18);
+  --hub-line-strong: rgb(214 178 94 / 0.34);
+  --hub-panel: #110e15;
+  --hub-panel-strong: #17121c;
+  --hub-accent: #d6b25e;
+  --hub-accent-ink: #e8c77a;
+  --hub-accent-contrast: #120c08;
+  --hub-link-hover: #e8c77a;
+  --hub-focus: #f2d48c;
+  --hub-focus-halo-color: #07060c;
+  --hub-select-bg: rgb(201 162 78 / 0.35);
+  --hub-select-ink: #fff6e3;
+  --hub-pool: 7 6 12;
+  --hub-pool-a: 0.82;
+  --hub-pool-b: 0.5;
+  --hub-hero-ink: #f1e8d6;
+  --hub-hero-muted: #d3c8b0;
+  --hub-title-font: "Cormorant Garamond", var(--font-thai);
+  --hub-title-weight: 600;
+  --hub-title-style: normal;
+  --hub-title-tracking: 0.01em;
+  --hub-title-fill: linear-gradient(100deg, #a87a3c, #f3d89b 40%, #a87a3c);
+  --hub-title-solid: #efe3c8;
+  --hub-title-glow: drop-shadow(0 1px 10px rgb(7 6 12 / 0.8));
+  --hub-text-shadow: 0 1px 12px rgb(7 6 12 / 0.9);
+  --hub-side-bg: rgb(17 14 21 / 0.88);
+  --hub-side-border: rgb(214 178 94 / 0.5);
+  --hub-side-ornament:
+    radial-gradient(circle at 7px 7px, #d6b25e 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at calc(100% - 7px) 7px, #d6b25e 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at 7px calc(100% - 7px), #d6b25e 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at calc(100% - 7px) calc(100% - 7px), #d6b25e 0 1.6px, transparent 2.2px);
+  --card-radius: 4px 10px 10px 4px;
+  --card-body-bg: #110e15;
+  --card-border: rgb(214 178 94 / 0.2);
+  --card-shadow: 0 10px 22px -14px rgb(0 0 0 / 0.9);
+  --card-shadow-hover: 0 22px 34px -16px rgb(0 0 0 / 0.95), inset 0 0 0 2px color-mix(in srgb, var(--novel-accent) 60%, transparent), 0 0 22px -4px color-mix(in srgb, var(--novel-accent) 30%, transparent);
+  --card-lift: -3px;
+  --card-media-bg: #150f14;
+  --card-accent-share: 52%;
+  --card-progress-track: transparent;
+  --card-locked-filter: saturate(0.4) brightness(0.6) contrast(1.05);
+  --card-locked-veil: linear-gradient(180deg, rgb(7 6 12 / 0.2), rgb(7 6 12 / 0.55));
+  --card-upcoming-filter: saturate(0.5) sepia(0.25) brightness(0.8);
+  --card-upcoming-veil: linear-gradient(90deg, rgb(233 220 192 / 0.06), transparent 40%);
+  --card-seal-font: var(--font-thai);
+  --card-seal-text: "กำลังเข้าเล่ม";
+  --resume-bg: #1a1511;
+  --resume-border: rgb(214 178 94 / 0.38);
+  --resume-ink: #f1e8d6;
+  --resume-action-bg: linear-gradient(180deg, #f2d48c, #c9a35a 60%, #a87a3c);
+  --resume-action-border: #f2d48c;
+  --resume-action-ink: #120c08;
+  --resume-ornament:
+    repeating-linear-gradient(0deg, rgb(242 212 140 / 0.035) 0 1px, transparent 1px 22px),
+    radial-gradient(120% 140% at 0 0, rgb(233 220 192 / 0.06), transparent 60%);
+  --chip-bg: #1d1013;
+  --chip-border: rgb(214 178 94 / 0.45);
+  --chip-ink: #f1e8d6;
+  --chip-btn-border: rgb(214 178 94 / 0.5);
+  --chip-btn-hover: rgb(214 178 94 / 0.18);
+  --chip-avatar-ring: #c9a35a;
+  --window-label-bg: #120e14;
+  --window-label-ink: #e8c77a;
+  --window-label-border: rgb(214 178 94 / 0.5);
+  --hit-label-bg: #17121a;
+  --hit-label-ink: #f1e8d6;
+  --modal-overlay: rgb(5 4 9 / 0.86);
+  --modal-blur: 8px;
+  --modal-bg: #15111a;
+  --modal-border: rgb(214 178 94 / 0.24);
+  --modal-radius: 6px;
+  --modal-title-font: "Cormorant Garamond", var(--font-thai);
+  --modal-field-bg: rgb(7 6 12 / 0.6);
+  --modal-danger: #f29a8e;
+  --modal-ornament:
+    radial-gradient(circle at 14px 14px, #07060c 0 4px, rgb(214 178 94 / 0.4) 4.5px 5.5px, transparent 6px),
+    repeating-linear-gradient(180deg, transparent 0 27px, rgb(150 160 220 / 0.07) 27px 28px);
+  --footer-ink: #bdb198;
+  --footer-line: rgb(214 178 94 / 0.28);
+  --footer-pool: 7 6 12;
+  --footer-pool-a: 0.9;
+}
+
+:root[data-hub-theme="pages-stars"] {
+  color-scheme: dark;
+}
+
+/* Hit fractions: the shelf of tomes in the stage, the grimoire on its lectern in the mid window. */
+:root[data-hub-theme="pages-stars"] .hub-page {
+  --stage-hit-x: 0.18;
+  --stage-hit-y: 0.12;
+  --stage-hit-w: 0.64;
+  --stage-hit-h: 0.76;
+  --mid-hit-x: 0.38;
+  --mid-hit-y: 0.15;
+  --mid-hit-w: 0.24;
+  --mid-hit-h: 0.7;
+}
+
+@media (max-width: 780px) {
+  :root[data-hub-theme="pages-stars"] .hub-page {
+    --stage-hit-x: 0.06;
+    --stage-hit-y: 0.1;
+    --stage-hit-w: 0.88;
+    --stage-hit-h: 0.8;
+    --mid-hit-x: 0.25;
+    --mid-hit-y: 0.12;
+    --mid-hit-w: 0.5;
+    --mid-hit-h: 0.76;
+  }
+}
+
+/* Hero: a gilt inscription whose highlight follows the candle nearest the title, a ruled ornament under it. */
+:root[data-hub-theme="pages-stars"] .hub-title-group h1 {
+  --hub-title-fill: linear-gradient(100deg, #a87a3c, #f3d89b calc(var(--w-light-x) * 100%), #a87a3c);
+}
+
+:root[data-hub-theme="pages-stars"] .hub-title-group::after {
+  position: absolute;
+  top: calc(var(--hub-h1-size) * var(--hub-h1-lh) + 4px);
+  left: 0;
+  width: 200px;
+  height: 10px;
+  content: "";
+  background: var(--lib-lozenge) left center / 200px 10px no-repeat;
+  opacity: calc(0.55 + 0.35 * var(--w-light));
+  pointer-events: none;
+}
+
+/* Landscape-short: the hero packs the subtitle under the title, so the ornament rule would cross it. */
+@media (orientation: landscape) and (max-height: 500px) {
+  :root[data-hub-theme="pages-stars"] .hub-title-group::after {
+    content: none;
+  }
+}
+
+:root[data-hub-theme="pages-stars"] .hub-kicker {
+  color: #b5a891;
+}
+
+:root[data-hub-theme="pages-stars"] .hub-side-note {
+  box-shadow: inset 0 0 0 4px rgb(17 14 21 / 0.88), inset 0 0 0 5px rgb(214 178 94 / 0.32), 0 14px 30px -18px rgb(0 0 0 / 0.9);
+}
+
+/* Chip: a reader's ticket in leather with a gilt hairline; Edit and Switch as brass tabs. Picker: a brass astrolabe. */
+:root[data-hub-theme="pages-stars"] :is(.hub-profile-widget, .hub-theme-btn) {
+  background: repeating-linear-gradient(115deg, rgb(255 236 210 / 0.025) 0 1px, transparent 1px 4px), var(--chip-bg);
+  box-shadow: inset 0 0 0 2px var(--chip-bg), inset 0 0 0 3px rgb(214 178 94 / 0.28), 0 0.6rem 1.6rem rgb(0 0 0 / 0.45);
+}
+
+:root[data-hub-theme="pages-stars"] .profile-icon {
+  box-shadow: 0 0 0 1px #c9a35a, 0 0 0 3px #1d1013, 0 0 0 4px rgb(214 178 94 / 0.45);
+}
+
+:root[data-hub-theme="pages-stars"] :is(.hub-profile-edit-btn, .hub-profile-settings-btn) {
+  background: linear-gradient(180deg, #3b2a17, #24190e);
+  color: #e8c77a;
+}
+
+:root[data-hub-theme="pages-stars"] :is(.hub-profile-edit-btn, .hub-profile-settings-btn):hover {
+  background: linear-gradient(180deg, #4d371d, #2e2011);
+  color: #fff3d2;
+}
+
+:root[data-hub-theme="pages-stars"] .hub-theme-btn > span:first-child {
+  border-color: #d6b25e;
+  background: conic-gradient(from 45deg, transparent 0 80deg, rgb(214 178 94 / 0.85) 80deg 100deg, transparent 100deg 260deg, rgb(214 178 94 / 0.85) 260deg 280deg, transparent 280deg);
+  box-shadow: inset 0 0 0 2px #1d1013, inset 0 0 0 3px rgb(214 178 94 / 0.6);
+}
+
+/* Resume card and start panel: a bookmark slip with a silk ribbon in the resumed novel's accent. */
+:root[data-hub-theme="pages-stars"] :is(.resume-card, .hub-start)::before {
+  position: absolute;
+  top: -6px;
+  left: -2px;
+  width: 8px;
+  height: calc(100% + 30px);
+  content: "";
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.25), transparent 40%, rgb(255 255 255 / 0.12) 60%, rgb(0 0 0 / 0.3)), color-mix(in srgb, var(--resume-accent, #9c3b34) 70%, #c9a35a);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 8px), 0 100%);
+  filter: brightness(calc(0.85 + 0.25 * var(--w-breath)));
+  pointer-events: none;
+}
+
+:root[data-hub-theme="pages-stars"] .hub-start::before {
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.25), transparent 40%, rgb(255 255 255 / 0.12) 60%, rgb(0 0 0 / 0.3)), #9c3b34;
+}
+
+:root[data-hub-theme="pages-stars"] :is(.resume-card, .hub-start) {
+  box-shadow: inset 0 0 0 1px rgb(26 21 17 / 0.9), inset 0 0 0 2px rgb(214 178 94 / 0.16), 0 18px 34px -22px rgb(0 0 0 / 0.9);
+}
+
+:root[data-hub-theme="pages-stars"] .resume-card-actions a {
+  border-radius: 999px;
+  box-shadow: inset 0 1px 0 rgb(255 246 222 / 0.6), 0 4px 14px -6px rgb(201 163 90 / calc(0.4 + 0.3 * var(--w-breath)));
+  font-weight: 600;
+}
+
+:root[data-hub-theme="pages-stars"] .resume-card-actions button {
+  border-color: transparent;
+  background: none;
+}
+
+:root[data-hub-theme="pages-stars"] .hub-pick-btn {
+  border-radius: 3px 3px 10px 10px;
+  box-shadow: inset 0 1px 0 rgb(255 246 222 / 0.55);
+  font-weight: 600;
+}
+
+/* Library heading: flanking gilt rules with the lozenge. */
+:root[data-hub-theme="pages-stars"] .hub-library-head::after {
+  position: absolute;
+  right: 0;
+  bottom: -11px;
+  left: 0;
+  height: 10px;
+  content: "";
+  background: var(--lib-lozenge) left center / 200px 10px no-repeat, linear-gradient(90deg, rgb(201 163 90 / 0.45), rgb(201 163 90 / 0.08) 70%, transparent) 210px center / calc(100% - 210px) 1px no-repeat;
+  pointer-events: none;
+}
+
+/* The shelf plank under each card: from just past the shell edge to the middle of the column gap. */
+:root[data-hub-theme="pages-stars"] .novel-card-wrapper::before {
+  position: absolute;
+  top: calc(100% + 2px);
+  right: calc(var(--hub-col-gap) / -2);
+  left: -12px;
+  height: 10px;
+  border-radius: 2px;
+  content: "";
+  background:
+    linear-gradient(180deg, #e2c27a 0 1px, #6b4a30 1px 3px, #3a2618 3px 7px, #1c120c 7px 10px),
+    linear-gradient(#000, #000);
+  box-shadow: 0 8px 14px -4px rgb(0 0 0 / 0.75);
+  pointer-events: none;
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card-wrapper[data-col="r"]::before {
+  position: absolute;
+  right: -12px;
+  left: calc(var(--hub-col-gap) / -2);
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card-wrapper[data-col="full"]::before {
+  position: absolute;
+  right: -12px;
+  left: -12px;
+}
+
+/* Cards: face-out volumes with a leather spine and a deckled fore-edge. */
+:root[data-hub-theme="pages-stars"] .novel-card {
+  --card-accent-ink: color-mix(in oklch, var(--novel-accent) var(--card-accent-share), var(--hub-ink));
+  --card-border-hover: rgb(242 212 140 / 0.6);
+  --card-seal-ink: #2a1d10;
+  --lib-spine: color-mix(in srgb, #4a1c22 72%, var(--novel-accent));
+  --card-shadow: 0 10px 22px -14px rgb(0 0 0 / 0.9), inset 0 0 0 2px color-mix(in srgb, var(--novel-accent) calc(var(--w-glow) * 70%), transparent), 0 0 22px -4px color-mix(in srgb, var(--novel-accent) calc(var(--w-glow) * 35%), transparent);
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card::before {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  content: "";
+  background:
+    linear-gradient(transparent, rgb(255 236 200 / 0.28) 30%, transparent 32%) left 0 top 16% / 14px 6px no-repeat,
+    linear-gradient(transparent, rgb(255 236 200 / 0.28) 30%, transparent 32%) left 0 top 38% / 14px 6px no-repeat,
+    linear-gradient(transparent, rgb(255 236 200 / 0.28) 30%, transparent 32%) left 0 top 60% / 14px 6px no-repeat,
+    linear-gradient(transparent, rgb(255 236 200 / 0.28) 30%, transparent 32%) left 0 top 82% / 14px 6px no-repeat,
+    linear-gradient(90deg, rgb(0 0 0 / 0.55), transparent 35%, rgb(255 236 200 / 0.12) 60%, rgb(0 0 0 / 0.6)) left / 14px 100% no-repeat,
+    linear-gradient(var(--lib-spine), var(--lib-spine)) left / 14px 100% no-repeat,
+    repeating-linear-gradient(180deg, #e7d9b8 0 2px, #b9a07a 2px 3px, #d8c69e 3px 5px) right / 3px 100% no-repeat;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="pages-stars"] :is(.novel-card:hover, .novel-card:focus-visible, .novel-card-wrapper[data-attended] .novel-card) {
+  --lib-spine: color-mix(in srgb, #4a1c22 40%, var(--novel-accent));
+  border-color: rgb(242 212 140 / 0.6);
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card::after {
+  position: absolute;
+  inset: 0;
+  z-index: 4;
+  content: "";
+  background: linear-gradient(105deg, transparent 38%, rgb(255 240 200 / 0.18) 48%, rgb(255 240 200 / 0.3) 50%, transparent 60%) -100% 0 / 220% 100% no-repeat;
+  opacity: 0;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card-body {
+  background-image:
+    repeating-linear-gradient(115deg, rgb(255 236 210 / 0.018) 0 1px, transparent 1px 5px),
+    radial-gradient(140% 90% at 100% 0, rgb(201 163 90 / 0.05), transparent 60%);
+}
+
+/* Media: a gilt top edge, a frame that catches the light, gilt corner protectors. */
+:root[data-hub-theme="pages-stars"] .novel-card-media::before {
+  position: absolute;
+  inset: 7px 7px 7px 20px;
+  z-index: 1;
+  border: 1px solid rgb(201 163 90 / 0.42);
+  content: "";
+  background:
+    linear-gradient(135deg, #d6b25e 0 8px, transparent 8.5px) top left / 16px 16px no-repeat,
+    linear-gradient(225deg, #d6b25e 0 8px, transparent 8.5px) top right / 16px 16px no-repeat,
+    linear-gradient(45deg, #b48a44 0 8px, transparent 8.5px) bottom left / 16px 16px no-repeat,
+    linear-gradient(315deg, #b48a44 0 8px, transparent 8.5px) bottom right / 16px 16px no-repeat,
+    radial-gradient(circle at calc(var(--card-px, 0.5) * 100%) calc(var(--card-py, 0.2) * 100%), rgb(242 212 140 / calc(0.08 + 0.14 * var(--w-glow))), transparent 45%);
+  box-shadow: 0 -7px 0 -6px #e2c27a;
+  pointer-events: none;
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card-continue {
+  --card-continue-bg: color-mix(in srgb, var(--novel-accent) 26%, #2a0f12);
+  --card-continue-border: color-mix(in srgb, var(--novel-accent) 70%, #c9a35a);
+}
+
+/* Progress: a velvet ribbon bookmark hanging from the top of the cover, its length the reading progress. */
+:root[data-hub-theme="pages-stars"] .novel-card-progress span {
+  background: none;
+  box-shadow: none;
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card-progress::after {
+  position: absolute;
+  top: calc(3px - var(--hub-media-h));
+  right: 20px;
+  width: 8px;
+  height: calc(16px + var(--novel-progress, 0) * var(--hub-media-h) * 0.7);
+  content: "";
+  background: linear-gradient(90deg, rgb(0 0 0 / 0.3), transparent 45%, rgb(255 255 255 / 0.18) 55%, rgb(0 0 0 / 0.35)), color-mix(in srgb, var(--novel-accent) 70%, #c9a35a);
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% calc(100% - 5px), 0 100%);
+  box-shadow: 0 0 6px rgb(0 0 0 / 0.5);
+  pointer-events: none;
+}
+
+/* Finished: a gilt wax seal at the cover's top left. */
+:root[data-hub-theme="pages-stars"] .novel-card-wrapper[data-card-finished]::after {
+  position: absolute;
+  top: 12px;
+  left: 24px;
+  z-index: 5;
+  padding: 3px 11px 3px 27px;
+  border: 1px solid rgb(214 178 94 / 0.55);
+  border-radius: 999px;
+  content: "อ่านจบแล้ว" / "";
+  background: radial-gradient(circle at 12px 50%, #fff0c2 0 1.5px, #e2bd6a 2.5px, #a87a3c 7px, transparent 7.6px), rgb(17 14 21 / 0.9);
+  color: #f2d48c;
+  font-size: 0.78rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+/* Chosen by a pick: a gilt ribbon tag. */
+:root[data-hub-theme="pages-stars"] .novel-card-wrapper[data-chosen] .novel-card-body::after {
+  position: absolute;
+  top: -15px;
+  right: 18px;
+  z-index: 3;
+  padding: 3px 16px 3px 12px;
+  content: "ลองเรื่องนี้" / "";
+  background: linear-gradient(180deg, #f2d48c, #c9a35a);
+  clip-path: polygon(0 0, 100% 0, calc(100% - 7px) 50%, 100% 100%, 0 100%);
+  color: #120c08;
+  font-size: 0.8rem;
+  line-height: 1.4;
+  pointer-events: none;
+}
+
+/* Locked: a chained volume with a padlock seal at the crossing. */
+:root[data-hub-theme="pages-stars"] .novel-card.is-disabled .novel-card-media::before {
+  position: absolute;
+  inset: 0;
+  border: 0;
+  background: repeating-linear-gradient(125deg, #3a3640 0 4px, #8f8a96 4px 5px, #24222a 5px 9px);
+  -webkit-mask: linear-gradient(32deg, transparent 47%, #000 47.6% 52.4%, transparent 53%), linear-gradient(-32deg, transparent 47%, #000 47.6% 52.4%, transparent 53%);
+  mask: linear-gradient(32deg, transparent 47%, #000 47.6% 52.4%, transparent 53%), linear-gradient(-32deg, transparent 47%, #000 47.6% 52.4%, transparent 53%);
+  box-shadow: none;
+  opacity: 0.8;
+}
+
+:root[data-hub-theme="pages-stars"] .novel-card.is-disabled .novel-card-media::after {
+  background:
+    radial-gradient(circle at 50% 52%, #1a1208 0 3px, transparent 3.5px),
+    radial-gradient(circle at 50% 50%, #e2bd6a 0 12px, #8d6a30 13px, #1a1208 14px 15px, rgb(0 0 0 / 0.5) 16px, transparent 19px),
+    radial-gradient(circle at 50% 41%, transparent 0 6px, #b48a44 6.5px 9px, transparent 9.5px),
+    var(--card-locked-veil),
+    var(--card-media-shade);
+  z-index: 2;
+}
+
+/* Upcoming: an unbound volume, its stitched signatures showing at the left edge. */
+:root[data-hub-theme="pages-stars"] .novel-card.is-upcoming .novel-card-media::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 26px;
+  border: 0;
+  background:
+    repeating-linear-gradient(180deg, #e3d3ad 0 10px, transparent 10px 16px) 14px 0 / 1.5px 100% no-repeat,
+    repeating-linear-gradient(180deg, #e9dcc0 0 3px, #b99c74 3px 4px) 0 0 / 10px 100% no-repeat;
+  box-shadow: 4px 0 10px rgb(0 0 0 / 0.45);
+}
+
+:root[data-hub-theme="pages-stars"] .upcoming-seal {
+  font-size: 0;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:root[data-hub-theme="pages-stars"] .upcoming-seal::before {
+  width: auto;
+  height: auto;
+  content: var(--card-seal-text) / "";
+  background: linear-gradient(180deg, #ecdfc0, #d2bf94);
+  box-shadow: 0 0 0 5px #e3d3ad, 0 0 0 6px #8d7340, 0 6px 14px 2px rgb(0 0 0 / 0.5);
+  color: var(--card-seal-ink);
+  font-size: 0.82rem;
+}
+
+:root[data-hub-theme="pages-stars"] .upcoming-seal::after {
+  content: none;
+}
+
+/* Mid label: gilt engraving on a dark plaque. Hit buttons: a brass ring on hover. */
+:root[data-hub-theme="pages-stars"] .hub-window-label {
+  box-shadow: inset 0 0 0 3px #120e14, inset 0 0 0 4px rgb(214 178 94 / 0.25);
+}
+
+:root[data-hub-theme="pages-stars"] .hub-window-hit:not(:disabled):hover {
+  box-shadow: inset 0 0 0 1px rgb(214 178 94 / 0.5), 0 0 22px rgb(242 212 140 / 0.12);
+}
+
+/* Guide: a paper bird with gilt edges; its wings beat in flight. */
+:root[data-hub-theme="pages-stars"] .hub-guide-body {
+  background:
+    linear-gradient(90deg, transparent 47%, #c9a35a 47% 53%, transparent 53%) 50% 58% / 100% 14px no-repeat,
+    radial-gradient(ellipse 3px 10px at 50% 60%, #efe3c8 80%, transparent 100%);
+  filter: drop-shadow(0 0 4px rgb(242 212 140 / 0.45));
+}
+
+:root[data-hub-theme="pages-stars"] .hub-guide-body::before,
+:root[data-hub-theme="pages-stars"] .hub-guide-body::after {
+  position: absolute;
+  top: 7px;
+  left: 50%;
+  width: 17px;
+  height: 15px;
+  content: "";
+  transform: rotate(-16deg);
+  transform-origin: 0 100%;
+  background: linear-gradient(170deg, #f6eed8, #d8c49c 55%, #a88c5e);
+  clip-path: polygon(0 72%, 100% 0, 58% 100%, 0 100%);
+}
+
+:root[data-hub-theme="pages-stars"] .hub-guide-body::before {
+  transform: scaleX(-1) rotate(-16deg);
+}
+
+/* Footer: a brass floor plate on a dark pool. */
+:root[data-hub-theme="pages-stars"] .hub-footer-row::after {
+  position: absolute;
+  inset: 6px -14px -12px;
+  z-index: -1;
+  border: 1px solid rgb(214 178 94 / 0.22);
+  border-radius: 3px;
+  content: "";
+  background: linear-gradient(180deg, rgb(201 163 90 / 0.05), transparent 70%);
+  box-shadow: inset 0 0 0 3px rgb(7 6 12 / 0.6), inset 0 0 0 4px rgb(214 178 94 / 0.12);
+  pointer-events: none;
+}
+
+@media (max-width: 480px) {
+  :root[data-hub-theme="pages-stars"] .hub-footer-row::after {
+    inset: 6px -8px -10px;
+  }
+}
+
+/* A dark pool under the next-step line, so the floor inlay never runs behind its text. */
+:root[data-hub-theme="pages-stars"] .hub-footer-next {
+  border-radius: 6px;
+  background: rgb(7 6 12 / 0.84);
+  box-shadow: 0 0 14px 8px rgb(7 6 12 / 0.84);
+}
+
+:root[data-hub-theme="pages-stars"] .hub-footer-next-link {
+  text-decoration-color: rgb(214 178 94 / 0.55);
+}
+
+:root[data-hub-theme="pages-stars"] .hub-footer-next-link:hover {
+  text-decoration-color: #e8c77a;
+  text-decoration-thickness: 2px;
+}
+
+/* Dialogs: catalogue index cards with a red-ink rule under the header; the picker sheet stays light. */
+:root[data-hub-theme="pages-stars"] .modal-header {
+  border-bottom-color: #9c3b34;
+}
+
+:root[data-hub-theme="pages-stars"] .btn-primary {
+  background: linear-gradient(180deg, #f2d48c, #c9a35a 60%, #a87a3c);
+  box-shadow: inset 0 1px 0 rgb(255 246 222 / 0.6);
+}
+
+:root[data-hub-theme="pages-stars"] .hub-picker {
+  background: rgb(5 4 9 / 0.3);
+}
+
+/* Swatch: a lapis vault arc, two gilt stars and a shelf stripe. */
+.hub-theme-swatch[data-swatch="pages-stars"] {
+  background:
+    radial-gradient(circle at 30% 34%, #f2d48c 0 1.6px, transparent 2.2px),
+    radial-gradient(circle at 66% 22%, #f2d48c 0 1.3px, transparent 1.9px),
+    radial-gradient(130% 110% at 50% 115%, transparent 58%, rgb(201 163 90 / 0.7) 59% 61%, transparent 62%),
+    repeating-linear-gradient(90deg, #4a1c22 0 4px, #1d3328 4px 7px, #c9a35a 7px 8px, #1b2340 8px 12px) 0 100% / 100% 9px no-repeat,
+    linear-gradient(180deg, #18204a, #0f1533 60%, #07060c);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .hub-title-group h1 {
+    animation: lib-title-sheen 1.4s ease-in-out 1s 1 both;
+  }
+
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="pull"] .novel-card::after {
+    animation: lib-sheen-a 900ms ease-in-out both;
+  }
+
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="pull"] .novel-card::after {
+    animation: lib-sheen-b 900ms ease-in-out both;
+  }
+
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="a"][data-w-beat-kind="star"] .novel-card-progress::after {
+    animation: lib-glint-a 900ms ease-in-out both;
+  }
+
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .novel-card-wrapper[data-w-beat="b"][data-w-beat-kind="star"] .novel-card-progress::after {
+    animation: lib-glint-b 900ms ease-in-out both;
+  }
+
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .novel-card.is-disabled:hover .novel-card-media::before {
+    animation: lib-rattle 300ms ease-in-out 1;
+  }
+
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .hub-guide[data-hub-guide="fly"] .hub-guide-body::before,
+  :root[data-hub-theme="pages-stars"][data-hub-motion="full"] .hub-guide[data-hub-guide="fly"] .hub-guide-body::after {
+    animation: lib-flap 0.5s ease-in-out infinite;
+  }
+}
+
+@keyframes lib-title-sheen {
+  0%,
+  100% {
+    filter: var(--hub-title-glow);
+  }
+
+  45% {
+    filter: drop-shadow(0 0 14px rgb(242 212 140 / 0.45)) brightness(1.18);
+  }
+}
+
+@keyframes lib-sheen-a {
+  0% {
+    opacity: 0;
+    background-position: -100% 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    background-position: 200% 0;
+  }
+}
+
+@keyframes lib-sheen-b {
+  0% {
+    opacity: 0;
+    background-position: -100% 0;
+  }
+
+  40% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    background-position: 200% 0;
+  }
+}
+
+@keyframes lib-glint-a {
+  0%,
+  100% {
+    filter: none;
+  }
+
+  38% {
+    filter: brightness(1.7) drop-shadow(0 0 5px #f2d48c);
+  }
+}
+
+@keyframes lib-glint-b {
+  0%,
+  100% {
+    filter: none;
+  }
+
+  38% {
+    filter: brightness(1.7) drop-shadow(0 0 5px #f2d48c);
+  }
+}
+
+@keyframes lib-rattle {
+  25% {
+    translate: -4px 0;
+  }
+
+  60% {
+    translate: 3px 0;
+  }
+}
+
+@keyframes lib-flap {
+  50% {
+    scale: 1 0.35;
+  }
+}
+
+@media (forced-colors: active), (prefers-contrast: more) {
+  :root[data-hub-theme="pages-stars"] :is(.hub-title-group, .hub-library-head, .novel-card, .novel-card-media, .novel-card-wrapper, .resume-card, .hub-start, .hub-footer-row)::before,
+  :root[data-hub-theme="pages-stars"] :is(.hub-title-group, .hub-library-head, .novel-card, .hub-footer-row)::after {
+    content: none;
+  }
+}

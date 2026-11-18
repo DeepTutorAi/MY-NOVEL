@@ -1,0 +1,67 @@
+---
+// Theme picker dialog (spec 2.16, 8.3 items 2 and 10). A sheet that is open while
+// it carries [data-open]; chrome owns its behaviour and fills the auto option's week.
+import { HUB_THEME_COPY } from "../../../data/hub/themes";
+---
+
+<div
+  class="hub-modal-overlay hub-picker"
+  id="hub-theme-picker"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="hub-picker-title"
+>
+  <div class="hub-modal-card hub-picker-card" data-hub-theme-preview>
+    <div class="modal-header hub-picker-head">
+      <h2 id="hub-picker-title">เลือกบรรยากาศ</h2>
+    </div>
+    <div class="hub-picker-body">
+      <fieldset class="hub-picker-options">
+        <legend class="visually-hidden">บรรยากาศของหน้า</legend>
+        <label class="hub-picker-option">
+          <input type="radio" name="hub-theme" value="auto" />
+          <span class="hub-theme-swatch" data-swatch="auto" aria-hidden="true"></span>
+          <span class="hub-picker-text">
+            <span class="hub-picker-name">อัตโนมัติ</span>
+            <span class="hub-picker-blurb">
+              เปลี่ยนให้เองทุกสัปดาห์ · สัปดาห์นี้คือ<span data-hub-auto-place></span>
+            </span>
+          </span>
+        </label>
+        {
+          HUB_THEME_COPY.map((row) => (
+            <label class="hub-picker-option">
+              <input type="radio" name="hub-theme" value={row.key} />
+              <span class="hub-theme-swatch" data-swatch={row.key} aria-hidden="true" />
+              <span class="hub-picker-text">
+                <span class="hub-picker-name">{row.placeTh}</span>
+                <span class="hub-picker-blurb">{row.blurbTh}</span>
+                <span class="hub-picker-try">{row.tryTh}</span>
+              </span>
+            </label>
+          ))
+        }
+      </fieldset>
+      <div class="hub-picker-motion" data-hub-motion-group hidden>
+        <button
+          type="button"
+          class="hub-motion-switch"
+          role="switch"
+          aria-checked="false"
+          aria-describedby="hub-motion-help"
+          data-hub-motion-switch
+        >
+          <span class="hub-motion-track" aria-hidden="true"></span>
+          <span>หยุดภาพเคลื่อนไหวของฉาก</span>
+        </button>
+        <p class="hub-picker-help" id="hub-motion-help">
+          <span data-motion-help="user">ฉากจะหยุดนิ่ง แต่ยังแตะเล่นได้เหมือนเดิม</span>
+          <span data-motion-help="os">เครื่องของคุณตั้งให้ลดการเคลื่อนไหวไว้แล้ว</span>
+        </p>
+      </div>
+    </div>
+    <div class="hub-picker-foot">
+      <button type="button" class="btn-primary hub-picker-done" data-hub-picker-close>เสร็จ</button>
+    </div>
+  </div>
+</div>

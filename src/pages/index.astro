@@ -1,12 +1,18 @@
 ---
 import NovelCard from "../components/_shared/NovelCard.astro";
 import ResumeCard from "../components/_shared/ResumeCard.astro";
-import { NOVELS } from "../data/_novels";
+import UpcomingNovelCard from "../components/_shared/UpcomingNovelCard.astro";
+import { NOVELS, UPCOMING_NOVELS } from "../data/_novels";
 import HubLayout from "../layouts/HubLayout.astro";
 import ConstellationBackground from "../components/_shared/ConstellationBackground.astro";
 import MothlightBackground from "../components/_shared/MothlightBackground.astro";
 import FireflyBackground from "../components/_shared/FireflyBackground.astro";
 import PagesStarsBackground from "../components/_shared/PagesStarsBackground.astro";
+import SkyglassBackground from "../components/_shared/SkyglassBackground.astro";
+import HubStartPanel from "../components/_shared/hub/HubStartPanel.astro";
+import HubThemePicker from "../components/_shared/hub/HubThemePicker.astro";
+import HubWindow from "../components/_shared/hub/HubWindow.astro";
+import { HUB_THEME_COPY } from "../data/hub/themes";
 import { GUEST_NAMES } from "../data/hub/guest-names";
 import { RETIRED_NAME_HASHES } from "../data/hub/retired-names";
 import guestNamesCore from "../scripts/hub/guest-names-core.mjs?raw";
@@ -28,20 +34,26 @@ ${guestNamesCore.replace(/^export /gm, "")}
   title="Pii-chan Dechalert — Fiction Hub"
   description="พื้นที่รวมผลงานนิยายของ Pii-chan Dechalert"
 >
-  <div id="constellation-bg-container" style="display: none;">
+  <div id="pages-stars-bg-container">
+    <PagesStarsBackground />
+  </div>
+  <div id="skyglass-bg-container">
+    <SkyglassBackground />
+  </div>
+  <div id="constellation-bg-container">
     <ConstellationBackground />
   </div>
-  <div id="mothlight-bg-container" style="display: none;">
+  <div id="mothlight-bg-container">
     <MothlightBackground />
   </div>
-  <div id="firefly-bg-container" style="display: none;">
+  <div id="firefly-bg-container">
     <FireflyBackground />
-  </div>
-  <div id="pages-stars-bg-container" style="display: none;">
-    <PagesStarsBackground />
   </div>
   <main class="hub-shell" aria-labelledby="hub-title">
     <div class="hub-topbar">
+      <p class="hub-kicker" data-hub-kicker>
+        {HUB_THEME_COPY.map((row) => <span data-theme-only={row.key}>{row.placeTh}</span>)}<span data-hub-clock></span>
+      </p>
       <div class="hub-profile-widget" data-profile-widget style="display: none;">
         <div class="hub-profile-info">
           <span class="profile-icon" data-profile-icon>👤</span>
@@ -56,6 +68,22 @@ ${guestNamesCore.replace(/^export /gm, "")}
           </button>
         </div>
       </div>
+      <button
+        type="button"
+        class="hub-theme-btn"
+        data-hub-picker-open
+        aria-haspopup="dialog"
+        aria-controls="hub-theme-picker"
+        aria-expanded="false"
+        aria-label="เปลี่ยนบรรยากาศของหน้า"
+        disabled
+      >
+        <span class="hub-theme-btn-glyph" aria-hidden="true"></span>
+        <span class="hub-theme-btn-text">บรรยากาศ</span>
+        <span class="hub-theme-btn-place">
+          {HUB_THEME_COPY.map((row) => <span data-theme-only={row.key}>{row.placeTh}</span>)}
+        </span>
+      </button>
     </div>
 
     <section class="hub-hero">
@@ -70,15 +98,43 @@ ${guestNamesCore.replace(/^export /gm, "")}
     </section>
 
     <ResumeCard />
+    <HubStartPanel />
+
+    <HubWindow name="stage" />
+
+    <div class="hub-library-head">
+      <h2 id="hub-library-title">ชั้นหนังสือ</h2>
+      <button type="button" class="hub-pick-btn" data-hub-pick="head" disabled>สุ่มเรื่องให้หน่อย</button>
+    </div>
 
     <section class="hub-library" aria-label="รายการนิยาย">
       {NOVELS.map((novel) => <NovelCard novel={novel} />)}
+      <HubWindow name="mid" />
+      {UPCOMING_NOVELS.map((novel) => <UpcomingNovelCard novel={novel} />)}
     </section>
 
     <footer class="hub-footer">
-      <span>เพิ่มเรื่องใหม่: เร็วๆ นี้</span>
-      <span>Pii-chan Dechalert · 2026</span>
+      <HubWindow name="ground" />
+      <p class="hub-footer-next" data-hub-footer-next></p>
+      <div class="hub-footer-row">
+        <span>เพิ่มเรื่องใหม่: เร็วๆ นี้</span>
+        <span>Pii-chan Dechalert · 2026</span>
+        <button
+          type="button"
+          class="hub-footer-picker"
+          data-hub-picker-open
+          aria-haspopup="dialog"
+          aria-controls="hub-theme-picker"
+          aria-expanded="false"
+          disabled
+        >
+          เปลี่ยนบรรยากาศ
+        </button>
+      </div>
     </footer>
+
+    <div class="hub-guide" data-hub-guide aria-hidden="true"><span class="hub-guide-body"></span></div>
+    <p class="visually-hidden" data-hub-announce aria-live="polite"></p>
   </main>
 
   <!-- EDIT PROFILE MODAL -->
@@ -86,14 +142,15 @@ ${guestNamesCore.replace(/^export /gm, "")}
     <div class="hub-modal-card">
       <div class="modal-header">
         <h2 id="edit-profile-modal-title">แก้ไขโปรไฟล์ Guest</h2>
-        <button type="button" class="modal-close-btn" data-edit-profile-close-btn>×</button>
+        <button type="button" class="modal-close-btn" data-edit-profile-close-btn aria-label="ปิดหน้าต่าง">×</button>
       </div>
       <div class="modal-body">
         <div class="modal-form-group">
           <label for="edit-profile-name">ชื่อของคุณ (เปลี่ยนได้ตามใจชอบ)</label>
           <input type="text" id="edit-profile-name" placeholder="ระบุชื่อของคุณ..." maxlength="20" />
+          <p class="modal-error" id="edit-profile-name-error" data-profile-name-error role="alert" hidden>โปรดระบุชื่อก่อนบันทึก</p>
         </div>
-        
+
         <div class="modal-form-group" style="margin-top: 16px;">
           <label>รูปโปรไฟล์ (เลือกอิโมจิ หรือวางลิงก์รูปภาพ)</label>
           <div class="avatar-selectors">
@@ -113,12 +170,12 @@ ${guestNamesCore.replace(/^export /gm, "")}
             <button type="button" class="avatar-preset-btn" data-preset="🤪">🤪</button>
             <button type="button" class="avatar-preset-btn" data-preset="🖕">🖕</button>
           </div>
-          
+
           <div style="display: flex; gap: 8px; margin-top: 8px;">
             <input type="text" id="edit-profile-avatar-input" placeholder="พิมพ์ข้อความ/วางลิงก์รูปภาพ..." style="flex: 1;" />
           </div>
         </div>
-        
+
         <button type="button" class="btn-primary btn-full" style="margin-top: 24px;" data-save-profile-btn>
           บันทึกการเปลี่ยนแปลง
         </button>
@@ -131,7 +188,7 @@ ${guestNamesCore.replace(/^export /gm, "")}
     <div class="hub-modal-card">
       <div class="modal-header">
         <h2 id="settings-modal-title">สลับโปรไฟล์ Guest</h2>
-        <button type="button" class="modal-close-btn" data-settings-close-btn>×</button>
+        <button type="button" class="modal-close-btn" data-settings-close-btn aria-label="ปิดหน้าต่าง">×</button>
       </div>
       <div class="modal-body">
         <section class="settings-section">
@@ -139,7 +196,7 @@ ${guestNamesCore.replace(/^export /gm, "")}
           <div class="profiles-list" data-profiles-list>
             <!-- Profiles generated dynamically -->
           </div>
-          
+
           <button type="button" class="btn-primary btn-full" style="margin-top: 12px;" data-add-guest-btn>
             ➕ เพิ่ม Guest ใหม่ (สุ่มชื่อปั่นๆ)
           </button>
@@ -148,492 +205,16 @@ ${guestNamesCore.replace(/^export /gm, "")}
     </div>
   </div>
 
-  <!-- FLOATING THEME TOGGLE BUTTON FOR TESTING
-  <button type="button" class="hub-theme-toggle-btn" data-theme-toggle-btn aria-label="สลับธีมพื้นหลัง">
-    <span class="theme-btn-icon">🌌</span>
-    <span class="theme-btn-text">สลับธีม (Test)</span>
-  </button>
-  -->
+  <HubThemePicker />
 </HubLayout>
-
-<style>
-  .hub-side-col {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-  }
-
-  /* Profile chip: one compact row above the hero so the first screen belongs
-     to the title, the resume card and the novels. */
-  .hub-topbar {
-    display: flex;
-    justify-content: flex-end;
-    margin-bottom: 18px;
-  }
-
-  .hub-profile-widget {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    max-width: 100%;
-    padding: 5px 6px 5px 5px;
-    border: 1px solid var(--hub-line);
-    border-radius: 999px;
-    background: color-mix(in srgb, var(--hub-panel-strong) 88%, transparent);
-    box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.35);
-    box-sizing: border-box;
-  }
-
-  .hub-profile-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    min-width: 0;
-    font-size: 0.9rem;
-  }
-
-  .profile-icon {
-    font-size: 1.1rem;
-    width: 30px;
-    height: 30px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    background: rgba(0, 0, 0, 0.2);
-    border-radius: 50%;
-    overflow: hidden;
-  }
-
-  .profile-icon img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
-
-  .profile-name {
-    font-weight: 500;
-    color: var(--hub-ink);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 230px;
-  }
-
-  .hub-profile-actions {
-    display: flex;
-    gap: 4px;
-  }
-
-  .hub-profile-edit-btn,
-  .hub-profile-settings-btn {
-    min-height: 30px;
-    background: none;
-    border: 1px solid var(--hub-line);
-    color: var(--hub-muted);
-    font-size: 0.78rem;
-    padding: 4px 12px;
-    border-radius: 999px;
-    cursor: pointer;
-    text-align: center;
-    transition: background 0.2s, color 0.2s;
-    white-space: nowrap;
-  }
-
-  .hub-profile-edit-btn:hover,
-  .hub-profile-settings-btn:hover {
-    background: rgba(238, 232, 221, 0.05);
-    color: var(--hub-ink);
-  }
-
-  /* Modal Overlay */
-  .hub-modal-overlay {
-    position: fixed;
-    inset: 0;
-    z-index: 1000;
-    background: rgba(10, 9, 8, 0.85);
-    backdrop-filter: blur(12px);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 16px;
-    animation: fadeIn 0.25s ease-out;
-  }
-
-  .hub-modal-card {
-    background: var(--hub-panel-strong);
-    border: 1px solid var(--hub-line);
-    border-radius: 8px;
-    width: 100%;
-    max-width: 480px;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
-    overflow: hidden;
-    animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-  }
-
-  .modal-header {
-    padding: 20px 24px;
-    border-bottom: 1px solid var(--hub-line);
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-header h2 {
-    margin: 0;
-    font-size: 1.35rem;
-    font-weight: 500;
-    color: var(--hub-ink);
-    font-family: var(--font-display);
-  }
-
-  .modal-close-btn {
-    background: none;
-    border: none;
-    color: var(--hub-muted);
-    font-size: 1.5rem;
-    cursor: pointer;
-    line-height: 1;
-    padding: 4px;
-  }
-
-  .modal-close-btn:hover {
-    color: var(--hub-ink);
-  }
-
-  .modal-body {
-    padding: 24px;
-  }
-
-  .modal-form-group {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-
-  .modal-form-group label {
-    font-size: 0.85rem;
-    color: var(--hub-muted);
-  }
-
-  .modal-form-group input {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--hub-line);
-    color: var(--hub-ink);
-    padding: 8px 12px;
-    border-radius: 4px;
-  }
-
-  .btn-primary {
-    background: var(--hub-accent);
-    color: var(--paper-deep);
-    border: none;
-    padding: 8px 16px;
-    border-radius: 4px;
-    font-weight: 500;
-    cursor: pointer;
-    font-size: 0.95rem;
-    transition: opacity 0.2s;
-  }
-
-  .btn-primary:hover {
-    opacity: 0.9;
-  }
-
-  .btn-full {
-    width: 100%;
-  }
-
-  /* Avatar Selectors */
-  .avatar-selectors {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    margin-top: 4px;
-  }
-
-  .avatar-preset-btn {
-    width: 32px;
-    height: 32px;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--hub-line);
-    border-radius: 4px;
-    cursor: pointer;
-    background: rgba(0, 0, 0, 0.15);
-    font-size: 1.15rem;
-    transition: background 0.2s, border-color 0.2s;
-  }
-
-  .avatar-preset-btn:hover,
-  .avatar-preset-btn.is-selected {
-    background: rgba(238, 232, 221, 0.1);
-    border-color: var(--hub-accent);
-  }
-
-  /* Settings Card specific */
-  .settings-section {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-  }
-
-  .settings-section h3 {
-    margin: 0;
-    font-size: 1rem;
-    font-weight: 500;
-    color: var(--hub-ink);
-  }
-
-  .profiles-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 180px;
-    overflow-y: auto;
-  }
-
-  .profile-item {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background: rgba(0, 0, 0, 0.15);
-    border: 1px solid var(--hub-line);
-    border-radius: 4px;
-    padding: 8px 12px;
-  }
-
-  .profile-item-info {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    font-size: 0.95rem;
-  }
-
-  .profile-item-info .profile-icon {
-    width: 24px;
-    height: 24px;
-    font-size: 0.95rem;
-  }
-
-  .profile-item.is-active {
-    border-color: var(--hub-accent);
-    background: color-mix(in srgb, var(--hub-accent) 8%, transparent);
-  }
-
-  .profile-item.is-active::after {
-    content: '✓';
-    color: var(--hub-accent);
-    font-weight: bold;
-    font-size: 0.95rem;
-  }
-
-  .profile-item-actions {
-    display: flex;
-    gap: 8px;
-  }
-
-  .btn-switch, .btn-delete-profile {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 0.85rem;
-    padding: 4px 8px;
-    border-radius: 2px;
-  }
-
-  .btn-switch {
-    color: var(--hub-accent);
-  }
-
-  .btn-delete-profile {
-    color: #ff6b6b;
-  }
-
-  .add-profile-inline {
-    display: flex;
-    gap: 8px;
-    margin-top: 4px;
-  }
-
-  .add-profile-inline button {
-    background: none;
-    border: 1px solid var(--hub-line);
-    color: var(--hub-ink);
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-  }
-
-  .section-desc {
-    font-size: 0.85rem;
-    color: var(--hub-muted);
-    margin: 0;
-  }
-
-  .backup-group, .restore-group {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    margin-top: 8px;
-  }
-
-  .backup-group label, .restore-group label {
-    font-size: 0.8rem;
-    color: var(--hub-muted);
-  }
-
-  .backup-group textarea {
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid var(--hub-line);
-    color: var(--hub-muted);
-    border-radius: 4px;
-    padding: 8px;
-    font-family: var(--font-mono);
-    font-size: 0.75rem;
-    height: 60px;
-    resize: none;
-    word-break: break-all;
-  }
-
-  .btn-copy, .btn-restore {
-    background: none;
-    border: 1px solid var(--hub-line);
-    color: var(--hub-ink);
-    padding: 6px 12px;
-    border-radius: 4px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    text-align: center;
-  }
-
-  .restore-input-row {
-    display: flex;
-    gap: 8px;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-
-  @keyframes slideUp {
-    from { transform: translateY(16px); opacity: 0; }
-    to { transform: translateY(0); opacity: 1; }
-  }
-
-  @media (max-width: 780px) {
-    .hub-topbar {
-      margin-bottom: 14px;
-    }
-    .hub-side-col {
-      display: none;
-    }
-  }
-
-  /* Body color overrides matching the theme */
-  :global(.theme-constellation) {
-    --paper-deep: #0a0908 !important;
-  }
-  :global(.theme-mothlight) {
-    --paper-deep: #050409 !important;
-  }
-  :global(.theme-firefly) {
-    --paper-deep: #050906 !important;
-  }
-  :global(.theme-pages-stars) {
-    --paper-deep: #080710 !important;
-  }
-
-  /* Floating Theme Toggle Button */
-  .hub-theme-toggle-btn {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: rgba(24, 20, 17, 0.75);
-    backdrop-filter: blur(12px);
-    border: 1px solid var(--hub-line);
-    color: var(--hub-ink);
-    padding: 10px 16px;
-    border-radius: 9999px;
-    cursor: pointer;
-    font-size: 0.85rem;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
-    transition: background 0.2s, border-color 0.2s, transform 0.2s, box-shadow 0.2s;
-  }
-  .hub-theme-toggle-btn:hover {
-    background: rgba(238, 232, 221, 0.1);
-    border-color: var(--hub-accent);
-    transform: translateY(-2px);
-    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.5);
-  }
-  .hub-theme-toggle-btn:active {
-    transform: translateY(0);
-  }
-  .theme-btn-icon {
-    font-size: 1.1rem;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .theme-btn-text {
-    font-weight: 500;
-    letter-spacing: 0.02em;
-  }
-</style>
 
 <script is:inline set:html={guestNamesBoot}></script>
 
 <script is:inline>
   (() => {
-    const activeProfileNameEl = document.querySelector('[data-profile-name]');
-    const activeProfileIconEl = document.querySelector('[data-profile-icon]');
-    const profileWidget = document.querySelector('[data-profile-widget]');
-    
-    // Modals
-    const editProfileModal = document.querySelector('[data-edit-profile-modal]');
-    const settingsModal = document.querySelector('[data-settings-modal]');
-    
-    // Buttons to open modals
-    const editProfileBtn = document.querySelector('[data-profile-edit-btn]');
-    const settingsBtn = document.querySelector('[data-profile-settings-btn]');
-    
-    // Buttons to close modals
-    const editProfileCloseBtn = document.querySelector('[data-edit-profile-close-btn]');
-    const settingsCloseBtn = document.querySelector('[data-settings-close-btn]');
-    
-    // Edit Modal inputs & buttons
-    const editProfileNameInput = document.getElementById('edit-profile-name');
-    const editProfileAvatarInput = document.getElementById('edit-profile-avatar-input');
-    const saveProfileBtn = document.querySelector('[data-save-profile-btn]');
-    const presetButtons = document.querySelectorAll('.avatar-preset-btn');
-    
-    // Settings Modal buttons
-    const addGuestBtn = document.querySelector('[data-add-guest-btn]');
-    
     const PROFILES_KEY = "piichan-novels:profiles";
     const ACTIVE_KEY = "piichan-novels:active-profile-id";
-
-    let lastFocusedElement = null;
-
-    const openModal = (modal) => {
-      if (!modal) return;
-      lastFocusedElement = document.activeElement;
-      modal.style.display = 'flex';
-      const firstField = modal.querySelector('input, button');
-      if (firstField) firstField.focus();
-    };
-
-    const closeModal = (modal) => {
-      if (!modal) return;
-      modal.style.display = 'none';
-      if (lastFocusedElement instanceof HTMLElement) lastFocusedElement.focus();
-      lastFocusedElement = null;
-    };
+    const BOUND = "data-profile-bound";
 
     function getProfiles() {
       try {
@@ -663,10 +244,10 @@ ${guestNamesCore.replace(/^export /gm, "")}
     function renderAvatar(avatarValue, containerElement) {
       if (!containerElement) return;
       containerElement.innerHTML = '';
-      
+
       const val = (avatarValue || '👤').trim();
       const isUrl = val.startsWith('http://') || val.startsWith('https://') || val.startsWith('/') || val.startsWith('./') || val.startsWith('../');
-      
+
       if (isUrl) {
         const img = document.createElement('img');
         img.src = val;
@@ -677,7 +258,61 @@ ${guestNamesCore.replace(/^export /gm, "")}
       }
     }
 
+    // Each element gets its listener once, however often init runs for the same page.
+    const bindOnce = (element, type, handler) => {
+      if (!element || element.hasAttribute(BOUND)) return;
+      element.setAttribute(BOUND, '');
+      element.addEventListener(type, handler);
+    };
+
+    // Open state is [data-open]; Escape, focus trap and focus restore belong to the
+    // shared dialog module.
+    const openModal = (modal) => {
+      if (!modal) return;
+      modal.style.display = 'flex';
+      modal.setAttribute('data-open', '');
+      const firstField = modal.querySelector('input, button');
+      if (firstField) firstField.focus();
+    };
+
+    const closeModal = (modal) => {
+      if (!modal) return;
+      modal.style.display = 'none';
+      modal.removeAttribute('data-open');
+    };
+
     const init = () => {
+      const profileWidget = document.querySelector('[data-profile-widget]');
+      if (!profileWidget) return;
+
+      const activeProfileNameEl = document.querySelector('[data-profile-name]');
+      const activeProfileIconEl = document.querySelector('[data-profile-icon]');
+      const editProfileModal = document.querySelector('[data-edit-profile-modal]');
+      const settingsModal = document.querySelector('[data-settings-modal]');
+      const editProfileBtn = document.querySelector('[data-profile-edit-btn]');
+      const settingsBtn = document.querySelector('[data-profile-settings-btn]');
+      const editProfileCloseBtn = document.querySelector('[data-edit-profile-close-btn]');
+      const settingsCloseBtn = document.querySelector('[data-settings-close-btn]');
+      const editProfileNameInput = document.getElementById('edit-profile-name');
+      const editProfileAvatarInput = document.getElementById('edit-profile-avatar-input');
+      const nameError = document.querySelector('[data-profile-name-error]');
+      // The inline error is tied to the name field while it shows, so returning to
+      // the field still says why saving failed.
+      const setNameError = (shown) => {
+        if (nameError instanceof HTMLElement) nameError.hidden = !shown;
+        if (!(editProfileNameInput instanceof HTMLInputElement)) return;
+        if (shown) {
+          editProfileNameInput.setAttribute('aria-invalid', 'true');
+          editProfileNameInput.setAttribute('aria-describedby', 'edit-profile-name-error');
+        } else {
+          editProfileNameInput.removeAttribute('aria-invalid');
+          editProfileNameInput.removeAttribute('aria-describedby');
+        }
+      };
+      const saveProfileBtn = document.querySelector('[data-save-profile-btn]');
+      const presetButtons = document.querySelectorAll('.avatar-preset-btn');
+      const addGuestBtn = document.querySelector('[data-add-guest-btn]');
+
       let activeId = getActiveProfileId();
       let profiles = getProfiles();
 
@@ -718,193 +353,170 @@ ${guestNamesCore.replace(/^export /gm, "")}
         if (activeProfileIconEl) {
           renderAvatar(activeProfile.avatar, activeProfileIconEl);
         }
-        if (profileWidget) {
-          profileWidget.style.display = 'flex';
-        }
+        profileWidget.style.display = 'flex';
       }
-    };
 
-    // Edit Profile Modal logic
-    if (editProfileBtn) {
-      editProfileBtn.addEventListener('click', () => {
+      const renderSettingsProfiles = () => {
+        const listContainer = document.querySelector('[data-profiles-list]');
+        if (!listContainer) return;
+        listContainer.innerHTML = '';
+
+        const profiles = getProfiles();
+        const activeId = getActiveProfileId();
+
+        profiles.forEach(p => {
+          const item = document.createElement('div');
+          item.className = 'profile-item' + (p.id === activeId ? ' is-active' : '');
+
+          const info = document.createElement('div');
+          info.className = 'profile-item-info';
+
+          const iconSpan = document.createElement('span');
+          iconSpan.className = 'profile-icon';
+          renderAvatar(p.avatar, iconSpan);
+
+          const nameStrong = document.createElement('strong');
+          nameStrong.textContent = p.name;
+
+          info.appendChild(iconSpan);
+          info.appendChild(nameStrong);
+          item.appendChild(info);
+
+          const actions = document.createElement('div');
+          actions.className = 'profile-item-actions';
+
+          if (p.id !== activeId) {
+            const switchBtn = document.createElement('button');
+            switchBtn.type = 'button';
+            switchBtn.className = 'btn-switch';
+            switchBtn.textContent = 'ใช้งาน';
+            switchBtn.addEventListener('click', () => {
+              setActiveProfileId(p.id);
+              window.location.reload();
+            });
+            actions.appendChild(switchBtn);
+
+            const deleteBtn = document.createElement('button');
+            deleteBtn.type = 'button';
+            deleteBtn.className = 'btn-delete-profile';
+            deleteBtn.textContent = 'ลบ';
+            deleteBtn.addEventListener('click', () => {
+              if (confirm(`คุณแน่ใจหรือไม่ที่จะลบโปรไฟล์ "${p.name}"?`)) {
+                // Purge all localStorage keys belonging to this profile
+                const keysToRemove = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                  const k = localStorage.key(i);
+                  if (k && k.endsWith(`:${p.id}`)) {
+                    keysToRemove.push(k);
+                  }
+                }
+                keysToRemove.forEach(k => localStorage.removeItem(k));
+
+                const updated = getProfiles().filter(profile => profile.id !== p.id);
+                saveProfiles(updated);
+                renderSettingsProfiles();
+              }
+            });
+            actions.appendChild(deleteBtn);
+          }
+
+          item.appendChild(actions);
+          listContainer.appendChild(item);
+        });
+      };
+
+      // Edit Profile Modal logic
+      bindOnce(editProfileBtn, 'click', () => {
         const activeId = getActiveProfileId();
         const profiles = getProfiles();
         const activeProfile = profiles.find(p => p.id === activeId);
-        
+
         if (activeProfile && editProfileNameInput instanceof HTMLInputElement && editProfileAvatarInput instanceof HTMLInputElement) {
           editProfileNameInput.value = activeProfile.name;
           editProfileAvatarInput.value = activeProfile.avatar || '👤';
-          
+          setNameError(false);
+
           // Clear active presets
           presetButtons.forEach(btn => btn.classList.remove('is-selected'));
-          
+
           // Highlight preset if matching
           presetButtons.forEach(btn => {
             if (btn.getAttribute('data-preset') === activeProfile.avatar) {
               btn.classList.add('is-selected');
             }
           });
-          
-          if (editProfileModal) {
-            openModal(editProfileModal);
-          }
+
+          openModal(editProfileModal);
         }
       });
-    }
 
-    if (editProfileCloseBtn) {
-      editProfileCloseBtn.addEventListener('click', () => {
+      bindOnce(editProfileCloseBtn, 'click', () => {
         closeModal(editProfileModal);
       });
-    }
 
-    presetButtons.forEach(btn => {
-      btn.addEventListener('click', () => {
-        presetButtons.forEach(b => b.classList.remove('is-selected'));
-        btn.classList.add('is-selected');
-        if (editProfileAvatarInput instanceof HTMLInputElement) {
-          editProfileAvatarInput.value = btn.getAttribute('data-preset') || '👤';
-        }
+      presetButtons.forEach(btn => {
+        bindOnce(btn, 'click', () => {
+          presetButtons.forEach(b => b.classList.remove('is-selected'));
+          btn.classList.add('is-selected');
+          if (editProfileAvatarInput instanceof HTMLInputElement) {
+            editProfileAvatarInput.value = btn.getAttribute('data-preset') || '👤';
+          }
+        });
       });
-    });
 
-    if (saveProfileBtn) {
-      saveProfileBtn.addEventListener('click', () => {
+      bindOnce(editProfileNameInput, 'input', () => setNameError(false));
+
+      bindOnce(saveProfileBtn, 'click', () => {
         if (editProfileNameInput instanceof HTMLInputElement && editProfileAvatarInput instanceof HTMLInputElement) {
           const newName = editProfileNameInput.value.trim();
           const newAvatar = editProfileAvatarInput.value.trim();
-          
+
           if (!newName) {
-            alert('โปรดระบุชื่อผู้ใช้!');
+            setNameError(true);
+            editProfileNameInput.focus();
             return;
           }
-          
+
           const activeId = getActiveProfileId();
           let profiles = getProfiles();
           const pIndex = profiles.findIndex(p => p.id === activeId);
-          
+
           if (pIndex !== -1) {
             profiles[pIndex].name = newName;
             profiles[pIndex].avatar = newAvatar || '👤';
             saveProfiles(profiles);
-            if (editProfileModal) editProfileModal.style.display = 'none';
+            closeModal(editProfileModal);
             window.location.reload();
           }
         }
       });
-    }
 
-    // Switch profile modal logic
-    if (settingsBtn) {
-      settingsBtn.addEventListener('click', () => {
+      // Switch profile modal logic
+      bindOnce(settingsBtn, 'click', () => {
         if (settingsModal) {
           openModal(settingsModal);
           renderSettingsProfiles();
         }
       });
-    }
 
-    if (settingsCloseBtn) {
-      settingsCloseBtn.addEventListener('click', () => {
+      bindOnce(settingsCloseBtn, 'click', () => {
         closeModal(settingsModal);
       });
-    }
 
-    // Close modal on background click
-    [editProfileModal, settingsModal].forEach(modal => {
-      if (modal) {
-        modal.addEventListener('click', (e) => {
+      // Close modal on background click
+      [editProfileModal, settingsModal].forEach(modal => {
+        bindOnce(modal, 'click', (e) => {
           if (e.target === modal) {
             closeModal(modal);
           }
         });
-      }
-    });
-
-    document.addEventListener('keydown', (e) => {
-      if (e.key !== 'Escape') return;
-      if (editProfileModal && editProfileModal.style.display !== 'none') {
-        closeModal(editProfileModal);
-      } else if (settingsModal && settingsModal.style.display !== 'none') {
-        closeModal(settingsModal);
-      }
-    });
-
-    const renderSettingsProfiles = () => {
-      const listContainer = document.querySelector('[data-profiles-list]');
-      if (!listContainer) return;
-      listContainer.innerHTML = '';
-
-      const profiles = getProfiles();
-      const activeId = getActiveProfileId();
-
-      profiles.forEach(p => {
-        const item = document.createElement('div');
-        item.className = 'profile-item' + (p.id === activeId ? ' is-active' : '');
-        
-        const info = document.createElement('div');
-        info.className = 'profile-item-info';
-        
-        const iconSpan = document.createElement('span');
-        iconSpan.className = 'profile-icon';
-        renderAvatar(p.avatar, iconSpan);
-        
-        const nameStrong = document.createElement('strong');
-        nameStrong.textContent = p.name;
-        
-        info.appendChild(iconSpan);
-        info.appendChild(nameStrong);
-        item.appendChild(info);
-
-        const actions = document.createElement('div');
-        actions.className = 'profile-item-actions';
-
-        if (p.id !== activeId) {
-          const switchBtn = document.createElement('button');
-          switchBtn.type = 'button';
-          switchBtn.className = 'btn-switch';
-          switchBtn.textContent = 'ใช้งาน';
-          switchBtn.addEventListener('click', () => {
-            setActiveProfileId(p.id);
-            window.location.reload();
-          });
-          actions.appendChild(switchBtn);
-
-          const deleteBtn = document.createElement('button');
-          deleteBtn.type = 'button';
-          deleteBtn.className = 'btn-delete-profile';
-          deleteBtn.textContent = 'ลบ';
-          deleteBtn.addEventListener('click', () => {
-            if (confirm(`คุณแน่ใจหรือไม่ที่จะลบโปรไฟล์ "${p.name}"?`)) {
-              // Purge all localStorage keys belonging to this profile
-              const keysToRemove = [];
-              for (let i = 0; i < localStorage.length; i++) {
-                const k = localStorage.key(i);
-                if (k && k.endsWith(`:${p.id}`)) {
-                  keysToRemove.push(k);
-                }
-              }
-              keysToRemove.forEach(k => localStorage.removeItem(k));
-              
-              const updated = getProfiles().filter(profile => profile.id !== p.id);
-              saveProfiles(updated);
-              renderSettingsProfiles();
-            }
-          });
-          actions.appendChild(deleteBtn);
-        }
-
-        item.appendChild(actions);
-        listContainer.appendChild(item);
       });
-    };
 
-    if (addGuestBtn) {
-      addGuestBtn.addEventListener('click', () => {
+      bindOnce(addGuestBtn, 'click', () => {
         const profiles = getProfiles();
         const newGuestId = 'p_' + Date.now() + '_' + Math.random().toString(36).substring(2, 11);
         const name = getRandomGuestName(profiles);
-        
+
         profiles.push({
           id: newGuestId,
           name: name,
@@ -914,147 +526,23 @@ ${guestNamesCore.replace(/^export /gm, "")}
         });
         saveProfiles(profiles);
         setActiveProfileId(newGuestId);
-        
-        if (settingsModal) settingsModal.style.display = 'none';
+
+        closeModal(settingsModal);
         window.location.reload();
       });
-    }
+    };
 
+    // This script runs again on every soft arrival; the page-load hook is added once
+    // and always calls the latest init.
+    window.__hubProfileInit = init;
+    if (!window.__hubProfilePageLoad) {
+      window.__hubProfilePageLoad = true;
+      document.addEventListener('astro:page-load', () => window.__hubProfileInit?.());
+    }
     init();
-    document.addEventListener('astro:page-load', init);
   })();
 </script>
 
-<script is:inline>
-  /*
-   * Hub background theme switcher.
-   *
-   * Background bind contract (window globals, one set per background):
-   *   __bind<Key>()       Idempotent. Starts the scene when its container is shown
-   *                       (style.display !== "none"); cleans up and returns when the
-   *                       container is hidden or absent (novel pages).
-   *   __<key>Cleanup()    Stops the frame loop and removes every listener, observer
-   *                       and timer. Safe to call repeatedly.
-   *   __<key>Initialized  true while a scene instance is live.
-   * Keys: DynamicCityBg / dynamicCityBg (constellation), MothlightBg / mothlightBg,
-   * FireflyBg / fireflyBg, PagesStarsBg / pagesStarsBg.
-   * The switcher owns visibility: it sets container display before calling bind,
-   * and calls every cleanup on astro:before-swap. Global listeners are bound once
-   * (window.__hubThemeSwitcher) so a re-executed script never stacks handlers.
-   */
-  (() => {
-    const win = window;
-    const OVERRIDE_KEY = "piichan-novels:theme-override";
-    const REFERENCE_MONDAY = "2026-01-05T07:00:00+07:00";
-    const BACKGROUNDS = [
-      { theme: "constellation", containerId: "constellation-bg-container", key: "DynamicCityBg", label: "ธีม: สายแสงกลางดาว (กดสลับ)", icon: "🌌" },
-      { theme: "mothlight", containerId: "mothlight-bg-container", key: "MothlightBg", label: "ธีม: Mothlight (กดสลับ)", icon: "🦋" },
-      { theme: "firefly", containerId: "firefly-bg-container", key: "FireflyBg", label: "ธีม: ป่าหิ่งห้อย (กดสลับ)", icon: "✨" },
-      { theme: "pages-stars", containerId: "pages-stars-bg-container", key: "PagesStarsBg", label: "ธีม: หน้าหนังสือกลายเป็นดาว (กดสลับ)", icon: "📖" },
-    ];
-    const THEMES = BACKGROUNDS.map((bg) => bg.theme);
-    const lowerKey = (key) => key.charAt(0).toLowerCase() + key.slice(1);
-
-    const state = (win.__hubThemeSwitcher ??= { bound: false, sessionOverride: null });
-
-    function readOverride() {
-      try {
-        const value = localStorage.getItem(OVERRIDE_KEY);
-        if (value === null) return state.sessionOverride;
-        if (THEMES.includes(value)) return value;
-        localStorage.removeItem(OVERRIDE_KEY);
-      } catch {
-        return state.sessionOverride;
-      }
-      return null;
-    }
-
-    function writeOverride(theme) {
-      state.sessionOverride = theme;
-      try {
-        localStorage.setItem(OVERRIDE_KEY, theme);
-      } catch {
-        // Storage blocked: the in-memory override keeps the choice for this session.
-      }
-    }
-
-    function weeklyTheme() {
-      const msPerWeek = 7 * 24 * 60 * 60 * 1000;
-      const weeksElapsed = Math.floor((Date.now() - new Date(REFERENCE_MONDAY).getTime()) / msPerWeek);
-      if (!Number.isFinite(weeksElapsed)) return THEMES[0];
-      return THEMES[((weeksElapsed % THEMES.length) + THEMES.length) % THEMES.length];
-    }
-
-    function getActiveTheme() {
-      return readOverride() ?? weeklyTheme();
-    }
-
-    function isHub() {
-      return BACKGROUNDS.some((bg) => document.getElementById(bg.containerId));
-    }
-
-    function cleanupBackground(bg) {
-      const cleanup = win[`__${lowerKey(bg.key)}Cleanup`];
-      if (typeof cleanup === "function") cleanup();
-      win[`__${lowerKey(bg.key)}Initialized`] = false;
-    }
-
-    // Sets container visibility and body class; with bind=true also starts the
-    // active scene and stops the others (component scripts may not have run yet
-    // on the first parse, so the early pass only prevents a flash of no theme).
-    function applyTheme(bind) {
-      if (!isHub()) return;
-      const theme = getActiveTheme();
-      const active = BACKGROUNDS.find((bg) => bg.theme === theme) ?? BACKGROUNDS[0];
-
-      document.body.classList.remove(...THEMES.map((name) => `theme-${name}`));
-      document.body.classList.add(`theme-${active.theme}`);
-
-      for (const bg of BACKGROUNDS) {
-        if (bg === active) continue;
-        const container = document.getElementById(bg.containerId);
-        if (container) container.style.display = "none";
-        if (bind) cleanupBackground(bg);
-      }
-
-      const container = document.getElementById(active.containerId);
-      if (container) container.style.display = "block";
-      const toggleText = document.querySelector("[data-theme-toggle-btn] .theme-btn-text");
-      const toggleIcon = document.querySelector("[data-theme-toggle-btn] .theme-btn-icon");
-      if (toggleText) toggleText.textContent = active.label;
-      if (toggleIcon) toggleIcon.textContent = active.icon;
-
-      const bindFn = win[`__bind${active.key}`];
-      if (bind && typeof bindFn === "function") bindFn();
-    }
-
-    function toggleTheme() {
-      const index = THEMES.indexOf(getActiveTheme());
-      writeOverride(THEMES[(index + 1) % THEMES.length]);
-      applyTheme(true);
-    }
-
-    function onPageLoad() {
-      if (!isHub()) return;
-      const toggleBtn = document.querySelector("[data-theme-toggle-btn]");
-      if (toggleBtn && !toggleBtn.hasAttribute("data-theme-toggle-bound")) {
-        toggleBtn.setAttribute("data-theme-toggle-bound", "");
-        toggleBtn.addEventListener("click", toggleTheme);
-      }
-      applyTheme(true);
-    }
-
-    function onBeforeSwap() {
-      for (const bg of BACKGROUNDS) cleanupBackground(bg);
-    }
-
-    if (!state.bound) {
-      state.bound = true;
-      document.addEventListener("astro:page-load", onPageLoad);
-      document.addEventListener("astro:before-swap", onBeforeSwap);
-    }
-
-    applyTheme(false);
-  })();
+<script>
+  import "../scripts/hub/world/chrome";
 </script>
-

@@ -1,36 +1,494 @@
-.hub-page {
-  --paper-deep: #0a0908;
+/* Live channel variables (spec 2.9). Initial values are the still state. */
+@property --w-light-x { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --w-light-y { syntax: "<number>"; inherits: true; initial-value: 0.3; }
+@property --w-light { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --w-breath { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --w-sky { syntax: "<number>"; inherits: true; initial-value: 1; }
+@property --w-sun { syntax: "<angle>"; inherits: true; initial-value: 0deg; }
+@property --w-glow { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --w-lx { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --w-ly { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --card-read { syntax: "<number>"; inherits: true; initial-value: 0; }
+@property --card-px { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+@property --card-py { syntax: "<number>"; inherits: true; initial-value: 0.5; }
+
+/* Theme tokens (spec 2.6). Declared on the root at zero specificity so a theme's
+   token block on :root[data-hub-theme="<key>"] replaces them, and derived tokens
+   resolve against the theme's values. Tokens that mix the novel accent are
+   declared on the card (below). */
+:where(.hub-root) {
+  --hub-bg: #0a0908;
+  --paper-deep: var(--hub-bg);
   --hub-ink: #eee8dd;
   --hub-muted: #a99f91;
   --hub-faint: #71695f;
+  --hub-line: rgba(238, 232, 221, 0.14);
+  --hub-line-strong: rgba(238, 232, 221, 0.24);
   --hub-panel: #12100e;
   --hub-panel-strong: #181411;
-  --hub-line: rgba(238, 232, 221, 0.14);
-  /* Neutral warm-gold hub accent — sits between the lodge (red) and tsukinomi (amber)
-     novel accents so the shared hub chrome doesn't read as either novel. */
   --hub-accent: #cf9a5e;
+  --hub-accent-ink: #cf9a5e;
+  --hub-accent-contrast: #0a0908;
+  --hub-link-hover: var(--hub-ink);
+  --hub-focus: #d7a061;
+  --hub-focus-halo-color: transparent;
+  --hub-select-bg: color-mix(in srgb, var(--hub-accent) 35%, transparent);
+  --hub-select-ink: #fff6e3;
 
+  --hub-pool: 8 7 6;
+  --hub-pool-a: 0.8;
+  --hub-pool-b: 0.5;
+  --hub-hero-ink: var(--hub-ink);
+  --hub-hero-muted: var(--hub-muted);
+  --hub-title-font: "Cormorant Garamond", var(--font-thai);
+  --hub-title-weight: 400;
+  --hub-title-style: normal;
+  --hub-title-tracking: 0;
+  --hub-title-fill: var(--hub-ink);
+  --hub-title-solid: var(--hub-ink);
+  --hub-title-glow: drop-shadow(0 1px 14px rgba(0, 0, 0, 0.7));
+  --hub-text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7);
+  --hub-hero-plate: none;
+
+  --hub-side-bg: rgba(10, 9, 8, 0.62);
+  --hub-side-border: color-mix(in srgb, var(--hub-accent) 45%, transparent);
+  --hub-side-ornament: none;
+
+  --card-radius: 8px;
+  --card-body-bg: var(--hub-panel);
+  --card-border: var(--hub-line);
+  --card-shadow: 0 0 #0000;
+  --card-shadow-hover: 0 0 #0000;
+  --card-lift: -2px;
+  --card-media-bg: #14110f;
+  --card-accent-share: 55%;
+  --card-progress-track: rgba(10, 9, 8, 0.55);
+  --card-locked-filter: saturate(0.86) brightness(0.72) contrast(1.08);
+  --card-locked-veil: none;
+  --card-upcoming-filter: none;
+  --card-upcoming-veil: none;
+  --card-seal-font: "Crimson Pro", Georgia, var(--font-thai);
+
+  --resume-bg: color-mix(in srgb, var(--hub-panel-strong) 86%, var(--hub-accent) 14%);
+  --resume-border: color-mix(in srgb, var(--hub-accent) 38%, transparent);
+  --resume-ink: var(--hub-ink);
+  --resume-action-bg: color-mix(in srgb, var(--hub-accent) 16%, transparent);
+  --resume-action-border: color-mix(in srgb, var(--hub-accent) 70%, transparent);
+  --resume-action-ink: var(--hub-ink);
+  --resume-ornament: none;
+
+  --chip-bg: color-mix(in srgb, var(--hub-panel-strong) 88%, transparent);
+  --chip-border: var(--hub-line);
+  --chip-ink: var(--hub-ink);
+  --chip-btn-border: var(--hub-line);
+  --chip-btn-hover: rgba(238, 232, 221, 0.05);
+  --chip-avatar-ring: transparent;
+
+  --window-label-bg: var(--hub-panel);
+  --window-label-ink: var(--hub-ink);
+  --window-label-border: var(--hub-line);
+  --hit-label-bg: var(--hub-panel);
+  --hit-label-ink: var(--hub-ink);
+
+  --modal-overlay: rgba(10, 9, 8, 0.85);
+  --modal-blur: 12px;
+  --modal-bg: var(--hub-panel-strong);
+  --modal-border: var(--hub-line);
+  --modal-radius: 8px;
+  --modal-title-font: "Cormorant Garamond", var(--font-thai);
+  --modal-field-bg: rgba(0, 0, 0, 0.25);
+  --modal-danger: #ff6b6b;
+  --modal-ornament: none;
+
+  /* 6.5:1 on the default pool over black, 4.6:1 when the pool sits on a light backdrop;
+     the plain --hub-faint is only 3.8:1 even on black. */
+  --footer-ink: #9a9184;
+  --footer-line: var(--hub-line);
+  --footer-pool: 8 7 6;
+  --footer-pool-a: 0.82;
+
+  --hub-ease: ease;
+  --hub-dur: 180ms;
+}
+
+:root.hub-root[data-hub-motion="still"] {
+  --hub-dur: 0.01ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root.hub-root.hub-root {
+    --hub-dur: 0.01ms;
+  }
+}
+
+/* Tokens derived from the inline --novel-accent of each card or continue link. */
+.hub-page :is(.novel-card, .novel-card-continue) {
+  --card-border-hover: color-mix(in srgb, var(--novel-accent) 72%, #ffffff 28%);
+  --card-media-shade:
+    linear-gradient(180deg, rgba(10, 9, 8, 0) 42%, rgba(10, 9, 8, 0.58) 100%),
+    linear-gradient(90deg, color-mix(in srgb, var(--novel-accent) 20%, transparent), transparent 44%);
+  --card-accent-ink: color-mix(in oklch, var(--novel-accent) var(--card-accent-share), var(--hub-ink));
+  --card-progress-fill: color-mix(in srgb, var(--novel-accent) 82%, #ffffff 18%);
+  --card-continue-bg: color-mix(in srgb, var(--novel-accent) 16%, var(--hub-panel-strong));
+  --card-continue-border: color-mix(in srgb, var(--novel-accent) 70%, transparent);
+  --card-seal-ink: color-mix(in srgb, var(--novel-accent) 55%, #f4efe6 45%);
+}
+
+/* Shared geometry (spec 2.3). Identical for every theme and never themeable. */
+.hub-page {
+  --hub-shell-max: 1080px;
+  --hub-edge: 24px;
+  --hub-col-gap: 32px;
+  --hub-row-gap: 56px;
+  --hub-media-h: 290px;
+  --hub-card-min-h: 520px;
+  --hub-stage-h: clamp(150px, 22vh, 240px);
+  --hub-mid-h: clamp(170px, 24vh, 240px);
+  --hub-ground-h: clamp(200px, 30vh, 300px);
+  --hub-shell-pt: 56px;
+  --hub-h1-size: 4rem;
+  --hub-h1-lh: 0.98;
+  --stage-hit-x: 0.4;
+  --stage-hit-y: 0.15;
+  --stage-hit-w: 0.2;
+  --stage-hit-h: 0.7;
+  --mid-hit-x: 0.4;
+  --mid-hit-y: 0.1;
+  --mid-hit-w: 0.2;
+  --mid-hit-h: 0.55;
+}
+
+/* Lodge global.css leaks (spec 2.7). */
+.hub-page {
+  --accent: var(--hub-accent);
+  --paper: var(--hub-bg);
+}
+
+.hub-page ::selection {
+  background: var(--hub-select-bg);
+  color: var(--hub-select-ink);
+}
+
+.hub-page a:hover {
+  color: var(--hub-link-hover);
+}
+
+.hub-page :is(.novel-card, .novel-card-continue, .resume-card-actions a):hover {
+  color: var(--hub-ink);
+}
+
+.hub-page .novel-card.is-disabled:hover {
+  color: var(--hub-muted);
+}
+
+html.hub-root {
+  background: var(--hub-bg);
+  color-scheme: dark;
+}
+
+html.hub-root,
+body.hub-page {
+  overflow-x: clip;
+}
+
+.hub-page {
   min-height: 100vh;
-  overflow-x: hidden;
-  background: var(--paper-deep);
+  background: var(--hub-bg);
   color: var(--hub-ink);
   font-family: var(--font-thai);
   font-size: 17px;
 }
 
 .hub-page :focus-visible {
-  outline: 2px solid #d7a061;
-  outline-offset: 4px;
+  outline: 2px solid var(--hub-focus);
+  outline-offset: 3px;
+}
+
+/* Focus that theme CSS cannot remove (spec 8.3 item 9). */
+:root:root .hub-page :is(a, button, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--hub-focus);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 5px var(--hub-focus-halo-color), var(--card-shadow-hover, 0 0 #0000);
+}
+
+.hub-page .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Sky containers: the root theme attribute picks the visible one (spec 2.14). */
+#pages-stars-bg-container,
+#skyglass-bg-container,
+#constellation-bg-container,
+#mothlight-bg-container,
+#firefly-bg-container {
+  display: none;
+}
+
+:root[data-hub-theme="pages-stars"] #pages-stars-bg-container,
+:root[data-hub-theme="skyglass"] #skyglass-bg-container,
+:root[data-hub-theme="constellation"] #constellation-bg-container,
+:root[data-hub-theme="mothlight"] #mothlight-bg-container,
+:root[data-hub-theme="firefly"] #firefly-bg-container,
+:root:not([data-hub-theme]) #pages-stars-bg-container {
+  display: block;
+}
+
+[data-theme-only] {
+  display: none;
+}
+
+:root[data-hub-theme="pages-stars"] [data-theme-only="pages-stars"],
+:root[data-hub-theme="skyglass"] [data-theme-only="skyglass"],
+:root[data-hub-theme="constellation"] [data-theme-only="constellation"],
+:root[data-hub-theme="mothlight"] [data-theme-only="mothlight"],
+:root[data-hub-theme="firefly"] [data-theme-only="firefly"],
+:root:not([data-hub-theme]) [data-theme-only="pages-stars"] {
+  display: revert;
+}
+
+.hub-sky {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+@media (pointer: coarse) {
+  .hub-sky {
+    inset: 0 0 auto 0;
+    height: 100vh;
+    height: 100lvh;
+  }
 }
 
 .hub-shell {
   position: relative;
   z-index: 2;
-  width: min(1120px, calc(100% - 32px));
+  width: min(var(--hub-shell-max), calc(100% - 2 * var(--hub-edge)));
   margin: 0 auto;
-  padding: 56px 0 32px;
+  padding: var(--hub-shell-pt) 0 0;
 }
 
+/* Top bar: kicker on the left, profile chip and picker button on the right. */
+.hub-topbar {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 18px;
+}
+
+/* Zero basis: the kicker takes only the space left beside the chip and the picker
+   button, so its theme-specific text never resizes them. */
+.hub-page .hub-kicker {
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  color: var(--hub-hero-muted);
+  font-size: 0.88rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  text-shadow: var(--hub-text-shadow);
+}
+
+.hub-kicker [data-hub-clock]:not(:empty)::before {
+  content: " · " / "";
+}
+
+.hub-page .hub-profile-widget {
+  position: relative;
+  display: flex;
+  flex: 0 1 auto;
+  gap: 10px;
+  align-items: center;
+  min-width: 0;
+  max-width: 100%;
+  padding: 5px 6px 5px 5px;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.35);
+  box-sizing: border-box;
+}
+
+.hub-page .hub-profile-info {
+  display: flex;
+  flex: 0 1 auto;
+  gap: 8px;
+  align-items: center;
+  min-width: 0;
+  font-size: 0.9rem;
+}
+
+.hub-page .profile-icon {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  overflow: hidden;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.2);
+  box-shadow: 0 0 0 1px var(--chip-avatar-ring);
+  font-size: 1.1rem;
+}
+
+.hub-page .profile-icon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.hub-page .profile-name {
+  min-width: 0;
+  max-width: 230px;
+  overflow: hidden;
+  color: var(--chip-ink);
+  font-weight: 500;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.hub-page .hub-profile-actions {
+  display: flex;
+  flex: none;
+  gap: 4px;
+}
+
+.hub-page :is(.hub-profile-edit-btn, .hub-profile-settings-btn) {
+  min-height: 30px;
+  padding: 4px 12px;
+  border: 1px solid var(--chip-btn-border);
+  border-radius: 999px;
+  background: none;
+  color: var(--hub-muted);
+  font-size: 0.78rem;
+  text-align: center;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--hub-dur) var(--hub-ease), color var(--hub-dur) var(--hub-ease);
+}
+
+.hub-page :is(.hub-profile-edit-btn, .hub-profile-settings-btn):hover {
+  background: var(--chip-btn-hover);
+  color: var(--chip-ink);
+}
+
+.hub-page .hub-theme-btn {
+  display: inline-flex;
+  flex: none;
+  gap: 8px;
+  align-items: center;
+  min-height: 42px;
+  margin: 0;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--chip-border);
+  border-radius: 999px;
+  background: var(--chip-bg);
+  box-shadow: 0 0.6rem 1.6rem rgba(0, 0, 0, 0.35);
+  color: var(--chip-ink);
+  font-size: 0.85rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--hub-dur) var(--hub-ease), border-color var(--hub-dur) var(--hub-ease);
+}
+
+.hub-page .hub-theme-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--chip-btn-hover), var(--chip-bg));
+  border-color: var(--hub-line-strong);
+}
+
+.hub-page .hub-theme-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Picker glyph: a public part. Themes skin it with paint only (background, mask,
+   border-color, box-shadow, color) on :root[data-hub-theme="<key>"] .hub-theme-btn-glyph;
+   its 16x16 box stays fixed. The base is a neutral ring. */
+.hub-theme-btn-glyph {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border: 1.5px solid currentColor;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 3px var(--chip-bg), inset 0 0 0 8px currentColor;
+}
+
+.hub-theme-btn-place {
+  display: none;
+  color: var(--hub-muted);
+}
+
+.hub-theme-btn-place::before {
+  content: "· " / "";
+}
+
+/* Every place name shares one grid cell and only the active one is visible, so the
+   button is as wide as the longest name in every theme. */
+@media (min-width: 781px) {
+  .hub-theme-btn-place {
+    display: inline-grid;
+    grid-template-columns: auto auto;
+    text-align: start;
+  }
+
+  .hub-theme-btn-place::before {
+    grid-area: 1 / 1;
+    white-space: pre;
+  }
+
+  .hub-theme-btn-place > [data-theme-only] {
+    display: block;
+    grid-area: 1 / 2;
+    visibility: hidden;
+  }
+
+  :root[data-hub-theme="pages-stars"] .hub-theme-btn-place > [data-theme-only="pages-stars"],
+  :root[data-hub-theme="skyglass"] .hub-theme-btn-place > [data-theme-only="skyglass"],
+  :root[data-hub-theme="constellation"] .hub-theme-btn-place > [data-theme-only="constellation"],
+  :root[data-hub-theme="mothlight"] .hub-theme-btn-place > [data-theme-only="mothlight"],
+  :root[data-hub-theme="firefly"] .hub-theme-btn-place > [data-theme-only="firefly"],
+  :root:not([data-hub-theme]) .hub-theme-btn-place > [data-theme-only="pages-stars"] {
+    visibility: visible;
+  }
+}
+
+@media (max-width: 599.98px) {
+  .hub-page .hub-kicker {
+    display: none;
+  }
+}
+
+/* Icon-only up to 430px, so the guest name in the chip keeps its full width on
+   common phones; it truncates only on the narrowest screens. */
+@media (max-width: 430px) {
+  .hub-page .hub-theme-btn {
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .hub-theme-btn-text {
+    display: none;
+  }
+}
+
+/* Hero */
 .hub-hero {
   position: relative;
   isolation: isolate;
@@ -41,7 +499,7 @@
   padding-bottom: 30px;
 }
 
-/* The four hub backgrounds are busy and bright in places; a soft dark pool
+/* The hub backgrounds are busy and bright in places; a soft dark pool
    behind the hero keeps its text legible on every theme. */
 .hub-hero::before {
   position: absolute;
@@ -53,53 +511,85 @@
      pseudo-element's edges, so it never shows as a box. */
   background: radial-gradient(
     ellipse closest-side at var(--hub-hero-pool-x, 34%) 55%,
-    rgba(8, 7, 6, 0.8) 0%,
-    rgba(8, 7, 6, 0.5) 55%,
-    rgba(8, 7, 6, 0) 100%
+    rgb(var(--hub-pool) / var(--hub-pool-a)) 0%,
+    rgb(var(--hub-pool) / var(--hub-pool-b)) 55%,
+    rgb(var(--hub-pool) / 0) 100%
   );
   pointer-events: none;
 }
 
-.hub-title-group h1,
-.hub-title-group p,
-.hub-side-note {
-  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.7);
+.hub-title-group {
+  position: relative;
+  max-width: 780px;
 }
 
-.hub-title-group {
-  max-width: 780px;
+.hub-title-group::before {
+  position: absolute;
+  inset: -45px;
+  z-index: -1;
+  content: "";
+  background: var(--hub-hero-plate);
+  pointer-events: none;
 }
 
 .hub-title-group h1 {
   margin: 0;
-  color: var(--hub-ink);
-  font-family: var(--font-display);
-  font-size: 4rem;
-  font-weight: 400;
-  line-height: 0.98;
-  letter-spacing: 0;
+  color: var(--hub-title-solid);
+  font-family: var(--hub-title-font);
+  font-size: var(--hub-h1-size);
+  font-style: var(--hub-title-style);
+  font-weight: var(--hub-title-weight);
+  line-height: var(--hub-h1-lh);
+  letter-spacing: var(--hub-title-tracking);
+  white-space: nowrap;
+  text-shadow: var(--hub-text-shadow);
+}
+
+/* The fill is painted through the glyphs, so its shadow comes from a filter:
+   a text-shadow would be drawn over the clipped fill. */
+@supports (background-clip: text) or (-webkit-background-clip: text) {
+  .hub-title-group h1 {
+    background: var(--hub-title-fill);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    text-shadow: none;
+    filter: var(--hub-title-glow);
+  }
 }
 
 .hub-title-group p {
   max-width: 640px;
   margin: 22px 0 0;
-  color: var(--hub-muted);
+  color: var(--hub-hero-muted);
   font-size: 1.02rem;
   line-height: 1.85;
+  text-shadow: var(--hub-text-shadow);
 }
 
+.hub-side-col {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* Positioned so theme ornaments can anchor absolute ::before and ::after on it. */
 .hub-side-note {
+  position: relative;
   margin: 0;
   padding: 14px 16px;
-  border-left: 1px solid color-mix(in srgb, var(--hub-accent) 45%, transparent);
+  border-left: 1px solid var(--hub-side-border);
   border-radius: 0 8px 8px 0;
-  background: rgba(10, 9, 8, 0.62);
-  color: var(--hub-muted);
+  background: var(--hub-side-ornament), var(--hub-side-bg);
+  color: var(--hub-hero-muted);
   font-size: 0.92rem;
   line-height: 1.75;
+  text-shadow: var(--hub-text-shadow);
 }
 
-.resume-card {
+/* Resume card and start panel share one slot. */
+.resume-card,
+.hub-start {
   position: relative;
   z-index: 2;
   display: grid;
@@ -108,17 +598,31 @@
   align-items: center;
   margin-bottom: 24px;
   padding: 18px 20px;
-  border: 1px solid color-mix(in srgb, var(--hub-accent) 38%, transparent);
+  border: 1px solid var(--resume-border);
   border-radius: 8px;
-  background: color-mix(in srgb, var(--hub-panel-strong) 86%, var(--hub-accent) 14%);
+  background: var(--resume-ornament), var(--resume-bg);
+  color: var(--resume-ink);
 }
 
-.resume-card[hidden] {
+.resume-card[hidden],
+.hub-start {
+  display: none;
+}
+
+/* The start panel shows only while the resume card is hidden. The general sibling
+   combinator skips ResumeCard's inline script. On a soft arrival the bridge flags
+   a returning reader before the snapshot, so the panel does not flash. */
+.resume-card[hidden] ~ .hub-start {
+  display: grid;
+}
+
+:root[data-hub-has-reading] .resume-card[hidden] ~ .hub-start {
   display: none;
 }
 
 .resume-card-kicker,
-.novel-card-kicker {
+.novel-card-kicker,
+.hub-start-kicker {
   display: block;
   color: var(--hub-muted);
   font-family: var(--font-serif);
@@ -126,7 +630,12 @@
   line-height: 1.2;
 }
 
-.resume-card h2 {
+.hub-start-kicker {
+  font-family: var(--font-thai);
+}
+
+.resume-card h2,
+.hub-start h2 {
   margin: 6px 0 0;
   font-size: 1.55rem;
   font-weight: 400;
@@ -134,10 +643,22 @@
   letter-spacing: 0;
 }
 
-.resume-card p {
+.hub-start h2 {
+  font-family: var(--font-thai);
+  font-size: 1.35rem;
+  line-height: 1.35;
+}
+
+.resume-card p,
+.hub-start p {
   margin: 7px 0 0;
-  color: var(--hub-ink);
+  color: var(--resume-ink);
   line-height: 1.55;
+}
+
+.hub-start p {
+  color: var(--hub-muted);
+  font-size: 0.95rem;
 }
 
 .resume-card small {
@@ -148,7 +669,8 @@
   line-height: 1.45;
 }
 
-.resume-card-actions {
+.resume-card-actions,
+.hub-start-actions {
   display: flex;
   gap: 8px;
   align-items: center;
@@ -160,19 +682,193 @@
   padding: 10px 15px;
   border: 1px solid rgba(238, 232, 221, 0.18);
   border-radius: 6px;
-  color: var(--hub-ink);
+  color: var(--resume-action-ink);
   font-size: 0.92rem;
   line-height: 1.2;
   text-decoration: none;
 }
 
 .resume-card-actions a {
-  border-color: color-mix(in srgb, var(--hub-accent) 70%, transparent);
-  background: color-mix(in srgb, var(--hub-accent) 16%, transparent);
+  border-color: var(--resume-action-border);
+  background: var(--resume-action-bg);
 }
 
 .resume-card-actions button {
   color: var(--hub-muted);
+}
+
+/* Pick buttons (start panel, library heading, footer). */
+.hub-page .hub-pick-btn {
+  min-height: 42px;
+  margin: 0;
+  padding: 10px 15px;
+  border: 1px solid var(--resume-action-border);
+  border-radius: 6px;
+  background: var(--resume-action-bg);
+  color: var(--resume-action-ink);
+  font-size: 0.92rem;
+  line-height: 1.2;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: background var(--hub-dur) var(--hub-ease), border-color var(--hub-dur) var(--hub-ease);
+}
+
+.hub-page .hub-pick-btn:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Windows: the box is shell width and is the reference for hit fractions; the
+   canvas is full-bleed so set pieces fade into the gutters. */
+.hub-window {
+  position: relative;
+}
+
+.hub-window-stage {
+  height: var(--hub-stage-h);
+  margin-bottom: 12px;
+  touch-action: pan-y pinch-zoom;
+}
+
+.hub-window-mid {
+  grid-column: 1 / -1;
+  height: var(--hub-mid-h);
+}
+
+.hub-window-ground {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.hub-page .hub-window-canvas {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  display: block;
+  width: 100vw;
+  max-width: none;
+  height: 100%;
+  translate: -50% 0;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 300ms var(--hub-ease);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-page .hub-window-canvas {
+    transition: none;
+  }
+}
+
+:root[data-hub-motion="still"] .hub-page .hub-window-canvas {
+  transition: none;
+}
+
+.hub-page .hub-window-label {
+  position: absolute;
+  bottom: 12px;
+  left: 0;
+  z-index: 1;
+  margin: 0;
+  padding: 6px 14px;
+  border: 1px solid var(--window-label-border);
+  border-radius: 999px;
+  background: var(--window-label-bg);
+  color: var(--window-label-ink);
+  font-family: var(--font-thai);
+  font-size: 1.05rem;
+  font-weight: 400;
+  line-height: 1.4;
+}
+
+.hub-page .hub-window-hit {
+  position: absolute;
+  top: calc(var(--hit-y) * 100%);
+  left: calc(var(--hit-x) * 100%);
+  z-index: 2;
+  width: max(44px, calc(var(--hit-w) * 100%));
+  height: max(44px, calc(var(--hit-h) * 100%));
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 12px;
+  background: none;
+  color: var(--hit-label-ink);
+  cursor: pointer;
+}
+
+.hub-window-stage .hub-window-hit {
+  --hit-x: var(--stage-hit-x);
+  --hit-y: var(--stage-hit-y);
+  --hit-w: var(--stage-hit-w);
+  --hit-h: var(--stage-hit-h);
+}
+
+.hub-window-mid .hub-window-hit {
+  --hit-x: var(--mid-hit-x);
+  --hit-y: var(--mid-hit-y);
+  --hit-w: var(--mid-hit-w);
+  --hit-h: var(--mid-hit-h);
+}
+
+.hub-page .hub-window-hit:disabled {
+  cursor: default;
+}
+
+.hub-window-hit .hub-hit-label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.hub-window-hit:not(:disabled):is(:hover, :focus-visible) .hub-hit-label {
+  bottom: calc(100% + 6px);
+  left: 50%;
+  width: auto;
+  height: auto;
+  padding: 4px 10px;
+  overflow: visible;
+  clip-path: none;
+  translate: -50% 0;
+  border-radius: 6px;
+  background: var(--hit-label-bg);
+  color: var(--hit-label-ink);
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* Library */
+.hub-library-head {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 16px;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.hub-library-head h2 {
+  margin: 0;
+  color: var(--hub-ink);
+  font-family: var(--font-thai);
+  font-size: 1.35rem;
+  font-weight: 400;
+  line-height: 1.35;
+  text-shadow: var(--hub-text-shadow);
+}
+
+.hub-library {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--hub-row-gap) var(--hub-col-gap);
 }
 
 .novel-card-wrapper {
@@ -182,56 +878,58 @@
   height: 100%;
 }
 
-.hub-library {
-  position: relative;
-  z-index: 2;
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 20px;
-}
-
 .novel-card {
   --novel-accent: #c24b3a;
 
+  position: relative;
   display: grid;
   grid-template-rows: auto 1fr;
-  min-height: 520px;
+  min-height: var(--hub-card-min-h);
   height: 100%;
   overflow: hidden;
-  border: 1px solid var(--hub-line);
-  border-radius: 8px;
-  background: var(--hub-panel);
+  border: 1px solid var(--card-border);
+  border-radius: var(--card-radius);
+  background: var(--card-body-bg);
+  box-shadow: var(--card-shadow);
   color: var(--hub-ink);
   text-decoration: none;
   transition:
-    border-color 180ms ease,
-    transform 180ms ease,
-    background 180ms ease;
+    border-color var(--hub-dur) var(--hub-ease),
+    transform var(--hub-dur) var(--hub-ease),
+    background var(--hub-dur) var(--hub-ease),
+    box-shadow var(--hub-dur) var(--hub-ease);
 }
 
 .novel-card:hover,
 .novel-card:focus-visible {
-  border-color: color-mix(in srgb, var(--novel-accent) 72%, #ffffff 28%);
+  border-color: var(--card-border-hover);
   background: var(--hub-panel-strong);
-  transform: translateY(-2px);
+  box-shadow: var(--card-shadow-hover);
+  transform: translateY(var(--card-lift));
 }
 
 .novel-card-media {
   position: relative;
   display: block;
-  height: 290px;
+  height: var(--hub-media-h);
   overflow: hidden;
-  background: #14110f;
+  background: var(--card-media-bg);
 }
 
 .novel-card-media::after {
   position: absolute;
   inset: 0;
   content: "";
-  background:
-    linear-gradient(180deg, rgba(10, 9, 8, 0) 42%, rgba(10, 9, 8, 0.58) 100%),
-    linear-gradient(90deg, color-mix(in srgb, var(--novel-accent) 20%, transparent), transparent 44%);
+  background: var(--card-media-shade);
   pointer-events: none;
+}
+
+.novel-card.is-disabled .novel-card-media::after {
+  background: var(--card-locked-veil), var(--card-media-shade);
+}
+
+.novel-card.is-upcoming .novel-card-media::after {
+  background: var(--card-upcoming-veil), var(--card-media-shade);
 }
 
 .novel-card-media img {
@@ -241,9 +939,10 @@
   transform: scale(1);
 }
 
-.novel-card:hover .novel-card-media img,
-.novel-card:focus-visible .novel-card-media img {
-  animation: hub-card-drift 4s ease both;
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-motion="full"] .novel-card:is(:hover, :focus-visible) .novel-card-media img {
+    animation: hub-card-drift 4s ease both;
+  }
 }
 
 .novel-card-placeholder {
@@ -251,8 +950,7 @@
   display: grid;
   place-items: center;
   width: 100%;
-  height: 100%;
-  height: 290px;
+  height: var(--hub-media-h);
   background:
     linear-gradient(180deg, rgba(201, 134, 72, 0.11), transparent 46%),
     linear-gradient(90deg, rgba(238, 232, 221, 0.05), transparent 32%, rgba(238, 232, 221, 0.04) 70%, transparent),
@@ -286,12 +984,18 @@
 }
 
 .novel-card-body {
+  position: relative;
   display: flex;
   flex-direction: column;
   min-height: 230px;
   padding: 22px;
 }
 
+.novel-card-kicker {
+  color: var(--card-accent-ink);
+}
+
+/* Card titles are Thai, so every theme sets them in the Thai face. */
 .novel-card-title {
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -301,7 +1005,7 @@
   height: 2.35rem;
   margin-top: 8px;
   color: var(--hub-ink);
-  font-family: var(--font-display);
+  font-family: var(--font-thai);
   font-size: 2.2rem;
   font-weight: 400;
   line-height: 1.05;
@@ -355,7 +1059,7 @@
   inset: auto 0 0;
   z-index: 1;
   height: 3px;
-  background: rgba(10, 9, 8, 0.55);
+  background: var(--card-progress-track);
 }
 
 .novel-card-progress[hidden] {
@@ -365,7 +1069,7 @@
 .novel-card-progress span {
   display: block;
   height: 100%;
-  background: color-mix(in srgb, var(--novel-accent) 82%, #ffffff 18%);
+  background: var(--card-progress-fill);
   box-shadow: 0 0 10px color-mix(in srgb, var(--novel-accent) 60%, transparent);
   transform: scaleX(var(--novel-progress, 0));
   transform-origin: left center;
@@ -382,14 +1086,14 @@
   align-items: center;
   min-height: 38px;
   padding: 8px 14px;
-  border: 1px solid color-mix(in srgb, var(--novel-accent) 70%, transparent);
+  border: 1px solid var(--card-continue-border);
   border-radius: 999px;
-  background: color-mix(in srgb, var(--novel-accent) 16%, var(--hub-panel-strong));
+  background: var(--card-continue-bg);
   color: var(--hub-ink);
   font-size: 0.9rem;
   line-height: 1.2;
   text-decoration: none;
-  transition: background 180ms ease, border-color 180ms ease;
+  transition: background var(--hub-dur) var(--hub-ease), border-color var(--hub-dur) var(--hub-ease);
 }
 
 .novel-card-continue[hidden] {
@@ -412,7 +1116,8 @@
 
 .novel-card.is-disabled:hover {
   border-color: rgba(201, 134, 72, 0.28);
-  background: var(--hub-panel);
+  background: var(--card-body-bg);
+  box-shadow: var(--card-shadow);
   transform: none;
 }
 
@@ -421,23 +1126,733 @@
 }
 
 .novel-card.is-disabled .novel-card-media img {
-  filter: saturate(0.86) brightness(0.72) contrast(1.08);
+  filter: var(--card-locked-filter);
 }
 
 .novel-card.is-disabled .novel-card-media {
   filter: saturate(0.74);
 }
 
+.novel-card.is-upcoming .novel-card-media img {
+  filter: var(--card-upcoming-filter);
+}
+
+.hub-page .novel-card .upcoming-seal {
+  color: var(--card-seal-ink);
+  font-family: var(--card-seal-font);
+}
+
+/* Footer: the ground window fills the footer box behind its text. */
 .hub-footer {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  margin-top: 30px;
-  padding-top: 22px;
-  border-top: 1px solid var(--hub-line);
-  color: var(--hub-faint);
+  position: relative;
+  margin-top: var(--hub-row-gap);
+  padding: var(--hub-ground-h) 0 28px;
+  color: var(--footer-ink);
   font-size: 0.88rem;
   line-height: 1.5;
+}
+
+.hub-footer-next,
+.hub-footer-row {
+  position: relative;
+  z-index: 1;
+}
+
+.hub-page .hub-footer-next {
+  margin: 0 0 12px;
+  color: var(--hub-muted);
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+.hub-footer-next:empty {
+  display: none;
+}
+
+.hub-page .hub-footer-next-link {
+  color: var(--hub-ink);
+  text-decoration: underline;
+  text-decoration-color: var(--hub-line-strong);
+  text-underline-offset: 0.2em;
+}
+
+.hub-page .hub-footer-next-link:hover {
+  text-decoration-color: currentColor;
+}
+
+.hub-footer-row {
+  isolation: isolate;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 14px;
+  border-top: 1px solid var(--footer-line);
+}
+
+.hub-footer-row::before {
+  position: absolute;
+  inset: -72px calc(-1 * clamp(0px, (100vw - 100%) / 2 - 8px, 72px)) -28px;
+  z-index: -1;
+  content: "";
+  background: radial-gradient(
+    ellipse closest-side at 50% 60%,
+    rgb(var(--footer-pool) / var(--footer-pool-a)) 0%,
+    rgb(var(--footer-pool) / calc(var(--footer-pool-a) * 0.6)) 60%,
+    rgb(var(--footer-pool) / 0) 100%
+  );
+  pointer-events: none;
+}
+
+.hub-page .hub-footer-picker {
+  min-height: 36px;
+  margin: 0 0 0 auto;
+  padding: 6px 14px;
+  border: 1px solid var(--footer-line);
+  border-radius: 999px;
+  background: none;
+  color: var(--hub-muted);
+  font-size: 0.88rem;
+  line-height: 1.2;
+  cursor: pointer;
+}
+
+.hub-page .hub-footer-picker:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* Guide creature: placed by chrome through --guide-x/--guide-y (shell coordinates)
+   and data-hub-guide ("rest" or "fly"; empty while hidden), shaped by theme CSS. */
+.hub-guide {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
+  width: 36px;
+  height: 36px;
+  translate: var(--guide-x, 0px) var(--guide-y, 0px);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.hub-guide:is([data-hub-guide="rest"], [data-hub-guide="fly"]) {
+  visibility: visible;
+}
+
+/* A neutral light mote until a theme gives the guide its own shape. */
+.hub-guide-body {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgb(255 246 222 / 0.95) 0 3px, rgb(255 246 222 / 0.28) 5px, rgb(255 246 222 / 0) 14px);
+}
+
+/* Perches: scene creatures resting on a card wrapper's or the chip's top edge,
+   placed by chrome (left in px from the host's left edge). Theme CSS skins them
+   by [data-perch-kind]; the base is a small neutral glint. */
+.hub-perch {
+  position: absolute;
+  bottom: calc(100% - 4px);
+  z-index: 4;
+  width: 28px;
+  height: 18px;
+  translate: -50% 0;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 70%, rgb(255 244 214 / 0.9) 0 2px, rgb(255 244 214 / 0) 6px);
+}
+
+/* World label: one at a time, naming the card a scene object points at. Fixed for
+   sky anchors, absolute in the shell for window anchors. */
+.hub-world-label {
+  position: absolute;
+  z-index: 5;
+  max-width: min(320px, calc(100vw - 32px));
+  overflow: hidden;
+  padding: 5px 12px;
+  border: 1px solid var(--window-label-border);
+  border-radius: 6px;
+  background: var(--hit-label-bg);
+  color: var(--hit-label-ink);
+  font-size: 0.85rem;
+  line-height: 1.4;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  translate: -50% calc(-100% - 10px);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--hub-dur) var(--hub-ease);
+}
+
+.hub-world-label[data-plane="sky"] {
+  position: fixed;
+}
+
+.hub-world-label[data-shown] {
+  opacity: 1;
+}
+
+/* Scene canvases on the kit (canvas[data-sky-*]) fade in after their first drawn
+   frame; the kit sets opacity inline. Legacy scenes use other canvases. */
+.hub-sky :is(canvas[data-sky-static], canvas[data-sky-live]) {
+  opacity: 0;
+  transition: opacity 300ms var(--hub-ease);
+}
+
+:root[data-hub-motion="still"] .hub-sky :is(canvas[data-sky-static], canvas[data-sky-live]) {
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hub-sky :is(canvas[data-sky-static], canvas[data-sky-live]) {
+    transition: none;
+  }
+}
+
+@media (forced-colors: active), (prefers-contrast: more) {
+  .hub-guide,
+  .hub-perch,
+  .hub-world-label {
+    display: none;
+  }
+
+  .hub-title-group h1 {
+    background: none;
+    color: var(--hub-title-solid);
+    filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .hub-title-group h1 {
+    color: CanvasText;
+  }
+}
+
+/* Dialogs */
+.hub-page .hub-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: safe center;
+  justify-content: center;
+  padding: 16px;
+  background: var(--modal-overlay);
+  backdrop-filter: blur(var(--modal-blur));
+}
+
+/* The card never outgrows the small viewport; a tall dialog scrolls inside itself, so
+   its title, close button and actions stay reachable in short landscape. */
+.hub-page .hub-modal-card {
+  width: 100%;
+  max-width: 480px;
+  max-height: calc(100svh - 32px);
+  overflow: hidden auto;
+  overscroll-behavior: contain;
+  border: 1px solid var(--modal-border);
+  border-radius: var(--modal-radius);
+  background: var(--modal-ornament), var(--modal-bg);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-hub-motion="full"] .hub-page .hub-modal-overlay {
+    animation: hub-modal-fade 0.25s ease-out;
+  }
+
+  :root[data-hub-motion="full"] .hub-page .hub-modal-card {
+    animation: hub-modal-rise 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+}
+
+.hub-page .modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--modal-border);
+}
+
+.hub-page .modal-header h2 {
+  margin: 0;
+  color: var(--hub-ink);
+  font-family: var(--modal-title-font);
+  font-size: 1.35rem;
+  font-weight: 500;
+}
+
+.hub-page .modal-close-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 32px;
+  padding: 4px;
+  border: none;
+  background: none;
+  color: var(--hub-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.hub-page .modal-close-btn:hover {
+  color: var(--hub-ink);
+}
+
+.hub-page .modal-body {
+  padding: 24px;
+}
+
+.hub-page .modal-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.hub-page .modal-form-group label {
+  color: var(--hub-muted);
+  font-size: 0.85rem;
+}
+
+.hub-page .modal-form-group input {
+  padding: 8px 12px;
+  border: 1px solid var(--modal-border);
+  border-radius: 4px;
+  background: var(--modal-field-bg);
+  color: var(--hub-ink);
+}
+
+.hub-page .modal-error {
+  margin: 0;
+  color: var(--modal-danger);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.hub-page .modal-error[hidden] {
+  display: none;
+}
+
+.hub-page .btn-primary {
+  padding: 8px 16px;
+  border: none;
+  border-radius: 4px;
+  background: var(--hub-accent);
+  color: var(--hub-accent-contrast);
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: opacity var(--hub-dur) var(--hub-ease);
+}
+
+.hub-page .btn-primary:hover {
+  opacity: 0.9;
+}
+
+.hub-page .btn-full {
+  width: 100%;
+}
+
+.hub-page .avatar-selectors {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 4px;
+}
+
+.hub-page .avatar-preset-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--modal-border);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+  font-size: 1.15rem;
+  cursor: pointer;
+  transition: background var(--hub-dur) var(--hub-ease), border-color var(--hub-dur) var(--hub-ease);
+}
+
+.hub-page .avatar-preset-btn:hover,
+.hub-page .avatar-preset-btn.is-selected {
+  border-color: var(--hub-accent);
+  background: rgba(238, 232, 221, 0.1);
+}
+
+.hub-page .settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.hub-page .settings-section h3 {
+  margin: 0;
+  color: var(--hub-ink);
+  font-family: var(--font-thai);
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.hub-page .profiles-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 180px;
+  overflow-y: auto;
+}
+
+.hub-page .profile-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border: 1px solid var(--modal-border);
+  border-radius: 4px;
+  background: rgba(0, 0, 0, 0.15);
+}
+
+.hub-page .profile-item-info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  font-size: 0.95rem;
+}
+
+.hub-page .profile-item-info .profile-icon {
+  width: 24px;
+  height: 24px;
+  font-size: 0.95rem;
+}
+
+.hub-page .profile-item.is-active {
+  border-color: var(--hub-accent);
+  background: color-mix(in srgb, var(--hub-accent) 8%, transparent);
+}
+
+.hub-page .profile-item.is-active::after {
+  content: "✓";
+  color: var(--hub-accent);
+  font-size: 0.95rem;
+  font-weight: bold;
+}
+
+.hub-page .profile-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.hub-page :is(.btn-switch, .btn-delete-profile) {
+  padding: 4px 8px;
+  border: none;
+  border-radius: 2px;
+  background: none;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.hub-page .btn-switch {
+  color: var(--hub-accent);
+}
+
+.hub-page .btn-delete-profile {
+  color: var(--modal-danger);
+}
+
+/* Theme picker: a light sheet, so the scene stays visible and live behind it. */
+.hub-page .hub-picker {
+  padding: 0;
+  background: rgba(10, 9, 8, 0.28);
+  backdrop-filter: none;
+}
+
+.hub-picker:not([data-open]) {
+  display: none;
+}
+
+.hub-page .hub-picker-card {
+  display: flex;
+  flex-direction: column;
+  max-width: 420px;
+}
+
+/* Only the body scrolls, so the title and "เสร็จ" stay in reach on short screens. */
+.hub-picker-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  padding: 16px 20px 20px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.hub-page .hub-picker-options {
+  display: grid;
+  gap: 8px;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.hub-picker-option {
+  display: grid;
+  grid-template-columns: auto auto minmax(0, 1fr);
+  gap: 4px 12px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid var(--modal-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.hub-picker-option:has(input:checked) {
+  border-color: var(--hub-accent);
+  background: color-mix(in srgb, var(--hub-accent) 8%, transparent);
+}
+
+.hub-picker-option input {
+  width: 18px;
+  height: 18px;
+  margin: 0;
+  accent-color: var(--hub-accent);
+}
+
+.hub-theme-swatch {
+  width: 72px;
+  height: 48px;
+  overflow: hidden;
+  border: 1px solid var(--modal-border);
+  border-radius: 6px;
+  background: linear-gradient(160deg, var(--hub-panel-strong), var(--hub-bg));
+}
+
+.hub-theme-swatch[data-swatch="auto"] {
+  background: conic-gradient(from 200deg, #2a2440, #3b5c6e, #6b4a2e, #1d2a1f, #2a2440);
+}
+
+.hub-picker-text {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+
+.hub-picker-name {
+  color: var(--hub-ink);
+  font-size: 1rem;
+  line-height: 1.4;
+}
+
+.hub-picker-blurb,
+.hub-picker-try {
+  color: var(--hub-muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.hub-picker-try {
+  color: var(--hub-faint);
+}
+
+.hub-picker-motion {
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--modal-border);
+}
+
+.hub-picker-motion[hidden] {
+  display: none;
+}
+
+.hub-page .hub-motion-switch {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  min-height: 44px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--hub-ink);
+  font-size: 0.95rem;
+  text-align: left;
+  cursor: pointer;
+}
+
+.hub-page .hub-motion-switch:disabled {
+  cursor: default;
+}
+
+.hub-motion-track {
+  position: relative;
+  flex: none;
+  width: 40px;
+  height: 24px;
+  border: 1px solid var(--hub-line-strong);
+  border-radius: 999px;
+  background: var(--modal-field-bg);
+}
+
+.hub-motion-track::after {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  content: "";
+  background: var(--hub-muted);
+  transition: translate var(--hub-dur) var(--hub-ease);
+}
+
+.hub-motion-switch[aria-checked="true"] .hub-motion-track {
+  border-color: var(--hub-accent);
+  background: color-mix(in srgb, var(--hub-accent) 30%, transparent);
+}
+
+.hub-motion-switch[aria-checked="true"] .hub-motion-track::after {
+  background: var(--hub-accent);
+  translate: 16px 0;
+}
+
+.hub-page .hub-picker-help {
+  margin: 0;
+  color: var(--hub-muted);
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+[data-motion-help="os"] {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-motion-help="user"] {
+    display: none;
+  }
+
+  [data-motion-help="os"] {
+    display: inline;
+  }
+}
+
+.hub-picker-foot {
+  display: flex;
+  flex: none;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid var(--modal-border);
+  background: var(--modal-bg);
+}
+
+.hub-page .hub-picker-done {
+  min-width: 96px;
+  min-height: 40px;
+}
+
+@media (min-width: 781px) {
+  .hub-page .hub-picker {
+    align-items: stretch;
+    justify-content: flex-end;
+  }
+
+  .hub-page .hub-picker-card {
+    height: 100%;
+    max-height: none;
+    border-width: 0 0 0 1px;
+    border-radius: 0;
+  }
+}
+
+@media (max-width: 780px) {
+  .hub-page .hub-picker {
+    align-items: safe end;
+    justify-content: center;
+  }
+
+  .hub-page .hub-picker-card {
+    max-width: none;
+    max-height: 70svh;
+    border-width: 1px 0 0;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+/* The small swatch leaves the option text a usable column on narrow phones. */
+@media (max-width: 400px) {
+  .hub-theme-swatch {
+    width: 40px;
+    height: 28px;
+  }
+}
+
+/* Picker switch wipes (spec 2.16, 8.3 item 1). Chrome sets data-hub-switch="<to>"
+   for the view transition and data-hub-wipe="off" where registered custom
+   properties or masks are missing; those switches keep the default crossfade.
+   Card media lose their transition names during a switch so the whole page
+   moves as one snapshot. */
+@property --hub-wipe {
+  syntax: "<number>";
+  inherits: false;
+  initial-value: 0;
+}
+
+:root[data-hub-switch] [data-astro-transition-scope] {
+  view-transition-name: none;
+}
+
+@supports (mask-image: linear-gradient(#000, #000)) {
+  :root[data-hub-switch]:not([data-hub-wipe="off"])::view-transition-old(root) {
+    mix-blend-mode: normal;
+    animation: none;
+  }
+
+  :root[data-hub-switch]:not([data-hub-wipe="off"])::view-transition-new(root) {
+    mix-blend-mode: normal;
+    animation: hub-wipe 450ms cubic-bezier(0.4, 0, 0.2, 1) both;
+  }
+
+  :root[data-hub-switch="pages-stars"]:not([data-hub-wipe="off"])::view-transition-new(root) {
+    mask-image: linear-gradient(240deg, #000 calc(var(--hub-wipe) * 130% - 18%), transparent calc(var(--hub-wipe) * 130%));
+  }
+
+  :root[data-hub-switch="skyglass"]:not([data-hub-wipe="off"])::view-transition-new(root) {
+    mask-image: linear-gradient(to left, #000 calc(var(--hub-wipe) * 125% - 14%), transparent calc(var(--hub-wipe) * 125%));
+  }
+
+  :root[data-hub-switch="constellation"]:not([data-hub-wipe="off"])::view-transition-new(root) {
+    mask-image: radial-gradient(
+      ellipse 150% 130% at 50% 0%,
+      #000 calc(var(--hub-wipe) * 115% - 15%),
+      transparent calc(var(--hub-wipe) * 115%)
+    );
+  }
+
+  :root[data-hub-switch="mothlight"]:not([data-hub-wipe="off"])::view-transition-new(root) {
+    mask-image: radial-gradient(
+      circle at var(--hub-wipe-x, 50%) var(--hub-wipe-y, 100%),
+      #000 calc(var(--hub-wipe) * 150vmax - 10vmax),
+      transparent calc(var(--hub-wipe) * 150vmax)
+    );
+  }
+
+  :root[data-hub-switch="firefly"]:not([data-hub-wipe="off"])::view-transition-new(root) {
+    mask-image: linear-gradient(to right, #000 calc(var(--hub-wipe) * 125% - 14%), transparent calc(var(--hub-wipe) * 125%));
+  }
+}
+
+@keyframes hub-wipe {
+  from {
+    --hub-wipe: 0;
+  }
+
+  to {
+    --hub-wipe: 1;
+  }
 }
 
 @keyframes hub-card-drift {
@@ -450,23 +1865,108 @@
   }
 }
 
+@keyframes hub-modal-fade {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes hub-modal-rise {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Touch targets: every restyled control is at least 44x44 on coarse pointers. */
+@media (pointer: coarse) {
+  .hub-page .hub-profile-widget {
+    padding: 2px 2px 2px 4px;
+  }
+
+  .hub-page :is(.hub-profile-edit-btn, .hub-profile-settings-btn),
+  .hub-page :is(.btn-switch, .btn-delete-profile),
+  .hub-page .modal-close-btn,
+  .hub-page .avatar-preset-btn {
+    min-width: 44px;
+    min-height: 44px;
+  }
+
+  .hub-page .avatar-preset-btn {
+    width: 44px;
+    height: 44px;
+  }
+
+  .hub-page :is(.hub-theme-btn, .hub-pick-btn, .hub-footer-picker, .hub-picker-done, .btn-primary),
+  .hub-picker-option,
+  .novel-card-continue,
+  .resume-card-actions :is(a, button) {
+    min-height: 44px;
+  }
+
+  .hub-page .hub-footer-next-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+/* Narrow: desktop layout with a gutter under 120px. */
+@media (max-width: 1319.98px) {
+  .hub-page {
+    --hub-edge: 20px;
+    --hub-col-gap: 28px;
+    --hub-row-gap: 48px;
+    --hub-media-h: 270px;
+    --hub-card-min-h: 500px;
+  }
+}
+
+/* Phone */
 @media (max-width: 780px) {
   .hub-page {
+    --hub-shell-max: 620px;
+    --hub-edge: 16px;
+    --hub-row-gap: 32px;
+    --hub-media-h: 230px;
+    --hub-card-min-h: 0px;
+    --hub-stage-h: clamp(96px, 16svh, 150px);
+    --hub-mid-h: clamp(120px, 18svh, 160px);
+    --hub-ground-h: clamp(160px, 28svh, 240px);
+    --hub-shell-pt: 24px;
+    --hub-h1-size: clamp(2.2rem, 11vw, 3rem);
+    --hub-h1-lh: 1.02;
+
     font-size: 16px;
   }
 
-  .hub-shell {
-    width: min(100% - 24px, 620px);
-    padding-top: 38px;
+  .hub-topbar {
+    margin-bottom: 14px;
+  }
+
+  .hub-side-col {
+    display: none;
   }
 
   .hub-hero,
   .hub-library,
-  .resume-card {
+  .resume-card,
+  .hub-start {
     grid-template-columns: 1fr;
   }
 
+  /* The single column never grows past the shell for a wide title font. */
   .hub-hero {
+    grid-template-columns: minmax(0, 1fr);
     gap: 18px;
     min-height: 0;
     padding-bottom: 22px;
@@ -477,35 +1977,21 @@
     inset: -32px -12px -8px;
   }
 
-  .hub-title-group h1 {
-    font-size: 3rem;
-    line-height: 1.02;
-  }
-
   .hub-title-group p {
     margin-top: 18px;
     font-size: 1rem;
   }
 
-
-  .resume-card-actions {
+  .resume-card-actions,
+  .hub-start-actions {
     width: 100%;
   }
 
   .resume-card-actions a,
-  .resume-card-actions button {
+  .resume-card-actions button,
+  .hub-start-actions .hub-pick-btn {
     flex: 1;
     text-align: center;
-  }
-
-  .novel-card {
-    min-height: 0;
-  }
-
-  .novel-card-media,
-  .novel-card-media img,
-  .novel-card-placeholder {
-    height: 230px;
   }
 
   .novel-card-title {
@@ -518,40 +2004,117 @@
     height: auto;
     -webkit-line-clamp: none;
   }
+}
 
-  .hub-footer {
-    display: block;
+@media (max-width: 340px) {
+  .hub-page {
+    --hub-media-h: 200px;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .novel-card,
-  .novel-card-continue,
-  .resume-card-actions a,
-  .resume-card-actions button {
-    transition: none;
+/* Compact resume card on very small or short portrait screens. */
+@media (max-width: 360px), (max-height: 600px) and (orientation: portrait) {
+  .resume-card,
+  .hub-start {
+    gap: 10px;
+    padding: 12px 14px;
   }
 
-  .novel-card:hover .novel-card-media img,
-  .novel-card:focus-visible .novel-card-media img {
-    animation: none;
+  .resume-card-copy {
+    display: flex;
+    flex-wrap: wrap;
+    column-gap: 8px;
+    align-items: baseline;
+  }
+
+  .resume-card-copy .resume-card-kicker {
+    display: inline;
+  }
+
+  .resume-card h2 {
+    margin: 0;
+    font-size: 1.15rem;
+  }
+
+  .resume-card-copy p {
+    flex-basis: 100%;
+    margin-top: 4px;
+  }
+
+  .resume-card small {
+    flex-basis: 100%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+
+  .resume-card-actions {
+    flex-wrap: nowrap;
+  }
+
+  .resume-card-actions :is(a, button) {
+    min-height: 44px;
+    padding: 8px 12px;
+  }
+
+  .hub-start h2 {
+    margin-top: 2px;
+    font-size: 1.15rem;
+  }
+
+  .hub-start p {
+    margin-top: 4px;
+    font-size: 0.9rem;
   }
 }
 
-/* Landscape phones: the first screen shows the title, the subtitle and the
-   start of the resume card or library. The profile chip moves up beside the
-   title and the side note, which only restates the subtitle, steps aside. */
+/* Landscape-short comes last so it overrides the phone and narrow blocks. The
+   first screen shows the title, the subtitle and the start of the resume card or
+   library; the profile chip moves up beside the title and the side note, which
+   only restates the subtitle, steps aside. */
 @media (orientation: landscape) and (max-height: 500px) {
-  .hub-shell {
-    padding-top: 14px;
+  .hub-page {
+    --hub-shell-max: 1080px;
+    --hub-edge: 20px;
+    --hub-col-gap: 24px;
+    --hub-row-gap: 32px;
+    --hub-media-h: min(230px, 52svh);
+    --hub-card-min-h: 0px;
+    --hub-stage-h: 96px;
+    --hub-mid-h: 110px;
+    --hub-ground-h: 140px;
+    --hub-shell-pt: 14px;
+    --hub-h1-size: clamp(2.1rem, 11svh, 2.8rem);
+    --hub-h1-lh: 1.05;
   }
 
   .hub-page .hub-shell .hub-topbar {
     position: absolute;
-    top: 12px;
+    top: 8px;
     right: 0;
     z-index: 3;
     margin: 0;
+  }
+
+  .hub-page .hub-topbar .hub-kicker,
+  .hub-theme-btn-text,
+  .hub-theme-btn-place {
+    display: none;
+  }
+
+  .hub-page .hub-topbar .hub-theme-btn {
+    justify-content: center;
+    width: 44px;
+    min-height: 44px;
+    padding: 0;
+  }
+
+  .hub-page .hub-profile-widget {
+    padding-block: 0;
+  }
+
+  .hub-page .profile-name {
+    max-width: 7.5em;
   }
 
   .hub-hero {
@@ -565,9 +2128,7 @@
   }
 
   .hub-title-group h1 {
-    font-size: clamp(2.1rem, 11svh, 2.8rem);
-    line-height: 1.05;
-    white-space: nowrap;
+    width: fit-content;
   }
 
   .hub-title-group p {
@@ -577,18 +2138,71 @@
     line-height: 1.6;
   }
 
-  .resume-card {
+  .resume-card,
+  .hub-start {
+    grid-template-columns: minmax(0, 1fr) auto;
     margin-bottom: 16px;
     padding: 12px 16px;
   }
 
-  .resume-card h2 {
+  .resume-card-actions,
+  .hub-start-actions {
+    flex: none;
+    width: auto;
+  }
+
+  .resume-card-actions :is(a, button),
+  .hub-start-actions .hub-pick-btn {
+    flex: none;
+    white-space: nowrap;
+  }
+
+  .resume-card h2,
+  .hub-start h2 {
     font-size: 1.3rem;
   }
 
-  .novel-card-media,
-  .novel-card-media img,
-  .novel-card-placeholder {
-    height: min(230px, 52svh);
+  .hub-window-stage {
+    margin-bottom: 8px;
+  }
+
+  .hub-page .modal-header {
+    padding: 10px 20px;
+  }
+
+  .hub-page .modal-body {
+    padding: 16px 20px;
+  }
+
+  /* Each picker option is one line: a small swatch and the name. */
+  .hub-picker-option {
+    padding: 6px 10px;
+  }
+
+  .hub-theme-swatch {
+    width: 40px;
+    height: 28px;
+  }
+
+  .hub-picker-blurb,
+  .hub-picker-try {
+    display: none;
+  }
+
+  .hub-picker-body {
+    padding: 10px 16px 12px;
+  }
+
+  .hub-page .hub-picker-head {
+    padding: 10px 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .novel-card,
+  .novel-card-continue,
+  .resume-card-actions a,
+  .resume-card-actions button {
+    transition: none;
   }
 }
